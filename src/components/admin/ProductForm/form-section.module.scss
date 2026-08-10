@@ -1,0 +1,202 @@
+@use "../../../styles/tokens" as *;
+@use "../../../styles/mixins" as *;
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+  padding-block: $spacing-lg;
+  border-top: 1px solid $color-border;
+
+  &:first-child {
+    border-top: none;
+    padding-top: 0;
+  }
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.fieldGrid {
+  display: grid;
+  gap: $spacing-md;
+
+  @include tablet-up {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+}
+
+.label {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+}
+
+.input,
+.select,
+.textarea {
+  width: 100%;
+  padding: $spacing-sm $spacing-md;
+  font: inherit;
+  color: $color-text-primary;
+  background-color: $color-background;
+  border: 1px solid $color-border;
+  border-radius: $radius-sm;
+
+  @include focus-visible;
+}
+
+.textarea {
+  min-height: 6rem;
+  resize: vertical;
+}
+
+.fieldError {
+  margin: 0;
+  font-size: $font-size-sm;
+  color: $color-accent;
+}
+
+.formError,
+.formSuccess {
+  margin: 0;
+  padding: $spacing-sm $spacing-md;
+  font-size: $font-size-sm;
+  border: 1px solid $color-border;
+}
+
+.formError {
+  color: $color-text-primary;
+  background-color: $color-surface;
+}
+
+.formSuccess {
+  color: $color-text-primary;
+  background-color: $color-background-subtle;
+}
+
+.checkboxRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-lg;
+}
+
+.checkboxLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-sm;
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-md;
+  padding-top: $spacing-lg;
+  border-top: 1px solid $color-border;
+}
+
+.submitButton,
+.cancelLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  padding-inline: $spacing-lg;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  text-decoration: none;
+}
+
+.submitButton {
+  color: $color-background;
+  background-color: $color-text-primary;
+  border: 1px solid $color-text-primary;
+  cursor: pointer;
+
+  @include focus-visible;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.cancelLink {
+  color: $color-text-secondary;
+  border: 1px solid $color-border;
+
+  @include focus-visible;
+}
+
+.nestedCard {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  padding: $spacing-md;
+  background-color: $color-background-subtle;
+  border: 1px solid $color-border;
+}
+
+.row,
+.inlineRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-md;
+  align-items: flex-end;
+}
+
+.inlineRow .field {
+  flex: 1;
+  min-width: 10rem;
+}
+
+.subsection {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.subheading {
+  margin: 0;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text-secondary;
+}
+
+.addButton,
+.removeButton {
+  width: fit-content;
+  padding: 0;
+  font: inherit;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+
+  @include focus-visible;
+}
+
+.fullWidth {
+  grid-column: 1 / -1;
+}

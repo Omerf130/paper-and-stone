@@ -1,0 +1,24 @@
+@use "../../styles/tokens" as *;
+@use "../../styles/mixins" as *;
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: $spacing-xl;
+  list-style: none;
+
+  @include tablet-up {
+    grid-template-columns: repeat(2, 1fr);
+    gap: $spacing-lg;
+  }
+
+  @include wide-up {
+    grid-template-columns: repeat(3, 1fr);
+    gap: $spacing-lg;
+  }
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+}

@@ -1,0 +1,39 @@
+@use "../../../styles/tokens" as *;
+
+.frame {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 16rem;
+  padding: $spacing-xl;
+  background-color: $color-background;
+  border: 1px solid $color-border;
+  color: $color-text-secondary;
+
+  @media (min-width: $breakpoint-tablet) {
+    min-height: 20rem;
+  }
+
+  @media (min-width: $breakpoint-desktop) {
+    min-height: 24rem;
+  }
+}
+
+.drawing {
+  width: 100%;
+  max-width: 26rem;
+  height: auto;
+}
+
+.label {
+  font-size: 12px;
+  fill: currentColor;
+  font-family: system-ui, sans-serif;
+}
+
+.labelSmall {
+  font-size: 10px;
+  fill: currentColor;
+  font-family: system-ui, sans-serif;
+}

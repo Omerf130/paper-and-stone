@@ -1,0 +1,70 @@
+@use "../../../styles/tokens" as *;
+@use "../../../styles/mixins" as *;
+@use "../../../styles/typography" as *;
+
+.hero {
+  padding-block: $spacing-xl $spacing-3xl;
+
+  @include tablet-up {
+    padding-block: $spacing-2xl $spacing-4xl;
+  }
+}
+
+.layout {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2xl;
+
+  @include desktop-up {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.65fr);
+    grid-template-rows: auto auto;
+    gap: $spacing-xl $spacing-3xl;
+    align-items: end;
+  }
+}
+
+.visual {
+  order: 1;
+  width: 100%;
+
+  @include desktop-up {
+    grid-column: 1;
+    grid-row: 1 / 3;
+    align-self: stretch;
+  }
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+  order: 2;
+  max-width: 34rem;
+
+  @include desktop-up {
+    grid-column: 2;
+    grid-row: 2;
+    padding-block-end: $spacing-lg;
+    max-width: none;
+  }
+}
+
+.eyebrow {
+  @include eyebrow;
+}
+
+.heading {
+  @include editorialHeading;
+}
+
+.supporting {
+  @include sectionSupporting;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-md;
+  margin-block-start: $spacing-sm;
+}

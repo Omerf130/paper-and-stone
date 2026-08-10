@@ -1,0 +1,56 @@
+@use "../../styles/tokens" as *;
+@use "../../styles/mixins" as *;
+
+.auth {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+}
+
+.link,
+.secondaryLink,
+.logoutButton {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  text-decoration: none;
+  white-space: nowrap;
+
+  @include focus-visible;
+}
+
+.link {
+  color: $color-text-primary;
+}
+
+.secondaryLink {
+  display: none;
+
+  @include tablet-up {
+    display: inline;
+  }
+}
+
+.accountLabel {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  white-space: nowrap;
+}
+
+.logoutButton {
+  padding: 0;
+  font: inherit;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.adminLink {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  text-decoration: none;
+  white-space: nowrap;
+
+  @include focus-visible;
+}

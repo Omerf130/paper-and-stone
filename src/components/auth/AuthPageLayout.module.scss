@@ -1,0 +1,34 @@
+@use "../../styles/tokens" as *;
+@use "../../styles/typography" as *;
+
+.section {
+  padding-block: $spacing-3xl;
+}
+
+.inner {
+  max-width: 28rem;
+  margin-inline: auto;
+}
+
+.header {
+  margin-block-end: $spacing-2xl;
+  text-align: center;
+}
+
+.title {
+  @include sectionHeading;
+  margin: 0 0 $spacing-sm;
+}
+
+.description {
+  margin: 0;
+  font-size: $font-size-base;
+  line-height: $line-height-relaxed;
+  color: $color-text-secondary;
+}
+
+.content {
+  padding: $spacing-xl;
+  background-color: $color-background-subtle;
+  border: 1px solid $color-border;
+}

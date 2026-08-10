@@ -1,0 +1,47 @@
+@use "tokens" as *;
+
+@mixin eyebrow {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  letter-spacing: $letter-spacing-wide;
+  text-transform: uppercase;
+  color: $color-accent;
+}
+
+@mixin editorialHeading {
+  font-size: $font-size-2xl;
+  font-weight: $font-weight-semibold;
+  line-height: $line-height-tight;
+  letter-spacing: $letter-spacing-tight;
+  color: $color-text-primary;
+
+  @media (min-width: $breakpoint-tablet) {
+    font-size: $font-size-3xl;
+  }
+
+  @media (min-width: $breakpoint-desktop) {
+    font-size: $font-size-display;
+  }
+}
+
+@mixin sectionHeading {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-semibold;
+  line-height: $line-height-tight;
+  letter-spacing: $letter-spacing-tight;
+  color: $color-text-primary;
+
+  @media (min-width: $breakpoint-tablet) {
+    font-size: $font-size-2xl;
+  }
+}
+
+@mixin sectionSupporting {
+  font-size: $font-size-base;
+  line-height: $line-height-relaxed;
+  color: $color-text-secondary;
+
+  @media (min-width: $breakpoint-tablet) {
+    font-size: $font-size-lg;
+  }
+}

@@ -1,0 +1,8 @@
+@use "../../styles/tokens" as *;
+
+.container {
+  width: 100%;
+  max-width: $container-max-width;
+  margin-inline: auto;
+  padding-inline: $container-padding-inline;
+}

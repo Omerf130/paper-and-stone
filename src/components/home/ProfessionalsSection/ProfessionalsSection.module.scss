@@ -1,0 +1,68 @@
+@use "../../../styles/tokens" as *;
+@use "../../../styles/mixins" as *;
+@use "../../../styles/typography" as *;
+
+.section {
+  border-block: 1px solid $color-border;
+}
+
+.intro {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  margin-block-end: $spacing-2xl;
+  max-width: 36rem;
+}
+
+.heading {
+  @include sectionHeading;
+}
+
+.supporting {
+  @include sectionSupporting;
+}
+
+.steps {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: $spacing-lg;
+  margin-block-end: $spacing-2xl;
+  list-style: none;
+  counter-reset: none;
+
+  @include tablet-up {
+    grid-template-columns: repeat(2, 1fr);
+    gap: $spacing-xl $spacing-2xl;
+  }
+
+  @include desktop-up {
+    grid-template-columns: repeat(4, 1fr);
+    gap: $spacing-xl;
+  }
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  padding-block-start: $spacing-md;
+  border-block-start: 1px solid $color-border;
+}
+
+.stepNumber {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  letter-spacing: $letter-spacing-wide;
+  color: $color-accent;
+}
+
+.stepTitle {
+  font-size: $font-size-base;
+  font-weight: $font-weight-medium;
+  line-height: $line-height-relaxed;
+  color: $color-text-primary;
+
+  @include tablet-up {
+    font-size: $font-size-lg;
+  }
+}

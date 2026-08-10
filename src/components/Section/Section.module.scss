@@ -1,0 +1,13 @@
+@use "../../styles/tokens" as *;
+
+.section {
+  padding-block: $spacing-3xl;
+
+  @media (min-width: $breakpoint-tablet) {
+    padding-block: $spacing-4xl;
+  }
+}
+
+.fullWidth {
+  composes: section;
+}

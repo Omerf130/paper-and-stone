@@ -1,0 +1,101 @@
+@use "../../styles/tokens" as *;
+@use "../../styles/mixins" as *;
+
+.footer {
+  margin-block-start: auto;
+  padding-block: $spacing-3xl $spacing-xl;
+  background-color: $color-background-subtle;
+  border-top: 1px solid $color-border;
+}
+
+.top {
+  display: grid;
+  gap: $spacing-2xl;
+
+  @include tablet-up {
+    grid-template-columns: 1fr 2fr;
+    gap: $spacing-3xl;
+  }
+
+  @include desktop-up {
+    grid-template-columns: 1.2fr 2fr 1fr;
+  }
+}
+
+.brand {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.wordmark {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  letter-spacing: $letter-spacing-tight;
+  color: $color-text-primary;
+}
+
+.tagline {
+  max-width: 16rem;
+  font-size: $font-size-sm;
+  line-height: $line-height-relaxed;
+  color: $color-text-secondary;
+}
+
+.navGroups {
+  display: grid;
+  gap: $spacing-xl;
+
+  @include tablet-up {
+    grid-template-columns: repeat(3, 1fr);
+    gap: $spacing-lg;
+  }
+}
+
+.navGroup {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.navTitle {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  letter-spacing: $letter-spacing-wide;
+  text-transform: uppercase;
+  color: $color-text-secondary;
+}
+
+.navList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  list-style: none;
+}
+
+.navLink {
+  font-size: $font-size-sm;
+}
+
+.contact {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.contactText {
+  font-size: $font-size-sm;
+  line-height: $line-height-relaxed;
+  color: $color-text-secondary;
+}
+
+.bottom {
+  margin-block-start: $spacing-2xl;
+  padding-block-start: $spacing-lg;
+  border-top: 1px solid $color-border;
+}
+
+.copyright {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+}

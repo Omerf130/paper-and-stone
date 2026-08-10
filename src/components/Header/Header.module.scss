@@ -1,0 +1,95 @@
+@use "../../styles/tokens" as *;
+@use "../../styles/mixins" as *;
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: $z-index-header;
+  background-color: $color-background;
+  border-bottom: 1px solid $color-border;
+  box-shadow: $shadow-header;
+}
+
+.inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-lg;
+  min-height: $header-height-mobile;
+
+  @include desktop-up {
+    min-height: $header-height-desktop;
+  }
+}
+
+.wordmark {
+  flex-shrink: 0;
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  letter-spacing: $letter-spacing-tight;
+  color: $color-text-primary;
+  text-decoration: none;
+  white-space: nowrap;
+
+  @include focus-visible;
+
+  @include tablet-up {
+    font-size: $font-size-lg;
+  }
+}
+
+.desktopNav {
+  display: none;
+  flex: 1;
+  justify-content: center;
+
+  @include desktop-up {
+    display: block;
+  }
+}
+
+.navList {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-md $spacing-lg;
+  list-style: none;
+}
+
+.actions {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: $spacing-md;
+}
+
+.searchButton {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  color: $color-text-primary;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+
+  @include focus-visible;
+
+  @include desktop-up {
+    display: inline-flex;
+  }
+}
+
+.account {
+  display: none;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  white-space: nowrap;
+
+  @include desktop-up {
+    display: block;
+  }
+}

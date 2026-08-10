@@ -1,0 +1,84 @@
+@use "../../../styles/tokens" as *;
+@use "../../../styles/mixins" as *;
+@use "../../../styles/typography" as *;
+
+.section {
+  background-color: $color-background-subtle;
+}
+
+.header {
+  margin-block-end: $spacing-2xl;
+}
+
+.heading {
+  @include sectionHeading;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: $spacing-xl;
+  list-style: none;
+
+  @include tablet-up {
+    grid-template-columns: repeat(2, 1fr);
+    gap: $spacing-lg;
+  }
+
+  @include wide-up {
+    grid-template-columns: repeat(4, 1fr);
+    gap: $spacing-lg;
+  }
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.link {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  color: inherit;
+  text-decoration: none;
+
+  @include focus-visible;
+
+  &:hover .name {
+    color: $color-accent;
+  }
+}
+
+.placeholder {
+  width: 100%;
+}
+
+.meta {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+}
+
+.name {
+  font-size: $font-size-base;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+
+  @include tablet-up {
+    font-size: $font-size-lg;
+  }
+}
+
+.category {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.brand {
+  font-size: $font-size-xs;
+  letter-spacing: $letter-spacing-wide;
+  text-transform: uppercase;
+  color: $color-text-secondary;
+}

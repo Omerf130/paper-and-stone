@@ -1,0 +1,19 @@
+@use "../../../styles/tokens" as *;
+@use "../../../styles/typography" as *;
+
+.section {
+  background-color: $color-background-subtle;
+}
+
+.content {
+  max-width: 40rem;
+}
+
+.heading {
+  @include sectionHeading;
+  margin-block-end: $spacing-lg;
+}
+
+.text {
+  @include sectionSupporting;
+}

@@ -1,0 +1,99 @@
+@use "../../../styles/tokens" as *;
+
+.frame {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 16rem;
+  padding: $spacing-xl;
+  background-color: $color-placeholder-subtle;
+  border: 1px solid $color-border;
+
+  @media (min-width: $breakpoint-tablet) {
+    min-height: 20rem;
+  }
+
+  @media (min-width: $breakpoint-desktop) {
+    min-height: 24rem;
+  }
+}
+
+.sofa {
+  width: 100%;
+  max-width: 28rem;
+  height: auto;
+}
+
+.base {
+  fill: #d4d0cb;
+}
+
+.seat,
+.armLeft,
+.armRight,
+.back,
+.cushion {
+  transition: fill $transition-fast;
+}
+
+// Demo tone mappings — internal only, not exposed in UI
+.toneBlue {
+  .seat,
+  .armLeft,
+  .armRight,
+  .back,
+  .cushion {
+    fill: #4a6fa5;
+  }
+}
+
+.toneMustard {
+  .seat,
+  .armLeft,
+  .armRight,
+  .back,
+  .cushion {
+    fill: #c4a035;
+  }
+}
+
+.toneGray {
+  .seat,
+  .armLeft,
+  .armRight,
+  .back,
+  .cushion {
+    fill: #8a8a8a;
+  }
+}
+
+.toneNatural {
+  .seat,
+  .armLeft,
+  .armRight,
+  .back,
+  .cushion {
+    fill: #d4c4a8;
+  }
+}
+
+.toneStone {
+  .seat,
+  .armLeft,
+  .armRight,
+  .back,
+  .cushion {
+    fill: #a8a098;
+  }
+}
+
+.toneSage {
+  .seat,
+  .armLeft,
+  .armRight,
+  .back,
+  .cushion {
+    fill: #7a9a7e;
+  }
+}

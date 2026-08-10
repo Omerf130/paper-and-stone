@@ -1,0 +1,48 @@
+@use "../../styles/tokens" as *;
+@use "../../styles/mixins" as *;
+
+.link {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  color: inherit;
+  text-decoration: none;
+
+  @include focus-visible;
+
+  &:hover .name {
+    color: $color-accent;
+  }
+}
+
+.placeholder {
+  width: 100%;
+}
+
+.meta {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+}
+
+.name {
+  font-size: $font-size-base;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+
+  @include tablet-up {
+    font-size: $font-size-lg;
+  }
+}
+
+.category {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.brand {
+  font-size: $font-size-xs;
+  letter-spacing: $letter-spacing-wide;
+  text-transform: uppercase;
+  color: $color-text-secondary;
+}

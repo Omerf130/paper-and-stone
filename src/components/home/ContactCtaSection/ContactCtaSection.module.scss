@@ -1,0 +1,28 @@
+@use "../../../styles/tokens" as *;
+@use "../../../styles/mixins" as *;
+@use "../../../styles/typography" as *;
+
+.section {
+  background-color: $color-background-subtle;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+  max-width: 32rem;
+  padding-block: $spacing-lg;
+
+  @include desktop-up {
+    max-width: 40rem;
+    padding-block: $spacing-xl;
+  }
+}
+
+.heading {
+  @include sectionHeading;
+}
+
+.supporting {
+  @include sectionSupporting;
+}

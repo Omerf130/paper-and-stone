@@ -1,0 +1,86 @@
+@use "../../styles/tokens" as *;
+@use "../../styles/mixins" as *;
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-sm;
+  padding-block: 0.75rem;
+  padding-inline: 1.5rem;
+  font-family: inherit;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  border: 1px solid transparent;
+  border-radius: $radius-sm;
+  cursor: pointer;
+  text-decoration: none;
+  transition:
+    background-color $transition-fast,
+    border-color $transition-fast,
+    color $transition-fast;
+  white-space: nowrap;
+
+  @include focus-visible;
+}
+
+.primary {
+  composes: button;
+  color: $color-background;
+  background-color: $color-text-primary;
+  border-color: $color-text-primary;
+
+  &:hover:not(:disabled) {
+    background-color: #333333;
+    border-color: #333333;
+  }
+}
+
+.secondary {
+  composes: button;
+  color: $color-text-primary;
+  background-color: transparent;
+  border-color: $color-border;
+
+  &:hover:not(:disabled) {
+    border-color: $color-text-primary;
+  }
+}
+
+.text {
+  composes: button;
+  padding-block: $spacing-sm;
+  padding-inline: 0;
+  color: $color-text-primary;
+  background-color: transparent;
+  border-color: transparent;
+  border-radius: 0;
+
+  &:hover:not(:disabled) {
+    color: $color-accent;
+  }
+}
+
+.preview {
+  composes: button;
+  cursor: default;
+  opacity: 0.85;
+}
+
+.previewPrimary {
+  composes: primary;
+  composes: preview;
+}
+
+.previewSecondary {
+  composes: secondary;
+  composes: preview;
+}
+
+.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}

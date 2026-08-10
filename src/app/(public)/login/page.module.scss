@@ -1,0 +1,14 @@
+@use "../../../styles/tokens" as *;
+
+.switch {
+  margin: 0;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  text-align: center;
+}
+
+.switchLink {
+  color: $color-text-primary;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}

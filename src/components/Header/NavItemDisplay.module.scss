@@ -1,0 +1,21 @@
+@use "../../styles/tokens" as *;
+@use "../../styles/mixins" as *;
+
+.item {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-normal;
+  color: $color-text-primary;
+  text-decoration: none;
+  transition: color $transition-fast;
+
+  @include focus-visible;
+}
+
+a.item:hover {
+  color: $color-accent;
+}
+
+span.item {
+  color: $color-text-secondary;
+  cursor: default;
+}

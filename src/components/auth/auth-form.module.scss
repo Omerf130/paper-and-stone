@@ -1,0 +1,70 @@
+@use "../../styles/tokens" as *;
+@use "../../styles/mixins" as *;
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+}
+
+.label {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+}
+
+.input {
+  width: 100%;
+  padding: $spacing-sm $spacing-md;
+  font: inherit;
+  color: $color-text-primary;
+  background-color: $color-background;
+  border: 1px solid $color-border;
+  border-radius: $radius-sm;
+
+  @include focus-visible;
+
+  &[aria-invalid="true"] {
+    border-color: $color-accent;
+  }
+}
+
+.fieldError {
+  margin: 0;
+  font-size: $font-size-sm;
+  color: $color-accent;
+}
+
+.formError {
+  margin: 0;
+  padding: $spacing-sm $spacing-md;
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  background-color: $color-surface;
+  border: 1px solid $color-border;
+}
+
+.submit {
+  width: 100%;
+  padding: $spacing-md $spacing-lg;
+  font: inherit;
+  font-weight: $font-weight-medium;
+  color: $color-background;
+  background-color: $color-text-primary;
+  border: none;
+  cursor: pointer;
+  transition: opacity $transition-fast;
+
+  @include focus-visible;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}

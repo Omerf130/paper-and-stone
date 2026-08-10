@@ -1,0 +1,112 @@
+@use "../../../styles/tokens" as *;
+@use "../../../styles/mixins" as *;
+@use "../../../styles/typography" as *;
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  margin-block-end: $spacing-2xl;
+  max-width: 32rem;
+}
+
+.heading {
+  @include sectionHeading;
+}
+
+.supporting {
+  @include sectionSupporting;
+  font-size: $font-size-base;
+
+  @include tablet-up {
+    font-size: $font-size-base;
+  }
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: $spacing-lg;
+  list-style: none;
+
+  @include tablet-up {
+    grid-template-columns: repeat(2, 1fr);
+    gap: $spacing-md;
+  }
+
+  @include desktop-up {
+    grid-template-columns: repeat(12, 1fr);
+    grid-template-rows: repeat(2, auto);
+    gap: $spacing-md;
+  }
+}
+
+.tileLarge,
+.tileMedium {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.tileLarge {
+  @include desktop-up {
+    grid-column: span 6;
+  }
+
+  &:first-child {
+    @include desktop-up {
+      grid-column: span 7;
+      grid-row: span 2;
+    }
+  }
+
+  &:nth-child(4) {
+    @include desktop-up {
+      grid-column: span 5;
+    }
+  }
+}
+
+.tileMedium {
+  @include desktop-up {
+    grid-column: span 5;
+  }
+
+  &:nth-child(2) {
+    @include desktop-up {
+      grid-column: span 5;
+    }
+  }
+
+  &:nth-child(3) {
+    @include desktop-up {
+      grid-column: span 4;
+    }
+  }
+
+  &:nth-child(5) {
+    @include desktop-up {
+      grid-column: span 4;
+    }
+  }
+
+  &:nth-child(6) {
+    @include desktop-up {
+      grid-column: span 3;
+    }
+  }
+}
+
+.placeholder {
+  flex: 1;
+}
+
+.label {
+  font-size: $font-size-base;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+
+  @include tablet-up {
+    font-size: $font-size-lg;
+  }
+}

@@ -1,0 +1,40 @@
+@use "../../styles/tokens" as *;
+
+.placeholder {
+  width: 100%;
+  background-color: $color-placeholder;
+  border: 1px solid $color-border;
+}
+
+.subtle {
+  background-color: $color-placeholder-subtle;
+}
+
+.square {
+  aspect-ratio: 1 / 1;
+}
+
+.portrait {
+  aspect-ratio: 3 / 4;
+}
+
+.landscape {
+  aspect-ratio: 4 / 3;
+}
+
+.wide {
+  aspect-ratio: 16 / 9;
+}
+
+.hero {
+  aspect-ratio: 5 / 4;
+
+  @media (min-width: $breakpoint-tablet) {
+    aspect-ratio: 16 / 10;
+  }
+
+  @media (min-width: $breakpoint-desktop) {
+    aspect-ratio: 21 / 9;
+    min-height: 28rem;
+  }
+}

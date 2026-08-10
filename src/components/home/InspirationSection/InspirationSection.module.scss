@@ -1,0 +1,88 @@
+@use "../../../styles/tokens" as *;
+@use "../../../styles/mixins" as *;
+@use "../../../styles/typography" as *;
+
+.header {
+  margin-block-end: $spacing-2xl;
+}
+
+.heading {
+  @include sectionHeading;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: $spacing-xl;
+  list-style: none;
+
+  @include tablet-up {
+    grid-template-columns: repeat(2, 1fr);
+    gap: $spacing-lg;
+  }
+
+  @include desktop-up {
+    grid-template-columns: repeat(12, 1fr);
+    grid-template-rows: auto auto;
+    gap: $spacing-md;
+  }
+}
+
+.itemFeatured,
+.itemStandard {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.itemFeatured {
+  @include desktop-up {
+    grid-column: span 8;
+    grid-row: span 2;
+  }
+}
+
+.itemStandard {
+  @include desktop-up {
+    grid-column: span 4;
+  }
+
+  &:nth-child(2) {
+    @include desktop-up {
+      grid-column: 9 / span 4;
+      grid-row: 1;
+    }
+  }
+
+  &:nth-child(3) {
+    @include desktop-up {
+      grid-column: 9 / span 4;
+      grid-row: 2;
+    }
+  }
+}
+
+.placeholder {
+  width: 100%;
+}
+
+.meta {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+}
+
+.title {
+  font-size: $font-size-base;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+
+  @include tablet-up {
+    font-size: $font-size-lg;
+  }
+}
+
+.subtitle {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}

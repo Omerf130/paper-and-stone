@@ -1,0 +1,49 @@
+@use "../../../styles/tokens" as *;
+@use "../../../styles/mixins" as *;
+@use "../../../styles/typography" as *;
+
+.layout {
+  display: grid;
+  gap: $spacing-2xl;
+  align-items: center;
+
+  @include desktop-up {
+    grid-template-columns: 1fr minmax(16rem, 0.75fr);
+    gap: $spacing-3xl;
+  }
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+  max-width: 36rem;
+}
+
+.heading {
+  @include sectionHeading;
+}
+
+.lead {
+  font-size: $font-size-lg;
+  line-height: $line-height-relaxed;
+  color: $color-text-primary;
+
+  @include tablet-up {
+    font-size: $font-size-xl;
+  }
+}
+
+.body {
+  @include sectionSupporting;
+}
+
+.visual {
+  width: 100%;
+  max-width: 24rem;
+
+  @include desktop-up {
+    max-width: none;
+    justify-self: end;
+  }
+}

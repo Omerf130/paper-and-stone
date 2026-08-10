@@ -1,0 +1,32 @@
+@use "../../../styles/tokens" as *;
+@use "../../../styles/typography" as *;
+
+.section {
+  padding-block: $spacing-3xl;
+}
+
+.header {
+  margin-block-end: $spacing-2xl;
+}
+
+.title {
+  @include sectionHeading;
+  margin: 0 0 $spacing-sm;
+}
+
+.description {
+  margin: 0;
+  font-size: $font-size-base;
+  line-height: $line-height-relaxed;
+  color: $color-text-secondary;
+}
+
+.empty {
+  margin: 0;
+  padding: $spacing-xl;
+  font-size: $font-size-base;
+  color: $color-text-secondary;
+  text-align: center;
+  border: 1px solid $color-border;
+  background-color: $color-background-subtle;
+}

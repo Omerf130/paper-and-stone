@@ -1,0 +1,121 @@
+@use "../../styles/tokens" as *;
+@use "../../styles/mixins" as *;
+
+.mobileMenu {
+  display: block;
+
+  @include desktop-up {
+    display: none;
+  }
+}
+
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  color: $color-text-primary;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+
+  @include focus-visible;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: $z-index-mobile-menu;
+  background-color: $color-background;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding-block: $spacing-lg;
+  padding-inline: $container-padding-inline;
+}
+
+.panelHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-block-end: $spacing-xl;
+  padding-block-end: $spacing-md;
+  border-bottom: 1px solid $color-border;
+}
+
+.panelTitle {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  letter-spacing: $letter-spacing-wide;
+  text-transform: uppercase;
+  color: $color-text-secondary;
+}
+
+.closeButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  color: $color-text-primary;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+
+  @include focus-visible;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  list-style: none;
+}
+
+.link {
+  display: block;
+  padding-block: $spacing-sm;
+  font-size: $font-size-lg;
+}
+
+.account {
+  margin-block-start: auto;
+  padding-block-start: $spacing-xl;
+  border-top: 1px solid $color-border;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.accountLabel {
+  display: block;
+  padding-block: $spacing-sm;
+  font-size: $font-size-base;
+  color: $color-text-secondary;
+}
+
+.authLink,
+.logoutButton {
+  display: block;
+  padding-block: $spacing-sm;
+  font-size: $font-size-base;
+  color: $color-text-primary;
+  text-decoration: none;
+}
+
+.logoutButton {
+  width: fit-content;
+  padding-inline: 0;
+  font: inherit;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}

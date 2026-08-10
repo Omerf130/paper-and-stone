@@ -1,0 +1,19 @@
+@use "../../styles/tokens" as *;
+
+.on,
+.off {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  font-size: $font-size-xs;
+  border: 1px solid $color-border;
+}
+
+.on {
+  color: $color-text-primary;
+  background-color: $color-background;
+}
+
+.off {
+  color: $color-text-secondary;
+  background-color: $color-background-subtle;
+}
