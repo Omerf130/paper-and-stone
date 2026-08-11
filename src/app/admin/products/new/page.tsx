@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import ProductForm from "@/components/admin/ProductForm/ProductForm";
 import { getActiveCategories } from "@/lib/products/getActiveCategories";
+import { getActiveMaterialsWithColors } from "@/lib/products/material-options/getActiveMaterialsWithColors";
 import { EMPTY_PRODUCT_FORM } from "@/types/admin-product";
 import styles from "./page.module.scss";
 
@@ -9,7 +10,10 @@ export const metadata: Metadata = {
 };
 
 export default async function AdminNewProductPage() {
-  const categories = await getActiveCategories();
+  const [categories, activeMaterials] = await Promise.all([
+    getActiveCategories(),
+    getActiveMaterialsWithColors(),
+  ]);
 
   return (
     <div className={styles.page}>
@@ -25,6 +29,7 @@ export default async function AdminNewProductPage() {
         mode="create"
         categories={categories}
         initialProduct={EMPTY_PRODUCT_FORM}
+        activeMaterials={activeMaterials}
       />
     </div>
   );

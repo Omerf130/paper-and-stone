@@ -1,4 +1,4 @@
-import { VISUAL_TONES, type VisualTone } from "@/types/product";
+import type { ProductMaterialOptionInput } from "@/lib/products/material-options/product-material-option-input";
 
 export type CategoryOption = {
   id: string;
@@ -21,18 +21,6 @@ export type AdminDashboardStats = {
   activeProducts: number;
   featuredProducts: number;
   activeCategories: number;
-};
-
-export type ProductFabricInput = {
-  key: string;
-  label: string;
-  colors: ProductColorInput[];
-};
-
-export type ProductColorInput = {
-  key: string;
-  label: string;
-  visualTone: VisualTone;
 };
 
 export type ProductSizeInput = {
@@ -60,7 +48,7 @@ export type AdminProductFormInput = {
   maintenance: string;
   warranty: string;
   countryOfOrigin: string;
-  fabrics: ProductFabricInput[];
+  materialOptions: ProductMaterialOptionInput[];
   sizes: ProductSizeInput[];
 };
 
@@ -90,8 +78,8 @@ export const EMPTY_PRODUCT_FORM: AdminProductFormInput = {
   maintenance: "",
   warranty: "",
   countryOfOrigin: "",
-  fabrics: [],
+  materialOptions: [],
   sizes: [],
 };
 
-export { VISUAL_TONES };
+export type { ProductMaterialOptionInput };

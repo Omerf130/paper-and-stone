@@ -5,6 +5,7 @@ import ProductMediaManager from "@/components/admin/ProductMediaManager/ProductM
 import { getProductFormCategoryOptions } from "@/lib/categories/getProductFormCategoryOptions";
 import { getAdminProductMediaById } from "@/lib/media/getAdminProductMediaById";
 import { getAdminProductById } from "@/lib/products/getAdminProductById";
+import { getProductMaterialOptionsForAdmin } from "@/lib/products/material-options/getProductMaterialOptionsForAdmin";
 import styles from "../new/page.module.scss";
 
 type AdminEditProductPageProps = PageProps<"/admin/products/[id]">;
@@ -34,9 +35,10 @@ export default async function AdminEditProductPage({
     notFound();
   }
 
-  const [categories, media] = await Promise.all([
+  const [categories, media, materialOptionsData] = await Promise.all([
     getProductFormCategoryOptions(product.categoryId),
     getAdminProductMediaById(id),
+    getProductMaterialOptionsForAdmin(product.materialOptions),
   ]);
 
   return (
@@ -52,6 +54,8 @@ export default async function AdminEditProductPage({
         initialProduct={product}
         productId={id}
         showSavedBanner={resolvedSearchParams.saved === "1"}
+        activeMaterials={materialOptionsData.activeMaterials}
+        assignedMaterials={materialOptionsData.assignedMaterials}
       />
 
       {media ? <ProductMediaManager media={media} /> : null}

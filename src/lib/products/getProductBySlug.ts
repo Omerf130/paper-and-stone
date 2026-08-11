@@ -19,5 +19,5 @@ export async function getProductBySlug(slug: string): Promise<ProductView | null
     return null;
   }
 
-  return mapProductToView(product);
+  return await mapProductToView(product);
 }

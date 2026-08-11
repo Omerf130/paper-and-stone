@@ -7,4 +7,6 @@ export const adminNavItems: AdminNavItem[] = [
   { label: "ראשי", href: "/admin" },
   { label: "מוצרים", href: "/admin/products" },
   { label: "קטגוריות", href: "/admin/categories" },
+  { label: "צבעים", href: "/admin/colors" },
+  { label: "חומרים", href: "/admin/materials" },
 ];

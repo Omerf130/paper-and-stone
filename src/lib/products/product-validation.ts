@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { VISUAL_TONES } from "@/types/product";
 import type { AdminProductFormInput } from "@/types/admin-product";
 
 export const PRODUCT_ERRORS = {
@@ -21,16 +20,13 @@ const positiveOptionalNumber = z
     "יש להזין מספר חיובי",
   );
 
-const productColorSchema = z.object({
-  key: z.string().min(1).max(64),
-  label: z.string().min(1, "נא להזין שם צבע").max(100),
-  visualTone: z.enum(VISUAL_TONES),
-});
+const objectIdString = z
+  .string()
+  .regex(/^[a-f0-9]{24}$/i, "מזהה לא תקין");
 
-const productFabricSchema = z.object({
-  key: z.string().min(1).max(64),
-  label: z.string().min(1, "נא להזין שם בד").max(100),
-  colors: z.array(productColorSchema),
+const productMaterialOptionSchema = z.object({
+  materialId: objectIdString,
+  allowedColorIds: z.array(objectIdString).min(1, "יש לבחור לפחות צבע אחד"),
 });
 
 const productSizeSchema = z.object({
@@ -38,33 +34,65 @@ const productSizeSchema = z.object({
   label: z.string().min(1, "נא להזין תווית מידה").max(100),
 });
 
-export const productInputSchema = z.object({
-  nameHe: z.string().min(1, "נא להזין שם בעברית").max(200),
-  nameEn: optionalString(200),
-  slug: z
-    .string()
-    .min(1, "נא להזין כתובת")
-    .max(100)
-    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "כתובת חייבת להכיל אותיות קטנות, מספרים ומקפים בלבד"),
-  sku: z.string().min(1, "נא להזין מק״ט").max(50),
-  categoryId: z.string().min(1, "נא לבחור קטגוריה"),
-  brand: optionalString(120),
-  designer: optionalString(120),
-  shortDescription: optionalString(500),
-  longDescription: optionalString(5000),
-  isActive: z.boolean(),
-  isFeatured: z.boolean(),
-  width: positiveOptionalNumber,
-  depth: positiveOptionalNumber,
-  height: positiveOptionalNumber,
-  seatHeight: positiveOptionalNumber,
-  materials: z.array(z.string().min(1).max(120)),
-  maintenance: optionalString(1000),
-  warranty: optionalString(1000),
-  countryOfOrigin: optionalString(120),
-  fabrics: z.array(productFabricSchema),
-  sizes: z.array(productSizeSchema),
-});
+export const productInputSchema = z
+  .object({
+    nameHe: z.string().min(1, "נא להזין שם בעברית").max(200),
+    nameEn: optionalString(200),
+    slug: z
+      .string()
+      .min(1, "נא להזין כתובת")
+      .max(100)
+      .regex(
+        /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
+        "כתובת חייבת להכיל אותיות קטנות, מספרים ומקפים בלבד",
+      ),
+    sku: z.string().min(1, "נא להזין מק״ט").max(50),
+    categoryId: z.string().min(1, "נא לבחור קטגוריה"),
+    brand: optionalString(120),
+    designer: optionalString(120),
+    shortDescription: optionalString(500),
+    longDescription: optionalString(5000),
+    isActive: z.boolean(),
+    isFeatured: z.boolean(),
+    width: positiveOptionalNumber,
+    depth: positiveOptionalNumber,
+    height: positiveOptionalNumber,
+    seatHeight: positiveOptionalNumber,
+    materials: z.array(z.string().min(1).max(120)),
+    maintenance: optionalString(1000),
+    warranty: optionalString(1000),
+    countryOfOrigin: optionalString(120),
+    materialOptions: z.array(productMaterialOptionSchema),
+    sizes: z.array(productSizeSchema),
+  })
+  .superRefine((value, context) => {
+    const seenMaterialIds = new Set<string>();
+
+    for (const [index, option] of value.materialOptions.entries()) {
+      if (seenMaterialIds.has(option.materialId)) {
+        context.addIssue({
+          code: "custom",
+          message: "לא ניתן לבחור את אותו חומר פעמיים",
+          path: ["materialOptions", index, "materialId"],
+        });
+      } else {
+        seenMaterialIds.add(option.materialId);
+      }
+
+      const seenColorIds = new Set<string>();
+      for (const colorId of option.allowedColorIds) {
+        if (seenColorIds.has(colorId)) {
+          context.addIssue({
+            code: "custom",
+            message: "לא ניתן לבחור את אותו צבע פעמיים",
+            path: ["materialOptions", index, "allowedColorIds"],
+          });
+          break;
+        }
+        seenColorIds.add(colorId);
+      }
+    }
+  });
 
 export type ProductInput = z.infer<typeof productInputSchema>;
 
@@ -88,7 +116,7 @@ export type ProductWriteFields = {
   maintenance?: string;
   warranty?: string;
   countryOfOrigin?: string;
-  fabrics: ProductInput["fabrics"];
+  materialOptions: ProductInput["materialOptions"];
   sizes: ProductInput["sizes"];
 };
 
@@ -129,7 +157,7 @@ export function mapProductInputToWriteFields(
     maintenance: emptyToUndefined(input.maintenance),
     warranty: emptyToUndefined(input.warranty),
     countryOfOrigin: emptyToUndefined(input.countryOfOrigin),
-    fabrics: input.fabrics,
+    materialOptions: input.materialOptions,
     sizes: input.sizes,
   };
 }

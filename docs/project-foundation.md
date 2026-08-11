@@ -146,7 +146,23 @@ Prefer CSS logical properties (`margin-inline`, `padding-inline`, `text-align: s
 - Public gallery thumbnail strip on product page
 - `next/image` remotePatterns for Blob CDN hostname
 
-See also: [`docs/demo-1-public-shell.md`](demo-1-public-shell.md), [`docs/demo-2-homepage.md`](demo-2-homepage.md), [`docs/demo-3-product-page.md`](demo-3-product-page.md), [`docs/demo-4-mongodb-product-foundation.md`](demo-4-mongodb-product-foundation.md), [`docs/demo-5a-authentication.md`](demo-5a-authentication.md), [`docs/demo-5b-admin-products.md`](demo-5b-admin-products.md), [`docs/demo-6-public-catalog.md`](demo-6-public-catalog.md), [`docs/demo-7a-category-management.md`](demo-7a-category-management.md), [`docs/demo-7b-catalog-search-filter-pagination.md`](demo-7b-catalog-search-filter-pagination.md), [`docs/demo-8a-product-media-foundation.md`](demo-8a-product-media-foundation.md), [`docs/demo-8b-vercel-blob-media-manager.md`](demo-8b-vercel-blob-media-manager.md)
+**Demo 9A:**
+- Central `Color` and `Material` MongoDB collections (Option B)
+- Material `colorIds[]` refs central Color ObjectIds
+- Admin CRUD at `/admin/colors` and `/admin/materials`
+- HEX normalization, optional normalized unique `code`, MaterialType enum
+- Server-enforced inactive-color rules on Material create/update
+- `Product.materials: string[]` remains legacy spec text (not the library)
+- Legacy `Product.fabrics[]` unchanged until Demo 9B
+
+**Demo 9B:**
+- `Product.materialOptions[]` connects products to central Material/Color library
+- Admin `MaterialOptionsEditor` replaces legacy `FabricsEditor`
+- Public configurator uses library-backed `materialOptions` with HEX swatches
+- Legacy `fabrics[]` read-only fallback when `materialOptions` is empty
+- Idempotent demo seed for Milano (Colors/Materials via `$setOnInsert`)
+
+See also: [`docs/demo-1-public-shell.md`](demo-1-public-shell.md), [`docs/demo-2-homepage.md`](demo-2-homepage.md), [`docs/demo-3-product-page.md`](demo-3-product-page.md), [`docs/demo-4-mongodb-product-foundation.md`](demo-4-mongodb-product-foundation.md), [`docs/demo-5a-authentication.md`](demo-5a-authentication.md), [`docs/demo-5b-admin-products.md`](demo-5b-admin-products.md), [`docs/demo-6-public-catalog.md`](demo-6-public-catalog.md), [`docs/demo-7a-category-management.md`](demo-7a-category-management.md), [`docs/demo-7b-catalog-search-filter-pagination.md`](demo-7b-catalog-search-filter-pagination.md), [`docs/demo-8a-product-media-foundation.md`](demo-8a-product-media-foundation.md), [`docs/demo-8b-vercel-blob-media-manager.md`](demo-8b-vercel-blob-media-manager.md), [`docs/demo-9a-material-color-library.md`](demo-9a-material-color-library.md), [`docs/demo-9b-product-material-assignment.md`](demo-9b-product-material-assignment.md)
 
 ## Intentionally Deferred
 

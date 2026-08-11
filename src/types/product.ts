@@ -1,4 +1,5 @@
 import type { PublicImageView } from "@/types/product-media";
+import type { MaterialType } from "@/types/material";
 
 export type VisualTone =
   | "blue"
@@ -17,16 +18,17 @@ export const VISUAL_TONES: VisualTone[] = [
   "sage",
 ];
 
-export type ProductColorView = {
+export type ProductMaterialColorView = {
   id: string;
-  label: string;
-  tone: VisualTone;
+  name: string;
+  hex: string;
 };
 
-export type ProductFabricView = {
-  id: string;
-  label: string;
-  colors: ProductColorView[];
+export type ProductMaterialOptionView = {
+  materialId: string;
+  materialName: string;
+  materialType: MaterialType;
+  colors: ProductMaterialColorView[];
 };
 
 export type ProductSizeView = {
@@ -56,7 +58,7 @@ export type ProductView = {
   maintenance: string;
   warranty: string;
   countryOfOrigin: string;
-  fabrics: ProductFabricView[];
+  materialOptions: ProductMaterialOptionView[];
   sizes: ProductSizeView[];
   primaryImage: PublicImageView | null;
   gallery: PublicImageView[];

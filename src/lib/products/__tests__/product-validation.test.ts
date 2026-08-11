@@ -24,11 +24,10 @@ const validInput = {
   maintenance: "ניקוי",
   warranty: "5 שנים",
   countryOfOrigin: "איטליה",
-  fabrics: [
+  materialOptions: [
     {
-      key: "velvet",
-      label: "Velvet",
-      colors: [{ key: "blue", label: "כחול", visualTone: "blue" as const }],
+      materialId: "507f1f77bcf86cd799439012",
+      allowedColorIds: ["507f1f77bcf86cd799439013"],
     },
   ],
   sizes: [{ key: "220", label: '220 ס"מ' }],
@@ -44,6 +43,17 @@ describe("product validation", () => {
     const parsed = productInputSchema.safeParse({
       ...validInput,
       slug: "Invalid Slug",
+    });
+    expect(parsed.success).toBe(false);
+  });
+
+  it("rejects duplicate material ids", () => {
+    const parsed = productInputSchema.safeParse({
+      ...validInput,
+      materialOptions: [
+        validInput.materialOptions[0],
+        validInput.materialOptions[0],
+      ],
     });
     expect(parsed.success).toBe(false);
   });
@@ -82,11 +92,12 @@ describe("mapProductInputToWriteFields", () => {
       maintenance: "ניקוי",
       warranty: "5 שנים",
       countryOfOrigin: "איטליה",
-      fabrics: validInput.fabrics,
+      materialOptions: validInput.materialOptions,
       sizes: validInput.sizes,
     });
 
     expect(fields).not.toHaveProperty("_id");
     expect(fields).not.toHaveProperty("createdAt");
+    expect(fields).not.toHaveProperty("fabrics");
   });
 });

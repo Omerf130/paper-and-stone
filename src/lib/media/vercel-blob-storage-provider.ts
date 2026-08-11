@@ -2,7 +2,8 @@ import { del } from "@vercel/blob";
 import type { MediaStorageProvider, MediaUploadInput } from "./media-storage-provider";
 
 export class VercelBlobStorageProvider implements MediaStorageProvider {
-  async upload(_input: MediaUploadInput): Promise<never> {
+  async upload(input: MediaUploadInput): Promise<never> {
+    void input;
     throw new Error(
       "Server-side upload is not used. Use Vercel Blob client upload instead.",
     );

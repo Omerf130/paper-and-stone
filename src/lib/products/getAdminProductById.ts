@@ -2,7 +2,6 @@ import { Types } from "mongoose";
 import { connectDB } from "@/lib/db/mongoose";
 import Product, { type IProduct } from "@/models/Product";
 import type { AdminProductFormInput } from "@/types/admin-product";
-import { isVisualTone } from "@/types/product";
 
 export async function getAdminProductById(
   id: string,
@@ -39,14 +38,11 @@ export async function getAdminProductById(
     maintenance: product.maintenance ?? "",
     warranty: product.warranty ?? "",
     countryOfOrigin: product.countryOfOrigin ?? "",
-    fabrics: (product.fabrics ?? []).map((fabric) => ({
-      key: fabric.key,
-      label: fabric.label,
-      colors: (fabric.colors ?? []).map((color) => ({
-        key: color.key,
-        label: color.label,
-        visualTone: isVisualTone(color.visualTone) ? color.visualTone : "gray",
-      })),
+    materialOptions: (product.materialOptions ?? []).map((option) => ({
+      materialId: option.materialId.toString(),
+      allowedColorIds: option.allowedColorIds.map((colorId) =>
+        colorId.toString(),
+      ),
     })),
     sizes: (product.sizes ?? []).map((size) => ({
       key: size.key,

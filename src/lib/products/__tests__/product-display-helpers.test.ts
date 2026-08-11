@@ -1,8 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
-  getDefaultVisualTone,
   hasConfiguratorOptions,
-  hasFabrics,
+  hasMaterials,
   hasProductDimensions,
   hasSizes,
 } from "@/lib/products/product-display-helpers";
@@ -23,7 +22,7 @@ const baseProduct: ProductView = {
   maintenance: "",
   warranty: "",
   countryOfOrigin: "",
-  fabrics: [],
+  materialOptions: [],
   sizes: [],
   primaryImage: null,
   gallery: [],
@@ -41,7 +40,14 @@ describe("product display helpers", () => {
     expect(
       hasConfiguratorOptions({
         ...baseProduct,
-        fabrics: [{ id: "velvet", label: "Velvet", colors: [] }],
+        materialOptions: [
+          {
+            materialId: "velvet",
+            materialName: "Velvet",
+            materialType: "FABRIC",
+            colors: [],
+          },
+        ],
       }),
     ).toBe(true);
     expect(
@@ -52,24 +58,8 @@ describe("product display helpers", () => {
     ).toBe(true);
   });
 
-  it("returns default visual tone when no colors exist", () => {
-    expect(getDefaultVisualTone(baseProduct)).toBe("gray");
-    expect(
-      getDefaultVisualTone({
-        ...baseProduct,
-        fabrics: [
-          {
-            id: "velvet",
-            label: "Velvet",
-            colors: [{ id: "blue", label: "כחול", tone: "blue" }],
-          },
-        ],
-      }),
-    ).toBe("blue");
-  });
-
-  it("reports fabrics and sizes availability", () => {
-    expect(hasFabrics(baseProduct)).toBe(false);
+  it("reports materials and sizes availability", () => {
+    expect(hasMaterials(baseProduct)).toBe(false);
     expect(hasSizes(baseProduct)).toBe(false);
   });
 });

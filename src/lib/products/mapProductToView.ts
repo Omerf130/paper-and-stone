@@ -5,14 +5,13 @@ import {
   mapPrimaryImageToPublic,
   mapTechnicalDrawingToPublic,
 } from "@/lib/media/mapProductMediaToPublic";
-import {
-  isVisualTone,
-  type ProductColorView,
-  type ProductDimensionsView,
-  type ProductFabricView,
-  type ProductSizeView,
-  type ProductView,
-  type VisualTone,
+import { mapLegacyFabricsToMaterialOptionsView } from "@/lib/products/material-options/mapLegacyFabricsToMaterialOptionsView";
+import { mapProductMaterialOptionsToView } from "@/lib/products/material-options/mapProductMaterialOptionsToView";
+import type {
+  ProductDimensionsView,
+  ProductMaterialOptionView,
+  ProductSizeView,
+  ProductView,
 } from "@/types/product";
 
 type PopulatedCategory = Pick<ICategory, "nameHe">;
@@ -20,29 +19,6 @@ type PopulatedCategory = Pick<ICategory, "nameHe">;
 type LeanProduct = Omit<IProduct, "categoryId"> & {
   categoryId: PopulatedCategory | null;
 };
-
-function toVisualTone(value: string | undefined, fallback: VisualTone): VisualTone {
-  return isVisualTone(value) ? value : fallback;
-}
-
-function mapColors(
-  colors: IProduct["fabrics"][number]["colors"],
-  fallbackTone: VisualTone,
-): ProductColorView[] {
-  return colors.map((color) => ({
-    id: color.key,
-    label: color.label,
-    tone: toVisualTone(color.visualTone, fallbackTone),
-  }));
-}
-
-function mapFabrics(fabrics: IProduct["fabrics"]): ProductFabricView[] {
-  return fabrics.map((fabric) => ({
-    id: fabric.key,
-    label: fabric.label,
-    colors: mapColors(fabric.colors, "gray"),
-  }));
-}
 
 function mapSizes(sizes: IProduct["sizes"]): ProductSizeView[] {
   return sizes.map((size) => ({
@@ -75,8 +51,25 @@ function mapDimensions(product: {
   return dimensions;
 }
 
-export function mapProductToView(product: LeanProduct): ProductView {
+async function resolveMaterialOptions(
+  product: LeanProduct,
+): Promise<ProductMaterialOptionView[]> {
+  if (product.materialOptions?.length > 0) {
+    return mapProductMaterialOptionsToView(product.materialOptions);
+  }
+
+  if (product.fabrics?.length > 0) {
+    return mapLegacyFabricsToMaterialOptionsView(product.fabrics);
+  }
+
+  return [];
+}
+
+export async function mapProductToView(
+  product: LeanProduct,
+): Promise<ProductView> {
   const fallbackAlt = product.nameHe;
+  const materialOptions = await resolveMaterialOptions(product);
 
   return {
     slug: product.slug,
@@ -93,7 +86,7 @@ export function mapProductToView(product: LeanProduct): ProductView {
     maintenance: product.maintenance ?? "",
     warranty: product.warranty ?? "",
     countryOfOrigin: product.countryOfOrigin ?? "",
-    fabrics: mapFabrics(product.fabrics ?? []),
+    materialOptions,
     sizes: mapSizes(product.sizes ?? []),
     primaryImage: mapPrimaryImageToPublic(
       product.media?.primaryImage,

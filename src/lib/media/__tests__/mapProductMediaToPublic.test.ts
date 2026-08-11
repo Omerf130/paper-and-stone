@@ -73,11 +73,13 @@ describe("mapProductMediaToPublic", () => {
 });
 
 describe("product media fallbacks", () => {
-  it("maps empty media to null/empty public fields", () => {
-    const view = mapProductToView({
+  it("maps empty media to null/empty public fields", async () => {
+    const view = await mapProductToView({
       slug: "demo",
       nameHe: "דמו",
       categoryId: { nameHe: "ספות" },
+      materialOptions: [],
+      fabrics: [],
     } as never);
 
     expect(view.primaryImage).toBeNull();

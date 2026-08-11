@@ -1,8 +1,10 @@
+import { Types } from "mongoose";
 import { connectDB } from "@/lib/db/mongoose";
 import { verifyCategoryForProductUpdate } from "@/lib/categories/verifyCategoryForProductUpdate";
 import Product from "@/models/Product";
 import { verifyActiveCategory } from "@/lib/products/getActiveCategories";
 import { ProductMutationError } from "@/lib/products/product-mutation-error";
+import { verifyProductMaterialOptions } from "@/lib/products/material-options/verifyProductMaterialOptions";
 import {
   PRODUCT_ERRORS,
   isDuplicateKeyError,
@@ -21,11 +23,49 @@ async function assertValidCategory(categoryId: string): Promise<void> {
   }
 }
 
+function toStoredMaterialOptions(
+  materialOptions: ProductWriteFields["materialOptions"],
+) {
+  return materialOptions.map((option) => ({
+    materialId: new Types.ObjectId(option.materialId),
+    allowedColorIds: option.allowedColorIds.map(
+      (colorId) => new Types.ObjectId(colorId),
+    ),
+  }));
+}
+
+async function assertValidMaterialOptions(
+  fields: ProductWriteFields,
+  productId?: string,
+): Promise<void> {
+  const previous =
+    productId !== undefined
+      ? await (async () => {
+          const { getProductMaterialOptionsFromDb } = await import(
+            "@/lib/products/material-options/verifyProductMaterialOptions"
+          );
+          return getProductMaterialOptionsFromDb(productId);
+        })()
+      : [];
+
+  const result = await verifyProductMaterialOptions(
+    fields.materialOptions,
+    previous,
+  );
+
+  if (!result.ok) {
+    throw new ProductMutationError(result.message, {
+      [result.field]: result.message,
+    });
+  }
+}
+
 export async function createProduct(
   fields: ProductWriteFields,
 ): Promise<string> {
   await connectDB();
   await assertValidCategory(fields.categoryId);
+  await assertValidMaterialOptions(fields);
 
   try {
     const product = await Product.create({
@@ -48,7 +88,7 @@ export async function createProduct(
       maintenance: fields.maintenance,
       warranty: fields.warranty,
       countryOfOrigin: fields.countryOfOrigin,
-      fabrics: fields.fabrics,
+      materialOptions: toStoredMaterialOptions(fields.materialOptions),
       sizes: fields.sizes,
     });
 
@@ -75,6 +115,7 @@ export async function updateProduct(
 ): Promise<void> {
   await connectDB();
   await verifyCategoryForProductUpdate(fields.categoryId, id);
+  await assertValidMaterialOptions(fields, id);
 
   try {
     const result = await Product.updateOne(
@@ -100,7 +141,7 @@ export async function updateProduct(
           maintenance: fields.maintenance,
           warranty: fields.warranty,
           countryOfOrigin: fields.countryOfOrigin,
-          fabrics: fields.fabrics,
+          materialOptions: toStoredMaterialOptions(fields.materialOptions),
           sizes: fields.sizes,
         },
       },

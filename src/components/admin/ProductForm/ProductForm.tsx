@@ -7,12 +7,13 @@ import {
   createProductAction,
   updateProductAction,
 } from "@/app/admin/products/actions";
+import type { AdminMaterialWithColors } from "@/lib/products/material-options/getActiveMaterialsWithColors";
 import type {
   AdminProductFormInput,
   CategoryOption,
   ProductFormState,
 } from "@/types/admin-product";
-import FabricsEditor from "./FabricsEditor";
+import MaterialOptionsEditor from "./MaterialOptionsEditor";
 import MaterialsEditor from "./MaterialsEditor";
 import SizesEditor from "./SizesEditor";
 import styles from "./form-section.module.scss";
@@ -23,6 +24,8 @@ type ProductFormProps = {
   initialProduct: AdminProductFormInput;
   productId?: string;
   showSavedBanner?: boolean;
+  activeMaterials: AdminMaterialWithColors[];
+  assignedMaterials?: AdminMaterialWithColors[];
 };
 
 const initialState: ProductFormState = {};
@@ -33,6 +36,8 @@ export default function ProductForm({
   initialProduct,
   productId,
   showSavedBanner = false,
+  activeMaterials,
+  assignedMaterials = [],
 }: ProductFormProps) {
   const router = useRouter();
   const [formState, setFormState] = useState(initialState);
@@ -308,10 +313,14 @@ export default function ProductForm({
       </section>
 
       <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>בדים וצבעים</h2>
-        <FabricsEditor
-          fabrics={product.fabrics}
-          onChange={(fabrics) => updateField("fabrics", fabrics)}
+        <h2 className={styles.sectionTitle}>חומרים וצבעים</h2>
+        <MaterialOptionsEditor
+          materialOptions={product.materialOptions}
+          activeMaterials={activeMaterials}
+          assignedMaterials={assignedMaterials}
+          onChange={(materialOptions) =>
+            updateField("materialOptions", materialOptions)
+          }
           fieldErrors={fieldErrors}
         />
       </section>

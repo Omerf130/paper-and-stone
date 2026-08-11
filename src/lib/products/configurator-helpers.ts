@@ -1,63 +1,63 @@
 import type {
-  ProductFabricView,
+  ProductMaterialOptionView,
   ProductView,
-  VisualTone,
 } from "@/types/product";
 import {
-  getDefaultVisualTone,
   hasConfiguratorOptions,
-  hasFabrics,
+  hasMaterials,
   hasSizes,
 } from "./product-display-helpers";
 
-export function getFabricById(
+export function getMaterialById(
   product: ProductView,
-  fabricId: string,
-): ProductFabricView | undefined {
-  return product.fabrics.find((fabric) => fabric.id === fabricId);
+  materialId: string,
+): ProductMaterialOptionView | undefined {
+  return product.materialOptions.find(
+    (option) => option.materialId === materialId,
+  );
 }
 
 export function getColorById(
-  fabric: ProductFabricView,
+  material: ProductMaterialOptionView,
   colorId: string,
-): ProductFabricView["colors"][number] | undefined {
-  return fabric.colors.find((color) => color.id === colorId);
+): ProductMaterialOptionView["colors"][number] | undefined {
+  return material.colors.find((color) => color.id === colorId);
 }
 
 export function resolveValidColorId(
-  fabric: ProductFabricView,
+  material: ProductMaterialOptionView,
   currentColorId: string,
 ): string | null {
-  const isValid = fabric.colors.some((color) => color.id === currentColorId);
+  const isValid = material.colors.some((color) => color.id === currentColorId);
   if (isValid) {
     return currentColorId;
   }
 
-  return fabric.colors[0]?.id ?? null;
+  return material.colors[0]?.id ?? null;
 }
 
 export type ConfiguratorState = {
-  fabricId: string | null;
+  materialId: string | null;
   colorId: string | null;
   sizeId: string | null;
-  visualTone: VisualTone;
-  hasFabrics: boolean;
+  hasMaterials: boolean;
   hasSizes: boolean;
   hasConfiguratorOptions: boolean;
 };
 
 export function getConfiguratorState(product: ProductView): ConfiguratorState {
-  const fabricsAvailable = hasFabrics(product);
+  const materialsAvailable = hasMaterials(product);
   const sizesAvailable = hasSizes(product);
-  const firstFabric = fabricsAvailable ? product.fabrics[0] : undefined;
-  const firstColor = firstFabric?.colors[0];
+  const firstMaterial = materialsAvailable
+    ? product.materialOptions[0]
+    : undefined;
+  const firstColor = firstMaterial?.colors[0];
 
   return {
-    fabricId: firstFabric?.id ?? null,
+    materialId: firstMaterial?.materialId ?? null,
     colorId: firstColor?.id ?? null,
     sizeId: sizesAvailable ? (product.sizes[0]?.id ?? null) : null,
-    visualTone: getDefaultVisualTone(product),
-    hasFabrics: fabricsAvailable,
+    hasMaterials: materialsAvailable,
     hasSizes: sizesAvailable,
     hasConfiguratorOptions: hasConfiguratorOptions(product),
   };

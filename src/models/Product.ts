@@ -21,6 +21,11 @@ export interface IProductSize {
   label: string;
 }
 
+export interface IProductMaterialOption {
+  materialId: Types.ObjectId;
+  allowedColorIds: Types.ObjectId[];
+}
+
 export interface IProductMediaItem {
   _id: Types.ObjectId;
   storageKey: string;
@@ -63,6 +68,7 @@ export interface IProduct extends Document {
   warranty?: string;
   countryOfOrigin?: string;
   fabrics: IProductFabric[];
+  materialOptions: IProductMaterialOption[];
   sizes: IProductSize[];
   media: IProductMedia;
   createdAt: Date;
@@ -91,6 +97,21 @@ const productSizeSchema = new Schema<IProductSize>(
   {
     key: { type: String, required: true },
     label: { type: String, required: true },
+  },
+  { _id: false },
+);
+
+const productMaterialOptionSchema = new Schema<IProductMaterialOption>(
+  {
+    materialId: {
+      type: Schema.Types.ObjectId,
+      ref: "Material",
+      required: true,
+    },
+    allowedColorIds: {
+      type: [{ type: Schema.Types.ObjectId, ref: "Color" }],
+      default: [],
+    },
   },
   { _id: false },
 );
@@ -152,6 +173,7 @@ const productSchema = new Schema<IProduct>(
     warranty: { type: String },
     countryOfOrigin: { type: String },
     fabrics: { type: [productFabricSchema], default: [] },
+    materialOptions: { type: [productMaterialOptionSchema], default: [] },
     sizes: { type: [productSizeSchema], default: [] },
     media: {
       type: productMediaSchema,

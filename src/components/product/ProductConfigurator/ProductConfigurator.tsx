@@ -5,15 +5,12 @@ import Button from "@/components/Button/Button";
 import {
   getColorById,
   getConfiguratorState,
-  getFabricById,
+  getMaterialById,
   resolveValidColorId,
 } from "@/lib/products/configurator-helpers";
-import {
-  getDefaultVisualTone,
-  hasProductDimensions,
-} from "@/lib/products/product-display-helpers";
+import { hasProductDimensions } from "@/lib/products/product-display-helpers";
 import type { PublicImageView } from "@/types/product-media";
-import type { ProductView, VisualTone } from "@/types/product";
+import type { ProductView } from "@/types/product";
 import ProductImage from "../ProductImage/ProductImage";
 import ProductVisual from "../ProductVisual/ProductVisual";
 import TechnicalDrawing from "../TechnicalDrawing/TechnicalDrawing";
@@ -59,26 +56,28 @@ export default function ProductConfigurator({
   const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(
     product.primaryImage?.url ?? productImages[0]?.url ?? null,
   );
-  const [fabricId, setFabricId] = useState<string | null>(initialState.fabricId);
+  const [materialId, setMaterialId] = useState<string | null>(
+    initialState.materialId,
+  );
   const [colorId, setColorId] = useState<string | null>(initialState.colorId);
   const [sizeId, setSizeId] = useState<string | null>(initialState.sizeId);
   const [quantity, setQuantity] = useState(1);
 
-  const currentFabric = useMemo(() => {
-    if (!fabricId) {
+  const currentMaterial = useMemo(() => {
+    if (!materialId) {
       return null;
     }
 
-    return getFabricById(product, fabricId) ?? null;
-  }, [product, fabricId]);
+    return getMaterialById(product, materialId) ?? null;
+  }, [product, materialId]);
 
   const currentColor = useMemo(() => {
-    if (!currentFabric || !colorId) {
+    if (!currentMaterial || !colorId) {
       return null;
     }
 
-    return getColorById(currentFabric, colorId) ?? null;
-  }, [currentFabric, colorId]);
+    return getColorById(currentMaterial, colorId) ?? null;
+  }, [currentMaterial, colorId]);
 
   const currentSize = useMemo(() => {
     if (!sizeId) {
@@ -87,9 +86,6 @@ export default function ProductConfigurator({
 
     return product.sizes.find((size) => size.id === sizeId) ?? null;
   }, [product, sizeId]);
-
-  const visualTone: VisualTone =
-    currentColor?.tone ?? getDefaultVisualTone(product);
 
   const selectedImage = useMemo(() => {
     if (!selectedImageUrl) {
@@ -102,18 +98,18 @@ export default function ProductConfigurator({
     );
   }, [product.primaryImage, productImages, selectedImageUrl]);
 
-  const handleFabricChange = useCallback(
-    (newFabricId: string) => {
-      const fabric = getFabricById(product, newFabricId);
-      if (!fabric) {
+  const handleMaterialChange = useCallback(
+    (newMaterialId: string) => {
+      const material = getMaterialById(product, newMaterialId);
+      if (!material) {
         return;
       }
 
-      setFabricId(newFabricId);
+      setMaterialId(newMaterialId);
       setColorId((previousColorId) =>
         previousColorId
-          ? resolveValidColorId(fabric, previousColorId)
-          : (fabric.colors[0]?.id ?? null),
+          ? resolveValidColorId(material, previousColorId)
+          : (material.colors[0]?.id ?? null),
       );
     },
     [product],
@@ -171,7 +167,7 @@ export default function ProductConfigurator({
         ) : selectedImage ? (
           <ProductImage image={selectedImage} priority />
         ) : (
-          <ProductVisual tone={visualTone} />
+          <ProductVisual tone="gray" />
         )}
 
         {view === "product" && productImages.length > 1 ? (
@@ -206,34 +202,34 @@ export default function ProductConfigurator({
 
       {initialState.hasConfiguratorOptions ? (
         <div className={controlsClasses}>
-          {initialState.hasFabrics && currentFabric ? (
+          {initialState.hasMaterials && currentMaterial ? (
             <fieldset className={styles.fieldset}>
-              <legend className={styles.legend}>סוג בד</legend>
+              <legend className={styles.legend}>חומר</legend>
               <div className={styles.optionGroup}>
-                {product.fabrics.map((fabric) => (
+                {product.materialOptions.map((material) => (
                   <button
-                    key={fabric.id}
+                    key={material.materialId}
                     type="button"
                     className={
-                      fabricId === fabric.id
+                      materialId === material.materialId
                         ? styles.optionActive
                         : styles.optionButton
                     }
-                    aria-pressed={fabricId === fabric.id}
-                    onClick={() => handleFabricChange(fabric.id)}
+                    aria-pressed={materialId === material.materialId}
+                    onClick={() => handleMaterialChange(material.materialId)}
                   >
-                    {fabric.label}
+                    {material.materialName}
                   </button>
                 ))}
               </div>
             </fieldset>
           ) : null}
 
-          {currentFabric && currentFabric.colors.length > 0 ? (
+          {currentMaterial && currentMaterial.colors.length > 0 ? (
             <fieldset className={styles.fieldset}>
               <legend className={styles.legend}>צבע</legend>
               <div className={styles.swatchGroup}>
-                {currentFabric.colors.map((color) => (
+                {currentMaterial.colors.map((color) => (
                   <button
                     key={color.id}
                     type="button"
@@ -241,14 +237,15 @@ export default function ProductConfigurator({
                       colorId === color.id ? styles.swatchActive : styles.swatch
                     }
                     aria-pressed={colorId === color.id}
-                    aria-label={color.label}
+                    aria-label={color.name}
                     onClick={() => setColorId(color.id)}
                   >
                     <span
-                      className={`${styles.swatchColor} ${styles[`swatchTone${color.tone.charAt(0).toUpperCase()}${color.tone.slice(1)}`]}`}
+                      className={styles.swatchColor}
+                      style={{ backgroundColor: color.hex }}
                       aria-hidden="true"
                     />
-                    <span className={styles.swatchLabel}>{color.label}</span>
+                    <span className={styles.swatchLabel}>{color.name}</span>
                   </button>
                 ))}
               </div>
@@ -309,16 +306,16 @@ export default function ProductConfigurator({
                 <dt>דגם</dt>
                 <dd>{product.name}</dd>
               </div>
-              {currentFabric ? (
+              {currentMaterial ? (
                 <div className={styles.summaryRow}>
-                  <dt>בד</dt>
-                  <dd>{currentFabric.label}</dd>
+                  <dt>חומר</dt>
+                  <dd>{currentMaterial.materialName}</dd>
                 </div>
               ) : null}
               {currentColor ? (
                 <div className={styles.summaryRow}>
                   <dt>צבע</dt>
-                  <dd>{currentColor.label}</dd>
+                  <dd>{currentColor.name}</dd>
                 </div>
               ) : null}
               {currentSize ? (
