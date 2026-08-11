@@ -1,6 +1,11 @@
 import type { ICategory } from "@/models/Category";
 import type { IProduct } from "@/models/Product";
 import {
+  mapGalleryToPublic,
+  mapPrimaryImageToPublic,
+  mapTechnicalDrawingToPublic,
+} from "@/lib/media/mapProductMediaToPublic";
+import {
   isVisualTone,
   type ProductColorView,
   type ProductDimensionsView,
@@ -71,6 +76,8 @@ function mapDimensions(product: {
 }
 
 export function mapProductToView(product: LeanProduct): ProductView {
+  const fallbackAlt = product.nameHe;
+
   return {
     slug: product.slug,
     name: product.nameEn ?? product.nameHe,
@@ -88,5 +95,14 @@ export function mapProductToView(product: LeanProduct): ProductView {
     countryOfOrigin: product.countryOfOrigin ?? "",
     fabrics: mapFabrics(product.fabrics ?? []),
     sizes: mapSizes(product.sizes ?? []),
+    primaryImage: mapPrimaryImageToPublic(
+      product.media?.primaryImage,
+      fallbackAlt,
+    ),
+    gallery: mapGalleryToPublic(product.media?.gallery, fallbackAlt),
+    technicalDrawing: mapTechnicalDrawingToPublic(
+      product.media?.technicalDrawing,
+      `${fallbackAlt} — שרטוט טכני`,
+    ),
   };
 }

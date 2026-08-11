@@ -12,12 +12,30 @@ import {
   getDefaultVisualTone,
   hasProductDimensions,
 } from "@/lib/products/product-display-helpers";
+import type { PublicImageView } from "@/types/product-media";
 import type { ProductView, VisualTone } from "@/types/product";
+import ProductImage from "../ProductImage/ProductImage";
 import ProductVisual from "../ProductVisual/ProductVisual";
 import TechnicalDrawing from "../TechnicalDrawing/TechnicalDrawing";
 import styles from "./ProductConfigurator.module.scss";
 
 type ViewMode = "product" | "drawing";
+
+function buildProductImages(product: ProductView): PublicImageView[] {
+  const images: PublicImageView[] = [];
+
+  if (product.primaryImage) {
+    images.push(product.primaryImage);
+  }
+
+  for (const image of product.gallery) {
+    if (!images.some((existing) => existing.url === image.url)) {
+      images.push(image);
+    }
+  }
+
+  return images;
+}
 
 type ProductConfiguratorProps = {
   product: ProductView;
@@ -34,8 +52,13 @@ export default function ProductConfigurator({
     () => getConfiguratorState(product),
     [product],
   );
-  const canShowDrawing = hasProductDimensions(product.dimensions);
+  const canShowDrawing =
+    Boolean(product.technicalDrawing) || hasProductDimensions(product.dimensions);
+  const productImages = useMemo(() => buildProductImages(product), [product]);
   const [view, setView] = useState<ViewMode>("product");
+  const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(
+    product.primaryImage?.url ?? productImages[0]?.url ?? null,
+  );
   const [fabricId, setFabricId] = useState<string | null>(initialState.fabricId);
   const [colorId, setColorId] = useState<string | null>(initialState.colorId);
   const [sizeId, setSizeId] = useState<string | null>(initialState.sizeId);
@@ -67,6 +90,17 @@ export default function ProductConfigurator({
 
   const visualTone: VisualTone =
     currentColor?.tone ?? getDefaultVisualTone(product);
+
+  const selectedImage = useMemo(() => {
+    if (!selectedImageUrl) {
+      return product.primaryImage;
+    }
+
+    return (
+      productImages.find((image) => image.url === selectedImageUrl) ??
+      product.primaryImage
+    );
+  }, [product.primaryImage, productImages, selectedImageUrl]);
 
   const handleFabricChange = useCallback(
     (newFabricId: string) => {
@@ -126,10 +160,48 @@ export default function ProductConfigurator({
         ) : null}
 
         {view === "drawing" && canShowDrawing ? (
-          <TechnicalDrawing dimensions={product.dimensions} />
+          product.technicalDrawing ? (
+            <ProductImage
+              image={product.technicalDrawing}
+              className={styles.uploadedDrawing}
+            />
+          ) : (
+            <TechnicalDrawing dimensions={product.dimensions} />
+          )
+        ) : selectedImage ? (
+          <ProductImage image={selectedImage} priority />
         ) : (
           <ProductVisual tone={visualTone} />
         )}
+
+        {view === "product" && productImages.length > 1 ? (
+          <div
+            className={styles.thumbnailRow}
+            role="group"
+            aria-label="תמונות מוצר"
+          >
+            {productImages.map((image) => (
+              <button
+                key={image.url}
+                type="button"
+                className={
+                  selectedImage?.url === image.url
+                    ? styles.thumbnailActive
+                    : styles.thumbnailButton
+                }
+                aria-pressed={selectedImage?.url === image.url}
+                aria-label={image.alt}
+                onClick={() => setSelectedImageUrl(image.url)}
+              >
+                <ProductImage
+                  image={image}
+                  className={styles.thumbnailImage}
+                  sizes="80px"
+                />
+              </button>
+            ))}
+          </div>
+        ) : null}
       </div>
 
       {initialState.hasConfiguratorOptions ? (

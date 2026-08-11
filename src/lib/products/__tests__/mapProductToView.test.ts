@@ -18,6 +18,9 @@ describe("mapProductToView", () => {
     expect(view.dimensions).toEqual({});
     expect(view.fabrics).toEqual([]);
     expect(view.sizes).toEqual([]);
+    expect(view.primaryImage).toBeNull();
+    expect(view.gallery).toEqual([]);
+    expect(view.technicalDrawing).toBeNull();
   });
 
   it("maps existing dimensions and configuration", () => {

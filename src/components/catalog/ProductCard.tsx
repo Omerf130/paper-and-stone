@@ -1,4 +1,5 @@
 import Link from "next/link";
+import CatalogProductImage from "@/components/catalog/CatalogProductImage";
 import VisualPlaceholder from "@/components/VisualPlaceholder/VisualPlaceholder";
 import type { CatalogProductView } from "@/types/catalog";
 import styles from "./ProductCard.module.scss";
@@ -10,7 +11,11 @@ type ProductCardProps = {
 export default function ProductCard({ product }: ProductCardProps) {
   return (
     <Link href={`/products/${product.slug}`} className={styles.link}>
-      <VisualPlaceholder aspectRatio="portrait" className={styles.placeholder} />
+      {product.primaryImage ? (
+        <CatalogProductImage image={product.primaryImage} />
+      ) : (
+        <VisualPlaceholder aspectRatio="portrait" className={styles.placeholder} />
+      )}
       <div className={styles.meta}>
         <span className={styles.name}>{product.nameHe}</span>
         {product.category ? (

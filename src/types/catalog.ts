@@ -1,9 +1,12 @@
+import type { PublicImageView } from "@/types/product-media";
+
 export type CatalogProductView = {
   slug: string;
   nameHe: string;
   nameEn?: string;
   category: string;
   brand?: string;
+  primaryImage: PublicImageView | null;
 };
 
 export type PublicCategoryView = {

@@ -25,6 +25,9 @@ const baseProduct: ProductView = {
   countryOfOrigin: "",
   fabrics: [],
   sizes: [],
+  primaryImage: null,
+  gallery: [],
+  technicalDrawing: null,
 };
 
 describe("product display helpers", () => {

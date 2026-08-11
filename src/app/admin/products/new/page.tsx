@@ -16,7 +16,8 @@ export default async function AdminNewProductPage() {
       <header className={styles.header}>
         <h1 className={styles.title}>יצירת מוצר חדש</h1>
         <p className={styles.description}>
-          הזינו את פרטי המוצר והגדרות התצורה.
+          הזינו את פרטי המוצר והגדרות התצורה. לאחר שמירת המוצר ניתן להוסיף
+          תמונות.
         </p>
       </header>
 

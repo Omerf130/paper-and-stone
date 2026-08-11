@@ -1,0 +1,184 @@
+@use "../../../styles/tokens" as *;
+@use "../../../styles/mixins" as *;
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+  padding-block: $spacing-lg;
+  border-top: 1px solid $color-border;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.sectionDescription {
+  margin: 0;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.subsection {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.subheading {
+  margin: 0;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text-secondary;
+}
+
+.preview {
+  position: relative;
+  width: min(100%, 20rem);
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background-color: $color-background-subtle;
+  border: 1px solid $color-border;
+}
+
+.previewImage {
+  object-fit: cover;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+  max-width: 28rem;
+}
+
+.label {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+}
+
+.input {
+  width: 100%;
+  padding: $spacing-sm $spacing-md;
+  font: inherit;
+  color: $color-text-primary;
+  background-color: $color-background;
+  border: 1px solid $color-border;
+  border-radius: $radius-sm;
+
+  @include focus-visible;
+}
+
+.fileInput {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-md;
+  align-items: center;
+}
+
+.button,
+.dangerButton,
+.iconButton {
+  padding: $spacing-sm $spacing-md;
+  font: inherit;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  cursor: pointer;
+  border-radius: $radius-sm;
+
+  @include focus-visible;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.button {
+  color: $color-background;
+  background-color: $color-text-primary;
+  border: 1px solid $color-text-primary;
+}
+
+.dangerButton {
+  color: $color-text-primary;
+  background: transparent;
+  border: 1px solid $color-border;
+}
+
+.iconButton {
+  color: $color-text-secondary;
+  background: transparent;
+  border: 1px solid $color-border;
+}
+
+.galleryList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.galleryItem {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-md;
+  align-items: flex-start;
+  padding: $spacing-md;
+  background-color: $color-background-subtle;
+  border: 1px solid $color-border;
+}
+
+.galleryPreview {
+  object-fit: cover;
+  border: 1px solid $color-border;
+}
+
+.galleryMeta {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: $spacing-sm;
+  min-width: 12rem;
+}
+
+.galleryActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+}
+
+.messageError,
+.messageSuccess {
+  margin: 0;
+  padding: $spacing-sm $spacing-md;
+  font-size: $font-size-sm;
+  border: 1px solid $color-border;
+}
+
+.messageError {
+  color: $color-text-primary;
+  background-color: $color-surface;
+}
+
+.messageSuccess {
+  color: $color-text-primary;
+  background-color: $color-background-subtle;
+}
+
+.helperText {
+  margin: 0;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}

@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import ProductForm from "@/components/admin/ProductForm/ProductForm";
+import ProductMediaManager from "@/components/admin/ProductMediaManager/ProductMediaManager";
 import { getProductFormCategoryOptions } from "@/lib/categories/getProductFormCategoryOptions";
+import { getAdminProductMediaById } from "@/lib/media/getAdminProductMediaById";
 import { getAdminProductById } from "@/lib/products/getAdminProductById";
 import styles from "../new/page.module.scss";
 
@@ -32,7 +34,10 @@ export default async function AdminEditProductPage({
     notFound();
   }
 
-  const categories = await getProductFormCategoryOptions(product.categoryId);
+  const [categories, media] = await Promise.all([
+    getProductFormCategoryOptions(product.categoryId),
+    getAdminProductMediaById(id),
+  ]);
 
   return (
     <div className={styles.page}>
@@ -48,6 +53,8 @@ export default async function AdminEditProductPage({
         productId={id}
         showSavedBanner={resolvedSearchParams.saved === "1"}
       />
+
+      {media ? <ProductMediaManager media={media} /> : null}
     </div>
   );
 }

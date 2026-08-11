@@ -131,7 +131,22 @@ Prefer CSS logical properties (`margin-inline`, `padding-inline`, `text-align: s
 - Pure `buildProductCatalogFilter()` + separate slug resolution
 - Compound index `{ isActive: 1, categoryId: 1 }`
 
-See also: [`docs/demo-1-public-shell.md`](demo-1-public-shell.md), [`docs/demo-2-homepage.md`](demo-2-homepage.md), [`docs/demo-3-product-page.md`](demo-3-product-page.md), [`docs/demo-4-mongodb-product-foundation.md`](demo-4-mongodb-product-foundation.md), [`docs/demo-5a-authentication.md`](demo-5a-authentication.md), [`docs/demo-5b-admin-products.md`](demo-5b-admin-products.md), [`docs/demo-6-public-catalog.md`](demo-6-public-catalog.md), [`docs/demo-7a-category-management.md`](demo-7a-category-management.md), [`docs/demo-7b-catalog-search-filter-pagination.md`](demo-7b-catalog-search-filter-pagination.md)
+**Demo 8A:**
+- Embedded `Product.media` schema (primaryImage, gallery, technicalDrawing)
+- Provider-agnostic `MediaStorageProvider` interface (no implementation)
+- Public `PublicImageView` serialization; storageKey never exposed to client
+- Catalog/product fallbacks when media is absent
+
+**Demo 8B:**
+- Vercel Blob client upload + protected `handleUpload` route
+- Admin `ProductMediaManager` on product edit page
+- Primary/gallery/technical upload, replace, delete, gallery reorder, alt text
+- Token-based MIME/size enforcement (`allowedContentTypes`, `maximumSizeInBytes`)
+- Server Actions for non-upload mutations (delete, reorder, alt)
+- Public gallery thumbnail strip on product page
+- `next/image` remotePatterns for Blob CDN hostname
+
+See also: [`docs/demo-1-public-shell.md`](demo-1-public-shell.md), [`docs/demo-2-homepage.md`](demo-2-homepage.md), [`docs/demo-3-product-page.md`](demo-3-product-page.md), [`docs/demo-4-mongodb-product-foundation.md`](demo-4-mongodb-product-foundation.md), [`docs/demo-5a-authentication.md`](demo-5a-authentication.md), [`docs/demo-5b-admin-products.md`](demo-5b-admin-products.md), [`docs/demo-6-public-catalog.md`](demo-6-public-catalog.md), [`docs/demo-7a-category-management.md`](demo-7a-category-management.md), [`docs/demo-7b-catalog-search-filter-pagination.md`](demo-7b-catalog-search-filter-pagination.md), [`docs/demo-8a-product-media-foundation.md`](demo-8a-product-media-foundation.md), [`docs/demo-8b-vercel-blob-media-manager.md`](demo-8b-vercel-blob-media-manager.md)
 
 ## Intentionally Deferred
 
@@ -167,6 +182,6 @@ Unresolved items — not blockers for Demo 0:
 - **Product variation model** — exact structure for configurations and options
 - **2D visualization** — approach for material/fabric preview
 - **MongoDB schema** — remaining collections, relationships, indexing strategy
-- **File / image storage** — hosting provider, CDN, upload workflow
+- **File / image storage** — Vercel Blob for product media (Demo 8B); fabric/color variant media deferred
 - **English / i18n** — translation system, locale routing, content management
 - **External integrations** — Programa, ERP/CRM, notification channels

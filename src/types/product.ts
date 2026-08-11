@@ -1,3 +1,5 @@
+import type { PublicImageView } from "@/types/product-media";
+
 export type VisualTone =
   | "blue"
   | "mustard"
@@ -56,6 +58,9 @@ export type ProductView = {
   countryOfOrigin: string;
   fabrics: ProductFabricView[];
   sizes: ProductSizeView[];
+  primaryImage: PublicImageView | null;
+  gallery: PublicImageView[];
+  technicalDrawing: PublicImageView | null;
 };
 
 export function isVisualTone(value: string | undefined): value is VisualTone {

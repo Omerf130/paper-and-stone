@@ -1,4 +1,8 @@
 import mongoose, { Schema, type Document, type Model, Types } from "mongoose";
+import {
+  PRODUCT_MEDIA_TYPES,
+  type ProductMediaType,
+} from "@/types/product-media";
 
 export interface IProductColor {
   key: string;
@@ -15,6 +19,27 @@ export interface IProductFabric {
 export interface IProductSize {
   key: string;
   label: string;
+}
+
+export interface IProductMediaItem {
+  _id: Types.ObjectId;
+  storageKey: string;
+  url: string;
+  mediaType: ProductMediaType;
+  mimeType: string;
+  originalFilename: string;
+  byteSize: number;
+  width?: number;
+  height?: number;
+  altText?: string;
+  sortOrder: number;
+  createdAt: Date;
+}
+
+export interface IProductMedia {
+  primaryImage?: IProductMediaItem;
+  gallery: IProductMediaItem[];
+  technicalDrawing?: IProductMediaItem;
 }
 
 export interface IProduct extends Document {
@@ -39,6 +64,7 @@ export interface IProduct extends Document {
   countryOfOrigin?: string;
   fabrics: IProductFabric[];
   sizes: IProductSize[];
+  media: IProductMedia;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -65,6 +91,36 @@ const productSizeSchema = new Schema<IProductSize>(
   {
     key: { type: String, required: true },
     label: { type: String, required: true },
+  },
+  { _id: false },
+);
+
+const productMediaItemSchema = new Schema<IProductMediaItem>(
+  {
+    storageKey: { type: String, required: true },
+    url: { type: String, required: true },
+    mediaType: {
+      type: String,
+      enum: PRODUCT_MEDIA_TYPES,
+      required: true,
+    },
+    mimeType: { type: String, required: true },
+    originalFilename: { type: String, required: true },
+    byteSize: { type: Number, required: true, min: 0 },
+    width: { type: Number },
+    height: { type: Number },
+    altText: { type: String },
+    sortOrder: { type: Number, default: 0 },
+    createdAt: { type: Date, default: Date.now },
+  },
+  { _id: true },
+);
+
+const productMediaSchema = new Schema<IProductMedia>(
+  {
+    primaryImage: { type: productMediaItemSchema },
+    gallery: { type: [productMediaItemSchema], default: [] },
+    technicalDrawing: { type: productMediaItemSchema },
   },
   { _id: false },
 );
@@ -97,6 +153,10 @@ const productSchema = new Schema<IProduct>(
     countryOfOrigin: { type: String },
     fabrics: { type: [productFabricSchema], default: [] },
     sizes: { type: [productSizeSchema], default: [] },
+    media: {
+      type: productMediaSchema,
+      default: () => ({ gallery: [] }),
+    },
   },
   { timestamps: true },
 );

@@ -9,6 +9,7 @@ import {
 import { buildProductCatalogFilter } from "@/lib/catalog/build-product-catalog-filter";
 import { calculatePagination } from "@/lib/catalog/catalog-pagination";
 import { resolveActiveCategorySlug } from "@/lib/catalog/resolve-active-category-slug";
+import { CATALOG_PRIMARY_IMAGE_SELECT } from "@/lib/media/product-media-select";
 import { mapProductToCatalogView } from "./mapProductToCatalogView";
 
 export async function getPublicProducts(
@@ -42,7 +43,7 @@ export async function getPublicProducts(
       model: Category,
       select: "nameHe",
     })
-    .select("nameHe nameEn slug brand categoryId")
+    .select(`nameHe nameEn slug brand categoryId ${CATALOG_PRIMARY_IMAGE_SELECT}`)
     .sort({ nameHe: 1 })
     .skip(pagination.skip)
     .limit(pagination.pageSize)

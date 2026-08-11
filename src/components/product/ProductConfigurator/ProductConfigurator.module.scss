@@ -39,6 +39,37 @@
   border-bottom-color: $color-text-primary;
 }
 
+.uploadedDrawing {
+  border: 1px solid $color-border;
+}
+
+.thumbnailRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+}
+
+.thumbnailButton,
+.thumbnailActive {
+  flex: 0 0 auto;
+  width: 4.5rem;
+  padding: 0;
+  background: transparent;
+  border: 1px solid $color-border;
+  cursor: pointer;
+
+  @include focus-visible;
+}
+
+.thumbnailActive {
+  border-color: $color-text-primary;
+}
+
+.thumbnailImage {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+}
+
 .fieldset {
   display: flex;
   flex-direction: column;
