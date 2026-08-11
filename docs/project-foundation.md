@@ -112,7 +112,26 @@ Prefer CSS logical properties (`margin-inline`, `padding-inline`, `text-align: s
 - `CatalogProductView` public serialization type
 - `force-dynamic` rendering for catalog, product pages, homepage
 
-See also: [`docs/demo-1-public-shell.md`](demo-1-public-shell.md), [`docs/demo-2-homepage.md`](demo-2-homepage.md), [`docs/demo-3-product-page.md`](demo-3-product-page.md), [`docs/demo-4-mongodb-product-foundation.md`](demo-4-mongodb-product-foundation.md), [`docs/demo-5a-authentication.md`](demo-5a-authentication.md), [`docs/demo-5b-admin-products.md`](demo-5b-admin-products.md), [`docs/demo-6-public-catalog.md`](demo-6-public-catalog.md)
+**Demo 7A:**
+- Admin category list, create, edit at `/admin/categories`
+- Reusable `CategoryForm` with Zod validation + whitelisted mutations
+- Flat categories only (no hierarchy)
+- Product count via aggregation (all products, not just active)
+- Deactivate/reactivate without modifying products
+- ProductForm inactive-category edit compatibility
+- Admin nav: ראשי, מוצרים, קטגוריות
+- No hard delete, no public category pages
+
+**Demo 7B:**
+- Public catalog search, category filter, pagination at `/products`
+- URL-driven state (`q`, `category`, `page`)
+- Server-side regex search with escaped input
+- Active category filter by slug; invalid/inactive slug ignored
+- Database pagination (12 per page, skip/limit)
+- Pure `buildProductCatalogFilter()` + separate slug resolution
+- Compound index `{ isActive: 1, categoryId: 1 }`
+
+See also: [`docs/demo-1-public-shell.md`](demo-1-public-shell.md), [`docs/demo-2-homepage.md`](demo-2-homepage.md), [`docs/demo-3-product-page.md`](demo-3-product-page.md), [`docs/demo-4-mongodb-product-foundation.md`](demo-4-mongodb-product-foundation.md), [`docs/demo-5a-authentication.md`](demo-5a-authentication.md), [`docs/demo-5b-admin-products.md`](demo-5b-admin-products.md), [`docs/demo-6-public-catalog.md`](demo-6-public-catalog.md), [`docs/demo-7a-category-management.md`](demo-7a-category-management.md), [`docs/demo-7b-catalog-search-filter-pagination.md`](demo-7b-catalog-search-filter-pagination.md)
 
 ## Intentionally Deferred
 

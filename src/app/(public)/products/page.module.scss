@@ -21,6 +21,27 @@
   color: $color-text-secondary;
 }
 
+.toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+  margin-block-end: $spacing-xl;
+}
+
+.emptyBlock {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  align-items: center;
+}
+
+.resetLink {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
 .empty {
   margin: 0;
   padding: $spacing-xl;

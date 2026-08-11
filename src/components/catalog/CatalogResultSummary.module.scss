@@ -1,0 +1,7 @@
+@use "../../styles/tokens" as *;
+
+.summary {
+  margin: 0;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}

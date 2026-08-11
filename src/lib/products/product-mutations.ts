@@ -1,6 +1,8 @@
 import { connectDB } from "@/lib/db/mongoose";
+import { verifyCategoryForProductUpdate } from "@/lib/categories/verifyCategoryForProductUpdate";
 import Product from "@/models/Product";
 import { verifyActiveCategory } from "@/lib/products/getActiveCategories";
+import { ProductMutationError } from "@/lib/products/product-mutation-error";
 import {
   PRODUCT_ERRORS,
   isDuplicateKeyError,
@@ -8,14 +10,7 @@ import {
   type ProductWriteFields,
 } from "@/lib/products/product-validation";
 
-export class ProductMutationError extends Error {
-  fieldErrors?: Record<string, string>;
-
-  constructor(message: string, fieldErrors?: Record<string, string>) {
-    super(message);
-    this.fieldErrors = fieldErrors;
-  }
-}
+export { ProductMutationError };
 
 async function assertValidCategory(categoryId: string): Promise<void> {
   const isValid = await verifyActiveCategory(categoryId);
@@ -79,7 +74,7 @@ export async function updateProduct(
   fields: ProductWriteFields,
 ): Promise<void> {
   await connectDB();
-  await assertValidCategory(fields.categoryId);
+  await verifyCategoryForProductUpdate(fields.categoryId, id);
 
   try {
     const result = await Product.updateOne(

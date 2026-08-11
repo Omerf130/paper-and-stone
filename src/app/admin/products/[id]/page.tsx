@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import ProductForm from "@/components/admin/ProductForm/ProductForm";
-import { getActiveCategories } from "@/lib/products/getActiveCategories";
+import { getProductFormCategoryOptions } from "@/lib/categories/getProductFormCategoryOptions";
 import { getAdminProductById } from "@/lib/products/getAdminProductById";
 import styles from "../new/page.module.scss";
 
@@ -26,14 +26,13 @@ export default async function AdminEditProductPage({
 }: AdminEditProductPageProps) {
   const { id } = await params;
   const resolvedSearchParams = await searchParams;
-  const [categories, product] = await Promise.all([
-    getActiveCategories(),
-    getAdminProductById(id),
-  ]);
+  const product = await getAdminProductById(id);
 
   if (!product) {
     notFound();
   }
+
+  const categories = await getProductFormCategoryOptions(product.categoryId);
 
   return (
     <div className={styles.page}>

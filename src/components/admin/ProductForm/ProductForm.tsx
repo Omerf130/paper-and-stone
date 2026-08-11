@@ -157,7 +157,9 @@ export default function ProductForm({
               <option value="">בחרו קטגוריה</option>
               {categories.map((category) => (
                 <option key={category.id} value={category.id}>
-                  {category.nameHe}
+                  {category.isActive === false
+                    ? `${category.nameHe} (לא פעיל)`
+                    : category.nameHe}
                 </option>
               ))}
             </select>

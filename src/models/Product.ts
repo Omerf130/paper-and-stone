@@ -102,6 +102,7 @@ const productSchema = new Schema<IProduct>(
 );
 
 productSchema.index({ isActive: 1, slug: 1 });
+productSchema.index({ isActive: 1, categoryId: 1 });
 
 const Product: Model<IProduct> =
   mongoose.models.Product ?? mongoose.model<IProduct>("Product", productSchema);

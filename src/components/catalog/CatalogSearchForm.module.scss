@@ -1,0 +1,50 @@
+@use "../../styles/tokens" as *;
+@use "../../styles/mixins" as *;
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.label {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+}
+
+.input {
+  flex: 1 1 12rem;
+  min-width: 0;
+  padding: $spacing-sm $spacing-md;
+  font: inherit;
+  color: $color-text-primary;
+  background-color: $color-background;
+  border: 1px solid $color-border;
+  border-radius: $radius-sm;
+
+  @include focus-visible;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  padding-inline: $spacing-lg;
+  font: inherit;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-background;
+  background-color: $color-text-primary;
+  border: 1px solid $color-text-primary;
+  cursor: pointer;
+
+  @include focus-visible;
+}

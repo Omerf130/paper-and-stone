@@ -3,6 +3,7 @@ import { VISUAL_TONES, type VisualTone } from "@/types/product";
 export type CategoryOption = {
   id: string;
   nameHe: string;
+  isActive?: boolean;
 };
 
 export type AdminProductListItem = {

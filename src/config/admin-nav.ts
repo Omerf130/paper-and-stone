@@ -6,4 +6,5 @@ export type AdminNavItem = {
 export const adminNavItems: AdminNavItem[] = [
   { label: "ראשי", href: "/admin" },
   { label: "מוצרים", href: "/admin/products" },
+  { label: "קטגוריות", href: "/admin/categories" },
 ];
