@@ -10,6 +10,7 @@ export type AdminProjectListItemView = {
   professionalName?: string;
   submittedAt?: string;
   updatedAt: string;
+  unreadMessageCount?: number;
 };
 
 export type AdminProjectDetailView = {

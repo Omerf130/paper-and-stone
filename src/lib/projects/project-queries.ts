@@ -16,6 +16,7 @@ import type {
   ProjectOptionView,
 } from "@/types/project";
 import type { ProductView } from "@/types/product";
+import { getUnreadMessageCountsForProjects } from "@/lib/project-messages/getUnreadMessageCountsForProjects";
 
 export async function getProfessionalProjects(
   ownerUserId: string,
@@ -26,9 +27,17 @@ export async function getProfessionalProjects(
     .sort({ updatedAt: -1 })
     .lean();
 
-  return projects.map((project) =>
-    mapProjectToListItemView(project as IProject),
+  const projectIds = projects.map((project) => project._id.toString());
+  const unreadCounts = await getUnreadMessageCountsForProjects(
+    projectIds,
+    ownerUserId,
+    "professional",
   );
+
+  return projects.map((project) => ({
+    ...mapProjectToListItemView(project as IProject),
+    unreadMessageCount: unreadCounts.get(project._id.toString()) ?? 0,
+  }));
 }
 
 export async function getProfessionalProjectOptions(

@@ -19,6 +19,7 @@ import type {
   AdminProjectsPageResult,
 } from "@/types/admin-project";
 import type { ProjectStatus } from "@/types/project";
+import { getUnreadMessageCountsForProjects } from "@/lib/project-messages/getUnreadMessageCountsForProjects";
 
 type AdminProjectsFilter = {
   status: ProjectStatus;
@@ -83,6 +84,7 @@ async function resolveOwnerNames(
 
 export async function getAdminProjects(
   params: AdminProjectsParams,
+  adminUserId: string,
 ): Promise<AdminProjectsPageResult> {
   await connectDB();
 
@@ -125,7 +127,7 @@ export async function getAdminProjects(
       .lean()) as IProject[];
 
     return {
-      projects: await mapProjectsToAdminListItems(projects),
+      projects: await mapProjectsToAdminListItems(projects, adminUserId),
       total,
       page: pagination.page,
       pageSize: pagination.pageSize,
@@ -147,7 +149,7 @@ export async function getAdminProjects(
     .lean()) as IProject[];
 
   return {
-    projects: await mapProjectsToAdminListItems(projects),
+    projects: await mapProjectsToAdminListItems(projects, adminUserId),
     total,
     page: pagination.page,
     pageSize: pagination.pageSize,
@@ -155,22 +157,28 @@ export async function getAdminProjects(
   };
 }
 
-async function mapProjectsToAdminListItems(projects: IProject[]) {
+async function mapProjectsToAdminListItems(
+  projects: IProject[],
+  adminUserId: string,
+) {
   const ownerUserIds = [
     ...new Set(projects.map((project) => project.ownerUserId.toString())),
   ];
-  const [emailsByOwnerId, namesByOwnerId] = await Promise.all([
+  const projectIds = projects.map((project) => project._id.toString());
+  const [emailsByOwnerId, namesByOwnerId, unreadCounts] = await Promise.all([
     resolveOwnerEmails(ownerUserIds),
     resolveOwnerNames(ownerUserIds),
+    getUnreadMessageCountsForProjects(projectIds, adminUserId, "admin"),
   ]);
 
-  return projects.map((project) =>
-    mapLeanProjectToAdminListItem(
+  return projects.map((project) => ({
+    ...mapLeanProjectToAdminListItem(
       project,
       emailsByOwnerId.get(project.ownerUserId.toString()) ?? "—",
       namesByOwnerId.get(project.ownerUserId.toString()),
     ),
-  );
+    unreadMessageCount: unreadCounts.get(project._id.toString()) ?? 0,
+  }));
 }
 
 export async function getAdminProjectDetailView(

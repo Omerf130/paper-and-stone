@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ProfessionalNavItem } from "@/config/professional-nav";
+import NavBadge from "@/components/shared/NavBadge/NavBadge";
 import styles from "./ProfessionalSidebar.module.scss";
 
 type ProfessionalSidebarProps = {
@@ -36,7 +37,15 @@ export default function ProfessionalSidebar({
                     : styles.link
                 }
               >
-                {item.label}
+                <span className={styles.linkContent}>
+                  {item.label}
+                  {item.badgeCount && item.badgeCount > 0 ? (
+                    <NavBadge
+                      count={item.badgeCount}
+                      ariaLabel={`${item.badgeCount} התראות שלא נקראו`}
+                    />
+                  ) : null}
+                </span>
               </Link>
             </li>
           ))}

@@ -58,6 +58,11 @@ export default async function ProfessionalProjectsPage() {
                         {project.clientName ? (
                           <div className={styles.subtle}>{project.clientName}</div>
                         ) : null}
+                        {(project.unreadMessageCount ?? 0) > 0 ? (
+                          <div className={styles.unreadBadge} role="status">
+                            הודעות חדשות: {project.unreadMessageCount}
+                          </div>
+                        ) : null}
                       </td>
                       <td>{getProjectStatusLabel(project.status)}</td>
                       <td>{project.itemCount}</td>
@@ -93,6 +98,11 @@ export default async function ProfessionalProjectsPage() {
                     <p className={styles.cardMeta}>
                       עודכן: {formatDate(project.updatedAt)}
                     </p>
+                    {(project.unreadMessageCount ?? 0) > 0 ? (
+                      <p className={styles.unreadBadge} role="status">
+                        הודעות חדשות: {project.unreadMessageCount}
+                      </p>
+                    ) : null}
                     <Link
                       href={`/professional/projects/${project.id}`}
                       className={styles.editLink}

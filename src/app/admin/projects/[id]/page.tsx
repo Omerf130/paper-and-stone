@@ -2,7 +2,15 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import ProjectReviewPanel from "@/components/admin/ProjectReviewPanel/ProjectReviewPanel";
+import ProjectMessageReadMarker from "@/components/project-messages/ProjectMessageReadMarker/ProjectMessageReadMarker";
+import ProjectMessageThread from "@/components/project-messages/ProjectMessageThread/ProjectMessageThread";
+import {
+  markAdminProjectMessagesReadAction,
+  sendAdminProjectMessageAction,
+} from "@/app/admin/projects/message-actions";
 import { requireAdmin } from "@/lib/auth/authorization";
+import { getProjectMessages } from "@/lib/project-messages/getProjectMessages";
+import { hasEverBeenSubmitted } from "@/lib/projects/project-review-history";
 import { getAdminProjectDetailView } from "@/lib/projects/getAdminProjects";
 import {
   formatProjectItemSummary,
@@ -31,13 +39,20 @@ type AdminProjectDetailPageProps = PageProps<"/admin/projects/[id]">;
 export default async function AdminProjectDetailPage({
   params,
 }: AdminProjectDetailPageProps) {
-  await requireAdmin();
+  const user = await requireAdmin();
   const { id } = await params;
   const project = await getAdminProjectDetailView(id);
 
   if (!project) {
     notFound();
   }
+
+  const messagingAvailable = hasEverBeenSubmitted({
+    reviewHistory: project.reviewHistory.map((entry) => ({
+      action: entry.action,
+    })),
+  });
+  const messageThread = await getProjectMessages(user.id, "admin", id);
 
   return (
     <div className={styles.page}>
@@ -150,6 +165,19 @@ export default async function AdminProjectDetailPage({
           </ol>
         </section>
       ) : null}
+
+      <ProjectMessageReadMarker
+        projectId={project.id}
+        messagingAvailable={messagingAvailable}
+        markReadAction={markAdminProjectMessagesReadAction}
+      />
+      <ProjectMessageThread
+        projectId={project.id}
+        messages={messageThread.messages}
+        messagingAvailable={messagingAvailable}
+        truncated={messageThread.truncated}
+        sendAction={sendAdminProjectMessageAction}
+      />
 
       <ProjectReviewPanel projectId={project.id} status={project.status} />
     </div>

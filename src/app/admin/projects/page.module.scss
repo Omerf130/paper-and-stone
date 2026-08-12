@@ -80,6 +80,13 @@
   color: $color-text-secondary;
 }
 
+.unreadBadge {
+  margin-top: $spacing-xs;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+}
+
 .link {
   font-size: $font-size-sm;
   color: $color-text-primary;

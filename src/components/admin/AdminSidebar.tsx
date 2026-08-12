@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { AdminNavItem } from "@/config/admin-nav";
+import NavBadge from "@/components/shared/NavBadge/NavBadge";
 import styles from "./AdminSidebar.module.scss";
 
 type AdminSidebarProps = {
@@ -34,7 +35,15 @@ export default function AdminSidebar({ items }: AdminSidebarProps) {
                     : styles.link
                 }
               >
-                {item.label}
+                <span className={styles.linkContent}>
+                  {item.label}
+                  {item.badgeCount && item.badgeCount > 0 ? (
+                    <NavBadge
+                      count={item.badgeCount}
+                      ariaLabel={`${item.badgeCount} פרויקטים ממתינים לבדיקה`}
+                    />
+                  ) : null}
+                </span>
               </Link>
             </li>
           ))}

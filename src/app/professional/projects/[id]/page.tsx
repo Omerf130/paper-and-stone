@@ -1,11 +1,18 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import ProjectMessageReadMarker from "@/components/project-messages/ProjectMessageReadMarker/ProjectMessageReadMarker";
+import ProjectMessageThread from "@/components/project-messages/ProjectMessageThread/ProjectMessageThread";
+import {
+  markProfessionalProjectMessagesReadAction,
+  sendProfessionalProjectMessageAction,
+} from "@/app/professional/projects/message-actions";
 import { requireProfessional } from "@/lib/auth/authorization";
 import {
   isProjectReadOnly,
 } from "@/lib/projects/assertProjectEditable";
 import { hasEverBeenSubmitted } from "@/lib/projects/project-review-history";
+import { getProjectMessages } from "@/lib/project-messages/getProjectMessages";
 import {
   getOwnedProjectDetailView,
   loadProductViewsByIds,
@@ -42,6 +49,12 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
         action: entry.action,
       })),
     });
+  const messagingAvailable = hasEverBeenSubmitted({
+    reviewHistory: project.reviewHistory.map((entry) => ({
+      action: entry.action,
+    })),
+  });
+  const messageThread = await getProjectMessages(user.id, "professional", id);
 
   return (
     <div className={styles.page}>
@@ -101,6 +114,19 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
       {project.reviewHistory.length > 0 ? (
         <ProjectReviewHistory history={project.reviewHistory} />
       ) : null}
+
+      <ProjectMessageReadMarker
+        projectId={project.id}
+        messagingAvailable={messagingAvailable}
+        markReadAction={markProfessionalProjectMessagesReadAction}
+      />
+      <ProjectMessageThread
+        projectId={project.id}
+        messages={messageThread.messages}
+        messagingAvailable={messagingAvailable}
+        truncated={messageThread.truncated}
+        sendAction={sendProfessionalProjectMessageAction}
+      />
     </div>
   );
 }

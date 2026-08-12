@@ -203,7 +203,21 @@ Prefer CSS logical properties (`margin-inline`, `padding-inline`, `text-align: s
 - Profile readiness gate: fullName + phone required before project actions
 - Nav: **הפרויקטים שלי**
 
-See also: [`docs/demo-1-public-shell.md`](demo-1-public-shell.md), [`docs/demo-2-homepage.md`](demo-2-homepage.md), [`docs/demo-3-product-page.md`](demo-3-product-page.md), [`docs/demo-4-mongodb-product-foundation.md`](demo-4-mongodb-product-foundation.md), [`docs/demo-5a-authentication.md`](demo-5a-authentication.md), [`docs/demo-5b-admin-products.md`](demo-5b-admin-products.md), [`docs/demo-6-public-catalog.md`](demo-6-public-catalog.md), [`docs/demo-7a-category-management.md`](demo-7a-category-management.md), [`docs/demo-7b-catalog-search-filter-pagination.md`](demo-7b-catalog-search-filter-pagination.md), [`docs/demo-8a-product-media-foundation.md`](demo-8a-product-media-foundation.md), [`docs/demo-8b-vercel-blob-media-manager.md`](demo-8b-vercel-blob-media-manager.md), [`docs/demo-9a-material-color-library.md`](demo-9a-material-color-library.md), [`docs/demo-9b-product-material-assignment.md`](demo-9b-product-material-assignment.md), [`docs/demo-9c1-product-recolor-foundation.md`](demo-9c1-product-recolor-foundation.md), [`docs/demo-9c2-admin-mask-creator.md`](demo-9c2-admin-mask-creator.md), [`docs/demo-10a-admin-users-management.md`](demo-10a-admin-users-management.md), [`docs/demo-10b-professional-area.md`](demo-10b-professional-area.md), [`docs/demo-10c-project-foundation.md`](demo-10c-project-foundation.md)
+**Demo 10E.1 — Notification Foundation:**
+- Separate `Notification` collection for Professional inbox
+- Workflow hooks on admin approve / reject / request changes
+- `/professional/notifications` with pagination and mark-read actions
+- Admin submitted-queue badge (not Notification records)
+- `reviewHistory` remains immutable workflow audit
+
+**Demo 10E.2 — Project Messaging:**
+- Separate `ProjectMessage` collection for per-project conversation
+- Thread UI on Professional and Admin project detail pages (`#messages`)
+- `readByUserIds[]` per-user read state; sender seeded on create
+- Admin → Professional `PROJECT_MESSAGE` notification; Pro → Admin via list badges only
+- Messaging available after first submission (`hasEverBeenSubmitted`)
+
+See also: [`docs/demo-1-public-shell.md`](demo-1-public-shell.md), [`docs/demo-2-homepage.md`](demo-2-homepage.md), [`docs/demo-3-product-page.md`](demo-3-product-page.md), [`docs/demo-4-mongodb-product-foundation.md`](demo-4-mongodb-product-foundation.md), [`docs/demo-5a-authentication.md`](demo-5a-authentication.md), [`docs/demo-5b-admin-products.md`](demo-5b-admin-products.md), [`docs/demo-6-public-catalog.md`](demo-6-public-catalog.md), [`docs/demo-7a-category-management.md`](demo-7a-category-management.md), [`docs/demo-7b-catalog-search-filter-pagination.md`](demo-7b-catalog-search-filter-pagination.md), [`docs/demo-8a-product-media-foundation.md`](demo-8a-product-media-foundation.md), [`docs/demo-8b-vercel-blob-media-manager.md`](demo-8b-vercel-blob-media-manager.md), [`docs/demo-9a-material-color-library.md`](demo-9a-material-color-library.md), [`docs/demo-9b-product-material-assignment.md`](demo-9b-product-material-assignment.md), [`docs/demo-9c1-product-recolor-foundation.md`](demo-9c1-product-recolor-foundation.md), [`docs/demo-9c2-admin-mask-creator.md`](demo-9c2-admin-mask-creator.md), [`docs/demo-10a-admin-users-management.md`](demo-10a-admin-users-management.md), [`docs/demo-10b-professional-area.md`](demo-10b-professional-area.md), [`docs/demo-10c-project-foundation.md`](demo-10c-project-foundation.md), [`docs/demo-10d-project-submission-admin-review.md`](demo-10d-project-submission-admin-review.md), [`docs/demo-10e1-notifications.md`](demo-10e1-notifications.md), [`docs/demo-10e2-project-messaging.md`](demo-10e2-project-messaging.md)
 
 ## Intentionally Deferred
 

@@ -28,6 +28,7 @@ export interface IProjectItem {
 }
 
 export interface IProjectReviewHistoryEntry {
+  _id?: Types.ObjectId;
   action: ProjectReviewAction;
   fromStatus: ProjectStatus;
   toStatus: ProjectStatus;

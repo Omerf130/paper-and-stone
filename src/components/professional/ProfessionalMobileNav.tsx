@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import type { ProfessionalNavItem } from "@/config/professional-nav";
 import { CloseIcon, MenuIcon } from "@/components/Header/icons";
+import NavBadge from "@/components/shared/NavBadge/NavBadge";
 import styles from "./ProfessionalMobileNav.module.scss";
 
 type ProfessionalMobileNavProps = {
@@ -103,7 +104,15 @@ export default function ProfessionalMobileNav({
                     }
                     onClick={closeMenu}
                   >
-                    {item.label}
+                    <span className={styles.linkContent}>
+                      {item.label}
+                      {item.badgeCount && item.badgeCount > 0 ? (
+                        <NavBadge
+                          count={item.badgeCount}
+                          ariaLabel={`${item.badgeCount} התראות שלא נקראו`}
+                        />
+                      ) : null}
+                    </span>
                   </Link>
                 </li>
               ))}

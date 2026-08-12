@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { adminNavItems } from "@/config/admin-nav";
+import type { AdminNavItem } from "@/config/admin-nav";
 import { logoutAction } from "@/lib/auth/logout-action";
 import AdminMobileNav from "./AdminMobileNav";
 import AdminSidebar from "./AdminSidebar";
@@ -7,17 +7,18 @@ import styles from "./AdminShell.module.scss";
 
 type AdminShellProps = {
   children: React.ReactNode;
+  navItems: AdminNavItem[];
 };
 
-export default function AdminShell({ children }: AdminShellProps) {
+export default function AdminShell({ children, navItems }: AdminShellProps) {
   return (
     <div className={styles.shell}>
-      <AdminSidebar items={adminNavItems} />
+      <AdminSidebar items={navItems} />
 
       <div className={styles.mainColumn}>
         <header className={styles.topBar}>
           <div className={styles.topBarStart}>
-            <AdminMobileNav items={adminNavItems} />
+            <AdminMobileNav items={navItems} />
             <Link href="/admin" className={styles.brand}>
               Paper &amp; Stone — ניהול
             </Link>

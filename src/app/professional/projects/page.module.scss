@@ -88,6 +88,13 @@
   color: $color-text-secondary;
 }
 
+.unreadBadge {
+  margin-top: $spacing-xs;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+}
+
 .editLink {
   color: $color-text-primary;
   text-decoration: underline;

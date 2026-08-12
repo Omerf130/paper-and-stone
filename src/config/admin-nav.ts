@@ -1,6 +1,7 @@
 export type AdminNavItem = {
   label: string;
   href: string;
+  badgeCount?: number;
 };
 
 export const adminNavItems: AdminNavItem[] = [

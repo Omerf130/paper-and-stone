@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import AdminProjectsPagination from "@/components/admin/AdminProjectsPagination/AdminProjectsPagination";
 import AdminProjectsToolbar from "@/components/admin/AdminProjectsToolbar/AdminProjectsToolbar";
+import { requireAdmin } from "@/lib/auth/authorization";
 import { getAdminProjects } from "@/lib/projects/getAdminProjects";
 import { parseAdminProjectsParams } from "@/lib/projects/project-params";
 import { getProjectStatusLabel } from "@/lib/projects/project-display-helpers";
@@ -31,7 +32,8 @@ export default async function AdminProjectsPage({
 }: AdminProjectsPageProps) {
   const resolvedSearchParams = await searchParams;
   const params = parseAdminProjectsParams(resolvedSearchParams);
-  const result = await getAdminProjects(params);
+  const user = await requireAdmin();
+  const result = await getAdminProjects(params, user.id);
 
   return (
     <div className={styles.page}>
@@ -71,6 +73,11 @@ export default async function AdminProjectsPage({
                         {project.clientName ? (
                           <div className={styles.subtle}>{project.clientName}</div>
                         ) : null}
+                        {(project.unreadMessageCount ?? 0) > 0 ? (
+                          <div className={styles.unreadBadge} role="status">
+                            הודעות חדשות: {project.unreadMessageCount}
+                          </div>
+                        ) : null}
                       </td>
                       <td>
                         <div dir="ltr">{project.professionalEmail}</div>
@@ -103,6 +110,11 @@ export default async function AdminProjectsPage({
                   <p className={styles.cardTitle}>{project.name}</p>
                   {project.clientName ? (
                     <p className={styles.cardMeta}>{project.clientName}</p>
+                  ) : null}
+                  {(project.unreadMessageCount ?? 0) > 0 ? (
+                    <p className={styles.unreadBadge} role="status">
+                      הודעות חדשות: {project.unreadMessageCount}
+                    </p>
                   ) : null}
                 </div>
 

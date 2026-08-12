@@ -1,0 +1,15 @@
+@use "../../../styles/tokens" as *;
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.5rem;
+  min-height: 1.5rem;
+  padding-inline: $spacing-xs;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  color: $color-surface;
+  background: $color-text-primary;
+  border-radius: 999px;
+}

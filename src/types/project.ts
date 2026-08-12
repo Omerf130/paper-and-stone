@@ -61,6 +61,7 @@ export type ProjectListItemView = {
   itemCount: number;
   submittedAt?: string;
   updatedAt: string;
+  unreadMessageCount?: number;
 };
 
 export type ProjectDetailView = {

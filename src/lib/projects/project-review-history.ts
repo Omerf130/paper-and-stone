@@ -1,6 +1,5 @@
 import { Types } from "mongoose";
 import type {
-  IProject,
   IProjectReviewHistoryEntry,
 } from "@/models/Project";
 import type {
@@ -11,6 +10,7 @@ import type {
 } from "@/types/project";
 
 export type BuildReviewHistoryEntryInput = {
+  reviewEventId?: Types.ObjectId;
   action: ProjectReviewAction;
   fromStatus: ProjectStatus;
   toStatus: ProjectStatus;
@@ -21,8 +21,9 @@ export type BuildReviewHistoryEntryInput = {
 
 export function buildReviewHistoryEntry(
   input: BuildReviewHistoryEntryInput,
-): IProjectReviewHistoryEntry {
-  const entry: IProjectReviewHistoryEntry = {
+): IProjectReviewHistoryEntry & { _id: Types.ObjectId } {
+  const entry: IProjectReviewHistoryEntry & { _id: Types.ObjectId } = {
+    _id: input.reviewEventId ?? new Types.ObjectId(),
     action: input.action,
     fromStatus: input.fromStatus,
     toStatus: input.toStatus,
@@ -37,6 +38,10 @@ export function buildReviewHistoryEntry(
   }
 
   return entry;
+}
+
+export function createReviewEventId(): Types.ObjectId {
+  return new Types.ObjectId();
 }
 
 export function mapReviewHistoryEntryToView(
