@@ -4,7 +4,16 @@ import Product, { type IProductMediaItem } from "@/models/Product";
 import type { MediaSlot } from "@/types/admin-product-media";
 import type { ProductMediaType } from "@/types/product-media";
 import { getMediaStorageProvider } from "./get-media-storage-provider";
-import { GALLERY_MAX_COUNT } from "./media-validation";
+import {
+  GALLERY_MAX_COUNT,
+  MEDIA_ERRORS,
+} from "./media-validation";
+import {
+  bindRecolorMaskToPrimary,
+  invalidateRecolorOnMaskDelete,
+  invalidateRecolorOnPrimaryDelete,
+  invalidateRecolorOnPrimaryReplace,
+} from "./recolor-config";
 
 export type UploadedBlobMetadata = {
   pathname: string;
@@ -60,28 +69,52 @@ function buildMediaItem(
   };
 }
 
+function getMediaTypeForSlot(slot: MediaSlot): ProductMediaType {
+  if (slot === "technical") {
+    return "TECHNICAL_DRAWING";
+  }
+
+  if (slot === "recolor-mask") {
+    return "RECOLOR_MASK";
+  }
+
+  return "PRODUCT_IMAGE";
+}
+
 async function findProductMedia(productId: string) {
   await connectDB();
   return Product.findById(productId);
+}
+
+function ensureRecolorConfig(product: NonNullable<Awaited<ReturnType<typeof findProductMedia>>>) {
+  if (!product.recolorConfig) {
+    product.recolorConfig = { enabled: false, status: "missing_primary" };
+  }
 }
 
 export async function persistUploadedMedia(
   input: PersistUploadInput,
 ): Promise<{ oldStorageKey: string | null }> {
   const { productId, slot, altText, blob, originalFilename, byteSize } = input;
-  const mediaType = slot === "technical" ? "TECHNICAL_DRAWING" : "PRODUCT_IMAGE";
+  const mediaType = getMediaTypeForSlot(slot);
 
   const product = await findProductMedia(productId);
   if (!product) {
-    throw new ProductMediaMutationError("מוצר לא נמצא.");
+    throw new ProductMediaMutationError(MEDIA_ERRORS.INVALID_PRODUCT);
   }
 
   if (!product.media) {
     product.media = { gallery: [] };
   }
 
+  ensureRecolorConfig(product);
+
   if (slot === "gallery" && (product.media.gallery?.length ?? 0) >= GALLERY_MAX_COUNT) {
-    throw new ProductMediaMutationError("ניתן להוסיף עד 8 תמונות לגלריה.");
+    throw new ProductMediaMutationError(MEDIA_ERRORS.GALLERY_FULL);
+  }
+
+  if (slot === "recolor-mask" && !product.media.primaryImage) {
+    throw new ProductMediaMutationError(MEDIA_ERRORS.MASK_REQUIRES_PRIMARY);
   }
 
   const itemData = buildMediaItem(
@@ -98,15 +131,26 @@ export async function persistUploadedMedia(
   if (slot === "primary") {
     oldStorageKey = product.media.primaryImage?.storageKey ?? null;
     product.media.primaryImage = itemData as IProductMediaItem;
+
+    if (product.media.recolorMask) {
+      invalidateRecolorOnPrimaryReplace(product.recolorConfig);
+    }
   } else if (slot === "technical") {
     oldStorageKey = product.media.technicalDrawing?.storageKey ?? null;
     product.media.technicalDrawing = itemData as IProductMediaItem;
+  } else if (slot === "recolor-mask") {
+    oldStorageKey = product.media.recolorMask?.storageKey ?? null;
+    product.media.recolorMask = itemData as IProductMediaItem;
+
+    const primaryId = product.media.primaryImage!._id;
+    bindRecolorMaskToPrimary(product.recolorConfig, primaryId);
   } else {
     product.media.gallery = product.media.gallery ?? [];
     product.media.gallery.push(itemData as IProductMediaItem);
   }
 
   product.markModified("media");
+  product.markModified("recolorConfig");
   await product.save();
 
   return { oldStorageKey };
@@ -142,6 +186,10 @@ export async function mediaItemExistsByStorageKey(
     return true;
   }
 
+  if (product.media.recolorMask?.storageKey === storageKey) {
+    return true;
+  }
+
   return (product.media.gallery ?? []).some(
     (item) => item.storageKey === storageKey,
   );
@@ -153,11 +201,65 @@ export async function deletePrimaryImage(productId: string): Promise<string | nu
     return null;
   }
 
+  ensureRecolorConfig(product);
+
   const storageKey = product.media.primaryImage.storageKey;
   product.media.primaryImage = undefined;
+  invalidateRecolorOnPrimaryDelete(product.recolorConfig);
   product.markModified("media");
+  product.markModified("recolorConfig");
   await product.save();
   return storageKey;
+}
+
+export async function deleteRecolorMask(productId: string): Promise<string | null> {
+  const product = await findProductMedia(productId);
+  if (!product?.media?.recolorMask) {
+    return null;
+  }
+
+  ensureRecolorConfig(product);
+
+  const storageKey = product.media.recolorMask.storageKey;
+  product.media.recolorMask = undefined;
+  invalidateRecolorOnMaskDelete(product.recolorConfig);
+  product.markModified("media");
+  product.markModified("recolorConfig");
+  await product.save();
+  return storageKey;
+}
+
+export async function setRecolorEnabled(
+  productId: string,
+  enabled: boolean,
+): Promise<boolean> {
+  const product = await findProductMedia(productId);
+  if (!product) {
+    return false;
+  }
+
+  ensureRecolorConfig(product);
+
+  if (enabled) {
+    if (
+      !product.media?.primaryImage ||
+      !product.media.recolorMask ||
+      product.recolorConfig.status !== "ready"
+    ) {
+      throw new ProductMediaMutationError(MEDIA_ERRORS.RECOLOR_NOT_READY);
+    }
+
+    const primaryId = product.media.primaryImage._id.toString();
+    const boundId = product.recolorConfig.sourceImageMediaId?.toString();
+    if (boundId && boundId !== primaryId) {
+      throw new ProductMediaMutationError(MEDIA_ERRORS.RECOLOR_NOT_READY);
+    }
+  }
+
+  product.recolorConfig.enabled = enabled;
+  product.markModified("recolorConfig");
+  await product.save();
+  return true;
 }
 
 export async function deleteTechnicalDrawing(

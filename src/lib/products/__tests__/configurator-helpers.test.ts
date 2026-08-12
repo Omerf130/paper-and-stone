@@ -26,6 +26,7 @@ const baseProduct: ProductView = {
   primaryImage: null,
   gallery: [],
   technicalDrawing: null,
+  recolor: null,
 };
 
 describe("configurator helpers", () => {

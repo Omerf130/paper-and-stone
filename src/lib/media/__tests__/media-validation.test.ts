@@ -3,6 +3,7 @@ import {
   ALLOWED_IMAGE_MIME_TYPES,
   GALLERY_MAX_COUNT,
   MEDIA_SIZE_LIMITS,
+  getAllowedMimeTypesForSlot,
   getMaxBytesForSlot,
   parseMediaUploadClientPayload,
   validateFileForSlotClient,
@@ -20,6 +21,17 @@ describe("media-validation", () => {
   it("enforces slot size limits", () => {
     expect(getMaxBytesForSlot("primary")).toBe(MEDIA_SIZE_LIMITS.primary);
     expect(getMaxBytesForSlot("technical")).toBe(MEDIA_SIZE_LIMITS.technical);
+    expect(getMaxBytesForSlot("recolor-mask")).toBe(MEDIA_SIZE_LIMITS["recolor-mask"]);
+  });
+
+  it("allows png only for recolor masks", () => {
+    expect(getAllowedMimeTypesForSlot("recolor-mask")).toEqual(["image/png"]);
+
+    const png = { type: "image/png", size: 1024 } as File;
+    const jpeg = { type: "image/jpeg", size: 1024 } as File;
+
+    expect(validateFileForSlotClient(png, "recolor-mask").ok).toBe(true);
+    expect(validateFileForSlotClient(jpeg, "recolor-mask").ok).toBe(false);
   });
 
   it("parses valid client payload", () => {

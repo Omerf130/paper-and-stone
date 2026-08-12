@@ -8,9 +8,9 @@ import {
   isPathnameInSlotNamespace,
 } from "@/lib/media/build-storage-path";
 import {
-  ALLOWED_IMAGE_MIME_TYPES,
   GALLERY_MAX_COUNT,
   MEDIA_ERRORS,
+  getAllowedMimeTypesForSlot,
   getMaxBytesForSlot,
   parseMediaUploadClientPayload,
 } from "@/lib/media/media-validation";
@@ -71,7 +71,7 @@ export async function validateUploadTokenRequest(
   };
 
   return {
-    allowedContentTypes: [...ALLOWED_IMAGE_MIME_TYPES],
+    allowedContentTypes: [...getAllowedMimeTypesForSlot(payload.slot)],
     maximumSizeInBytes: getMaxBytesForSlot(payload.slot),
     addRandomSuffix: false,
     tokenPayload: JSON.stringify(tokenPayload),

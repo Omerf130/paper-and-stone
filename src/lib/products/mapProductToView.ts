@@ -1,5 +1,6 @@
 import type { ICategory } from "@/models/Category";
 import type { IProduct } from "@/models/Product";
+import { mapProductRecolorToPublic } from "@/lib/media/mapProductRecolorToPublic";
 import {
   mapGalleryToPublic,
   mapPrimaryImageToPublic,
@@ -13,7 +14,6 @@ import type {
   ProductSizeView,
   ProductView,
 } from "@/types/product";
-
 type PopulatedCategory = Pick<ICategory, "nameHe">;
 
 type LeanProduct = Omit<IProduct, "categoryId"> & {
@@ -97,5 +97,6 @@ export async function mapProductToView(
       product.media?.technicalDrawing,
       `${fallbackAlt} — שרטוט טכני`,
     ),
+    recolor: mapProductRecolorToPublic(product),
   };
 }

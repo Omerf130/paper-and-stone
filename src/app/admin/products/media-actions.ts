@@ -18,9 +18,11 @@ import {
   deleteGalleryImage,
   deleteOldBlobBestEffort,
   deletePrimaryImage,
+  deleteRecolorMask,
   deleteTechnicalDrawing,
   moveGalleryImage,
   ProductMediaMutationError,
+  setRecolorEnabled,
   updateGalleryAltText,
   updatePrimaryAltText,
   updateTechnicalAltText,
@@ -72,6 +74,13 @@ export async function prepareMediaUploadAction(
     const count = await getGalleryCount(productId);
     if (count >= GALLERY_MAX_COUNT) {
       return { error: MEDIA_ERRORS.GALLERY_FULL };
+    }
+  }
+
+  if (parsedSlot.data === "recolor-mask") {
+    const media = await getAdminProductMediaById(productId);
+    if (!media?.primaryImage) {
+      return { error: MEDIA_ERRORS.MASK_REQUIRES_PRIMARY };
     }
   }
 
@@ -182,6 +191,52 @@ export async function deleteGalleryImageAction(
   await deleteOldBlobBestEffort(storageKey);
   await revalidateForProduct(productId);
   return { success: true };
+}
+
+export async function deleteRecolorMaskAction(
+  productId: string,
+): Promise<MediaActionState> {
+  await requireAdmin();
+
+  if (!Types.ObjectId.isValid(productId)) {
+    return invalidProductState();
+  }
+
+  const storageKey = await deleteRecolorMask(productId);
+  if (!storageKey) {
+    return { error: MEDIA_ERRORS.MEDIA_NOT_FOUND };
+  }
+
+  await deleteOldBlobBestEffort(storageKey);
+  await revalidateForProduct(productId);
+  return { success: true };
+}
+
+export async function setRecolorEnabledAction(
+  productId: string,
+  enabled: boolean,
+): Promise<MediaActionState> {
+  await requireAdmin();
+
+  if (!Types.ObjectId.isValid(productId)) {
+    return invalidProductState();
+  }
+
+  try {
+    const updated = await setRecolorEnabled(productId, enabled);
+    if (!updated) {
+      return { error: MEDIA_ERRORS.INVALID_PRODUCT };
+    }
+
+    await revalidateForProduct(productId);
+    return { success: true };
+  } catch (error: unknown) {
+    if (error instanceof ProductMediaMutationError) {
+      return { error: error.message };
+    }
+
+    return { error: MEDIA_ERRORS.GENERIC };
+  }
 }
 
 export async function deleteTechnicalDrawingAction(

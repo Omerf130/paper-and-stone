@@ -6,6 +6,7 @@ import {
   mapGalleryToAdmin,
   mapMediaItemToAdmin,
 } from "./mapProductMediaToAdmin";
+import { mapRecolorConfigToAdmin } from "./recolor-config";
 
 export async function getAdminProductMediaById(
   productId: string,
@@ -17,8 +18,8 @@ export async function getAdminProductMediaById(
   await connectDB();
 
   const product = await Product.findById(productId)
-    .select("nameHe media")
-    .lean<Pick<IProduct, "nameHe" | "media">>();
+    .select("nameHe media recolorConfig")
+    .lean<Pick<IProduct, "nameHe" | "media" | "recolorConfig">>();
 
   if (!product) {
     return null;
@@ -30,6 +31,8 @@ export async function getAdminProductMediaById(
     primaryImage: mapMediaItemToAdmin(product.media?.primaryImage),
     gallery: mapGalleryToAdmin(product.media?.gallery),
     technicalDrawing: mapMediaItemToAdmin(product.media?.technicalDrawing),
+    recolorMask: mapMediaItemToAdmin(product.media?.recolorMask),
+    recolorConfig: mapRecolorConfigToAdmin(product.recolorConfig),
   };
 }
 

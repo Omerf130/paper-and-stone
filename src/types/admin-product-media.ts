@@ -1,6 +1,12 @@
 import type { ProductMediaType } from "@/types/product-media";
+import type { ProductRecolorConfig } from "@/types/product-recolor";
 
-export const MEDIA_SLOTS = ["primary", "gallery", "technical"] as const;
+export const MEDIA_SLOTS = [
+  "primary",
+  "gallery",
+  "technical",
+  "recolor-mask",
+] as const;
 
 export type MediaSlot = (typeof MEDIA_SLOTS)[number];
 
@@ -15,6 +21,8 @@ export type AdminMediaItemView = {
   altText: string;
   sortOrder: number;
   createdAt: string;
+  width?: number;
+  height?: number;
 };
 
 export type AdminProductMediaView = {
@@ -23,6 +31,8 @@ export type AdminProductMediaView = {
   primaryImage: AdminMediaItemView | null;
   gallery: AdminMediaItemView[];
   technicalDrawing: AdminMediaItemView | null;
+  recolorMask: AdminMediaItemView | null;
+  recolorConfig: ProductRecolorConfig;
 };
 
 export type MediaUploadClientPayload = {

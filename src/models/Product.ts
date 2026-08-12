@@ -3,6 +3,10 @@ import {
   PRODUCT_MEDIA_TYPES,
   type ProductMediaType,
 } from "@/types/product-media";
+import {
+  RECOLOR_STATUSES,
+  type RecolorStatus,
+} from "@/types/product-recolor";
 
 export interface IProductColor {
   key: string;
@@ -41,10 +45,17 @@ export interface IProductMediaItem {
   createdAt: Date;
 }
 
+export interface IProductRecolorConfig {
+  enabled: boolean;
+  sourceImageMediaId?: Types.ObjectId;
+  status: RecolorStatus;
+}
+
 export interface IProductMedia {
   primaryImage?: IProductMediaItem;
   gallery: IProductMediaItem[];
   technicalDrawing?: IProductMediaItem;
+  recolorMask?: IProductMediaItem;
 }
 
 export interface IProduct extends Document {
@@ -71,6 +82,7 @@ export interface IProduct extends Document {
   materialOptions: IProductMaterialOption[];
   sizes: IProductSize[];
   media: IProductMedia;
+  recolorConfig: IProductRecolorConfig;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -142,6 +154,20 @@ const productMediaSchema = new Schema<IProductMedia>(
     primaryImage: { type: productMediaItemSchema },
     gallery: { type: [productMediaItemSchema], default: [] },
     technicalDrawing: { type: productMediaItemSchema },
+    recolorMask: { type: productMediaItemSchema },
+  },
+  { _id: false },
+);
+
+const productRecolorConfigSchema = new Schema<IProductRecolorConfig>(
+  {
+    enabled: { type: Boolean, default: false },
+    sourceImageMediaId: { type: Schema.Types.ObjectId },
+    status: {
+      type: String,
+      enum: RECOLOR_STATUSES,
+      default: "missing_primary",
+    },
   },
   { _id: false },
 );
@@ -178,6 +204,10 @@ const productSchema = new Schema<IProduct>(
     media: {
       type: productMediaSchema,
       default: () => ({ gallery: [] }),
+    },
+    recolorConfig: {
+      type: productRecolorConfigSchema,
+      default: () => ({ enabled: false, status: "missing_primary" }),
     },
   },
   { timestamps: true },

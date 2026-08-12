@@ -66,6 +66,11 @@ export async function deleteSessionByToken(rawToken: string): Promise<void> {
   await Session.deleteOne({ tokenHash });
 }
 
+export async function deleteSessionsForUser(userId: string): Promise<void> {
+  await connectDB();
+  await Session.deleteMany({ userId });
+}
+
 export async function clearSessionCookie(): Promise<void> {
   const cookieStore = await cookies();
   cookieStore.set(SESSION_COOKIE_NAME, "", {

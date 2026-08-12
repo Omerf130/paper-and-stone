@@ -9,9 +9,11 @@ import {
   resolveValidColorId,
 } from "@/lib/products/configurator-helpers";
 import { hasProductDimensions } from "@/lib/products/product-display-helpers";
+import { shouldShowRecolorForImage } from "@/lib/recolor/recolor-configurator-helpers";
 import type { PublicImageView } from "@/types/product-media";
 import type { ProductView } from "@/types/product";
 import ProductImage from "../ProductImage/ProductImage";
+import ProductRecolorCanvas from "../ProductRecolorCanvas/ProductRecolorCanvas";
 import ProductVisual from "../ProductVisual/ProductVisual";
 import TechnicalDrawing from "../TechnicalDrawing/TechnicalDrawing";
 import styles from "./ProductConfigurator.module.scss";
@@ -123,6 +125,37 @@ export default function ProductConfigurator({
     setQuantity((prev) => prev + 1);
   };
 
+  const showRecolor = shouldShowRecolorForImage(
+    product,
+    selectedImageUrl,
+    currentColor?.hex,
+  );
+
+  const renderProductVisual = () => {
+    if (showRecolor && currentColor && product.recolor) {
+      return (
+        <ProductRecolorCanvas
+          sourceImage={product.recolor.sourceImage}
+          mask={product.recolor.mask}
+          hex={currentColor.hex}
+          fallback={
+            selectedImage ? (
+              <ProductImage image={selectedImage} priority />
+            ) : (
+              <ProductVisual tone="gray" />
+            )
+          }
+        />
+      );
+    }
+
+    if (selectedImage) {
+      return <ProductImage image={selectedImage} priority />;
+    }
+
+    return <ProductVisual tone="gray" />;
+  };
+
   const visualClasses = visualClassName
     ? `${styles.visualSection} ${visualClassName}`
     : styles.visualSection;
@@ -164,10 +197,8 @@ export default function ProductConfigurator({
           ) : (
             <TechnicalDrawing dimensions={product.dimensions} />
           )
-        ) : selectedImage ? (
-          <ProductImage image={selectedImage} priority />
         ) : (
-          <ProductVisual tone="gray" />
+          renderProductVisual()
         )}
 
         {view === "product" && productImages.length > 1 ? (

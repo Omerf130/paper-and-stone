@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import ProductForm from "@/components/admin/ProductForm/ProductForm";
 import ProductMediaManager from "@/components/admin/ProductMediaManager/ProductMediaManager";
+import ProductRecolorManager from "@/components/admin/ProductRecolorManager/ProductRecolorManager";
 import { getProductFormCategoryOptions } from "@/lib/categories/getProductFormCategoryOptions";
 import { getAdminProductMediaById } from "@/lib/media/getAdminProductMediaById";
 import { getAdminProductById } from "@/lib/products/getAdminProductById";
@@ -41,6 +42,13 @@ export default async function AdminEditProductPage({
     getProductMaterialOptionsForAdmin(product.materialOptions),
   ]);
 
+  const previewColors = materialOptionsData.assignedMaterials.flatMap(
+    (material) => material.colors,
+  ).filter(
+    (color, index, colors) =>
+      colors.findIndex((candidate) => candidate.id === color.id) === index,
+  );
+
   return (
     <div className={styles.page}>
       <header className={styles.header}>
@@ -59,6 +67,16 @@ export default async function AdminEditProductPage({
       />
 
       {media ? <ProductMediaManager media={media} /> : null}
+      {media ? (
+        <ProductRecolorManager
+          media={media}
+          previewColors={previewColors.map((color) => ({
+            id: color.id,
+            name: color.nameHe,
+            hex: color.hex,
+          }))}
+        />
+      ) : null}
     </div>
   );
 }

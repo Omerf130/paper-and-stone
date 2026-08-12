@@ -30,4 +30,9 @@ describe("build-storage-path", () => {
     const path = buildStoragePath(productId, "gallery", "image.png");
     expect(isPathnameInSlotNamespace(path, productId, "gallery")).toBe(true);
   });
+
+  it("builds recolor mask namespace", () => {
+    const path = buildStoragePath(productId, "recolor-mask", "mask.png");
+    expect(isPathnameInSlotNamespace(path, productId, "recolor-mask")).toBe(true);
+  });
 });

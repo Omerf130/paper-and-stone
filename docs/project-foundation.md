@@ -162,7 +162,28 @@ Prefer CSS logical properties (`margin-inline`, `padding-inline`, `text-align: s
 - Legacy `fabrics[]` read-only fallback when `materialOptions` is empty
 - Idempotent demo seed for Milano (Colors/Materials via `$setOnInsert`)
 
-See also: [`docs/demo-1-public-shell.md`](demo-1-public-shell.md), [`docs/demo-2-homepage.md`](demo-2-homepage.md), [`docs/demo-3-product-page.md`](demo-3-product-page.md), [`docs/demo-4-mongodb-product-foundation.md`](demo-4-mongodb-product-foundation.md), [`docs/demo-5a-authentication.md`](demo-5a-authentication.md), [`docs/demo-5b-admin-products.md`](demo-5b-admin-products.md), [`docs/demo-6-public-catalog.md`](demo-6-public-catalog.md), [`docs/demo-7a-category-management.md`](demo-7a-category-management.md), [`docs/demo-7b-catalog-search-filter-pagination.md`](demo-7b-catalog-search-filter-pagination.md), [`docs/demo-8a-product-media-foundation.md`](demo-8a-product-media-foundation.md), [`docs/demo-8b-vercel-blob-media-manager.md`](demo-8b-vercel-blob-media-manager.md), [`docs/demo-9a-material-color-library.md`](demo-9a-material-color-library.md), [`docs/demo-9b-product-material-assignment.md`](demo-9b-product-material-assignment.md)
+**Demo 9C.1:**
+- Product-specific PNG recolor mask on Vercel Blob
+- `recolorConfig` binds mask to primary image via `sourceImageMediaId`
+- Browser-side luminance-preserving Canvas recolor using `Color.hex`
+- Admin `ProductRecolorManager` with preview + enable/disable
+- Public `ProductRecolorCanvas` with graceful fallback to `ProductImage`
+
+**Demo 9C.2:**
+- Admin `ProductMaskEditor` — in-browser paint/erase/fill mask creator
+- Natural-resolution PNG export via existing `recolor-mask` upload pipeline
+- Memory-aware undo/redo (alpha snapshots, 64 MB combined budget, max 12 states)
+- Existing mask editing when `status === "ready"`; blank mask on `invalid_source`
+- Manual PNG upload retained as secondary fallback
+
+**Demo 10A:**
+- Admin `/admin/users` — list, search, role/status filters, pagination
+- Role management (customer / professional / admin)
+- Activate/deactivate users with session invalidation on deactivation
+- Self-protection and last-active-admin guards
+- Desktop table + mobile user cards
+
+See also: [`docs/demo-1-public-shell.md`](demo-1-public-shell.md), [`docs/demo-2-homepage.md`](demo-2-homepage.md), [`docs/demo-3-product-page.md`](demo-3-product-page.md), [`docs/demo-4-mongodb-product-foundation.md`](demo-4-mongodb-product-foundation.md), [`docs/demo-5a-authentication.md`](demo-5a-authentication.md), [`docs/demo-5b-admin-products.md`](demo-5b-admin-products.md), [`docs/demo-6-public-catalog.md`](demo-6-public-catalog.md), [`docs/demo-7a-category-management.md`](demo-7a-category-management.md), [`docs/demo-7b-catalog-search-filter-pagination.md`](demo-7b-catalog-search-filter-pagination.md), [`docs/demo-8a-product-media-foundation.md`](demo-8a-product-media-foundation.md), [`docs/demo-8b-vercel-blob-media-manager.md`](demo-8b-vercel-blob-media-manager.md), [`docs/demo-9a-material-color-library.md`](demo-9a-material-color-library.md), [`docs/demo-9b-product-material-assignment.md`](demo-9b-product-material-assignment.md), [`docs/demo-9c1-product-recolor-foundation.md`](demo-9c1-product-recolor-foundation.md), [`docs/demo-9c2-admin-mask-creator.md`](demo-9c2-admin-mask-creator.md), [`docs/demo-10a-admin-users-management.md`](demo-10a-admin-users-management.md)
 
 ## Intentionally Deferred
 

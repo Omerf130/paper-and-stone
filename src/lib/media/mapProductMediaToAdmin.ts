@@ -19,6 +19,8 @@ export function mapMediaItemToAdmin(
     altText: item.altText ?? "",
     sortOrder: item.sortOrder,
     createdAt: item.createdAt.toISOString(),
+    width: item.width,
+    height: item.height,
   };
 }
 
