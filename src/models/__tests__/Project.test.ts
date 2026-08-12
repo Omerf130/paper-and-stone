@@ -10,6 +10,7 @@ describe("Project model", () => {
       expect.arrayContaining([
         expect.objectContaining({ ownerUserId: 1, updatedAt: -1 }),
         expect.objectContaining({ ownerUserId: 1, status: 1 }),
+        expect.objectContaining({ status: 1, submittedAt: -1 }),
       ]),
     );
   });

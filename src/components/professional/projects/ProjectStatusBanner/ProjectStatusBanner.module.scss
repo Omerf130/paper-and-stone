@@ -1,0 +1,65 @@
+@use "../../../../styles/tokens" as *;
+@use "../../../../styles/mixins" as *;
+
+.banner {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  padding: $spacing-md;
+  border: 1px solid $color-border;
+  background: $color-background-subtle;
+}
+
+.statusLine {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-xs;
+  margin: 0;
+  font-size: $font-size-base;
+  font-weight: $font-weight-medium;
+}
+
+.label {
+  color: $color-text-secondary;
+}
+
+.metaLine {
+  margin: 0;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.info {
+  margin: 0;
+  font-size: $font-size-sm;
+}
+
+.success {
+  margin: 0;
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+}
+
+.error {
+  margin: 0;
+  font-size: $font-size-sm;
+  color: #8b1e1e;
+}
+
+.feedback {
+  margin-top: $spacing-xs;
+  padding-top: $spacing-sm;
+  border-top: 1px solid $color-border;
+}
+
+.feedbackLabel {
+  margin: 0 0 $spacing-xs;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+}
+
+.feedbackMessage {
+  margin: 0;
+  font-size: $font-size-sm;
+  white-space: pre-wrap;
+}

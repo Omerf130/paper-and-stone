@@ -1,3 +1,25 @@
+export const PROJECT_REVIEW_ACTIONS = [
+  "submitted",
+  "resubmitted",
+  "approved",
+  "rejected",
+  "changes_requested",
+] as const;
+
+export type ProjectReviewAction = (typeof PROJECT_REVIEW_ACTIONS)[number];
+
+export type ProjectReviewActorRole = "professional" | "admin";
+
+export type ProjectReviewHistoryEntry = {
+  action: ProjectReviewAction;
+  fromStatus: ProjectStatus;
+  toStatus: ProjectStatus;
+  message?: string;
+  actorUserId: string;
+  actorRole: ProjectReviewActorRole;
+  createdAt: string;
+};
+
 export const PROJECT_STATUSES = [
   "draft",
   "submitted",
@@ -7,6 +29,8 @@ export const PROJECT_STATUSES = [
 ] as const;
 
 export type ProjectStatus = (typeof PROJECT_STATUSES)[number];
+
+export const EDITABLE_PROJECT_STATUSES = ["draft", "changes_requested"] as const;
 
 export type ProjectItemSnapshot = {
   productName: string;
@@ -35,6 +59,7 @@ export type ProjectListItemView = {
   clientName?: string;
   status: ProjectStatus;
   itemCount: number;
+  submittedAt?: string;
   updatedAt: string;
 };
 
@@ -46,6 +71,10 @@ export type ProjectDetailView = {
   description?: string;
   status: ProjectStatus;
   items: ProjectItemView[];
+  reviewHistory: ProjectReviewHistoryEntry[];
+  submittedAt?: string;
+  reviewedAt?: string;
+  reviewedByUserId?: string;
   createdAt: string;
   updatedAt: string;
 };
@@ -88,5 +117,11 @@ export type UpdateProjectItemInput = {
 
 export type AddToProjectState = {
   error?: string;
+  success?: boolean;
+};
+
+export type AdminReviewActionState = {
+  error?: string;
+  fieldErrors?: Record<string, string>;
   success?: boolean;
 };

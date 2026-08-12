@@ -17,6 +17,7 @@ type ProjectFormProps = {
   projectId?: string;
   showSavedBanner?: boolean;
   showDelete?: boolean;
+  readOnly?: boolean;
 };
 
 const initialState: ProjectFormState = {};
@@ -27,6 +28,7 @@ export default function ProjectForm({
   projectId,
   showSavedBanner = false,
   showDelete = false,
+  readOnly = false,
 }: ProjectFormProps) {
   const router = useRouter();
   const [formState, setFormState] = useState(initialState);
@@ -107,6 +109,8 @@ export default function ProjectForm({
               value={project.name}
               onChange={(event) => updateField("name", event.target.value)}
               required
+              readOnly={readOnly}
+              disabled={readOnly}
             />
             {fieldErrors.name && (
               <p className={styles.fieldError}>{fieldErrors.name}</p>
@@ -124,6 +128,8 @@ export default function ProjectForm({
               className={styles.input}
               value={project.clientName ?? ""}
               onChange={(event) => updateField("clientName", event.target.value)}
+              readOnly={readOnly}
+              disabled={readOnly}
             />
             {fieldErrors.clientName && (
               <p className={styles.fieldError}>{fieldErrors.clientName}</p>
@@ -141,6 +147,8 @@ export default function ProjectForm({
               className={styles.input}
               value={project.location ?? ""}
               onChange={(event) => updateField("location", event.target.value)}
+              readOnly={readOnly}
+              disabled={readOnly}
             />
             {fieldErrors.location && (
               <p className={styles.fieldError}>{fieldErrors.location}</p>
@@ -159,6 +167,8 @@ export default function ProjectForm({
             value={project.description ?? ""}
             onChange={(event) => updateField("description", event.target.value)}
             rows={4}
+            readOnly={readOnly}
+            disabled={readOnly}
           />
           {fieldErrors.description && (
             <p className={styles.fieldError}>{fieldErrors.description}</p>
@@ -167,20 +177,22 @@ export default function ProjectForm({
       </section>
 
       <div className={styles.actions}>
-        <button
-          type="button"
-          className={styles.submitButton}
-          onClick={handleSubmit}
-          disabled={isPending}
-        >
-          {isPending ? "שומר..." : mode === "create" ? "יצירת פרויקט" : "שמירה"}
-        </button>
+        {!readOnly ? (
+          <button
+            type="button"
+            className={styles.submitButton}
+            onClick={handleSubmit}
+            disabled={isPending}
+          >
+            {isPending ? "שומר..." : mode === "create" ? "יצירת פרויקט" : "שמירה"}
+          </button>
+        ) : null}
         {mode === "edit" ? (
           <Link href="/professional/projects" className={styles.cancelLink}>
             חזרה לרשימה
           </Link>
         ) : null}
-        {showDelete ? (
+        {showDelete && !readOnly ? (
           <button
             type="button"
             className={styles.removeButton}

@@ -7,7 +7,7 @@ import {
   PROJECT_ERRORS,
   type ProjectWriteFields,
 } from "@/lib/projects/project-validation";
-import { assertProjectEditable } from "@/lib/projects/assertProjectEditable";
+import { assertProjectEditable, assertProjectDeletable, EDITABLE_STATUS_FILTER } from "@/lib/projects/assertProjectEditable";
 import { buildProjectItemSnapshot } from "@/lib/projects/buildProjectItemSnapshot";
 import {
   buildElemMatchCriteria,
@@ -75,7 +75,7 @@ export async function updateProject(
     {
       _id: new Types.ObjectId(projectId),
       ownerUserId: new Types.ObjectId(ownerUserId),
-      status: "draft",
+      status: EDITABLE_STATUS_FILTER,
     },
     {
       $set: {
@@ -96,7 +96,18 @@ export async function deleteProject(
   ownerUserId: string,
   projectId: string,
 ): Promise<void> {
-  await getEditableOwnedProject(ownerUserId, projectId);
+  await connectDB();
+
+  if (!Types.ObjectId.isValid(projectId)) {
+    throw new ProjectMutationError(PROJECT_ERRORS.NOT_FOUND);
+  }
+
+  const project = await Project.findOne({
+    _id: new Types.ObjectId(projectId),
+    ownerUserId: new Types.ObjectId(ownerUserId),
+  });
+
+  assertProjectDeletable(project);
 
   const result = await Project.deleteOne({
     _id: new Types.ObjectId(projectId),
@@ -105,7 +116,7 @@ export async function deleteProject(
   });
 
   if (result.deletedCount === 0) {
-    throw new ProjectMutationError(PROJECT_ERRORS.NOT_FOUND);
+    throw new ProjectMutationError(PROJECT_ERRORS.NOT_DELETABLE);
   }
 }
 
@@ -156,7 +167,7 @@ export async function addProductToProject(
     {
       _id: new Types.ObjectId(projectId),
       ownerUserId: new Types.ObjectId(ownerUserId),
-      status: "draft",
+      status: EDITABLE_STATUS_FILTER,
       items: {
         $elemMatch: {
           ...buildElemMatchCriteria(selectionKey),
@@ -176,7 +187,7 @@ export async function addProductToProject(
   const project = await Project.findOne({
     _id: new Types.ObjectId(projectId),
     ownerUserId: new Types.ObjectId(ownerUserId),
-    status: "draft",
+    status: EDITABLE_STATUS_FILTER,
   });
 
   if (!project) {
@@ -196,7 +207,7 @@ export async function addProductToProject(
       {
         _id: new Types.ObjectId(projectId),
         ownerUserId: new Types.ObjectId(ownerUserId),
-        status: "draft",
+        status: EDITABLE_STATUS_FILTER,
         items: {
           $elemMatch: {
             ...buildElemMatchCriteria(selectionKey),
@@ -222,7 +233,7 @@ export async function addProductToProject(
     {
       _id: new Types.ObjectId(projectId),
       ownerUserId: new Types.ObjectId(ownerUserId),
-      status: "draft",
+      status: EDITABLE_STATUS_FILTER,
     },
     {
       $push: { items: newItem },
@@ -248,7 +259,7 @@ export async function updateProjectItem(
   const project = await Project.findOne({
     _id: new Types.ObjectId(projectId),
     ownerUserId: new Types.ObjectId(ownerUserId),
-    status: "draft",
+    status: EDITABLE_STATUS_FILTER,
   });
 
   if (!project) {
@@ -276,7 +287,7 @@ export async function updateProjectItem(
     {
       _id: new Types.ObjectId(projectId),
       ownerUserId: new Types.ObjectId(ownerUserId),
-      status: "draft",
+      status: EDITABLE_STATUS_FILTER,
     },
     {
       $set: {
@@ -308,7 +319,7 @@ export async function removeProjectItem(
     {
       _id: new Types.ObjectId(projectId),
       ownerUserId: new Types.ObjectId(ownerUserId),
-      status: "draft",
+      status: EDITABLE_STATUS_FILTER,
     },
     {
       $pull: { items: { _id: new Types.ObjectId(itemId) } },

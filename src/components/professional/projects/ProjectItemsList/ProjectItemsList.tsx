@@ -13,12 +13,14 @@ type ProjectItemsListProps = {
   projectId: string;
   items: ProjectItemView[];
   productViewsById: Record<string, ProductView>;
+  readOnly?: boolean;
 };
 
 export default function ProjectItemsList({
   projectId,
   items,
   productViewsById,
+  readOnly = false,
 }: ProjectItemsListProps) {
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
   const [error, setError] = useState<string | undefined>();
@@ -47,9 +49,11 @@ export default function ProjectItemsList({
     return (
       <div className={styles.emptyBlock}>
         <p className={styles.empty}>עדיין לא נוספו מוצרים לפרויקט.</p>
-        <Link href="/products" className={styles.addLink}>
-          הוספת מוצרים
-        </Link>
+        {!readOnly ? (
+          <Link href="/products" className={styles.addLink}>
+            הוספת מוצרים
+          </Link>
+        ) : null}
       </div>
     );
   }
@@ -81,24 +85,28 @@ export default function ProjectItemsList({
                 ) : null}
               </div>
               <div className={styles.cardActions}>
-                <button
-                  type="button"
-                  className={styles.actionButton}
-                  onClick={() =>
-                    setEditingItemId(isEditing ? null : item.id)
-                  }
-                  disabled={isPending || !productView}
-                >
-                  {isEditing ? "סגירה" : "עריכה"}
-                </button>
-                <button
-                  type="button"
-                  className={styles.actionButton}
-                  onClick={() => handleRemove(item.id)}
-                  disabled={isPending}
-                >
-                  הסרה
-                </button>
+                {!readOnly ? (
+                  <>
+                    <button
+                      type="button"
+                      className={styles.actionButton}
+                      onClick={() =>
+                        setEditingItemId(isEditing ? null : item.id)
+                      }
+                      disabled={isPending || !productView}
+                    >
+                      {isEditing ? "סגירה" : "עריכה"}
+                    </button>
+                    <button
+                      type="button"
+                      className={styles.actionButton}
+                      onClick={() => handleRemove(item.id)}
+                      disabled={isPending}
+                    >
+                      הסרה
+                    </button>
+                  </>
+                ) : null}
               </div>
             </div>
 

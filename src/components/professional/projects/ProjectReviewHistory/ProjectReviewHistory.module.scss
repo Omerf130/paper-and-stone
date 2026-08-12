@@ -1,0 +1,44 @@
+@use "../../../../styles/tokens" as *;
+@use "../../../../styles/mixins" as *;
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.title {
+  margin: 0;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  padding: $spacing-md;
+  border: 1px solid $color-border;
+  background: $color-surface;
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: $spacing-sm;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+}
+
+.message {
+  margin: $spacing-sm 0 0;
+  font-size: $font-size-sm;
+  white-space: pre-wrap;
+}

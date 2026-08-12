@@ -1,0 +1,158 @@
+@use "../../../styles/tokens" as *;
+@use "../../../styles/mixins" as *;
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xl;
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: $spacing-md;
+}
+
+.title {
+  margin: 0 0 $spacing-xs;
+  font-size: $font-size-xl;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.description {
+  margin: 0;
+  font-size: $font-size-base;
+  color: $color-text-secondary;
+}
+
+.desktopOnly {
+  display: none;
+
+  @include tablet-up {
+    display: block;
+  }
+}
+
+.mobileOnly {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+
+  @include tablet-up {
+    display: none;
+  }
+}
+
+.tableWrap {
+  border: 1px solid $color-border;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: $font-size-sm;
+}
+
+.table th,
+.table td {
+  padding: $spacing-md;
+  text-align: start;
+  border-bottom: 1px solid $color-border;
+  vertical-align: top;
+}
+
+.table th {
+  font-weight: $font-weight-medium;
+  color: $color-text-secondary;
+  background-color: $color-background-subtle;
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.subtle {
+  margin-top: $spacing-xs;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.link {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+
+  @include focus-visible;
+}
+
+.cardList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  padding: $spacing-md;
+  border: 1px solid $color-border;
+  background: $color-surface;
+}
+
+.cardHeader {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+}
+
+.cardTitle {
+  margin: 0;
+  font-size: $font-size-base;
+  font-weight: $font-weight-medium;
+}
+
+.cardMeta {
+  margin: 0;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.cardMetaGrid {
+  display: grid;
+  gap: $spacing-sm;
+}
+
+.metaRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-xs $spacing-md;
+  align-items: baseline;
+}
+
+.metaLabel {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text-secondary;
+}
+
+.metaValue {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+}
+
+.empty {
+  margin: 0;
+  padding: $spacing-lg;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  text-align: center;
+  border: 1px solid $color-border;
+}

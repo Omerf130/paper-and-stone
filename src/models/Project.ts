@@ -1,6 +1,9 @@
 import mongoose, { Schema, type Document, type Model, Types } from "mongoose";
 import {
+  PROJECT_REVIEW_ACTIONS,
   PROJECT_STATUSES,
+  type ProjectReviewAction,
+  type ProjectReviewActorRole,
   type ProjectStatus,
 } from "@/types/project";
 
@@ -24,6 +27,16 @@ export interface IProjectItem {
   snapshot: IProjectItemSnapshot;
 }
 
+export interface IProjectReviewHistoryEntry {
+  action: ProjectReviewAction;
+  fromStatus: ProjectStatus;
+  toStatus: ProjectStatus;
+  message?: string;
+  actorUserId: Types.ObjectId;
+  actorRole: ProjectReviewActorRole;
+  createdAt: Date;
+}
+
 export interface IProject extends Document {
   ownerUserId: Types.ObjectId;
   name: string;
@@ -32,6 +45,10 @@ export interface IProject extends Document {
   description?: string;
   status: ProjectStatus;
   items: IProjectItem[];
+  reviewHistory: IProjectReviewHistoryEntry[];
+  submittedAt?: Date;
+  reviewedAt?: Date;
+  reviewedByUserId?: Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -65,6 +82,39 @@ const projectItemSchema = new Schema<IProjectItem>(
   { _id: true },
 );
 
+const projectReviewHistorySchema = new Schema<IProjectReviewHistoryEntry>(
+  {
+    action: {
+      type: String,
+      enum: PROJECT_REVIEW_ACTIONS,
+      required: true,
+    },
+    fromStatus: {
+      type: String,
+      enum: PROJECT_STATUSES,
+      required: true,
+    },
+    toStatus: {
+      type: String,
+      enum: PROJECT_STATUSES,
+      required: true,
+    },
+    message: { type: String, trim: true },
+    actorUserId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    actorRole: {
+      type: String,
+      enum: ["professional", "admin"],
+      required: true,
+    },
+    createdAt: { type: Date, default: Date.now, required: true },
+  },
+  { _id: true },
+);
+
 const projectSchema = new Schema<IProject>(
   {
     ownerUserId: {
@@ -84,12 +134,17 @@ const projectSchema = new Schema<IProject>(
       required: true,
     },
     items: { type: [projectItemSchema], default: [] },
+    reviewHistory: { type: [projectReviewHistorySchema], default: [] },
+    submittedAt: { type: Date },
+    reviewedAt: { type: Date },
+    reviewedByUserId: { type: Schema.Types.ObjectId, ref: "User" },
   },
   { timestamps: true },
 );
 
 projectSchema.index({ ownerUserId: 1, updatedAt: -1 });
 projectSchema.index({ ownerUserId: 1, status: 1 });
+projectSchema.index({ status: 1, submittedAt: -1 });
 
 const Project: Model<IProject> =
   mongoose.models.Project ?? mongoose.model<IProject>("Project", projectSchema);

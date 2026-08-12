@@ -12,6 +12,7 @@ import {
   updateProject,
   updateProjectItem,
 } from "@/lib/projects/project-mutations";
+import { submitProject } from "@/lib/projects/project-submission";
 import {
   PROJECT_ERRORS,
   parseAddToProjectInput,
@@ -178,6 +179,25 @@ export async function removeProjectItemAction(
 
   try {
     await removeProjectItem(user.id, projectId, itemId);
+    revalidatePath(`/professional/projects/${projectId}`);
+    revalidatePath("/professional/projects");
+    return { success: true };
+  } catch (error: unknown) {
+    if (error instanceof ProjectMutationError) {
+      return { error: error.message };
+    }
+
+    return { error: PROJECT_ERRORS.GENERIC };
+  }
+}
+
+export async function submitProjectAction(
+  projectId: string,
+): Promise<ProjectFormState> {
+  const user = await requireProfessional();
+
+  try {
+    await submitProject(user.id, projectId);
     revalidatePath(`/professional/projects/${projectId}`);
     revalidatePath("/professional/projects");
     return { success: true };

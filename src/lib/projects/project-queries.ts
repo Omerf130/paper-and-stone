@@ -3,6 +3,7 @@ import { connectDB } from "@/lib/db/mongoose";
 import { mapProductToView } from "@/lib/products/mapProductToView";
 import Project from "@/models/Project";
 import Product from "@/models/Product";
+import Category from "@/models/Category";
 import type { IProject } from "@/models/Project";
 import {
   mapProjectToDetailView,
@@ -37,7 +38,7 @@ export async function getProfessionalProjectOptions(
 
   const projects = await Project.find({
     ownerUserId: new Types.ObjectId(ownerUserId),
-    status: "draft",
+    status: { $in: ["draft", "changes_requested"] },
   })
     .select("_id name")
     .sort({ updatedAt: -1 })
@@ -89,6 +90,7 @@ export async function loadProductViewsByIds(
   const products = await Product.find({ _id: { $in: productIds } })
     .populate<{ categoryId: { nameHe: string } | null }>({
       path: "categoryId",
+      model: Category,
       select: "nameHe",
     })
     .lean();

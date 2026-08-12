@@ -1,15 +1,17 @@
 import type { ProjectItemView } from "@/types/project";
 
-const PROJECT_STATUS_LABELS: Record<string, string> = {
-  draft: "טיוטה",
-  submitted: "נשלח",
-  changes_requested: "נדרשים שינויים",
-  approved: "מאושר",
-  rejected: "נדחה",
-};
+import type { ProjectStatus, ProjectReviewAction } from "@/types/project";
+import {
+  PROJECT_STATUS_LABELS,
+  PROJECT_REVIEW_ACTION_LABELS,
+} from "@/types/admin-project";
 
-export function getProjectStatusLabel(status: string): string {
-  return PROJECT_STATUS_LABELS[status] ?? status;
+export function getProjectStatusLabel(status: ProjectStatus | string): string {
+  return PROJECT_STATUS_LABELS[status as ProjectStatus] ?? status;
+}
+
+export function getProjectReviewActionLabel(action: ProjectReviewAction): string {
+  return PROJECT_REVIEW_ACTION_LABELS[action] ?? action;
 }
 
 export function formatProjectItemSummary(

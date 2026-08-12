@@ -7,8 +7,9 @@ import type {
 } from "@/types/project";
 import Product from "@/models/Product";
 import { connectDB } from "@/lib/db/mongoose";
+import { mapReviewHistoryEntryToView } from "@/lib/projects/project-review-history";
 
-function mapProjectItemToView(
+export function mapProjectItemToView(
   item: IProjectItem,
   activeProductIds: Set<string>,
 ): ProjectItemView {
@@ -58,6 +59,7 @@ export function mapProjectToListItemView(project: IProject): ProjectListItemView
     clientName: project.clientName,
     status: project.status,
     itemCount: project.items.length,
+    submittedAt: project.submittedAt?.toISOString(),
     updatedAt: project.updatedAt.toISOString(),
   };
 }
@@ -78,6 +80,10 @@ export async function mapProjectToDetailView(
     items: project.items.map((item) =>
       mapProjectItemToView(item, activeProductIds),
     ),
+    reviewHistory: (project.reviewHistory ?? []).map(mapReviewHistoryEntryToView),
+    submittedAt: project.submittedAt?.toISOString(),
+    reviewedAt: project.reviewedAt?.toISOString(),
+    reviewedByUserId: project.reviewedByUserId?.toString(),
     createdAt: project.createdAt.toISOString(),
     updatedAt: project.updatedAt.toISOString(),
   };
