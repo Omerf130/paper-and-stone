@@ -104,6 +104,11 @@ export default function MobileMenu({
                       ניהול
                     </Link>
                   )}
+                  {user.role === "professional" && (
+                    <Link href="/professional" className={styles.authLink}>
+                      אזור מקצועי
+                    </Link>
+                  )}
                   <form action={logoutAction}>
                     <button type="submit" className={styles.logoutButton}>
                       התנתקות

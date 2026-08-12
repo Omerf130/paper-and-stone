@@ -1,0 +1,145 @@
+@use "../../../styles/tokens" as *;
+@use "../../../styles/mixins" as *;
+
+.dialog {
+  width: min(100% - 2rem, 28rem);
+  padding: 0;
+  border: 1px solid $color-border;
+  background-color: $color-background;
+
+  &::backdrop {
+    background-color: rgb(0 0 0 / 40%);
+  }
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  padding: $spacing-lg;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-md;
+}
+
+.title {
+  margin: 0;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.closeButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  font-size: $font-size-xl;
+  line-height: 1;
+  color: $color-text-secondary;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+
+  @include focus-visible;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+}
+
+.label {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+}
+
+.select {
+  width: 100%;
+  padding: $spacing-sm $spacing-md;
+  font: inherit;
+  color: $color-text-primary;
+  background-color: $color-background;
+  border: 1px solid $color-border;
+  border-radius: $radius-sm;
+
+  @include focus-visible;
+}
+
+.messageBlock {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.message {
+  margin: 0;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.error {
+  margin: 0;
+  font-size: $font-size-sm;
+  color: $color-accent;
+}
+
+.success {
+  margin: 0;
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-md;
+}
+
+.primaryButton,
+.secondaryButton,
+.linkButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  padding-inline: $spacing-lg;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  text-decoration: none;
+  cursor: pointer;
+
+  @include focus-visible;
+}
+
+.primaryButton {
+  color: $color-background;
+  background-color: $color-text-primary;
+  border: 1px solid $color-text-primary;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.secondaryButton {
+  color: $color-text-secondary;
+  background: transparent;
+  border: 1px solid $color-border;
+}
+
+.linkButton {
+  width: fit-content;
+  color: $color-background;
+  background-color: $color-text-primary;
+  border: 1px solid $color-text-primary;
+}

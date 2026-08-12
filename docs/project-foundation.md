@@ -183,7 +183,27 @@ Prefer CSS logical properties (`margin-inline`, `padding-inline`, `text-align: s
 - Self-protection and last-active-admin guards
 - Desktop table + mobile user cards
 
-See also: [`docs/demo-1-public-shell.md`](demo-1-public-shell.md), [`docs/demo-2-homepage.md`](demo-2-homepage.md), [`docs/demo-3-product-page.md`](demo-3-product-page.md), [`docs/demo-4-mongodb-product-foundation.md`](demo-4-mongodb-product-foundation.md), [`docs/demo-5a-authentication.md`](demo-5a-authentication.md), [`docs/demo-5b-admin-products.md`](demo-5b-admin-products.md), [`docs/demo-6-public-catalog.md`](demo-6-public-catalog.md), [`docs/demo-7a-category-management.md`](demo-7a-category-management.md), [`docs/demo-7b-catalog-search-filter-pagination.md`](demo-7b-catalog-search-filter-pagination.md), [`docs/demo-8a-product-media-foundation.md`](demo-8a-product-media-foundation.md), [`docs/demo-8b-vercel-blob-media-manager.md`](demo-8b-vercel-blob-media-manager.md), [`docs/demo-9a-material-color-library.md`](demo-9a-material-color-library.md), [`docs/demo-9b-product-material-assignment.md`](demo-9b-product-material-assignment.md), [`docs/demo-9c1-product-recolor-foundation.md`](demo-9c1-product-recolor-foundation.md), [`docs/demo-9c2-admin-mask-creator.md`](demo-9c2-admin-mask-creator.md), [`docs/demo-10a-admin-users-management.md`](demo-10a-admin-users-management.md)
+**Demo 10B:**
+- Protected `/professional` area for `role: "professional"` users
+- `ProfessionalProfile` model (1:1 with User via unique `userId`)
+- Race-safe lazy profile creation via atomic `$setOnInsert` upsert
+- Dashboard with profile completeness summary
+- Self-edit at `/professional/profile`
+- `ProfessionalShell` with sidebar + mobile nav (ראשי, הפרופיל שלי)
+- Header entry: "אזור מקצועי" in `HeaderAccount` + `MobileMenu` (not homepage CTA)
+- Profile retained on role demotion; access lost until re-promoted
+
+**Demo 10C:**
+- `Project` model with embedded `items[]` (references + minimal snapshot)
+- Professional routes: `/professional/projects`, `/new`, `/[id]`
+- Draft-only project CRUD; status enum prepared for future workflow
+- Add/update/remove configured product items with server-side validation
+- Duplicate configuration increments quantity (max 999, reject overflow)
+- Product page "הוספה לפרויקט" for professionals via native dialog
+- Profile readiness gate: fullName + phone required before project actions
+- Nav: **הפרויקטים שלי**
+
+See also: [`docs/demo-1-public-shell.md`](demo-1-public-shell.md), [`docs/demo-2-homepage.md`](demo-2-homepage.md), [`docs/demo-3-product-page.md`](demo-3-product-page.md), [`docs/demo-4-mongodb-product-foundation.md`](demo-4-mongodb-product-foundation.md), [`docs/demo-5a-authentication.md`](demo-5a-authentication.md), [`docs/demo-5b-admin-products.md`](demo-5b-admin-products.md), [`docs/demo-6-public-catalog.md`](demo-6-public-catalog.md), [`docs/demo-7a-category-management.md`](demo-7a-category-management.md), [`docs/demo-7b-catalog-search-filter-pagination.md`](demo-7b-catalog-search-filter-pagination.md), [`docs/demo-8a-product-media-foundation.md`](demo-8a-product-media-foundation.md), [`docs/demo-8b-vercel-blob-media-manager.md`](demo-8b-vercel-blob-media-manager.md), [`docs/demo-9a-material-color-library.md`](demo-9a-material-color-library.md), [`docs/demo-9b-product-material-assignment.md`](demo-9b-product-material-assignment.md), [`docs/demo-9c1-product-recolor-foundation.md`](demo-9c1-product-recolor-foundation.md), [`docs/demo-9c2-admin-mask-creator.md`](demo-9c2-admin-mask-creator.md), [`docs/demo-10a-admin-users-management.md`](demo-10a-admin-users-management.md), [`docs/demo-10b-professional-area.md`](demo-10b-professional-area.md), [`docs/demo-10c-project-foundation.md`](demo-10c-project-foundation.md)
 
 ## Intentionally Deferred
 
@@ -191,7 +211,7 @@ The following are planned for future phases — not blockers for the foundation:
 
 - Dynamic public catalog routes
 - Catalog search, filters, pagination
-- Customer and professional accounts
+- Customer and professional accounts (Demo 10B: professional area + profile foundation)
 - Projects, rooms, quotes, pricing workflow
 - Notifications, PDF generation
 - Search, SEO, Excel import

@@ -1,0 +1,60 @@
+@use "../../../../styles/tokens" as *;
+@use "../../../../styles/mixins" as *;
+
+.editor {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  padding-top: $spacing-md;
+  border-top: 1px solid $color-border;
+}
+
+.fieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.legend {
+  margin-block-end: $spacing-sm;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+}
+
+.optionGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+}
+
+.optionButton,
+.optionActive {
+  padding: $spacing-xs $spacing-md;
+  font: inherit;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  background: $color-background;
+  border: 1px solid $color-border;
+  cursor: pointer;
+
+  @include focus-visible;
+}
+
+.optionActive {
+  color: $color-text-primary;
+  border-color: $color-text-primary;
+}
+
+.quantityRow {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+  max-width: 10rem;
+}
+
+.label {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+}

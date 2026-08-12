@@ -46,7 +46,8 @@
   text-underline-offset: 0.15em;
 }
 
-.adminLink {
+.adminLink,
+.professionalLink {
   font-size: $font-size-sm;
   color: $color-text-secondary;
   text-decoration: none;

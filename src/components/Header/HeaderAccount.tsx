@@ -29,6 +29,11 @@ export default function HeaderAccount({ user }: HeaderAccountProps) {
           ניהול
         </Link>
       )}
+      {user.role === "professional" && (
+        <Link href="/professional" className={styles.professionalLink}>
+          אזור מקצועי
+        </Link>
+      )}
       <form action={logoutAction}>
         <button type="submit" className={styles.logoutButton}>
           התנתקות

@@ -8,6 +8,12 @@ export function isAdminUser(
   return user !== null && user.role === "admin";
 }
 
+export function isProfessionalUser(
+  user: SafeUser | null,
+): user is SafeUser & { role: "professional" } {
+  return user !== null && user.role === "professional";
+}
+
 export async function requireUser(): Promise<SafeUser> {
   const user = await getCurrentUser();
 
@@ -22,6 +28,18 @@ export async function requireAdmin(): Promise<SafeUser & { role: "admin" }> {
   const user = await requireUser();
 
   if (!isAdminUser(user)) {
+    redirect("/");
+  }
+
+  return user;
+}
+
+export async function requireProfessional(): Promise<
+  SafeUser & { role: "professional" }
+> {
+  const user = await requireUser();
+
+  if (!isProfessionalUser(user)) {
     redirect("/");
   }
 

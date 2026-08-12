@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo, useState } from "react";
 import Button from "@/components/Button/Button";
+import AddToProjectDialog from "@/components/product/AddToProjectDialog/AddToProjectDialog";
 import {
   getColorById,
   getConfiguratorState,
@@ -12,6 +13,7 @@ import { hasProductDimensions } from "@/lib/products/product-display-helpers";
 import { shouldShowRecolorForImage } from "@/lib/recolor/recolor-configurator-helpers";
 import type { PublicImageView } from "@/types/product-media";
 import type { ProductView } from "@/types/product";
+import type { ProjectOptionView } from "@/types/project";
 import ProductImage from "../ProductImage/ProductImage";
 import ProductRecolorCanvas from "../ProductRecolorCanvas/ProductRecolorCanvas";
 import ProductVisual from "../ProductVisual/ProductVisual";
@@ -40,12 +42,20 @@ type ProductConfiguratorProps = {
   product: ProductView;
   visualClassName?: string;
   controlsClassName?: string;
+  canAddToProject?: boolean;
+  projectOptions?: ProjectOptionView[];
+  profileReady?: boolean;
 };
+
+const MAX_QUANTITY = 999;
 
 export default function ProductConfigurator({
   product,
   visualClassName,
   controlsClassName,
+  canAddToProject = false,
+  projectOptions = [],
+  profileReady = false,
 }: ProductConfiguratorProps) {
   const initialState = useMemo(
     () => getConfiguratorState(product),
@@ -64,6 +74,9 @@ export default function ProductConfigurator({
   const [colorId, setColorId] = useState<string | null>(initialState.colorId);
   const [sizeId, setSizeId] = useState<string | null>(initialState.sizeId);
   const [quantity, setQuantity] = useState(1);
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+
+  const showAddToProject = canAddToProject;
 
   const currentMaterial = useMemo(() => {
     if (!materialId) {
@@ -122,8 +135,87 @@ export default function ProductConfigurator({
   };
 
   const increaseQuantity = () => {
-    setQuantity((prev) => prev + 1);
+    setQuantity((prev) => Math.min(MAX_QUANTITY, prev + 1));
   };
+
+  const renderAddToProjectActions = () => {
+    if (!showAddToProject) {
+      return (
+        <div className={styles.secondaryActions}>
+          <Button preview variant="secondary">
+            שמירה למועדפים
+          </Button>
+          <Button preview variant="text">
+            הורדת מפרט טכני
+          </Button>
+        </div>
+      );
+    }
+
+    return (
+      <>
+        <div className={styles.actions}>
+          <button
+            type="button"
+            className={styles.primaryAction}
+            onClick={() => setIsAddDialogOpen(true)}
+          >
+            הוספה לפרויקט
+          </button>
+          <div className={styles.secondaryActions}>
+            <Button preview variant="secondary">
+              שמירה למועדפים
+            </Button>
+            <Button preview variant="text">
+              הורדת מפרט טכני
+            </Button>
+          </div>
+        </div>
+        <AddToProjectDialog
+          projectOptions={projectOptions}
+          profileReady={profileReady}
+          isOpen={isAddDialogOpen}
+          onClose={() => setIsAddDialogOpen(false)}
+          selection={{
+            productSlug: product.slug,
+            selectedMaterialId: materialId ?? undefined,
+            selectedColorId: colorId ?? undefined,
+            selectedSizeKey: sizeId ?? undefined,
+            quantity,
+          }}
+        />
+      </>
+    );
+  };
+
+  const renderQuantityField = () => (
+    <fieldset className={styles.fieldset}>
+      <legend className={styles.legend}>כמות</legend>
+      <div className={styles.quantity}>
+        <button
+          type="button"
+          className={styles.quantityButton}
+          aria-label="הפחתת כמות"
+          onClick={decreaseQuantity}
+          disabled={quantity <= 1}
+        >
+          −
+        </button>
+        <span className={styles.quantityValue} aria-live="polite">
+          {quantity}
+        </span>
+        <button
+          type="button"
+          className={styles.quantityButton}
+          aria-label="הוספת כמות"
+          onClick={increaseQuantity}
+          disabled={quantity >= MAX_QUANTITY}
+        >
+          +
+        </button>
+      </div>
+    </fieldset>
+  );
 
   const showRecolor = shouldShowRecolorForImage(
     product,
@@ -304,31 +396,7 @@ export default function ProductConfigurator({
             </fieldset>
           ) : null}
 
-          <fieldset className={styles.fieldset}>
-            <legend className={styles.legend}>כמות</legend>
-            <div className={styles.quantity}>
-              <button
-                type="button"
-                className={styles.quantityButton}
-                aria-label="הפחתת כמות"
-                onClick={decreaseQuantity}
-                disabled={quantity <= 1}
-              >
-                −
-              </button>
-              <span className={styles.quantityValue} aria-live="polite">
-                {quantity}
-              </span>
-              <button
-                type="button"
-                className={styles.quantityButton}
-                aria-label="הוספת כמות"
-                onClick={increaseQuantity}
-              >
-                +
-              </button>
-            </div>
-          </fieldset>
+          {renderQuantityField()}
 
           <div className={styles.summary}>
             <p className={styles.summaryTitle}>הבחירה שלך</p>
@@ -362,19 +430,12 @@ export default function ProductConfigurator({
             </dl>
           </div>
 
-          <div className={styles.actions}>
-            <button type="button" className={styles.primaryAction} disabled>
-              הוספה לפרויקט
-            </button>
-            <div className={styles.secondaryActions}>
-              <Button preview variant="secondary">
-                שמירה למועדפים
-              </Button>
-              <Button preview variant="text">
-                הורדת מפרט טכני
-              </Button>
-            </div>
-          </div>
+          {renderAddToProjectActions()}
+        </div>
+      ) : showAddToProject ? (
+        <div className={controlsClasses}>
+          {renderQuantityField()}
+          {renderAddToProjectActions()}
         </div>
       ) : null}
     </>

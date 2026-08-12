@@ -5,6 +5,11 @@ import ProductConfigurator from "@/components/product/ProductConfigurator/Produc
 import ProductDescription from "@/components/product/ProductDescription/ProductDescription";
 import ProductInfo from "@/components/product/ProductInfo/ProductInfo";
 import TechnicalInfo from "@/components/product/TechnicalInfo/TechnicalInfo";
+import { getCurrentUser } from "@/lib/auth/current-user";
+import { isProfessionalUser } from "@/lib/auth/authorization";
+import { getMyProfessionalProfileView } from "@/lib/professionals/ensureProfessionalProfile";
+import { isProfileReadyForProjects } from "@/lib/professionals/profile-readiness";
+import { getProfessionalProjectOptions } from "@/lib/projects/project-queries";
 import { getProductBySlug } from "@/lib/products/getProductBySlug";
 import styles from "./page.module.scss";
 
@@ -38,6 +43,17 @@ export default async function ProductPage({ params }: ProductPageProps) {
     notFound();
   }
 
+  const user = await getCurrentUser();
+  const canAddToProject = isProfessionalUser(user);
+  let projectOptions: { id: string; name: string }[] = [];
+  let profileReady = false;
+
+  if (canAddToProject && user) {
+    projectOptions = await getProfessionalProjectOptions(user.id);
+    const profile = await getMyProfessionalProfileView(user.id);
+    profileReady = isProfileReadyForProjects(profile);
+  }
+
   return (
     <>
       <Section>
@@ -46,6 +62,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
             product={product}
             visualClassName={styles.visual}
             controlsClassName={styles.controls}
+            canAddToProject={canAddToProject}
+            projectOptions={projectOptions}
+            profileReady={profileReady}
           />
           <div className={styles.info}>
             <ProductInfo product={product} />
