@@ -1,12 +1,14 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState, useTransition } from "react";
 import {
   createMaterialAction,
   updateMaterialAction,
 } from "@/app/admin/materials/actions";
+import Button from "@/components/ui/Button/Button";
+import FormField, { formFieldStyles } from "@/components/ui/FormField/FormField";
+import { useToast } from "@/components/ui/Toast/ToastProvider";
 import type {
   AdminColorOption,
   AdminMaterialFormInput,
@@ -22,7 +24,6 @@ type MaterialFormProps = {
   activeColors: AdminColorOption[];
   linkedColorDetails: AdminColorOption[];
   materialId?: string;
-  showSavedBanner?: boolean;
 };
 
 const initialState: MaterialFormState = {};
@@ -33,13 +34,12 @@ export default function MaterialForm({
   activeColors,
   linkedColorDetails,
   materialId,
-  showSavedBanner = false,
 }: MaterialFormProps) {
   const router = useRouter();
+  const { toast } = useToast();
   const [formState, setFormState] = useState(initialState);
   const [material, setMaterial] = useState(initialMaterial);
   const [isPending, startTransition] = useTransition();
-  const [savedBanner, setSavedBanner] = useState(showSavedBanner);
 
   const linkedInactiveColors = useMemo(
     () =>
@@ -57,7 +57,6 @@ export default function MaterialForm({
   };
 
   const handleSubmit = () => {
-    setSavedBanner(false);
     setFormState(initialState);
 
     startTransition(async () => {
@@ -68,10 +67,17 @@ export default function MaterialForm({
 
       setFormState(result);
 
-      if (result.success) {
-        setSavedBanner(true);
-        router.refresh();
+      if (result.fieldErrors) {
+        return;
       }
+
+      if (result.error) {
+        toast({ type: "error", message: result.error });
+        return;
+      }
+
+      toast({ type: "success", message: "החומר נשמר" });
+      router.refresh();
     });
   };
 
@@ -79,81 +85,84 @@ export default function MaterialForm({
 
   return (
     <div className={styles.stack}>
-      {(savedBanner || showSavedBanner) && (
-        <p className={styles.formSuccess} role="status">
-          החומר נשמר בהצלחה.
-        </p>
-      )}
-
-      {formState.error && (
-        <p className={styles.formError} role="alert">
-          {formState.error}
-        </p>
-      )}
-
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>פרטי חומר</h2>
 
         <div className={styles.fieldGrid}>
-          <div className={styles.field}>
-            <label className={styles.label} htmlFor="material-nameHe">
-              שם בעברית
-            </label>
+          <FormField
+            label="שם בעברית"
+            htmlFor="material-nameHe"
+            error={fieldErrors.nameHe}
+            errorId="material-nameHe-error"
+          >
             <input
               id="material-nameHe"
-              className={styles.input}
+              className={formFieldStyles.input}
               value={material.nameHe}
               onChange={(event) => updateField("nameHe", event.target.value)}
+              aria-invalid={Boolean(fieldErrors.nameHe)}
+              aria-describedby={
+                fieldErrors.nameHe ? "material-nameHe-error" : undefined
+              }
             />
-            {fieldErrors.nameHe && (
-              <p className={styles.fieldError}>{fieldErrors.nameHe}</p>
-            )}
-          </div>
+          </FormField>
 
-          <div className={styles.field}>
-            <label className={styles.label} htmlFor="material-nameEn">
-              שם באנגלית
-            </label>
+          <FormField
+            label="שם באנגלית"
+            htmlFor="material-nameEn"
+            error={fieldErrors.nameEn}
+            errorId="material-nameEn-error"
+          >
             <input
               id="material-nameEn"
-              className={styles.input}
+              className={formFieldStyles.input}
               value={material.nameEn}
               onChange={(event) => updateField("nameEn", event.target.value)}
+              aria-invalid={Boolean(fieldErrors.nameEn)}
+              aria-describedby={
+                fieldErrors.nameEn ? "material-nameEn-error" : undefined
+              }
             />
-            {fieldErrors.nameEn && (
-              <p className={styles.fieldError}>{fieldErrors.nameEn}</p>
-            )}
-          </div>
+          </FormField>
 
-          <div className={styles.field}>
-            <label className={styles.label} htmlFor="material-code">
-              קוד (אופציונלי)
-            </label>
+          <FormField
+            label="קוד (אופציונלי)"
+            htmlFor="material-code"
+            error={fieldErrors.code}
+            errorId="material-code-error"
+          >
             <input
               id="material-code"
-              className={styles.input}
+              className={formFieldStyles.input}
               dir="ltr"
               value={material.code}
               onChange={(event) => updateField("code", event.target.value)}
+              aria-invalid={Boolean(fieldErrors.code)}
+              aria-describedby={
+                fieldErrors.code ? "material-code-error" : undefined
+              }
             />
-            {fieldErrors.code && (
-              <p className={styles.fieldError}>{fieldErrors.code}</p>
-            )}
-          </div>
+          </FormField>
 
-          <div className={styles.field}>
-            <label className={styles.label} htmlFor="material-type">
-              סוג חומר
-            </label>
+          <FormField
+            label="סוג חומר"
+            htmlFor="material-type"
+            error={fieldErrors.type}
+            errorId="material-type-error"
+          >
             <select
               id="material-type"
-              className={styles.select}
+              className={formFieldStyles.input}
               value={material.type}
               onChange={(event) =>
                 updateField(
                   "type",
                   event.target.value as AdminMaterialFormInput["type"],
                 )
+              }
+              aria-invalid={Boolean(fieldErrors.type)}
+              aria-describedby={
+                fieldErrors.type ? "material-type-error" : undefined
               }
             >
               {MATERIAL_TYPES.map((type) => (
@@ -162,29 +171,27 @@ export default function MaterialForm({
                 </option>
               ))}
             </select>
-            {fieldErrors.type && (
-              <p className={styles.fieldError}>{fieldErrors.type}</p>
-            )}
-          </div>
+          </FormField>
 
-          <div className={styles.field}>
-            <label className={styles.label} htmlFor="material-sortOrder">
-              סדר מיון
-            </label>
+          <FormField
+            label="סדר מיון"
+            htmlFor="material-sortOrder"
+            error={fieldErrors.sortOrder}
+            errorId="material-sortOrder-error"
+          >
             <input
               id="material-sortOrder"
               type="number"
               min={0}
-              className={styles.input}
+              className={formFieldStyles.input}
               value={material.sortOrder}
-              onChange={(event) =>
-                updateField("sortOrder", event.target.value)
+              onChange={(event) => updateField("sortOrder", event.target.value)}
+              aria-invalid={Boolean(fieldErrors.sortOrder)}
+              aria-describedby={
+                fieldErrors.sortOrder ? "material-sortOrder-error" : undefined
               }
             />
-            {fieldErrors.sortOrder && (
-              <p className={styles.fieldError}>{fieldErrors.sortOrder}</p>
-            )}
-          </div>
+          </FormField>
         </div>
 
         <div className={styles.checkboxRow}>
@@ -192,9 +199,7 @@ export default function MaterialForm({
             <input
               type="checkbox"
               checked={material.isActive}
-              onChange={(event) =>
-                updateField("isActive", event.target.checked)
-              }
+              onChange={(event) => updateField("isActive", event.target.checked)}
             />
             חומר פעיל
           </label>
@@ -212,17 +217,12 @@ export default function MaterialForm({
       </section>
 
       <div className={styles.actions}>
-        <button
-          type="button"
-          className={styles.submitButton}
-          disabled={isPending}
-          onClick={handleSubmit}
-        >
-          {isPending ? "שומר..." : "שמירה"}
-        </button>
-        <Link href="/admin/materials" className={styles.cancelLink}>
+        <Button onClick={handleSubmit} loading={isPending} loadingLabel="שמירה...">
+          שמירה
+        </Button>
+        <Button href="/admin/materials" variant="ghost">
           ביטול
-        </Link>
+        </Button>
       </div>
     </div>
   );

@@ -11,40 +11,39 @@
 
 .control,
 .pageLink,
-.current,
-.disabled {
+.disabled,
+.current {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 2.75rem;
-  min-height: 2.75rem;
+  min-width: 2.5rem;
+  min-height: 2.5rem;
   padding-inline: $spacing-sm;
   font-size: $font-size-sm;
+  text-decoration: none;
 }
 
 .control,
 .pageLink {
   color: $color-text-primary;
-  text-decoration: none;
-  border: 1px solid $color-border;
-  border-radius: $radius-sm;
 
   @include focus-visible;
 }
 
 .disabled {
   color: $color-text-secondary;
-  border: 1px solid $color-border;
-  border-radius: $radius-sm;
-  opacity: 0.6;
+}
+
+.current {
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+  border-bottom: 1px solid $color-text-primary;
 }
 
 .pages {
   display: flex;
   flex-wrap: wrap;
   gap: $spacing-xs;
-  margin: 0;
-  padding: 0;
   list-style: none;
 }
 
@@ -54,15 +53,7 @@
   gap: $spacing-xs;
 }
 
-.current {
-  font-weight: $font-weight-medium;
-  color: $color-text-primary;
-  border: 1px solid $color-text-primary;
-  border-radius: $radius-sm;
-}
-
 .ellipsis {
-  min-width: 1.5rem;
-  text-align: center;
+  padding-inline: $spacing-xs;
   color: $color-text-secondary;
 }

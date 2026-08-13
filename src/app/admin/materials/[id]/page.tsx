@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import MaterialForm from "@/components/admin/MaterialForm/MaterialForm";
+import AdminPage from "@/components/admin/AdminPage/AdminPage";
+import AdminPageHeader from "@/components/admin/AdminPageHeader/AdminPageHeader";
+import Button from "@/components/ui/Button/Button";
 import {
   getActiveColorsForPicker,
   getColorsByIds,
 } from "@/lib/materials/getActiveColorsForPicker";
 import { getAdminMaterialById } from "@/lib/materials/getAdminMaterialById";
-import styles from "../../products/new/page.module.scss";
 
 type AdminEditMaterialPageProps = PageProps<"/admin/materials/[id]">;
 
@@ -25,10 +27,8 @@ export async function generateMetadata({
 
 export default async function AdminEditMaterialPage({
   params,
-  searchParams,
 }: AdminEditMaterialPageProps) {
   const { id } = await params;
-  const resolvedSearchParams = await searchParams;
   const material = await getAdminMaterialById(id);
 
   if (!material) {
@@ -41,11 +41,16 @@ export default async function AdminEditMaterialPage({
   ]);
 
   return (
-    <div className={styles.page}>
-      <header className={styles.header}>
-        <h1 className={styles.title}>עריכת חומר</h1>
-        <p className={styles.description}>{material.nameHe}</p>
-      </header>
+    <AdminPage width="form">
+      <AdminPageHeader
+        title="עריכת חומר"
+        description={material.nameHe}
+        actions={
+          <Button href="/admin/materials" variant="ghost" size="sm">
+            חזרה לחומרים
+          </Button>
+        }
+      />
 
       <MaterialForm
         mode="edit"
@@ -53,8 +58,7 @@ export default async function AdminEditMaterialPage({
         activeColors={activeColors}
         linkedColorDetails={linkedColorDetails}
         materialId={id}
-        showSavedBanner={resolvedSearchParams.saved === "1"}
       />
-    </div>
+    </AdminPage>
   );
 }

@@ -7,6 +7,10 @@ import {
   rejectProjectAction,
   requestProjectChangesAction,
 } from "@/app/admin/projects/actions";
+import Button from "@/components/ui/Button/Button";
+import ConfirmDialog from "@/components/ui/ConfirmDialog/ConfirmDialog";
+import { FieldError, formFieldStyles } from "@/components/ui/FormField/FormField";
+import { useToast } from "@/components/ui/Toast/ToastProvider";
 import type { AdminReviewActionState } from "@/types/project";
 import styles from "./ProjectReviewPanel.module.scss";
 
@@ -15,6 +19,8 @@ type ProjectReviewPanelProps = {
   status: "submitted" | "approved" | "changes_requested" | "rejected" | "draft";
 };
 
+type PendingAction = "approve" | "reject" | "changes" | null;
+
 const initialState: AdminReviewActionState = {};
 
 export default function ProjectReviewPanel({
@@ -22,10 +28,15 @@ export default function ProjectReviewPanel({
   status,
 }: ProjectReviewPanelProps) {
   const router = useRouter();
+  const { toast } = useToast();
   const [formState, setFormState] = useState(initialState);
   const [approveNote, setApproveNote] = useState("");
   const [changesMessage, setChangesMessage] = useState("");
   const [rejectReason, setRejectReason] = useState("");
+  const [confirmAction, setConfirmAction] = useState<"approve" | "reject" | null>(
+    null,
+  );
+  const [pendingAction, setPendingAction] = useState<PendingAction>(null);
   const [isPending, startTransition] = useTransition();
 
   if (status !== "submitted") {
@@ -34,39 +45,69 @@ export default function ProjectReviewPanel({
 
   const fieldErrors = formState.fieldErrors ?? {};
 
-  const handleApprove = () => {
+  const runApprove = () => {
     setFormState(initialState);
+    setPendingAction("approve");
     startTransition(async () => {
       const result = await approveProjectAction(projectId, approveNote);
+      setPendingAction(null);
       setFormState(result);
-      if (result.success) {
-        router.refresh();
+      if (result.fieldErrors) {
+        setConfirmAction(null);
+        return;
       }
+      if (result.error) {
+        toast({ type: "error", message: result.error });
+        setConfirmAction(null);
+        return;
+      }
+      toast({ type: "success", message: "הפרויקט אושר" });
+      setConfirmAction(null);
+      router.refresh();
+    });
+  };
+
+  const runReject = () => {
+    setFormState(initialState);
+    setPendingAction("reject");
+    startTransition(async () => {
+      const result = await rejectProjectAction(projectId, rejectReason);
+      setPendingAction(null);
+      setFormState(result);
+      if (result.fieldErrors) {
+        setConfirmAction(null);
+        return;
+      }
+      if (result.error) {
+        toast({ type: "error", message: result.error });
+        setConfirmAction(null);
+        return;
+      }
+      toast({ type: "success", message: "הפרויקט נדחה" });
+      setConfirmAction(null);
+      router.refresh();
     });
   };
 
   const handleRequestChanges = () => {
     setFormState(initialState);
+    setPendingAction("changes");
     startTransition(async () => {
       const result = await requestProjectChangesAction(
         projectId,
         changesMessage,
       );
+      setPendingAction(null);
       setFormState(result);
-      if (result.success) {
-        router.refresh();
+      if (result.fieldErrors) {
+        return;
       }
-    });
-  };
-
-  const handleReject = () => {
-    setFormState(initialState);
-    startTransition(async () => {
-      const result = await rejectProjectAction(projectId, rejectReason);
-      setFormState(result);
-      if (result.success) {
-        router.refresh();
+      if (result.error) {
+        toast({ type: "error", message: result.error });
+        return;
       }
+      toast({ type: "success", message: "נשלחה בקשה לשינויים" });
+      router.refresh();
     });
   };
 
@@ -82,12 +123,6 @@ export default function ProjectReviewPanel({
         </p>
       ) : null}
 
-      {formState.success ? (
-        <p className={styles.success} role="status">
-          הפעולה בוצעה בהצלחה.
-        </p>
-      ) : null}
-
       <div className={styles.actionsGrid}>
         <div className={styles.actionBlock}>
           <h3 className={styles.actionTitle}>אישור</h3>
@@ -96,22 +131,23 @@ export default function ProjectReviewPanel({
           </label>
           <textarea
             id="approve-note"
-            className={styles.textarea}
+            className={formFieldStyles.textarea}
             value={approveNote}
             onChange={(event) => setApproveNote(event.target.value)}
             rows={3}
+            disabled={isPending}
           />
           {fieldErrors.note ? (
-            <p className={styles.fieldError}>{fieldErrors.note}</p>
+            <FieldError message={fieldErrors.note} />
           ) : null}
-          <button
-            type="button"
-            className={styles.approveButton}
-            onClick={handleApprove}
+          <Button
+            onClick={() => setConfirmAction("approve")}
+            loading={pendingAction === "approve"}
+            loadingLabel="מאשר..."
             disabled={isPending}
           >
             אישור פרויקט
-          </button>
+          </Button>
         </div>
 
         <div className={styles.actionBlock}>
@@ -121,23 +157,26 @@ export default function ProjectReviewPanel({
           </label>
           <textarea
             id="changes-message"
-            className={styles.textarea}
+            className={formFieldStyles.textarea}
             value={changesMessage}
             onChange={(event) => setChangesMessage(event.target.value)}
             rows={3}
             required
+            disabled={isPending}
+            aria-invalid={Boolean(fieldErrors.message)}
           />
           {fieldErrors.message ? (
-            <p className={styles.fieldError}>{fieldErrors.message}</p>
+            <FieldError message={fieldErrors.message} />
           ) : null}
-          <button
-            type="button"
-            className={styles.changesButton}
+          <Button
+            variant="secondary"
             onClick={handleRequestChanges}
+            loading={pendingAction === "changes"}
+            loadingLabel="שולח..."
             disabled={isPending}
           >
             בקשת שינויים
-          </button>
+          </Button>
         </div>
 
         <div className={styles.actionBlock}>
@@ -147,25 +186,49 @@ export default function ProjectReviewPanel({
           </label>
           <textarea
             id="reject-reason"
-            className={styles.textarea}
+            className={formFieldStyles.textarea}
             value={rejectReason}
             onChange={(event) => setRejectReason(event.target.value)}
             rows={3}
             required
+            disabled={isPending}
+            aria-invalid={Boolean(fieldErrors.reason)}
           />
           {fieldErrors.reason ? (
-            <p className={styles.fieldError}>{fieldErrors.reason}</p>
+            <FieldError message={fieldErrors.reason} />
           ) : null}
-          <button
-            type="button"
-            className={styles.rejectButton}
-            onClick={handleReject}
+          <Button
+            variant="danger"
+            onClick={() => setConfirmAction("reject")}
+            loading={pendingAction === "reject"}
+            loadingLabel="דוחה..."
             disabled={isPending}
           >
             דחיית פרויקט
-          </button>
+          </Button>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={confirmAction === "approve"}
+        title="אישור פרויקט"
+        description="לאשר את הפרויקט? פעולה זו תסמן את הפרויקט כמאושר."
+        confirmLabel="אישור פרויקט"
+        loading={pendingAction === "approve"}
+        onConfirm={runApprove}
+        onCancel={() => setConfirmAction(null)}
+      />
+
+      <ConfirmDialog
+        open={confirmAction === "reject"}
+        title="דחיית פרויקט"
+        description="לדחות את הפרויקט? פעולה זו תסמן את הפרויקט כנדחה."
+        confirmLabel="דחיית פרויקט"
+        tone="danger"
+        loading={pendingAction === "reject"}
+        onConfirm={runReject}
+        onCancel={() => setConfirmAction(null)}
+      />
     </section>
   );
 }

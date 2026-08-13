@@ -1,26 +1,18 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
-import type { AdminNavItem } from "@/config/admin-nav";
+import type { AdminNavGroup } from "@/config/admin-nav";
 import { CloseIcon, MenuIcon } from "@/components/Header/icons";
-import NavBadge from "@/components/shared/NavBadge/NavBadge";
+import AdminBrand from "./AdminBrand";
+import AdminNavList from "./AdminNavList/AdminNavList";
 import styles from "./AdminMobileNav.module.scss";
 
 type AdminMobileNavProps = {
-  items: AdminNavItem[];
+  navGroups: AdminNavGroup[];
 };
 
-function isActivePath(pathname: string, href: string): boolean {
-  if (href === "/admin") {
-    return pathname === "/admin";
-  }
-
-  return pathname.startsWith(href);
-}
-
-export default function AdminMobileNav({ items }: AdminMobileNavProps) {
+export default function AdminMobileNav({ navGroups }: AdminMobileNavProps) {
   const [isOpen, setIsOpen] = useState(false);
   const toggleRef = useRef<HTMLButtonElement>(null);
   const panelId = useId();
@@ -71,11 +63,11 @@ export default function AdminMobileNav({ items }: AdminMobileNavProps) {
         {isOpen ? <CloseIcon /> : <MenuIcon />}
       </button>
 
-      {isOpen && (
+      {isOpen ? (
         <div className={styles.overlay}>
           <nav id={panelId} className={styles.panel} aria-label="ניווט ניהול">
             <div className={styles.panelHeader}>
-              <span className={styles.panelTitle}>ניהול</span>
+              <AdminBrand />
               <button
                 type="button"
                 className={styles.closeButton}
@@ -86,34 +78,15 @@ export default function AdminMobileNav({ items }: AdminMobileNavProps) {
               </button>
             </div>
 
-            <ul className={styles.list}>
-              {items.map((item) => (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    className={
-                      isActivePath(pathname, item.href)
-                        ? `${styles.link} ${styles.active}`
-                        : styles.link
-                    }
-                    onClick={closeMenu}
-                  >
-                    <span className={styles.linkContent}>
-                      {item.label}
-                      {item.badgeCount && item.badgeCount > 0 ? (
-                        <NavBadge
-                          count={item.badgeCount}
-                          ariaLabel={`${item.badgeCount} פרויקטים ממתינים לבדיקה`}
-                        />
-                      ) : null}
-                    </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            <AdminNavList
+              groups={navGroups}
+              pathname={pathname}
+              onNavigate={closeMenu}
+              variant="mobile"
+            />
           </nav>
         </div>
-      )}
+      ) : null}
     </div>
   );
 }

@@ -2,6 +2,9 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
+import Button from "@/components/ui/Button/Button";
+import FormField, { formFieldStyles } from "@/components/ui/FormField/FormField";
+import { useToast } from "@/components/ui/Toast/ToastProvider";
 import type { ProjectMessageActionState } from "@/types/project-message";
 import { MESSAGE_BODY_MAX } from "@/lib/project-messages/message-validation";
 import styles from "./ProjectMessageForm.module.scss";
@@ -21,13 +24,14 @@ export default function ProjectMessageForm({
   disabled = false,
 }: ProjectMessageFormProps) {
   const router = useRouter();
+  const { toast } = useToast();
   const [body, setBody] = useState("");
-  const [error, setError] = useState<string | undefined>();
   const [fieldError, setFieldError] = useState<string | undefined>();
   const [isPending, startTransition] = useTransition();
 
+  const fieldErrorId = `message-body-error-${projectId}`;
+
   const handleSubmit = () => {
-    setError(undefined);
     setFieldError(undefined);
 
     startTransition(async () => {
@@ -39,56 +43,45 @@ export default function ProjectMessageForm({
       }
 
       if (result.error) {
-        setError(result.error);
+        toast({ type: "error", message: result.error });
         return;
       }
 
       setBody("");
+      toast({ type: "success", message: "ההודעה נשלחה" });
       router.refresh();
     });
   };
 
   return (
     <div className={styles.form}>
-      {error ? (
-        <p className={styles.error} role="alert">
-          {error}
-        </p>
-      ) : null}
-
-      <label className={styles.label} htmlFor={`message-body-${projectId}`}>
-        הודעה
-      </label>
-      <textarea
-        id={`message-body-${projectId}`}
-        className={styles.textarea}
-        value={body}
-        onChange={(event) => setBody(event.target.value)}
-        rows={4}
-        maxLength={MESSAGE_BODY_MAX}
-        disabled={disabled || isPending}
-        aria-describedby={
-          fieldError ? `message-body-error-${projectId}` : undefined
-        }
-      />
-      {fieldError ? (
-        <p
-          id={`message-body-error-${projectId}`}
-          className={styles.fieldError}
-          role="alert"
-        >
-          {fieldError}
-        </p>
-      ) : null}
-
-      <button
-        type="button"
-        className={styles.button}
-        onClick={handleSubmit}
-        disabled={disabled || isPending}
+      <FormField
+        label="הודעה"
+        htmlFor={`message-body-${projectId}`}
+        error={fieldError}
+        errorId={fieldErrorId}
       >
-        {isPending ? "שולח..." : "שליחת הודעה"}
-      </button>
+        <textarea
+          id={`message-body-${projectId}`}
+          className={formFieldStyles.textarea}
+          value={body}
+          onChange={(event) => setBody(event.target.value)}
+          rows={4}
+          maxLength={MESSAGE_BODY_MAX}
+          disabled={disabled || isPending}
+          aria-invalid={Boolean(fieldError)}
+          aria-describedby={fieldError ? fieldErrorId : undefined}
+        />
+      </FormField>
+
+      <Button
+        onClick={handleSubmit}
+        disabled={disabled}
+        loading={isPending}
+        loadingLabel="שולח..."
+      >
+        שליחת הודעה
+      </Button>
     </div>
   );
 }

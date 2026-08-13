@@ -38,40 +38,15 @@
   height: 100%;
   padding-block: $spacing-lg;
   padding-inline: $container-padding-inline;
+  overflow-y: auto;
 }
 
 .panelHeader {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
+  gap: $spacing-md;
   margin-block-end: $spacing-xl;
-  padding-block-end: $spacing-md;
+  padding-block-end: $spacing-lg;
   border-bottom: 1px solid $color-border;
-}
-
-.panelTitle {
-  font-size: $font-size-sm;
-  font-weight: $font-weight-medium;
-  letter-spacing: $letter-spacing-wide;
-  text-transform: uppercase;
-  color: $color-text-secondary;
-}
-
-.list {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-sm;
-  list-style: none;
-}
-
-.link {
-  display: block;
-  padding-block: $spacing-sm;
-  font-size: $font-size-lg;
-  color: $color-text-primary;
-  text-decoration: none;
-}
-
-.active {
-  color: $color-accent;
 }

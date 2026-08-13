@@ -1,0 +1,51 @@
+@use "../../../styles/tokens" as *;
+
+.banner {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  padding: $spacing-lg;
+  border: 1px solid $color-border;
+}
+
+.info {
+  composes: banner;
+  color: $color-info-text;
+  background: $color-info-bg;
+  border-color: $color-info-border;
+}
+
+.success {
+  composes: banner;
+  color: $color-success-text;
+  background: $color-success-bg;
+  border-color: $color-success-border;
+}
+
+.warning {
+  composes: banner;
+  color: $color-warning-text;
+  background: $color-warning-bg;
+  border-color: $color-warning-border;
+}
+
+.danger {
+  composes: banner;
+  color: $color-danger-text;
+  background: $color-danger-bg;
+  border-color: $color-danger-border;
+}
+
+.title {
+  margin: 0;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+  font-size: $font-size-sm;
+  line-height: $line-height-relaxed;
+}

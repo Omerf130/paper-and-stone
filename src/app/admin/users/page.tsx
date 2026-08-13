@@ -1,27 +1,31 @@
 import type { Metadata } from "next";
-import AdminStatusBadge from "@/components/admin/AdminStatusBadge";
+import AdminPage from "@/components/admin/AdminPage/AdminPage";
+import AdminPageHeader from "@/components/admin/AdminPageHeader/AdminPageHeader";
 import AdminUsersPagination from "@/components/admin/AdminUsersPagination/AdminUsersPagination";
 import AdminUsersToolbar from "@/components/admin/AdminUsersToolbar/AdminUsersToolbar";
 import UserRowActions from "@/components/admin/UserRowActions/UserRowActions";
+import cardStyles from "@/components/admin/list/admin-list-card.module.scss";
+import layoutStyles from "@/components/admin/list/admin-list-layout.module.scss";
+import tableStyles from "@/components/admin/list/admin-table.module.scss";
+import StatusBadge from "@/components/ui/StatusBadge/StatusBadge";
+import EmptyState from "@/components/ui/EmptyState/EmptyState";
 import { getAdminUsers } from "@/lib/users/getAdminUsers";
 import { parseAdminUsersParams } from "@/lib/users/user-params";
+import { formatDateTime } from "@/lib/ui/format-date-time";
+import { mapEntityActiveToBadge } from "@/lib/ui/map-status-badge";
 import { USER_ROLE_LABELS } from "@/types/admin-user";
-import styles from "./page.module.scss";
 
 export const metadata: Metadata = {
   title: "משתמשים | Paper & Stone",
 };
 
-function formatDate(value: string): string {
-  return new Intl.DateTimeFormat("he-IL", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(new Date(value));
-}
-
 type AdminUsersPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
+
+function hasUserFilters(params: ReturnType<typeof parseAdminUsersParams>): boolean {
+  return Boolean(params.query || params.role || params.status);
+}
 
 export default async function AdminUsersPage({
   searchParams,
@@ -29,27 +33,30 @@ export default async function AdminUsersPage({
   const resolvedSearchParams = await searchParams;
   const params = parseAdminUsersParams(resolvedSearchParams);
   const result = await getAdminUsers(params);
+  const filtered = hasUserFilters(params);
 
   return (
-    <div className={styles.page}>
-      <header className={styles.header}>
-        <div>
-          <h1 className={styles.title}>משתמשים</h1>
-          <p className={styles.description}>
-            ניהול משתמשים רשומים, תפקידים וסטטוס פעילות.
-          </p>
-        </div>
-      </header>
+    <AdminPage width="wide">
+      <AdminPageHeader
+        title="משתמשים"
+        description="ניהול משתמשי המערכת והרשאות"
+      />
 
       <AdminUsersToolbar params={params} total={result.total} />
 
       {result.users.length === 0 ? (
-        <p className={styles.empty}>לא נמצאו משתמשים.</p>
+        <EmptyState
+          title={
+            filtered
+              ? "לא נמצאו משתמשים שמתאימים לחיפוש"
+              : "אין עדיין משתמשים רשומים"
+          }
+        />
       ) : (
         <>
-          <div className={styles.desktopOnly}>
-            <div className={styles.tableWrap}>
-              <table className={styles.table}>
+          <div className={layoutStyles.desktopOnlyDesktop}>
+            <div className={tableStyles.wrap}>
+              <table className={tableStyles.table}>
                 <thead>
                   <tr>
                     <th scope="col">אימייל</th>
@@ -61,70 +68,72 @@ export default async function AdminUsersPage({
                   </tr>
                 </thead>
                 <tbody>
-                  {result.users.map((user) => (
-                    <tr key={user.id}>
-                      <td dir="ltr">{user.email}</td>
-                      <td>{USER_ROLE_LABELS[user.role]}</td>
-                      <td>
-                        <AdminStatusBadge
-                          active={user.isActive}
-                          labelOn="פעיל"
-                          labelOff="לא פעיל"
-                        />
-                      </td>
-                      <td>{formatDate(user.createdAt)}</td>
-                      <td>{formatDate(user.updatedAt)}</td>
-                      <td>
-                        <UserRowActions user={user} layout="table" />
-                      </td>
-                    </tr>
-                  ))}
+                  {result.users.map((user) => {
+                    const status = mapEntityActiveToBadge(user.isActive);
+
+                    return (
+                      <tr key={user.id}>
+                        <td className={tableStyles.primary} dir="ltr">
+                          {user.email}
+                        </td>
+                        <td>{USER_ROLE_LABELS[user.role]}</td>
+                        <td>
+                          <StatusBadge tone={status.tone}>{status.label}</StatusBadge>
+                        </td>
+                        <td>{formatDateTime(user.createdAt)}</td>
+                        <td>{formatDateTime(user.updatedAt)}</td>
+                        <td className={tableStyles.actions}>
+                          <UserRowActions user={user} layout="table" />
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
           </div>
 
-          <ul className={`${styles.mobileOnly} ${styles.cardList}`}>
-            {result.users.map((user) => (
-              <li key={user.id} className={styles.card}>
-                <div className={styles.cardHeader}>
-                  <p className={styles.cardEmail} dir="ltr">
-                    {user.email}
-                  </p>
-                </div>
+          <ul className={`${layoutStyles.mobileOnlyDesktop} ${cardStyles.list}`}>
+            {result.users.map((user) => {
+              const status = mapEntityActiveToBadge(user.isActive);
 
-                <div className={styles.cardMeta}>
-                  <div className={styles.metaRow}>
-                    <span className={styles.metaLabel}>תפקיד:</span>
-                    <span className={styles.metaValue}>
-                      {USER_ROLE_LABELS[user.role]}
-                    </span>
+              return (
+                <li key={user.id} className={cardStyles.card}>
+                  <div className={cardStyles.header}>
+                    <p className={cardStyles.title} dir="ltr">
+                      {user.email}
+                    </p>
                   </div>
-                  <div className={styles.metaRow}>
-                    <span className={styles.metaLabel}>סטטוס:</span>
-                    <AdminStatusBadge
-                      active={user.isActive}
-                      labelOn="פעיל"
-                      labelOff="לא פעיל"
-                    />
-                  </div>
-                  <div className={styles.metaRow}>
-                    <span className={styles.metaLabel}>נרשם:</span>
-                    <span className={styles.metaValue}>
-                      {formatDate(user.createdAt)}
-                    </span>
-                  </div>
-                  <div className={styles.metaRow}>
-                    <span className={styles.metaLabel}>עודכן:</span>
-                    <span className={styles.metaValue}>
-                      {formatDate(user.updatedAt)}
-                    </span>
-                  </div>
-                </div>
 
-                <UserRowActions user={user} layout="card" />
-              </li>
-            ))}
+                  <div className={cardStyles.badges}>
+                    <StatusBadge tone={status.tone}>{status.label}</StatusBadge>
+                  </div>
+
+                  <div className={cardStyles.metaGrid}>
+                    <div className={cardStyles.metaRow}>
+                      <span className={cardStyles.metaLabel}>תפקיד:</span>
+                      <span className={cardStyles.metaValue}>
+                        {USER_ROLE_LABELS[user.role]}
+                      </span>
+                    </div>
+                    <div className={cardStyles.metaRow}>
+                      <span className={cardStyles.metaLabel}>נרשם:</span>
+                      <span className={cardStyles.metaValue}>
+                        {formatDateTime(user.createdAt)}
+                      </span>
+                    </div>
+                    <div className={cardStyles.metaRow}>
+                      <span className={cardStyles.metaLabel}>עודכן:</span>
+                      <span className={cardStyles.metaValue}>
+                        {formatDateTime(user.updatedAt)}
+                      </span>
+                    </div>
+                  </div>
+
+                  <UserRowActions user={user} layout="card" />
+                </li>
+              );
+            })}
           </ul>
         </>
       )}
@@ -134,6 +143,6 @@ export default async function AdminUsersPage({
         page={result.page}
         totalPages={result.totalPages}
       />
-    </div>
+    </AdminPage>
   );
 }

@@ -1,0 +1,58 @@
+@use "../../../styles/tokens" as *;
+@use "../../../styles/mixins" as *;
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+}
+
+.label {
+  font-size: $font-size-label;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+}
+
+.required {
+  color: $color-danger-text;
+}
+
+.input,
+.select,
+.textarea {
+  width: 100%;
+  padding: $spacing-sm $spacing-md;
+  font: inherit;
+  color: $color-text-primary;
+  background-color: $color-background;
+  border: 1px solid $color-border;
+  border-radius: $radius-sm;
+
+  @include focus-visible;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  &[aria-invalid="true"] {
+    border-color: $color-danger-border;
+  }
+}
+
+.textarea {
+  min-height: 6rem;
+  resize: vertical;
+}
+
+.error {
+  margin: 0;
+  font-size: $font-size-sm;
+  color: $color-danger-text;
+}
+
+.hint {
+  margin: 0;
+  font-size: $font-size-meta;
+  color: $color-text-secondary;
+}

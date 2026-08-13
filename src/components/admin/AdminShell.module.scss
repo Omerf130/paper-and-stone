@@ -7,7 +7,7 @@
   background-color: $color-background;
 
   @include desktop-up {
-    grid-template-columns: 15rem 1fr;
+    grid-template-columns: $admin-sidebar-width 1fr;
   }
 }
 
@@ -39,17 +39,9 @@
   min-width: 0;
 }
 
-.brand {
-  font-size: $font-size-sm;
-  font-weight: $font-weight-semibold;
-  color: $color-text-primary;
-  text-decoration: none;
-  white-space: nowrap;
-
-  @include focus-visible;
-
-  @include tablet-up {
-    font-size: $font-size-base;
+.mobileBrand {
+  @include desktop-up {
+    display: none;
   }
 }
 
@@ -57,6 +49,24 @@
   display: flex;
   align-items: center;
   gap: $spacing-md;
+  min-width: 0;
+}
+
+.adminEmail {
+  max-width: 10rem;
+  overflow: hidden;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  @include tablet-up {
+    max-width: 14rem;
+  }
+
+  @include desktop-up {
+    max-width: 18rem;
+  }
 }
 
 .publicLink,

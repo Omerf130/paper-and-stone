@@ -24,3 +24,38 @@
     outline-offset: $focus-ring-offset;
   }
 }
+
+@mixin reduced-motion {
+  @media (prefers-reduced-motion: reduce) {
+    @content;
+  }
+}
+
+@mixin primary-button-base {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-sm;
+  min-height: 2.75rem;
+  padding-inline: $spacing-lg;
+  font-family: inherit;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  border: 1px solid transparent;
+  border-radius: $radius-sm;
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    background-color $transition-fast,
+    border-color $transition-fast,
+    color $transition-fast;
+
+  @include focus-visible;
+
+  @include reduced-motion {
+    transition: none;
+  }
+}

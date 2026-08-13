@@ -1,0 +1,47 @@
+@use "../../../styles/tokens" as *;
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: $spacing-xs $spacing-sm;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  line-height: 1.3;
+  border: 1px solid $color-border;
+  white-space: nowrap;
+}
+
+.neutral {
+  composes: badge;
+  color: $color-text-primary;
+  background: $color-background-subtle;
+  border-color: $color-border;
+}
+
+.positive {
+  composes: badge;
+  color: $color-success-text;
+  background: $color-success-bg;
+  border-color: $color-success-border;
+}
+
+.warning {
+  composes: badge;
+  color: $color-warning-text;
+  background: $color-warning-bg;
+  border-color: $color-warning-border;
+}
+
+.negative {
+  composes: badge;
+  color: $color-danger-text;
+  background: $color-danger-bg;
+  border-color: $color-danger-border;
+}
+
+.info {
+  composes: badge;
+  color: $color-info-text;
+  background: $color-info-bg;
+  border-color: $color-info-border;
+}

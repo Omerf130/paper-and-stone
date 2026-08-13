@@ -1,30 +1,37 @@
 import Link from "next/link";
-import type { AdminNavItem } from "@/config/admin-nav";
+import type { AdminNavGroup } from "@/config/admin-nav";
 import { logoutAction } from "@/lib/auth/logout-action";
+import AdminBrand from "./AdminBrand";
 import AdminMobileNav from "./AdminMobileNav";
 import AdminSidebar from "./AdminSidebar";
 import styles from "./AdminShell.module.scss";
 
 type AdminShellProps = {
   children: React.ReactNode;
-  navItems: AdminNavItem[];
+  navGroups: AdminNavGroup[];
+  adminEmail: string;
 };
 
-export default function AdminShell({ children, navItems }: AdminShellProps) {
+export default function AdminShell({
+  children,
+  navGroups,
+  adminEmail,
+}: AdminShellProps) {
   return (
     <div className={styles.shell}>
-      <AdminSidebar items={navItems} />
+      <AdminSidebar navGroups={navGroups} />
 
       <div className={styles.mainColumn}>
         <header className={styles.topBar}>
           <div className={styles.topBarStart}>
-            <AdminMobileNav items={navItems} />
-            <Link href="/admin" className={styles.brand}>
-              Paper &amp; Stone — ניהול
-            </Link>
+            <AdminMobileNav navGroups={navGroups} />
+            <AdminBrand className={styles.mobileBrand} compact />
           </div>
 
           <div className={styles.topBarActions}>
+            <span className={styles.adminEmail} title={adminEmail}>
+              {adminEmail}
+            </span>
             <Link href="/" className={styles.publicLink}>
               חזרה לאתר
             </Link>

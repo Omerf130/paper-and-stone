@@ -1,0 +1,64 @@
+@use "../../../styles/tokens" as *;
+@use "../../../styles/mixins" as *;
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+  padding-block-start: $spacing-xl;
+  border-top: 1px solid $color-border;
+}
+
+.title {
+  margin: 0;
+  font-size: $font-size-section-title;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  list-style: none;
+}
+
+.item {
+  border-bottom: 1px solid $color-border;
+
+  &:first-child {
+    border-top: 1px solid $color-border;
+  }
+}
+
+.link {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: $spacing-sm;
+  padding-block: $spacing-md;
+  color: inherit;
+  text-decoration: none;
+
+  @include focus-visible;
+
+  &:hover .name {
+    color: $color-accent;
+  }
+}
+
+.name {
+  font-size: $font-size-base;
+  color: $color-text-primary;
+  transition: color $transition-fast;
+
+  @include reduced-motion {
+    transition: none;
+  }
+}
+
+.date {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}

@@ -4,7 +4,8 @@ import {
 } from "@/lib/projects/project-params";
 import { PROJECT_STATUS_LABELS } from "@/types/admin-project";
 import type { ProjectStatus } from "@/types/project";
-import styles from "./AdminProjectsToolbar.module.scss";
+import Button from "@/components/ui/Button/Button";
+import styles from "@/components/admin/list/admin-list-toolbar.module.scss";
 
 type AdminProjectsToolbarProps = {
   params: AdminProjectsParams;
@@ -63,11 +64,11 @@ export default function AdminProjectsToolbar({
         </div>
 
         <div className={styles.actions}>
-          <button type="submit" className={styles.button}>
+          <Button type="submit" variant="secondary" size="sm">
             סינון
-          </button>
+          </Button>
           {hasFilters ? (
-            <Link href="/admin/projects" className={styles.secondaryLink}>
+            <Link href="/admin/projects" className={styles.resetLink}>
               ניקוי סינון
             </Link>
           ) : null}

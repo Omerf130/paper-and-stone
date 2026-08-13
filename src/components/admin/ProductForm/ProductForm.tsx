@@ -16,6 +16,7 @@ import type {
 import MaterialOptionsEditor from "./MaterialOptionsEditor";
 import MaterialsEditor from "./MaterialsEditor";
 import SizesEditor from "./SizesEditor";
+import Button from "@/components/ui/Button/Button";
 import styles from "./form-section.module.scss";
 
 type ProductFormProps = {
@@ -359,14 +360,13 @@ export default function ProductForm({
       </section>
 
       <div className={styles.actions}>
-        <button
-          type="button"
-          className={styles.submitButton}
-          disabled={isPending}
+        <Button
           onClick={handleSubmit}
+          loading={isPending}
+          loadingLabel="שומר..."
         >
-          {isPending ? "שומר..." : mode === "create" ? "יצירת מוצר" : "שמירה"}
-        </button>
+          {mode === "create" ? "יצירת מוצר" : "שמירה"}
+        </Button>
         <Link href="/admin/products" className={styles.cancelLink}>
           ביטול
         </Link>

@@ -2,7 +2,9 @@ import Link from "next/link";
 import {
   type AdminUsersParams,
 } from "@/lib/users/user-params";
-import styles from "./AdminUsersToolbar.module.scss";
+import { USER_ROLE_LABELS } from "@/types/admin-user";
+import Button from "@/components/ui/Button/Button";
+import styles from "@/components/admin/list/admin-list-toolbar.module.scss";
 
 type AdminUsersToolbarProps = {
   params: AdminUsersParams;
@@ -85,11 +87,11 @@ export default function AdminUsersToolbar({
         </div>
 
         <div className={styles.actions}>
-          <button type="submit" className={styles.button}>
+          <Button type="submit" variant="secondary" size="sm">
             סינון
-          </button>
+          </Button>
           {hasFilters ? (
-            <Link href="/admin/users" className={styles.secondaryLink}>
+            <Link href="/admin/users" className={styles.resetLink}>
               ניקוי סינון
             </Link>
           ) : null}
@@ -97,7 +99,8 @@ export default function AdminUsersToolbar({
       </form>
 
       <p className={styles.summary}>
-        {total} משתמשים{params.role ? ` · ${ROLE_OPTIONS.find((option) => option.value === params.role)?.label}` : ""}
+        {total} משתמשים
+        {params.role ? ` · ${USER_ROLE_LABELS[params.role]}` : ""}
       </p>
     </section>
   );

@@ -1,46 +1,38 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { getAdminDashboardStats } from "@/lib/products/getAdminDashboardStats";
-import styles from "./page.module.scss";
+import AdminPage from "@/components/admin/AdminPage/AdminPage";
+import AdminPageHeader from "@/components/admin/AdminPageHeader/AdminPageHeader";
+import AdminDashboardAttention from "@/components/admin/dashboard/AdminDashboardAttention";
+import AdminDashboardMetrics from "@/components/admin/dashboard/AdminDashboardMetrics";
+import AdminDashboardQuickActions from "@/components/admin/dashboard/AdminDashboardQuickActions";
+import AdminDashboardRecentProjects from "@/components/admin/dashboard/AdminDashboardRecentProjects";
+import { requireAdmin } from "@/lib/auth/authorization";
+import { getAdminDashboardData } from "@/lib/admin/getAdminDashboardData";
 
 export const metadata: Metadata = {
   title: "ניהול | Paper & Stone",
 };
 
 export default async function AdminDashboardPage() {
-  const stats = await getAdminDashboardStats();
+  const user = await requireAdmin();
+  const data = await getAdminDashboardData(user.id);
 
   return (
-    <div className={styles.page}>
-      <header className={styles.header}>
-        <h1 className={styles.title}>ראשי</h1>
-        <p className={styles.description}>
-          סקירה קצרה של מצב המוצרים והקטגוריות במערכת.
-        </p>
-      </header>
+    <AdminPage width="default">
+      <AdminPageHeader
+        title="ראשי"
+        description="סקירה של מה שדורש טיפול, מצב המערכת וקיצורי דרך לניהול."
+      />
 
-      <div className={styles.stats}>
-        <div className={styles.stat}>
-          <span className={styles.statLabel}>סה״כ מוצרים</span>
-          <span className={styles.statValue}>{stats.totalProducts}</span>
-        </div>
-        <div className={styles.stat}>
-          <span className={styles.statLabel}>מוצרים פעילים</span>
-          <span className={styles.statValue}>{stats.activeProducts}</span>
-        </div>
-        <div className={styles.stat}>
-          <span className={styles.statLabel}>מוצרים מומלצים</span>
-          <span className={styles.statValue}>{stats.featuredProducts}</span>
-        </div>
-        <div className={styles.stat}>
-          <span className={styles.statLabel}>קטגוריות פעילות</span>
-          <span className={styles.statValue}>{stats.activeCategories}</span>
-        </div>
-      </div>
+      <AdminDashboardAttention
+        submittedProjectCount={data.submittedProjectCount}
+        unreadAdminMessageCount={data.unreadAdminMessageCount}
+      />
 
-      <Link href="/admin/products" className={styles.primaryAction}>
-        ניהול מוצרים
-      </Link>
-    </div>
+      <AdminDashboardMetrics metrics={data.metrics} />
+
+      <AdminDashboardQuickActions />
+
+      <AdminDashboardRecentProjects projects={data.recentSubmittedProjects} />
+    </AdminPage>
   );
 }

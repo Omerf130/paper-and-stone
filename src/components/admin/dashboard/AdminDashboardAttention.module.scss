@@ -1,0 +1,50 @@
+@use "../../../styles/tokens" as *;
+@use "../../../styles/mixins" as *;
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+  padding-block-start: $spacing-xl;
+  border-top: 1px solid $color-border;
+}
+
+.title {
+  margin: 0;
+  font-size: $font-size-section-title;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  list-style: none;
+}
+
+.item {
+  padding-block: $spacing-md;
+  border-bottom: 1px solid $color-border;
+
+  &:first-child {
+    border-top: 1px solid $color-border;
+  }
+}
+
+.link {
+  font-size: $font-size-base;
+  color: $color-text-primary;
+  text-decoration: none;
+
+  @include focus-visible;
+
+  &:hover {
+    color: $color-accent;
+  }
+}
+
+.empty {
+  font-size: $font-size-base;
+  color: $color-text-secondary;
+}

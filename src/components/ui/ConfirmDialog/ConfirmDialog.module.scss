@@ -1,0 +1,45 @@
+@use "../../../styles/tokens" as *;
+@use "../../../styles/mixins" as *;
+
+.dialog {
+  width: min(calc(100vw - #{$spacing-xl}), 28rem);
+  max-width: 100%;
+  padding: 0;
+  margin: auto;
+  color: $color-text-primary;
+  background: $color-background;
+  border: 1px solid $color-border;
+  box-shadow: $shadow-md;
+
+  &::backdrop {
+    background: rgba(0, 0, 0, 0.35);
+  }
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+  padding: $spacing-xl;
+}
+
+.title {
+  margin: 0;
+  font-size: $font-size-section-title;
+  font-weight: $font-weight-semibold;
+  line-height: $line-height-tight;
+}
+
+.description {
+  margin: 0;
+  font-size: $font-size-sm;
+  line-height: $line-height-relaxed;
+  color: $color-text-secondary;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+  justify-content: flex-end;
+}

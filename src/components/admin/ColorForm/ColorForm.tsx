@@ -1,12 +1,14 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import {
   createColorAction,
   updateColorAction,
 } from "@/app/admin/colors/actions";
+import Button from "@/components/ui/Button/Button";
+import FormField, { formFieldStyles } from "@/components/ui/FormField/FormField";
+import { useToast } from "@/components/ui/Toast/ToastProvider";
 import type {
   AdminColorFormInput,
   ColorFormState,
@@ -18,7 +20,6 @@ type ColorFormProps = {
   mode: "create" | "edit";
   initialColor: AdminColorFormInput;
   colorId?: string;
-  showSavedBanner?: boolean;
 };
 
 const initialState: ColorFormState = {};
@@ -27,13 +28,12 @@ export default function ColorForm({
   mode,
   initialColor,
   colorId,
-  showSavedBanner = false,
 }: ColorFormProps) {
   const router = useRouter();
+  const { toast } = useToast();
   const [formState, setFormState] = useState(initialState);
   const [color, setColor] = useState(initialColor);
   const [isPending, startTransition] = useTransition();
-  const [savedBanner, setSavedBanner] = useState(showSavedBanner);
 
   const updateField = <K extends keyof AdminColorFormInput>(
     key: K,
@@ -43,7 +43,6 @@ export default function ColorForm({
   };
 
   const handleSubmit = () => {
-    setSavedBanner(false);
     setFormState(initialState);
 
     startTransition(async () => {
@@ -54,10 +53,17 @@ export default function ColorForm({
 
       setFormState(result);
 
-      if (result.success) {
-        setSavedBanner(true);
-        router.refresh();
+      if (result.fieldErrors) {
+        return;
       }
+
+      if (result.error) {
+        toast({ type: "error", message: result.error });
+        return;
+      }
+
+      toast({ type: "success", message: "הצבע נשמר" });
+      router.refresh();
     });
   };
 
@@ -65,103 +71,102 @@ export default function ColorForm({
 
   return (
     <div className={styles.stack}>
-      {(savedBanner || showSavedBanner) && (
-        <p className={styles.formSuccess} role="status">
-          הצבע נשמר בהצלחה.
-        </p>
-      )}
-
-      {formState.error && (
-        <p className={styles.formError} role="alert">
-          {formState.error}
-        </p>
-      )}
-
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>פרטי צבע</h2>
 
         <div className={styles.fieldGrid}>
-          <div className={styles.field}>
-            <label className={styles.label} htmlFor="nameHe">
-              שם בעברית
-            </label>
+          <FormField
+            label="שם בעברית"
+            htmlFor="color-nameHe"
+            error={fieldErrors.nameHe}
+            errorId="color-nameHe-error"
+          >
             <input
-              id="nameHe"
-              className={styles.input}
+              id="color-nameHe"
+              className={formFieldStyles.input}
               value={color.nameHe}
               onChange={(event) => updateField("nameHe", event.target.value)}
+              aria-invalid={Boolean(fieldErrors.nameHe)}
+              aria-describedby={
+                fieldErrors.nameHe ? "color-nameHe-error" : undefined
+              }
             />
-            {fieldErrors.nameHe && (
-              <p className={styles.fieldError}>{fieldErrors.nameHe}</p>
-            )}
-          </div>
+          </FormField>
 
-          <div className={styles.field}>
-            <label className={styles.label} htmlFor="nameEn">
-              שם באנגלית
-            </label>
+          <FormField
+            label="שם באנגלית"
+            htmlFor="color-nameEn"
+            error={fieldErrors.nameEn}
+            errorId="color-nameEn-error"
+          >
             <input
-              id="nameEn"
-              className={styles.input}
+              id="color-nameEn"
+              className={formFieldStyles.input}
               value={color.nameEn}
               onChange={(event) => updateField("nameEn", event.target.value)}
+              aria-invalid={Boolean(fieldErrors.nameEn)}
+              aria-describedby={
+                fieldErrors.nameEn ? "color-nameEn-error" : undefined
+              }
             />
-            {fieldErrors.nameEn && (
-              <p className={styles.fieldError}>{fieldErrors.nameEn}</p>
-            )}
-          </div>
+          </FormField>
 
-          <div className={styles.field}>
-            <label className={styles.label} htmlFor="code">
-              קוד (אופציונלי)
-            </label>
+          <FormField
+            label="קוד (אופציונלי)"
+            htmlFor="color-code"
+            error={fieldErrors.code}
+            errorId="color-code-error"
+          >
             <input
-              id="code"
-              className={styles.input}
+              id="color-code"
+              className={formFieldStyles.input}
               dir="ltr"
               value={color.code}
               onChange={(event) => updateField("code", event.target.value)}
+              aria-invalid={Boolean(fieldErrors.code)}
+              aria-describedby={fieldErrors.code ? "color-code-error" : undefined}
             />
-            {fieldErrors.code && (
-              <p className={styles.fieldError}>{fieldErrors.code}</p>
-            )}
-          </div>
+          </FormField>
 
-          <div className={styles.field}>
-            <label className={styles.label} htmlFor="hex">
-              HEX
-            </label>
+          <FormField
+            label="HEX"
+            htmlFor="color-hex"
+            error={fieldErrors.hex}
+            errorId="color-hex-error"
+          >
             <div className={styles.inlineRow}>
               <input
-                id="hex"
-                className={styles.input}
+                id="color-hex"
+                className={formFieldStyles.input}
                 dir="ltr"
                 value={color.hex}
                 onChange={(event) => updateField("hex", event.target.value)}
+                aria-invalid={Boolean(fieldErrors.hex)}
+                aria-describedby={fieldErrors.hex ? "color-hex-error" : undefined}
               />
               <HexPreview hex={color.hex} />
             </div>
-            {fieldErrors.hex && (
-              <p className={styles.fieldError}>{fieldErrors.hex}</p>
-            )}
-          </div>
+          </FormField>
 
-          <div className={styles.field}>
-            <label className={styles.label} htmlFor="sortOrder">
-              סדר מיון
-            </label>
+          <FormField
+            label="סדר מיון"
+            htmlFor="color-sortOrder"
+            error={fieldErrors.sortOrder}
+            errorId="color-sortOrder-error"
+          >
             <input
-              id="sortOrder"
+              id="color-sortOrder"
               type="number"
               min={0}
-              className={styles.input}
+              className={formFieldStyles.input}
               value={color.sortOrder}
               onChange={(event) => updateField("sortOrder", event.target.value)}
+              aria-invalid={Boolean(fieldErrors.sortOrder)}
+              aria-describedby={
+                fieldErrors.sortOrder ? "color-sortOrder-error" : undefined
+              }
             />
-            {fieldErrors.sortOrder && (
-              <p className={styles.fieldError}>{fieldErrors.sortOrder}</p>
-            )}
-          </div>
+          </FormField>
         </div>
 
         <div className={styles.checkboxRow}>
@@ -177,17 +182,12 @@ export default function ColorForm({
       </section>
 
       <div className={styles.actions}>
-        <button
-          type="button"
-          className={styles.submitButton}
-          disabled={isPending}
-          onClick={handleSubmit}
-        >
-          {isPending ? "שומר..." : "שמירה"}
-        </button>
-        <Link href="/admin/colors" className={styles.cancelLink}>
+        <Button onClick={handleSubmit} loading={isPending} loadingLabel="שמירה...">
+          שמירה
+        </Button>
+        <Button href="/admin/colors" variant="ghost">
           ביטול
-        </Link>
+        </Button>
       </div>
     </div>
   );

@@ -1,0 +1,22 @@
+@use "../../../styles/tokens" as *;
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+  padding-block-start: $spacing-xl;
+  border-top: 1px solid $color-border;
+}
+
+.title {
+  margin: 0;
+  font-size: $font-size-section-title;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+}

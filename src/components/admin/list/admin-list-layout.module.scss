@@ -1,0 +1,38 @@
+@use "../../../styles/tokens" as *;
+@use "../../../styles/mixins" as *;
+
+.desktopOnlyTablet {
+  display: none;
+
+  @include tablet-up {
+    display: block;
+  }
+}
+
+.mobileOnlyTablet {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+
+  @include tablet-up {
+    display: none;
+  }
+}
+
+.desktopOnlyDesktop {
+  display: none;
+
+  @include desktop-up {
+    display: block;
+  }
+}
+
+.mobileOnlyDesktop {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+
+  @include desktop-up {
+    display: none;
+  }
+}

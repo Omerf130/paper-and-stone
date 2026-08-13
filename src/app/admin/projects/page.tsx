@@ -1,31 +1,32 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import AdminPage from "@/components/admin/AdminPage/AdminPage";
+import AdminPageHeader from "@/components/admin/AdminPageHeader/AdminPageHeader";
 import AdminProjectsPagination from "@/components/admin/AdminProjectsPagination/AdminProjectsPagination";
 import AdminProjectsToolbar from "@/components/admin/AdminProjectsToolbar/AdminProjectsToolbar";
+import cardStyles from "@/components/admin/list/admin-list-card.module.scss";
+import layoutStyles from "@/components/admin/list/admin-list-layout.module.scss";
+import tableStyles from "@/components/admin/list/admin-table.module.scss";
+import Button from "@/components/ui/Button/Button";
+import StatusBadge from "@/components/ui/StatusBadge/StatusBadge";
+import EmptyState from "@/components/ui/EmptyState/EmptyState";
 import { requireAdmin } from "@/lib/auth/authorization";
 import { getAdminProjects } from "@/lib/projects/getAdminProjects";
 import { parseAdminProjectsParams } from "@/lib/projects/project-params";
-import { getProjectStatusLabel } from "@/lib/projects/project-display-helpers";
-import styles from "./page.module.scss";
+import { formatDateTime } from "@/lib/ui/format-date-time";
+import { mapProjectStatusToBadge } from "@/lib/ui/map-status-badge";
 
 export const metadata: Metadata = {
   title: "פרויקטים | Paper & Stone",
 };
 
-function formatDate(value?: string): string {
-  if (!value) {
-    return "—";
-  }
-
-  return new Intl.DateTimeFormat("he-IL", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(new Date(value));
-}
-
 type AdminProjectsPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
+
+function hasProjectFilters(params: ReturnType<typeof parseAdminProjectsParams>): boolean {
+  return Boolean(params.query || params.status !== "submitted");
+}
 
 export default async function AdminProjectsPage({
   searchParams,
@@ -34,27 +35,30 @@ export default async function AdminProjectsPage({
   const params = parseAdminProjectsParams(resolvedSearchParams);
   const user = await requireAdmin();
   const result = await getAdminProjects(params, user.id);
+  const filtered = hasProjectFilters(params);
 
   return (
-    <div className={styles.page}>
-      <header className={styles.header}>
-        <div>
-          <h1 className={styles.title}>פרויקטים</h1>
-          <p className={styles.description}>
-            בדיקה ואישור פרויקטים שנשלחו על ידי אנשי מקצוע.
-          </p>
-        </div>
-      </header>
+    <AdminPage width="wide">
+      <AdminPageHeader
+        title="פרויקטים"
+        description="בדיקה ואישור פרויקטים מצד אנשי מקצוע"
+      />
 
       <AdminProjectsToolbar params={params} total={result.total} />
 
       {result.projects.length === 0 ? (
-        <p className={styles.empty}>לא נמצאו פרויקטים.</p>
+        <EmptyState
+          title={
+            filtered
+              ? "לא נמצאו פרויקטים שמתאימים לסינון"
+              : "אין פרויקטים שממתינים לבדיקה"
+          }
+        />
       ) : (
         <>
-          <div className={styles.desktopOnly}>
-            <div className={styles.tableWrap}>
-              <table className={styles.table}>
+          <div className={layoutStyles.desktopOnlyDesktop}>
+            <div className={tableStyles.wrap}>
+              <table className={tableStyles.table}>
                 <thead>
                   <tr>
                     <th scope="col">פרויקט</th>
@@ -66,91 +70,104 @@ export default async function AdminProjectsPage({
                   </tr>
                 </thead>
                 <tbody>
-                  {result.projects.map((project) => (
-                    <tr key={project.id}>
-                      <td>
-                        <div>{project.name}</div>
-                        {project.clientName ? (
-                          <div className={styles.subtle}>{project.clientName}</div>
-                        ) : null}
-                        {(project.unreadMessageCount ?? 0) > 0 ? (
-                          <div className={styles.unreadBadge} role="status">
-                            הודעות חדשות: {project.unreadMessageCount}
-                          </div>
-                        ) : null}
-                      </td>
-                      <td>
-                        <div dir="ltr">{project.professionalEmail}</div>
-                        {project.professionalName ? (
-                          <div className={styles.subtle}>{project.professionalName}</div>
-                        ) : null}
-                      </td>
-                      <td>{getProjectStatusLabel(project.status)}</td>
-                      <td>{project.itemCount}</td>
-                      <td>{formatDate(project.submittedAt)}</td>
-                      <td>
-                        <Link
-                          href={`/admin/projects/${project.id}`}
-                          className={styles.link}
-                        >
-                          פתיחה
-                        </Link>
-                      </td>
-                    </tr>
-                  ))}
+                  {result.projects.map((project) => {
+                    const status = mapProjectStatusToBadge(project.status);
+
+                    return (
+                      <tr key={project.id}>
+                        <td>
+                          <div className={tableStyles.primary}>{project.name}</div>
+                          {project.clientName ? (
+                            <div className={tableStyles.subtle}>{project.clientName}</div>
+                          ) : null}
+                          {(project.unreadMessageCount ?? 0) > 0 ? (
+                            <div className={cardStyles.unread} role="status">
+                              הודעות חדשות: {project.unreadMessageCount}
+                            </div>
+                          ) : null}
+                        </td>
+                        <td>
+                          <div dir="ltr">{project.professionalEmail}</div>
+                          {project.professionalName ? (
+                            <div className={tableStyles.subtle}>
+                              {project.professionalName}
+                            </div>
+                          ) : null}
+                        </td>
+                        <td>
+                          <StatusBadge tone={status.tone}>{status.label}</StatusBadge>
+                        </td>
+                        <td>{project.itemCount}</td>
+                        <td>{formatDateTime(project.submittedAt)}</td>
+                        <td className={tableStyles.actions}>
+                          <Link
+                            href={`/admin/projects/${project.id}`}
+                            className={tableStyles.actionLink}
+                          >
+                            פתיחה
+                          </Link>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
           </div>
 
-          <ul className={`${styles.mobileOnly} ${styles.cardList}`}>
-            {result.projects.map((project) => (
-              <li key={project.id} className={styles.card}>
-                <div className={styles.cardHeader}>
-                  <p className={styles.cardTitle}>{project.name}</p>
-                  {project.clientName ? (
-                    <p className={styles.cardMeta}>{project.clientName}</p>
-                  ) : null}
-                  {(project.unreadMessageCount ?? 0) > 0 ? (
-                    <p className={styles.unreadBadge} role="status">
-                      הודעות חדשות: {project.unreadMessageCount}
-                    </p>
-                  ) : null}
-                </div>
+          <ul className={`${layoutStyles.mobileOnlyDesktop} ${cardStyles.list}`}>
+            {result.projects.map((project) => {
+              const status = mapProjectStatusToBadge(project.status);
 
-                <div className={styles.cardMetaGrid}>
-                  <div className={styles.metaRow}>
-                    <span className={styles.metaLabel}>איש מקצוע:</span>
-                    <span className={styles.metaValue} dir="ltr">
-                      {project.professionalEmail}
-                    </span>
+              return (
+                <li key={project.id} className={cardStyles.card}>
+                  <div className={cardStyles.header}>
+                    <p className={cardStyles.title}>{project.name}</p>
+                    {project.clientName ? (
+                      <p className={cardStyles.subtitle}>{project.clientName}</p>
+                    ) : null}
+                    {(project.unreadMessageCount ?? 0) > 0 ? (
+                      <p className={cardStyles.unread} role="status">
+                        הודעות חדשות: {project.unreadMessageCount}
+                      </p>
+                    ) : null}
                   </div>
-                  <div className={styles.metaRow}>
-                    <span className={styles.metaLabel}>סטטוס:</span>
-                    <span className={styles.metaValue}>
-                      {getProjectStatusLabel(project.status)}
-                    </span>
-                  </div>
-                  <div className={styles.metaRow}>
-                    <span className={styles.metaLabel}>מוצרים:</span>
-                    <span className={styles.metaValue}>{project.itemCount}</span>
-                  </div>
-                  <div className={styles.metaRow}>
-                    <span className={styles.metaLabel}>נשלח:</span>
-                    <span className={styles.metaValue}>
-                      {formatDate(project.submittedAt)}
-                    </span>
-                  </div>
-                </div>
 
-                <Link
-                  href={`/admin/projects/${project.id}`}
-                  className={styles.link}
-                >
-                  פתיחה
-                </Link>
-              </li>
-            ))}
+                  <div className={cardStyles.badges}>
+                    <StatusBadge tone={status.tone}>{status.label}</StatusBadge>
+                  </div>
+
+                  <div className={cardStyles.metaGrid}>
+                    <div className={cardStyles.metaRow}>
+                      <span className={cardStyles.metaLabel}>איש מקצוע:</span>
+                      <span className={cardStyles.metaValue} dir="ltr">
+                        {project.professionalEmail}
+                      </span>
+                    </div>
+                    <div className={cardStyles.metaRow}>
+                      <span className={cardStyles.metaLabel}>מוצרים:</span>
+                      <span className={cardStyles.metaValue}>{project.itemCount}</span>
+                    </div>
+                    <div className={cardStyles.metaRow}>
+                      <span className={cardStyles.metaLabel}>נשלח:</span>
+                      <span className={cardStyles.metaValue}>
+                        {formatDateTime(project.submittedAt)}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className={cardStyles.actions}>
+                    <Button
+                      href={`/admin/projects/${project.id}`}
+                      variant="secondary"
+                      size="sm"
+                    >
+                      פתיחת פרויקט
+                    </Button>
+                  </div>
+                </li>
+              );
+            })}
           </ul>
         </>
       )}
@@ -160,6 +177,6 @@ export default async function AdminProjectsPage({
         page={result.page}
         totalPages={result.totalPages}
       />
-    </div>
+    </AdminPage>
   );
 }

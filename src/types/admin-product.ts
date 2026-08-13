@@ -16,13 +16,6 @@ export type AdminProductListItem = {
   updatedAt: string;
 };
 
-export type AdminDashboardStats = {
-  totalProducts: number;
-  activeProducts: number;
-  featuredProducts: number;
-  activeCategories: number;
-};
-
 export type ProductSizeInput = {
   key: string;
   label: string;

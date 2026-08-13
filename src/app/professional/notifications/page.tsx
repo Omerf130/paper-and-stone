@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import NotificationItem from "@/components/professional/notifications/NotificationItem/NotificationItem";
 import NotificationMarkAllButton from "@/components/professional/notifications/NotificationMarkAllButton/NotificationMarkAllButton";
 import NotificationsPagination from "@/components/professional/notifications/NotificationsPagination/NotificationsPagination";
+import EmptyState from "@/components/ui/EmptyState/EmptyState";
 import { requireProfessional } from "@/lib/auth/authorization";
 import { parseNotificationsParams } from "@/lib/notifications/notification-params";
 import {
@@ -42,7 +43,10 @@ export default async function ProfessionalNotificationsPage({
       </header>
 
       {result.notifications.length === 0 ? (
-        <p className={styles.empty}>אין התראות.</p>
+        <EmptyState
+          title="אין התראות"
+          description="כאשר יהיו עדכונים על פרויקטים, הם יופיעו כאן."
+        />
       ) : (
         <ul className={styles.list}>
           {result.notifications.map((notification) => (

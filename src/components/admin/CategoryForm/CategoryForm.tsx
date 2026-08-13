@@ -1,12 +1,14 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import {
   createCategoryAction,
   updateCategoryAction,
 } from "@/app/admin/categories/actions";
+import Button from "@/components/ui/Button/Button";
+import FormField, { formFieldStyles } from "@/components/ui/FormField/FormField";
+import { useToast } from "@/components/ui/Toast/ToastProvider";
 import type {
   AdminCategoryFormInput,
   CategoryFormState,
@@ -17,7 +19,6 @@ type CategoryFormProps = {
   mode: "create" | "edit";
   initialCategory: AdminCategoryFormInput;
   categoryId?: string;
-  showSavedBanner?: boolean;
 };
 
 const initialState: CategoryFormState = {};
@@ -26,13 +27,12 @@ export default function CategoryForm({
   mode,
   initialCategory,
   categoryId,
-  showSavedBanner = false,
 }: CategoryFormProps) {
   const router = useRouter();
+  const { toast } = useToast();
   const [formState, setFormState] = useState(initialState);
   const [category, setCategory] = useState(initialCategory);
   const [isPending, startTransition] = useTransition();
-  const [savedBanner, setSavedBanner] = useState(showSavedBanner);
 
   const updateField = <K extends keyof AdminCategoryFormInput>(
     key: K,
@@ -42,7 +42,6 @@ export default function CategoryForm({
   };
 
   const handleSubmit = () => {
-    setSavedBanner(false);
     setFormState(initialState);
 
     startTransition(async () => {
@@ -53,10 +52,17 @@ export default function CategoryForm({
 
       setFormState(result);
 
-      if (result.success) {
-        setSavedBanner(true);
-        router.refresh();
+      if (result.fieldErrors) {
+        return;
       }
+
+      if (result.error) {
+        toast({ type: "error", message: result.error });
+        return;
+      }
+
+      toast({ type: "success", message: "הקטגוריה נשמרה" });
+      router.refresh();
     });
   };
 
@@ -64,84 +70,78 @@ export default function CategoryForm({
 
   return (
     <div className={styles.stack}>
-      {(savedBanner || showSavedBanner) && (
-        <p className={styles.formSuccess} role="status">
-          הקטגוריה נשמרה בהצלחה.
-        </p>
-      )}
-
-      {formState.error && (
-        <p className={styles.formError} role="alert">
-          {formState.error}
-        </p>
-      )}
-
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>פרטי קטגוריה</h2>
 
         <div className={styles.fieldGrid}>
-          <div className={styles.field}>
-            <label className={styles.label} htmlFor="nameHe">
-              שם בעברית
-            </label>
+          <FormField
+            label="שם בעברית"
+            htmlFor="nameHe"
+            error={fieldErrors.nameHe}
+            errorId="nameHe-error"
+          >
             <input
               id="nameHe"
-              className={styles.input}
+              className={formFieldStyles.input}
               value={category.nameHe}
               onChange={(event) => updateField("nameHe", event.target.value)}
+              aria-invalid={Boolean(fieldErrors.nameHe)}
+              aria-describedby={fieldErrors.nameHe ? "nameHe-error" : undefined}
             />
-            {fieldErrors.nameHe && (
-              <p className={styles.fieldError}>{fieldErrors.nameHe}</p>
-            )}
-          </div>
+          </FormField>
 
-          <div className={styles.field}>
-            <label className={styles.label} htmlFor="nameEn">
-              שם באנגלית
-            </label>
+          <FormField
+            label="שם באנגלית"
+            htmlFor="nameEn"
+            error={fieldErrors.nameEn}
+            errorId="nameEn-error"
+          >
             <input
               id="nameEn"
-              className={styles.input}
+              className={formFieldStyles.input}
               value={category.nameEn}
               onChange={(event) => updateField("nameEn", event.target.value)}
+              aria-invalid={Boolean(fieldErrors.nameEn)}
+              aria-describedby={fieldErrors.nameEn ? "nameEn-error" : undefined}
             />
-            {fieldErrors.nameEn && (
-              <p className={styles.fieldError}>{fieldErrors.nameEn}</p>
-            )}
-          </div>
+          </FormField>
 
-          <div className={styles.field}>
-            <label className={styles.label} htmlFor="slug">
-              כתובת (slug)
-            </label>
+          <FormField
+            label="כתובת (slug)"
+            htmlFor="slug"
+            error={fieldErrors.slug}
+            errorId="slug-error"
+          >
             <input
               id="slug"
-              className={styles.input}
+              className={formFieldStyles.input}
               dir="ltr"
               value={category.slug}
               onChange={(event) => updateField("slug", event.target.value)}
+              aria-invalid={Boolean(fieldErrors.slug)}
+              aria-describedby={fieldErrors.slug ? "slug-error" : undefined}
             />
-            {fieldErrors.slug && (
-              <p className={styles.fieldError}>{fieldErrors.slug}</p>
-            )}
-          </div>
+          </FormField>
 
-          <div className={styles.field}>
-            <label className={styles.label} htmlFor="sortOrder">
-              סדר מיון
-            </label>
+          <FormField
+            label="סדר מיון"
+            htmlFor="sortOrder"
+            error={fieldErrors.sortOrder}
+            errorId="sortOrder-error"
+          >
             <input
               id="sortOrder"
               type="number"
               min={0}
-              className={styles.input}
+              className={formFieldStyles.input}
               value={category.sortOrder}
               onChange={(event) => updateField("sortOrder", event.target.value)}
+              aria-invalid={Boolean(fieldErrors.sortOrder)}
+              aria-describedby={
+                fieldErrors.sortOrder ? "sortOrder-error" : undefined
+              }
             />
-            {fieldErrors.sortOrder && (
-              <p className={styles.fieldError}>{fieldErrors.sortOrder}</p>
-            )}
-          </div>
+          </FormField>
         </div>
 
         <div className={styles.checkboxRow}>
@@ -157,17 +157,16 @@ export default function CategoryForm({
       </section>
 
       <div className={styles.actions}>
-        <button
-          type="button"
-          className={styles.submitButton}
-          disabled={isPending}
+        <Button
           onClick={handleSubmit}
+          loading={isPending}
+          loadingLabel="שמירה..."
         >
-          {isPending ? "שומר..." : "שמירה"}
-        </button>
-        <Link href="/admin/categories" className={styles.cancelLink}>
+          שמירה
+        </Button>
+        <Button href="/admin/categories" variant="ghost">
           ביטול
-        </Link>
+        </Button>
       </div>
     </div>
   );

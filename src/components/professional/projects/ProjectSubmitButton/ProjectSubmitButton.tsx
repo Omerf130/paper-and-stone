@@ -3,6 +3,9 @@
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { submitProjectAction } from "@/app/professional/projects/actions";
+import Button from "@/components/ui/Button/Button";
+import ConfirmDialog from "@/components/ui/ConfirmDialog/ConfirmDialog";
+import { useToast } from "@/components/ui/Toast/ToastProvider";
 import type { ProjectStatus } from "@/types/project";
 import styles from "./ProjectSubmitButton.module.scss";
 
@@ -18,7 +21,8 @@ export default function ProjectSubmitButton({
   itemCount,
 }: ProjectSubmitButtonProps) {
   const router = useRouter();
-  const [error, setError] = useState<string | undefined>();
+  const { toast } = useToast();
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   const canSubmit =
@@ -29,46 +33,46 @@ export default function ProjectSubmitButton({
   }
 
   const isResubmit = status === "changes_requested";
-  const confirmMessage = isResubmit
-    ? "לשלוח את הפרויקט מחדש לבדיקה?"
-    : "לשלוח את הפרויקט לבדיקה? לאחר השליחה לא ניתן יהיה לערוך עד לקבלת תשובה.";
 
-  const handleSubmit = () => {
-    if (!window.confirm(confirmMessage)) {
-      return;
-    }
-
-    setError(undefined);
+  const handleConfirm = () => {
     startTransition(async () => {
       const result = await submitProjectAction(projectId);
       if (result.error) {
-        setError(result.error);
+        toast({ type: "error", message: result.error });
+        setConfirmOpen(false);
         return;
       }
 
+      toast({
+        type: "success",
+        message: isResubmit
+          ? "הפרויקט נשלח מחדש לאישור"
+          : "הפרויקט נשלח לאישור",
+      });
+      setConfirmOpen(false);
       router.refresh();
     });
   };
 
   return (
     <div className={styles.wrap}>
-      {error ? (
-        <p className={styles.error} role="alert">
-          {error}
-        </p>
-      ) : null}
-      <button
-        type="button"
-        className={styles.button}
-        onClick={handleSubmit}
-        disabled={isPending}
-      >
-        {isPending
-          ? "שולח..."
-          : isResubmit
-            ? "שליחה מחדש לבדיקה"
-            : "שליחה לבדיקה"}
-      </button>
+      <Button onClick={() => setConfirmOpen(true)} loading={isPending} loadingLabel="שולח...">
+        {isResubmit ? "שליחה מחדש לבדיקה" : "שליחה לבדיקה"}
+      </Button>
+
+      <ConfirmDialog
+        open={confirmOpen}
+        title={isResubmit ? "שליחה מחדש לבדיקה" : "שליחה לבדיקה"}
+        description={
+          isResubmit
+            ? "לשלוח את הפרויקט מחדש לבדיקה?"
+            : "לשלוח את הפרויקט לבדיקה? לאחר השליחה לא ניתן יהיה לערוך עד לקבלת תשובה."
+        }
+        confirmLabel={isResubmit ? "שליחה מחדש" : "שליחה לבדיקה"}
+        loading={isPending}
+        onConfirm={handleConfirm}
+        onCancel={() => setConfirmOpen(false)}
+      />
     </div>
   );
 }

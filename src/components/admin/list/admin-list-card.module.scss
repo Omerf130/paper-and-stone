@@ -1,0 +1,79 @@
+@use "../../../styles/tokens" as *;
+@use "../../../styles/mixins" as *;
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  list-style: none;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  padding-block: $spacing-lg;
+  border-bottom: 1px solid $color-border;
+
+  &:first-child {
+    border-top: 1px solid $color-border;
+  }
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+}
+
+.title {
+  margin: 0;
+  font-size: $font-size-base;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+}
+
+.subtitle {
+  margin: 0;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.metaGrid {
+  display: grid;
+  gap: $spacing-sm;
+}
+
+.metaRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-xs $spacing-sm;
+  align-items: baseline;
+}
+
+.metaLabel {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.metaValue {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+}
+
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+}
+
+.unread {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}

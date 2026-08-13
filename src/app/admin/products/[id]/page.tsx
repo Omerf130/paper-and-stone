@@ -3,11 +3,13 @@ import { notFound } from "next/navigation";
 import ProductForm from "@/components/admin/ProductForm/ProductForm";
 import ProductMediaManager from "@/components/admin/ProductMediaManager/ProductMediaManager";
 import ProductRecolorManager from "@/components/admin/ProductRecolorManager/ProductRecolorManager";
+import AdminPage from "@/components/admin/AdminPage/AdminPage";
+import AdminPageHeader from "@/components/admin/AdminPageHeader/AdminPageHeader";
+import Button from "@/components/ui/Button/Button";
 import { getProductFormCategoryOptions } from "@/lib/categories/getProductFormCategoryOptions";
 import { getAdminProductMediaById } from "@/lib/media/getAdminProductMediaById";
 import { getAdminProductById } from "@/lib/products/getAdminProductById";
 import { getProductMaterialOptionsForAdmin } from "@/lib/products/material-options/getProductMaterialOptionsForAdmin";
-import styles from "../new/page.module.scss";
 
 type AdminEditProductPageProps = PageProps<"/admin/products/[id]">;
 
@@ -50,11 +52,16 @@ export default async function AdminEditProductPage({
   );
 
   return (
-    <div className={styles.page}>
-      <header className={styles.header}>
-        <h1 className={styles.title}>עריכת מוצר</h1>
-        <p className={styles.description}>{product.nameHe}</p>
-      </header>
+    <AdminPage width="wide">
+      <AdminPageHeader
+        title="עריכת מוצר"
+        description={product.nameHe}
+        actions={
+          <Button href="/admin/products" variant="ghost" size="sm">
+            חזרה למוצרים
+          </Button>
+        }
+      />
 
       <ProductForm
         mode="edit"
@@ -77,6 +84,6 @@ export default async function AdminEditProductPage({
           }))}
         />
       ) : null}
-    </div>
+    </AdminPage>
   );
 }

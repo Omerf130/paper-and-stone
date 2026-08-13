@@ -1,0 +1,67 @@
+@use "../../../styles/tokens" as *;
+@use "../../../styles/mixins" as *;
+
+.wrap {
+  border: 1px solid $color-border;
+  background-color: $color-background;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: $font-size-sm;
+}
+
+.table th,
+.table td {
+  padding: $spacing-md;
+  text-align: start;
+  border-bottom: 1px solid $color-border;
+  vertical-align: top;
+}
+
+.table th {
+  font-weight: $font-weight-medium;
+  color: $color-text-secondary;
+  background-color: $color-background-subtle;
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.table tbody tr {
+  transition: background-color $transition-fast;
+
+  @include reduced-motion {
+    transition: none;
+  }
+}
+
+.table tbody tr:hover {
+  background-color: $color-interactive-hover;
+}
+
+.primary {
+  color: $color-text-primary;
+}
+
+.subtle {
+  margin-block-start: $spacing-xs;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.actions {
+  text-align: end;
+  white-space: nowrap;
+}
+
+.actionLink {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+
+  @include focus-visible;
+}

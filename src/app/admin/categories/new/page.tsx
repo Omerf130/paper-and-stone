@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import CategoryForm from "@/components/admin/CategoryForm/CategoryForm";
+import AdminPage from "@/components/admin/AdminPage/AdminPage";
+import AdminPageHeader from "@/components/admin/AdminPageHeader/AdminPageHeader";
+import Button from "@/components/ui/Button/Button";
 import { EMPTY_CATEGORY_FORM } from "@/types/admin-category";
-import styles from "../../products/new/page.module.scss";
 
 export const metadata: Metadata = {
   title: "קטגוריה חדשה | Paper & Stone",
@@ -9,13 +11,18 @@ export const metadata: Metadata = {
 
 export default function AdminNewCategoryPage() {
   return (
-    <div className={styles.page}>
-      <header className={styles.header}>
-        <h1 className={styles.title}>יצירת קטגוריה חדשה</h1>
-        <p className={styles.description}>הזינו את פרטי הקטגוריה.</p>
-      </header>
+    <AdminPage width="form">
+      <AdminPageHeader
+        title="יצירת קטגוריה"
+        description="הזינו את פרטי הקטגוריה."
+        actions={
+          <Button href="/admin/categories" variant="ghost" size="sm">
+            חזרה לקטגוריות
+          </Button>
+        }
+      />
 
       <CategoryForm mode="create" initialCategory={EMPTY_CATEGORY_FORM} />
-    </div>
+    </AdminPage>
   );
 }

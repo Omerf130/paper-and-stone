@@ -1,14 +1,4 @@
 @use "../../../../styles/tokens" as *;
-@use "../../../../styles/mixins" as *;
-
-.banner {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-sm;
-  padding: $spacing-md;
-  border: 1px solid $color-border;
-  background: $color-background-subtle;
-}
 
 .statusLine {
   display: flex;

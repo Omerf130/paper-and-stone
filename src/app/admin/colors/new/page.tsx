@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import ColorForm from "@/components/admin/ColorForm/ColorForm";
+import AdminPage from "@/components/admin/AdminPage/AdminPage";
+import AdminPageHeader from "@/components/admin/AdminPageHeader/AdminPageHeader";
+import Button from "@/components/ui/Button/Button";
 import { EMPTY_COLOR_FORM } from "@/types/admin-color";
-import styles from "../../products/new/page.module.scss";
 
 export const metadata: Metadata = {
   title: "צבע חדש | Paper & Stone",
@@ -9,13 +11,18 @@ export const metadata: Metadata = {
 
 export default function AdminNewColorPage() {
   return (
-    <div className={styles.page}>
-      <header className={styles.header}>
-        <h1 className={styles.title}>יצירת צבע חדש</h1>
-        <p className={styles.description}>הגדירו צבע חדש בספרייה המרכזית.</p>
-      </header>
+    <AdminPage width="form">
+      <AdminPageHeader
+        title="יצירת צבע"
+        description="הגדירו צבע חדש בספרייה המרכזית."
+        actions={
+          <Button href="/admin/colors" variant="ghost" size="sm">
+            חזרה לצבעים
+          </Button>
+        }
+      />
 
       <ColorForm mode="create" initialColor={EMPTY_COLOR_FORM} />
-    </div>
+    </AdminPage>
   );
 }
