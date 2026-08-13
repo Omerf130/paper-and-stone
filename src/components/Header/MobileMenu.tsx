@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import type { NavItem } from "@/config/navigation";
 import type { SafeUser } from "@/types/user";
-import NavItemDisplay from "./NavItemDisplay";
+import PublicNavItem from "./PublicNavItem";
 import { CloseIcon, MenuIcon } from "./icons";
 import styles from "./MobileMenu.module.scss";
 
@@ -90,7 +90,11 @@ export default function MobileMenu({
             <ul className={styles.list}>
               {items.map((item) => (
                 <li key={item.label}>
-                  <NavItemDisplay item={item} className={styles.link} />
+                  <PublicNavItem
+                    item={item}
+                    className={styles.link}
+                    onNavigate={closeMenu}
+                  />
                 </li>
               ))}
             </ul>

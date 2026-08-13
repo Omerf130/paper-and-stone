@@ -1,8 +1,16 @@
 @use "../../styles/tokens" as *;
 
-.container {
+.container,
+.wide {
   width: 100%;
-  max-width: $container-max-width;
   margin-inline: auto;
   padding-inline: $container-padding-inline;
+}
+
+.container {
+  max-width: $container-max-width;
+}
+
+.wide {
+  max-width: $product-hero-max-width;
 }

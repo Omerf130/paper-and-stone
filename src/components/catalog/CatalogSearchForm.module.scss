@@ -4,47 +4,64 @@
 .form {
   display: flex;
   flex-direction: column;
-  gap: $spacing-sm;
+  gap: $spacing-xs;
+  flex: 0 1 24rem;
+  min-width: min(100%, 16rem);
 }
 
 .label {
-  font-size: $font-size-sm;
-  font-weight: $font-weight-medium;
-  color: $color-text-primary;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .row {
   display: flex;
   flex-wrap: wrap;
   gap: $spacing-sm;
+  align-items: stretch;
 }
 
 .input {
   flex: 1 1 12rem;
   min-width: 0;
-  padding: $spacing-sm $spacing-md;
+  padding: $spacing-sm 0;
   font: inherit;
   color: $color-text-primary;
-  background-color: $color-background;
-  border: 1px solid $color-border;
-  border-radius: $radius-sm;
+  background: transparent;
+  border: none;
+  border-block-end: 1px solid $color-border;
+  border-radius: 0;
 
   @include focus-visible;
+
+  &::placeholder {
+    color: $color-text-secondary;
+  }
 }
 
 .button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 2.75rem;
-  padding-inline: $spacing-lg;
+  min-height: 2.25rem;
+  padding-inline: $spacing-md;
   font: inherit;
   font-size: $font-size-sm;
   font-weight: $font-weight-medium;
-  color: $color-background;
-  background-color: $color-text-primary;
-  border: 1px solid $color-text-primary;
+  color: $color-text-primary;
+  background: transparent;
+  border: none;
+  border-block-end: 1px solid $color-border;
   cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
 
   @include focus-visible;
 }

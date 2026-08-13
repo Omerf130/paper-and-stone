@@ -13,7 +13,7 @@ export default function ProductCatalogGrid({
     <ul className={styles.grid}>
       {products.map((product) => (
         <li key={product.slug} className={styles.item}>
-          <ProductCard product={product} />
+          <ProductCard product={product} variant="catalog" />
         </li>
       ))}
     </ul>

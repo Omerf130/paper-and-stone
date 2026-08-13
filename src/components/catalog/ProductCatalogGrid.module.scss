@@ -4,21 +4,23 @@
 .grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: $spacing-xl;
+  gap: $spacing-2xl;
   list-style: none;
+  margin: 0;
+  padding: 0;
 
   @include tablet-up {
-    grid-template-columns: repeat(2, 1fr);
-    gap: $spacing-lg;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: $spacing-xl;
   }
 
   @include wide-up {
-    grid-template-columns: repeat(3, 1fr);
-    gap: $spacing-lg;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
 .item {
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }

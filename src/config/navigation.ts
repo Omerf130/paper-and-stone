@@ -37,6 +37,9 @@ export const footerNavGroups: FooterNavGroup[] = [
   },
   {
     title: "מקצוענים",
-    items: [{ label: "לאדריכלים ומעצבים" }, { label: "אזור אישי" }],
+    items: [
+      { label: "לאדריכלים ומעצבים" },
+      { label: "אזור אישי", href: "/login" },
+    ],
   },
 ];

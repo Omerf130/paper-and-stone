@@ -10,55 +10,29 @@
 
 .category {
   @include eyebrow;
+  margin: 0;
 }
 
 .name {
-  font-size: $font-size-2xl;
+  margin: 0;
+  font-size: clamp($font-size-2xl, 4vw, $font-size-3xl);
   font-weight: $font-weight-semibold;
   line-height: $line-height-tight;
   letter-spacing: $letter-spacing-tight;
   color: $color-text-primary;
-
-  @include tablet-up {
-    font-size: $font-size-3xl;
-  }
 }
 
 .nameEn {
+  margin: 0;
   font-size: $font-size-sm;
   letter-spacing: $letter-spacing-wide;
   text-transform: uppercase;
   color: $color-text-secondary;
 }
 
-.meta {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-sm;
-  padding-block: $spacing-md;
-  border-block: 1px solid $color-border;
-}
-
-.metaRow {
-  display: flex;
-  justify-content: space-between;
-  gap: $spacing-md;
-  font-size: $font-size-sm;
-
-  dt {
-    color: $color-text-secondary;
-  }
-
-  dd {
-    color: $color-text-primary;
-  }
-}
-
 .description {
   @include sectionSupporting;
+  margin: 0;
   font-size: $font-size-base;
-
-  @include tablet-up {
-    font-size: $font-size-base;
-  }
+  max-width: 36rem;
 }

@@ -1,6 +1,9 @@
 @use "../../styles/tokens" as *;
+@use "../../styles/mixins" as *;
 
-.imageWrap {
+.imageWrap,
+.imageWrapCatalog,
+.imageWrapFeatured {
   position: relative;
   width: 100%;
   aspect-ratio: 3 / 4;
@@ -8,9 +11,29 @@
   background-color: $color-background-subtle;
 }
 
+.imageWrapCatalog,
+.imageWrapFeatured {
+  @include reduced-motion {
+    transition: none;
+  }
+}
+
 .image {
   display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.imageCatalog,
+.imageFeatured {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: transform $transition-fast;
+
+  @include reduced-motion {
+    transition: none;
+  }
 }

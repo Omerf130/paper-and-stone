@@ -7,7 +7,6 @@
   z-index: $z-index-header;
   background-color: $color-background;
   border-bottom: 1px solid $color-border;
-  box-shadow: $shadow-header;
 }
 
 .inner {
@@ -53,7 +52,9 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
-  gap: $spacing-md $spacing-lg;
+  gap: $spacing-md $spacing-xl;
+  margin: 0;
+  padding: 0;
   list-style: none;
 }
 
@@ -62,25 +63,6 @@
   flex-shrink: 0;
   align-items: center;
   gap: $spacing-md;
-}
-
-.searchButton {
-  display: none;
-  align-items: center;
-  justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  padding: 0;
-  color: $color-text-primary;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-
-  @include focus-visible;
-
-  @include desktop-up {
-    display: inline-flex;
-  }
 }
 
 .account {

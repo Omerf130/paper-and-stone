@@ -6,7 +6,8 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
-  gap: $spacing-sm;
+  gap: $spacing-md;
+  margin-block-start: $spacing-3xl;
 }
 
 .control,
@@ -16,31 +17,37 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 2.25rem;
-  min-height: 2.25rem;
+  min-width: 2rem;
+  min-height: 2rem;
   padding-inline: $spacing-sm;
   font-size: $font-size-sm;
 }
 
 .control,
 .pageLink {
-  color: $color-text-primary;
+  color: $color-text-secondary;
   text-decoration: none;
-  border: 1px solid $color-border;
+  border: none;
+  background: transparent;
 
   @include focus-visible;
+
+  &:hover {
+    color: $color-text-primary;
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+  }
 }
 
 .disabled {
   color: $color-text-secondary;
-  border: 1px solid $color-border;
-  opacity: 0.6;
+  opacity: 0.45;
 }
 
 .pages {
   display: flex;
   flex-wrap: wrap;
-  gap: $spacing-xs;
+  gap: $spacing-sm;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -55,7 +62,8 @@
 .current {
   font-weight: $font-weight-medium;
   color: $color-text-primary;
-  border: 1px solid $color-text-primary;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
 }
 
 .ellipsis {

@@ -1,0 +1,24 @@
+@use "../../../styles/tokens" as *;
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  align-items: flex-start;
+  padding-block: $spacing-2xl;
+}
+
+.message {
+  margin: 0;
+  max-width: 32rem;
+  font-size: $font-size-base;
+  line-height: $line-height-relaxed;
+  color: $color-text-secondary;
+}
+
+.resetLink {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}

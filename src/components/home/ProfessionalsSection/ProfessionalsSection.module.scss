@@ -3,66 +3,108 @@
 @use "../../../styles/typography" as *;
 
 .section {
+  padding-block: $spacing-3xl;
   border-block: 1px solid $color-border;
+
+  @include tablet-up {
+    padding-block: $spacing-4xl;
+  }
 }
 
-.intro {
+.layout {
+  display: grid;
+  gap: $spacing-2xl;
+
+  @include desktop-up {
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: $spacing-3xl;
+    align-items: center;
+  }
+}
+
+.visual {
+  min-width: 0;
+  order: 1;
+
+  @include desktop-up {
+    order: unset;
+  }
+}
+
+.placeholder {
+  width: 100%;
+  min-height: 20rem;
+
+  @include desktop-up {
+    min-height: 28rem;
+  }
+}
+
+.content {
   display: flex;
   flex-direction: column;
-  gap: $spacing-md;
-  margin-block-end: $spacing-2xl;
-  max-width: 36rem;
+  gap: $spacing-lg;
+  order: 2;
+
+  @include desktop-up {
+    order: unset;
+  }
+}
+
+.eyebrow {
+  @include eyebrow;
+  margin: 0;
 }
 
 .heading {
   @include sectionHeading;
+  margin: 0;
 }
 
 .supporting {
   @include sectionSupporting;
+  margin: 0;
+  max-width: 34rem;
 }
 
 .steps {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: $spacing-lg;
-  margin-block-end: $spacing-2xl;
+  gap: $spacing-md;
+  margin: 0;
+  padding: 0;
   list-style: none;
-  counter-reset: none;
 
   @include tablet-up {
-    grid-template-columns: repeat(2, 1fr);
-    gap: $spacing-xl $spacing-2xl;
-  }
-
-  @include desktop-up {
-    grid-template-columns: repeat(4, 1fr);
-    gap: $spacing-xl;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: $spacing-lg $spacing-xl;
   }
 }
 
 .step {
   display: flex;
   flex-direction: column;
-  gap: $spacing-sm;
+  gap: $spacing-xs;
   padding-block-start: $spacing-md;
   border-block-start: 1px solid $color-border;
 }
 
 .stepNumber {
-  font-size: $font-size-sm;
+  font-size: $font-size-xs;
   font-weight: $font-weight-medium;
   letter-spacing: $letter-spacing-wide;
-  color: $color-accent;
+  color: $color-text-secondary;
 }
 
 .stepTitle {
   font-size: $font-size-base;
   font-weight: $font-weight-medium;
-  line-height: $line-height-relaxed;
   color: $color-text-primary;
+}
 
-  @include tablet-up {
-    font-size: $font-size-lg;
-  }
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: $spacing-md $spacing-lg;
+  margin-block-start: $spacing-sm;
 }

@@ -2,40 +2,52 @@
 @use "../../../styles/mixins" as *;
 @use "../../../styles/typography" as *;
 
-.header {
+.section {
+  padding-block: $spacing-3xl;
+
+  @include tablet-up {
+    padding-block: $spacing-4xl;
+  }
+}
+
+.intro {
   display: flex;
   flex-direction: column;
   gap: $spacing-md;
   margin-block-end: $spacing-2xl;
-  max-width: 32rem;
+  max-width: 36rem;
+}
+
+.eyebrow {
+  @include eyebrow;
+  margin: 0;
 }
 
 .heading {
   @include sectionHeading;
+  margin: 0;
 }
 
 .supporting {
   @include sectionSupporting;
-  font-size: $font-size-base;
-
-  @include tablet-up {
-    font-size: $font-size-base;
-  }
+  margin: 0;
 }
 
 .grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: $spacing-lg;
+  gap: $spacing-xl;
+  margin: 0;
+  padding: 0;
   list-style: none;
 
   @include tablet-up {
-    grid-template-columns: repeat(2, 1fr);
-    gap: $spacing-md;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: $spacing-lg;
   }
 
   @include desktop-up {
-    grid-template-columns: repeat(12, 1fr);
+    grid-template-columns: repeat(12, minmax(0, 1fr));
     grid-template-rows: repeat(2, auto);
     gap: $spacing-md;
   }
@@ -46,6 +58,7 @@
   display: flex;
   flex-direction: column;
   gap: $spacing-md;
+  cursor: default;
 }
 
 .tileLarge {

@@ -1,0 +1,97 @@
+@use "../../../styles/tokens" as *;
+@use "../../../styles/mixins" as *;
+
+.media {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.viewSwitch {
+  display: flex;
+  gap: $spacing-sm;
+}
+
+.viewButton,
+.viewActive {
+  padding-block: $spacing-sm;
+  padding-inline: $spacing-md;
+  font-family: inherit;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text-secondary;
+  background: transparent;
+  border: 1px solid transparent;
+  border-bottom: 1px solid $color-border;
+  cursor: pointer;
+
+  @include focus-visible;
+}
+
+.viewActive {
+  color: $color-text-primary;
+  border-bottom-color: $color-text-primary;
+}
+
+.stage {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.uploadedDrawing {
+  border: 1px solid $color-border;
+}
+
+.recolorHint {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-sm;
+  margin: 0;
+  font-size: $font-size-xs;
+  letter-spacing: $letter-spacing-wide;
+  text-transform: uppercase;
+  color: $color-text-secondary;
+}
+
+.recolorSwatch {
+  width: 0.875rem;
+  height: 0.875rem;
+  border: 1px solid $color-border;
+  border-radius: $radius-sm;
+}
+
+.thumbnailRow {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: $spacing-sm;
+  overflow-x: auto;
+  padding-block-end: $spacing-xs;
+  scrollbar-width: thin;
+
+  @include desktop-up {
+    flex-wrap: wrap;
+    overflow-x: visible;
+  }
+}
+
+.thumbnailButton,
+.thumbnailActive {
+  flex: 0 0 auto;
+  width: 4.5rem;
+  padding: 0;
+  background: transparent;
+  border: 1px solid $color-border;
+  cursor: pointer;
+
+  @include focus-visible;
+}
+
+.thumbnailActive {
+  border-color: $color-text-primary;
+}
+
+.thumbnailImage {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+}

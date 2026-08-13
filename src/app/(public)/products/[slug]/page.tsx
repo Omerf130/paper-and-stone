@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import Container from "@/components/Container/Container";
 import Section from "@/components/Section/Section";
 import ProductConfigurator from "@/components/product/ProductConfigurator/ProductConfigurator";
 import ProductDescription from "@/components/product/ProductDescription/ProductDescription";
@@ -56,20 +57,16 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
   return (
     <>
-      <Section>
-        <div className={styles.top}>
+      <Section contained={false} className={styles.heroSection}>
+        <Container variant="wide">
           <ProductConfigurator
             product={product}
-            visualClassName={styles.visual}
-            controlsClassName={styles.controls}
+            identity={<ProductInfo product={product} />}
             canAddToProject={canAddToProject}
             projectOptions={projectOptions}
             profileReady={profileReady}
           />
-          <div className={styles.info}>
-            <ProductInfo product={product} />
-          </div>
-        </div>
+        </Container>
       </Section>
       <TechnicalInfo product={product} />
       <ProductDescription product={product} />

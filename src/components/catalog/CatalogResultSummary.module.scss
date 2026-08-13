@@ -1,7 +1,8 @@
 @use "../../styles/tokens" as *;
 
 .summary {
-  margin: 0;
+  margin: 0 0 $spacing-lg;
   font-size: $font-size-sm;
+  letter-spacing: $letter-spacing-wide;
   color: $color-text-secondary;
 }

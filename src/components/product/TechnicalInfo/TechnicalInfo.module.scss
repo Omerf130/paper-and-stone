@@ -6,6 +6,14 @@
   border-block-start: 1px solid $color-border;
 }
 
+.inner {
+  padding-block: $spacing-3xl;
+
+  @include tablet-up {
+    padding-block: $spacing-4xl;
+  }
+}
+
 .heading {
   @include sectionHeading;
   margin-block-end: $spacing-2xl;
@@ -16,12 +24,12 @@
   gap: $spacing-2xl;
 
   @include tablet-up {
-    grid-template-columns: repeat(2, 1fr);
-    gap: $spacing-xl $spacing-2xl;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: $spacing-xl $spacing-3xl;
   }
 
   @include desktop-up {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
@@ -32,13 +40,14 @@
   padding-block-end: $spacing-lg;
   border-block-end: 1px solid $color-border;
 
-  @include desktop-up {
-    border-block-end: none;
+  @include tablet-up {
     padding-block-end: 0;
+    border-block-end: none;
   }
 }
 
 .blockTitle {
+  margin: 0;
   font-size: $font-size-xs;
   font-weight: $font-weight-medium;
   letter-spacing: $letter-spacing-wide;
@@ -50,6 +59,7 @@
   display: flex;
   flex-direction: column;
   gap: $spacing-sm;
+  margin: 0;
 }
 
 .row {
@@ -63,7 +73,10 @@
   }
 
   dd {
+    margin: 0;
     color: $color-text-primary;
+    font-weight: $font-weight-medium;
+    text-align: end;
   }
 }
 
@@ -71,12 +84,15 @@
   display: flex;
   flex-direction: column;
   gap: $spacing-xs;
+  margin: 0;
+  padding: 0;
   font-size: $font-size-sm;
   color: $color-text-primary;
   list-style: none;
 }
 
 .text {
+  margin: 0;
   font-size: $font-size-sm;
   line-height: $line-height-relaxed;
   color: $color-text-secondary;

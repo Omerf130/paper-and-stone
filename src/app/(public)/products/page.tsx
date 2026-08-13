@@ -1,18 +1,19 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Container from "@/components/Container/Container";
 import Section from "@/components/Section/Section";
-import CatalogCategoryFilter from "@/components/catalog/CatalogCategoryFilter";
+import CatalogEmptyState from "@/components/catalog/CatalogEmptyState/CatalogEmptyState";
+import CatalogHero from "@/components/catalog/CatalogHero/CatalogHero";
 import CatalogPagination from "@/components/catalog/CatalogPagination";
 import CatalogResultSummary from "@/components/catalog/CatalogResultSummary";
-import CatalogSearchForm from "@/components/catalog/CatalogSearchForm";
+import CatalogToolbar from "@/components/catalog/CatalogToolbar/CatalogToolbar";
 import ProductCatalogGrid from "@/components/catalog/ProductCatalogGrid";
 import {
   hasCatalogFilters,
   parseCatalogParams,
 } from "@/lib/catalog/catalog-params";
+import { getCatalogEmptyState } from "@/lib/catalog/get-catalog-empty-state";
 import { getPublicCategories } from "@/lib/catalog/getPublicCategories";
 import { getPublicProducts } from "@/lib/products/getPublicProducts";
-import styles from "./page.module.scss";
 
 export const dynamic = "force-dynamic";
 
@@ -22,6 +23,17 @@ export const metadata: Metadata = {
 };
 
 type ProductsCatalogPageProps = PageProps<"/products">;
+
+function resolveCategoryName(
+  categorySlug: string | null,
+  categories: { slug: string; nameHe: string }[],
+): string | null {
+  if (!categorySlug) {
+    return null;
+  }
+
+  return categories.find((category) => category.slug === categorySlug)?.nameHe ?? null;
+}
 
 export default async function ProductsCatalogPage({
   searchParams,
@@ -44,65 +56,53 @@ export default async function ProductsCatalogPage({
     page: catalogResult.page,
   });
 
-  const showFilteredEmpty =
-    catalogResult.total === 0 && filtersApplied;
-  const showGlobalEmpty =
-    catalogResult.total === 0 && !filtersApplied;
+  const categoryName = resolveCategoryName(
+    catalogResult.appliedFilters.categorySlug,
+    categories,
+  );
+
+  const emptyState = getCatalogEmptyState({
+    query: catalogResult.appliedFilters.query,
+    categoryName,
+    hasFilters: filtersApplied,
+  });
+
+  const showEmpty = catalogResult.total === 0;
 
   return (
-    <Section className={styles.section}>
-      <header className={styles.header}>
-        <h1 className={styles.title}>מוצרים</h1>
-        <p className={styles.description}>
-          מבחר מוצרים פעילים מ-Paper & Stone.
-        </p>
-      </header>
+    <Section contained={false}>
+      <Container variant="wide">
+        <CatalogHero />
 
-      <div className={styles.toolbar}>
-        <CatalogSearchForm
+        <CatalogToolbar
           query={catalogResult.appliedFilters.query}
           categorySlug={catalogResult.appliedFilters.categorySlug}
-        />
-        <CatalogCategoryFilter
           categories={categories}
-          activeCategorySlug={catalogResult.appliedFilters.categorySlug}
-          query={catalogResult.appliedFilters.query}
         />
-      </div>
 
-      {catalogResult.total > 0 ? (
-        <CatalogResultSummary
-          total={catalogResult.total}
-          hasFilters={filtersApplied}
-        />
-      ) : null}
-
-      {showGlobalEmpty ? (
-        <p className={styles.empty}>עדיין לא נוספו מוצרים לקטלוג.</p>
-      ) : null}
-
-      {showFilteredEmpty ? (
-        <div className={styles.emptyBlock}>
-          <p className={styles.empty}>
-            לא נמצאו מוצרים שמתאימים לחיפוש.
-          </p>
-          <Link href="/products" className={styles.resetLink}>
-            נקה חיפוש
-          </Link>
-        </div>
-      ) : null}
-
-      {catalogResult.products.length > 0 ? (
-        <>
-          <ProductCatalogGrid products={catalogResult.products} />
-          <CatalogPagination
-            page={catalogResult.page}
-            totalPages={catalogResult.totalPages}
+        {catalogResult.total > 0 ? (
+          <CatalogResultSummary
+            total={catalogResult.total}
             query={catalogResult.appliedFilters.query}
-            categorySlug={catalogResult.appliedFilters.categorySlug}
+            categoryName={categoryName}
+            hasFilters={filtersApplied}
           />
-        </>
-      ) : null}
+        ) : null}
+
+        {showEmpty ? <CatalogEmptyState content={emptyState} /> : null}
+
+        {catalogResult.products.length > 0 ? (
+          <>
+            <ProductCatalogGrid products={catalogResult.products} />
+            <CatalogPagination
+              page={catalogResult.page}
+              totalPages={catalogResult.totalPages}
+              query={catalogResult.appliedFilters.query}
+              categorySlug={catalogResult.appliedFilters.categorySlug}
+            />
+          </>
+        ) : null}
+      </Container>
     </Section>
   );
 }

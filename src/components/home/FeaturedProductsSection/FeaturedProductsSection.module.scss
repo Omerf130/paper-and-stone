@@ -3,82 +3,64 @@
 @use "../../../styles/typography" as *;
 
 .section {
-  background-color: $color-background-subtle;
+  padding-block: $spacing-3xl;
+
+  @include tablet-up {
+    padding-block: $spacing-4xl;
+  }
 }
 
 .header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: $spacing-md $spacing-xl;
   margin-block-end: $spacing-2xl;
+}
+
+.headerText {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.eyebrow {
+  @include eyebrow;
+  margin: 0;
 }
 
 .heading {
   @include sectionHeading;
+  margin: 0;
+}
+
+.sectionLink {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+
+  @include focus-visible;
 }
 
 .grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: $spacing-xl;
+  gap: $spacing-2xl;
+  margin: 0;
+  padding: 0;
   list-style: none;
 
   @include tablet-up {
-    grid-template-columns: repeat(2, 1fr);
-    gap: $spacing-lg;
-  }
-
-  @include wide-up {
-    grid-template-columns: repeat(4, 1fr);
-    gap: $spacing-lg;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: $spacing-xl;
   }
 }
 
 .item {
   display: flex;
   flex-direction: column;
-  gap: $spacing-md;
-}
-
-.link {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-md;
-  color: inherit;
-  text-decoration: none;
-
-  @include focus-visible;
-
-  &:hover .name {
-    color: $color-accent;
-  }
-}
-
-.placeholder {
-  width: 100%;
-}
-
-.meta {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-xs;
-}
-
-.name {
-  font-size: $font-size-base;
-  font-weight: $font-weight-medium;
-  color: $color-text-primary;
-
-  @include tablet-up {
-    font-size: $font-size-lg;
-  }
-}
-
-.category {
-  font-size: $font-size-sm;
-  color: $color-text-secondary;
-}
-
-.brand {
-  font-size: $font-size-xs;
-  letter-spacing: $letter-spacing-wide;
-  text-transform: uppercase;
-  color: $color-text-secondary;
+  min-width: 0;
 }

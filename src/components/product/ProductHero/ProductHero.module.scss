@@ -1,0 +1,68 @@
+@use "../../../styles/tokens" as *;
+@use "../../../styles/mixins" as *;
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2xl;
+}
+
+.media {
+  order: 2;
+  min-width: 0;
+}
+
+.aside {
+  display: contents;
+}
+
+.asideInner {
+  display: contents;
+}
+
+.identity {
+  order: 1;
+  min-width: 0;
+}
+
+.controls {
+  order: 3;
+  min-width: 0;
+}
+
+@include desktop-up {
+  .hero {
+    display: grid;
+    grid-template-columns: minmax(0, 0.62fr) minmax(0, 0.38fr);
+    grid-template-areas: "media aside";
+    gap: $spacing-xl $spacing-3xl;
+    align-items: start;
+  }
+
+  .media {
+    order: unset;
+    grid-area: media;
+  }
+
+  .aside {
+    display: block;
+    grid-area: aside;
+    min-width: 0;
+  }
+
+  .asideInner {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-2xl;
+  }
+
+  .asideSticky {
+    position: sticky;
+    top: calc($header-height-desktop + $spacing-lg);
+  }
+
+  .identity,
+  .controls {
+    order: unset;
+  }
+}

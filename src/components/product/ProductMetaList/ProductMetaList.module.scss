@@ -1,0 +1,28 @@
+@use "../../../styles/tokens" as *;
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  margin: 0;
+  padding-block: $spacing-md;
+  border-block: 1px solid $color-border;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  gap: $spacing-md;
+  font-size: $font-size-sm;
+
+  dt {
+    color: $color-text-secondary;
+  }
+
+  dd {
+    margin: 0;
+    color: $color-text-primary;
+    font-weight: $font-weight-medium;
+    text-align: end;
+  }
+}

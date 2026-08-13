@@ -5,8 +5,7 @@ import { logoutAction } from "@/lib/auth/logout-action";
 import { mainNavItems } from "@/config/navigation";
 import HeaderAccount from "./HeaderAccount";
 import MobileMenu from "./MobileMenu";
-import NavItemDisplay from "./NavItemDisplay";
-import { SearchIcon } from "./icons";
+import PublicNavItem from "./PublicNavItem";
 import styles from "./Header.module.scss";
 
 export default async function Header() {
@@ -24,21 +23,13 @@ export default async function Header() {
             <ul className={styles.navList}>
               {mainNavItems.map((item) => (
                 <li key={item.label}>
-                  <NavItemDisplay item={item} />
+                  <PublicNavItem item={item} />
                 </li>
               ))}
             </ul>
           </nav>
 
           <div className={styles.actions}>
-            <button
-              type="button"
-              className={styles.searchButton}
-              aria-label="חיפוש"
-            >
-              <SearchIcon />
-            </button>
-
             <div className={styles.account}>
               <HeaderAccount user={user} />
             </div>

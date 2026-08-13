@@ -5,30 +5,27 @@ import styles from "./HeroSection.module.scss";
 
 export default function HeroSection() {
   return (
-    <section className={styles.hero}>
-      <Container>
+    <section className={styles.hero} aria-labelledby="home-hero-heading">
+      <Container variant="wide">
         <div className={styles.layout}>
           <div className={styles.visual}>
-            <VisualPlaceholder aspectRatio="hero" />
+            <VisualPlaceholder aspectRatio="hero" className={styles.placeholder} />
           </div>
 
           <div className={styles.content}>
             <p className={styles.eyebrow}>Paper &amp; Stone</p>
-            <h1 className={styles.heading}>
+            <h1 id="home-hero-heading" className={styles.heading}>
               ריהוט וחומרים שמתחילים ברעיון ונכנסים לפרויקט
             </h1>
             <p className={styles.supporting}>
               קטלוג ריהוט, חומרים וגמרים לאדריכלים, מעצבים ולקוחות
               שמחפשים פתרון מדויק לפרויקט.
             </p>
-            <div
-              className={styles.actions}
-              aria-label="תצוגה מקדימה — כפתורים לא פעילים"
-            >
-              <Button preview variant="primary">
+            <div className={styles.actions}>
+              <Button href="/products" variant="primary">
                 לגלות את הקולקציה
               </Button>
-              <Button preview variant="secondary">
+              <Button href="/register" variant="secondary">
                 לאדריכלים ומעצבים
               </Button>
             </div>

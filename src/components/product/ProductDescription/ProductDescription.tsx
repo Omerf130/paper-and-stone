@@ -1,4 +1,4 @@
-import Section from "@/components/Section/Section";
+import Container from "@/components/Container/Container";
 import type { ProductView } from "@/types/product";
 import styles from "./ProductDescription.module.scss";
 
@@ -14,11 +14,15 @@ export default function ProductDescription({
   }
 
   return (
-    <Section className={styles.section}>
-      <div className={styles.content}>
-        <h2 className={styles.heading}>על המוצר</h2>
-        <p className={styles.text}>{product.longDescription}</p>
-      </div>
-    </Section>
+    <section className={styles.section} aria-labelledby="product-description-heading">
+      <Container variant="wide" className={styles.inner}>
+        <div className={styles.content}>
+          <h2 id="product-description-heading" className={styles.heading}>
+            על המוצר
+          </h2>
+          <p className={styles.text}>{product.longDescription}</p>
+        </div>
+      </Container>
+    </section>
   );
 }

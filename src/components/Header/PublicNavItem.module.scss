@@ -1,0 +1,51 @@
+@use "../../styles/tokens" as *;
+@use "../../styles/mixins" as *;
+
+.item {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-normal;
+  text-decoration: none;
+  transition: opacity $transition-fast, color $transition-fast;
+
+  @include focus-visible;
+}
+
+.light {
+  color: $color-text-primary;
+
+  &.placeholder {
+    color: $color-text-secondary;
+  }
+
+  &.active,
+  &:hover {
+    color: $color-text-primary;
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+  }
+}
+
+.dark {
+  color: $color-background;
+
+  &.placeholder {
+    color: rgb(255 255 255 / 55%);
+    cursor: default;
+  }
+
+  &.active,
+  &:hover {
+    color: $color-background;
+    opacity: 0.85;
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+  }
+}
+
+.placeholder {
+  cursor: default;
+}
+
+.active {
+  font-weight: $font-weight-medium;
+}

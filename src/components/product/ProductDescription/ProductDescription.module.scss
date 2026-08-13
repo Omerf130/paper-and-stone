@@ -3,10 +3,15 @@
 
 .section {
   background-color: $color-background-subtle;
+  border-block-start: 1px solid $color-border;
+}
+
+.inner {
+  padding-block: $spacing-3xl;
 }
 
 .content {
-  max-width: 40rem;
+  max-width: 42rem;
 }
 
 .heading {
@@ -16,4 +21,6 @@
 
 .text {
   @include sectionSupporting;
+  margin: 0;
+  white-space: pre-line;
 }

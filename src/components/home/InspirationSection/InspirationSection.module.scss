@@ -2,28 +2,53 @@
 @use "../../../styles/mixins" as *;
 @use "../../../styles/typography" as *;
 
-.header {
+.section {
+  padding-block: $spacing-3xl;
+
+  @include tablet-up {
+    padding-block: $spacing-4xl;
+  }
+}
+
+.intro {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
   margin-block-end: $spacing-2xl;
+  max-width: 36rem;
+}
+
+.eyebrow {
+  @include eyebrow;
+  margin: 0;
 }
 
 .heading {
   @include sectionHeading;
+  margin: 0;
+}
+
+.note {
+  margin: 0;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
 }
 
 .grid {
   display: grid;
   grid-template-columns: 1fr;
   gap: $spacing-xl;
+  margin: 0;
+  padding: 0;
   list-style: none;
 
   @include tablet-up {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: $spacing-lg;
   }
 
   @include desktop-up {
-    grid-template-columns: repeat(12, 1fr);
-    grid-template-rows: auto auto;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
     gap: $spacing-md;
   }
 }
@@ -33,32 +58,18 @@
   display: flex;
   flex-direction: column;
   gap: $spacing-md;
+  cursor: default;
 }
 
 .itemFeatured {
   @include desktop-up {
     grid-column: span 8;
-    grid-row: span 2;
   }
 }
 
 .itemStandard {
   @include desktop-up {
     grid-column: span 4;
-  }
-
-  &:nth-child(2) {
-    @include desktop-up {
-      grid-column: 9 / span 4;
-      grid-row: 1;
-    }
-  }
-
-  &:nth-child(3) {
-    @include desktop-up {
-      grid-column: 9 / span 4;
-      grid-row: 2;
-    }
   }
 }
 
@@ -76,13 +87,11 @@
   font-size: $font-size-base;
   font-weight: $font-weight-medium;
   color: $color-text-primary;
-
-  @include tablet-up {
-    font-size: $font-size-lg;
-  }
 }
 
 .subtitle {
   font-size: $font-size-sm;
+  letter-spacing: $letter-spacing-wide;
+  text-transform: uppercase;
   color: $color-text-secondary;
 }

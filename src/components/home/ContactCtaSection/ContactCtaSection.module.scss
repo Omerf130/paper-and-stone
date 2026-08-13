@@ -3,26 +3,41 @@
 @use "../../../styles/typography" as *;
 
 .section {
+  padding-block: $spacing-3xl $spacing-4xl;
   background-color: $color-background-subtle;
+  border-block-start: 1px solid $color-border;
+
+  @include tablet-up {
+    padding-block: $spacing-4xl;
+  }
 }
 
 .content {
   display: flex;
   flex-direction: column;
   gap: $spacing-lg;
-  max-width: 32rem;
-  padding-block: $spacing-lg;
-
-  @include desktop-up {
-    max-width: 40rem;
-    padding-block: $spacing-xl;
-  }
+  max-width: 36rem;
 }
 
 .heading {
   @include sectionHeading;
+  margin: 0;
 }
 
 .supporting {
   @include sectionSupporting;
+  margin: 0;
+}
+
+.note {
+  margin: 0;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-md;
+  margin-block-start: $spacing-sm;
 }

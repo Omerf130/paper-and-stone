@@ -1,7 +1,9 @@
 @use "../../styles/tokens" as *;
 @use "../../styles/mixins" as *;
 
-.link {
+.link,
+.linkCatalog,
+.linkFeatured {
   display: flex;
   flex-direction: column;
   gap: $spacing-md;
@@ -9,10 +11,51 @@
   text-decoration: none;
 
   @include focus-visible;
+}
 
+.link {
   &:hover .name {
     color: $color-accent;
   }
+}
+
+.linkCatalog {
+  gap: $spacing-sm;
+
+  &:hover .nameCatalog {
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+  }
+
+  &:hover .mediaCatalog img {
+    transform: scale(1.015);
+
+    @include reduced-motion {
+      transform: none;
+    }
+  }
+}
+
+.linkFeatured {
+  gap: $spacing-sm;
+
+  &:hover .nameFeatured {
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+  }
+
+  &:hover .mediaFeatured img {
+    transform: scale(1.015);
+
+    @include reduced-motion {
+      transform: none;
+    }
+  }
+}
+
+.mediaCatalog,
+.mediaFeatured {
+  overflow: hidden;
 }
 
 .placeholder {
@@ -25,13 +68,27 @@
   gap: $spacing-xs;
 }
 
-.name {
+.name,
+.nameCatalog,
+.nameFeatured {
   font-size: $font-size-base;
   font-weight: $font-weight-medium;
   color: $color-text-primary;
 
   @include tablet-up {
     font-size: $font-size-lg;
+  }
+}
+
+.nameCatalog {
+  @include tablet-up {
+    font-size: $font-size-base;
+  }
+}
+
+.nameFeatured {
+  @include tablet-up {
+    font-size: $font-size-xl;
   }
 }
 

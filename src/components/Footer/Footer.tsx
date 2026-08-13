@@ -1,6 +1,6 @@
 import Container from "@/components/Container/Container";
+import PublicNavItem from "@/components/Header/PublicNavItem";
 import { footerNavGroups } from "@/config/navigation";
-import NavItemDisplay from "@/components/Header/NavItemDisplay";
 import styles from "./Footer.module.scss";
 
 export default function Footer() {
@@ -28,7 +28,11 @@ export default function Footer() {
                 <ul className={styles.navList}>
                   {group.items.map((item) => (
                     <li key={item.label}>
-                      <NavItemDisplay item={item} className={styles.navLink} />
+                      <PublicNavItem
+                        item={item}
+                        className={styles.navLink}
+                        tone="dark"
+                      />
                     </li>
                   ))}
                 </ul>

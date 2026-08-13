@@ -4,20 +4,61 @@ import VisualPlaceholder from "@/components/VisualPlaceholder/VisualPlaceholder"
 import type { CatalogProductView } from "@/types/catalog";
 import styles from "./ProductCard.module.scss";
 
+export type ProductCardVariant = "default" | "catalog" | "featured";
+
 type ProductCardProps = {
   product: CatalogProductView;
+  variant?: ProductCardVariant;
 };
 
-export default function ProductCard({ product }: ProductCardProps) {
+export default function ProductCard({
+  product,
+  variant = "default",
+}: ProductCardProps) {
+  const isCatalog = variant === "catalog";
+  const isFeatured = variant === "featured";
+  const linkClass = isCatalog
+    ? styles.linkCatalog
+    : isFeatured
+      ? styles.linkFeatured
+      : styles.link;
+  const imageVariant = isCatalog ? "catalog" : isFeatured ? "featured" : "default";
+
   return (
-    <Link href={`/products/${product.slug}`} className={styles.link}>
-      {product.primaryImage ? (
-        <CatalogProductImage image={product.primaryImage} />
-      ) : (
-        <VisualPlaceholder aspectRatio="portrait" className={styles.placeholder} />
-      )}
+    <Link href={`/products/${product.slug}`} className={linkClass}>
+      <div
+        className={
+          isCatalog
+            ? styles.mediaCatalog
+            : isFeatured
+              ? styles.mediaFeatured
+              : undefined
+        }
+      >
+        {product.primaryImage ? (
+          <CatalogProductImage
+            image={product.primaryImage}
+            variant={imageVariant}
+          />
+        ) : (
+          <VisualPlaceholder
+            aspectRatio="portrait"
+            className={styles.placeholder}
+          />
+        )}
+      </div>
       <div className={styles.meta}>
-        <span className={styles.name}>{product.nameHe}</span>
+        <span
+          className={
+            isCatalog
+              ? styles.nameCatalog
+              : isFeatured
+                ? styles.nameFeatured
+                : styles.name
+          }
+        >
+          {product.nameHe}
+        </span>
         {product.category ? (
           <span className={styles.category}>{product.category}</span>
         ) : null}
