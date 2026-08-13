@@ -95,6 +95,44 @@
   color: rgb(255 255 255 / 72%);
 }
 
+.contactList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.contactLink {
+  font-size: $font-size-sm;
+  line-height: $line-height-relaxed;
+  color: rgb(255 255 255 / 88%);
+  text-decoration: none;
+  overflow-wrap: anywhere;
+
+  @include focus-visible;
+}
+
+.contactLink:hover {
+  text-decoration: underline;
+}
+
+.logoWrap {
+  display: inline-flex;
+  align-items: center;
+  block-size: 40px;
+  max-inline-size: 160px;
+}
+
+.logo {
+  block-size: auto;
+  max-block-size: 40px;
+  inline-size: auto;
+  max-inline-size: 160px;
+  object-fit: contain;
+}
+
 .bottom {
   margin-block-start: $spacing-2xl;
   padding-block-start: $spacing-lg;

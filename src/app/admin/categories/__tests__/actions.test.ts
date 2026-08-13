@@ -30,6 +30,10 @@ vi.mock("next/navigation", () => ({
   }),
 }));
 
+vi.mock("@/lib/cms/revalidate-homepage-paths", () => ({
+  revalidateHomepagePaths: vi.fn(),
+}));
+
 describe("admin category actions", () => {
   beforeEach(() => {
     createMock.mockReset();

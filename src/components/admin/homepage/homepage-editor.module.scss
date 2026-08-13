@@ -1,0 +1,113 @@
+@use "../../../styles/tokens" as *;
+@use "../../../styles/mixins" as *;
+
+.sectionAnchor {
+  scroll-margin-top: $spacing-xl;
+}
+
+.saveRow {
+  display: flex;
+  justify-content: flex-start;
+  padding-top: $spacing-md;
+}
+
+.visibilityToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-sm;
+  font-size: $font-size-sm;
+}
+
+.ctaGrid {
+  display: grid;
+  gap: $spacing-md;
+}
+
+.ltrInput {
+  text-align: left;
+}
+
+.orderButtons {
+  display: inline-flex;
+  gap: $spacing-xs;
+}
+
+.inlineLink {
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.defaultBanner {
+  margin: 0 0 $spacing-md;
+  padding: $spacing-md;
+  border-radius: $radius-md;
+  background: $color-background-subtle;
+  color: $color-text-secondary;
+  font-size: $font-size-sm;
+}
+
+.itemCard {
+  display: grid;
+  gap: $spacing-md;
+  padding: $spacing-md;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  background: $color-surface;
+}
+
+.itemCardHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-sm;
+}
+
+.itemCardTitle {
+  margin: 0;
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+}
+
+.warning {
+  margin: 0;
+  color: $color-warning-text;
+  font-size: $font-size-sm;
+}
+
+.sectionOrderList {
+  display: grid;
+  gap: $spacing-sm;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sectionOrderItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-md;
+  padding: $spacing-sm $spacing-md;
+  border: 1px solid $color-border;
+  border-radius: $radius-sm;
+}
+
+.sectionOrderLabel {
+  font-size: $font-size-sm;
+}
+
+.editorLayout {
+  display: grid;
+  gap: $spacing-lg;
+}
+
+.fullWidth {
+  grid-column: 1 / -1;
+}
+
+.helperText {
+  margin: 0;
+  color: $color-text-secondary;
+  font-size: $font-size-sm;
+}

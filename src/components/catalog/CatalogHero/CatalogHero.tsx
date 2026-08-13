@@ -1,13 +1,16 @@
+import type { PublicCatalogPageContentView } from "@/types/public-catalog-content";
 import styles from "./CatalogHero.module.scss";
 
-export default function CatalogHero() {
+type CatalogHeroProps = {
+  content: PublicCatalogPageContentView;
+};
+
+export default function CatalogHero({ content }: CatalogHeroProps) {
   return (
     <header className={styles.hero}>
-      <p className={styles.eyebrow}>Paper &amp; Stone</p>
-      <h1 className={styles.title}>מוצרים</h1>
-      <p className={styles.description}>
-        מבחר מוצרים פעילים מ-Paper &amp; Stone.
-      </p>
+      <p className={styles.eyebrow}>{content.eyebrow}</p>
+      <h1 className={styles.title}>{content.heading}</h1>
+      <p className={styles.description}>{content.supportingText}</p>
     </header>
   );
 }

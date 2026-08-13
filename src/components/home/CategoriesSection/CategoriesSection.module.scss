@@ -123,3 +123,12 @@
     font-size: $font-size-lg;
   }
 }
+
+.tileLink {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}

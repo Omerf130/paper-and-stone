@@ -12,6 +12,7 @@ import {
   mapCategoryInputToWriteFields,
   parseCategoryFormInput,
 } from "@/lib/categories/category-validation";
+import { revalidateHomepagePaths } from "@/lib/cms/revalidate-homepage-paths";
 import type {
   AdminCategoryFormInput,
   CategoryFormState,
@@ -44,6 +45,8 @@ export async function createCategoryAction(
     return { error: CATEGORY_ERRORS.GENERIC };
   }
 
+  await revalidateHomepagePaths();
+
   redirect(`/admin/categories/${categoryId}?saved=1`);
 }
 
@@ -63,6 +66,7 @@ export async function updateCategoryAction(
       categoryId,
       mapCategoryInputToWriteFields(parsed.data),
     );
+    await revalidateHomepagePaths();
     return { success: true };
   } catch (error: unknown) {
     if (error instanceof CategoryMutationError) {

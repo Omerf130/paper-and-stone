@@ -1,20 +1,39 @@
+import Image from "next/image";
 import Container from "@/components/Container/Container";
 import PublicNavItem from "@/components/Header/PublicNavItem";
 import { footerNavGroups } from "@/config/navigation";
+import type { PublicSiteSettingsView } from "@/types/public-site-settings";
 import styles from "./Footer.module.scss";
 
-export default function Footer() {
+type FooterProps = {
+  siteSettings: PublicSiteSettingsView;
+};
+
+export default function Footer({ siteSettings }: FooterProps) {
   const year = new Date().getFullYear();
+  const copyrightName =
+    siteSettings.copyrightCompanyName?.trim() || siteSettings.brandName;
 
   return (
     <footer className={styles.footer}>
       <Container>
         <div className={styles.top}>
           <div className={styles.brand}>
-            <p className={styles.wordmark}>Paper &amp; Stone</p>
-            <p className={styles.tagline}>
-              ריהוט, חומרים ופתרונות לפרויקטים
-            </p>
+            {siteSettings.logo ? (
+              <div className={styles.logoWrap}>
+                <Image
+                  src={siteSettings.logo.url}
+                  alt={siteSettings.logo.alt}
+                  width={siteSettings.logo.width ?? 160}
+                  height={siteSettings.logo.height ?? 40}
+                  className={styles.logo}
+                  sizes="160px"
+                />
+              </div>
+            ) : (
+              <p className={styles.wordmark}>{siteSettings.brandName}</p>
+            )}
+            <p className={styles.tagline}>{siteSettings.footerDescription}</p>
           </div>
 
           <div className={styles.navGroups}>
@@ -42,13 +61,29 @@ export default function Footer() {
 
           <div className={styles.contact}>
             <p className={styles.navTitle}>יצירת קשר</p>
-            <p className={styles.contactText}>פרטי יצירת קשר — בקרוב</p>
+            {siteSettings.hasContactDetails ? (
+              <ul className={styles.contactList}>
+                {siteSettings.contactItems.map((item) => (
+                  <li key={item.kind}>
+                    {item.href ? (
+                      <a href={item.href} className={styles.contactLink}>
+                        {item.value}
+                      </a>
+                    ) : (
+                      <span className={styles.contactText}>{item.value}</span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className={styles.contactText}>פרטי יצירת קשר — בקרוב</p>
+            )}
           </div>
         </div>
 
         <div className={styles.bottom}>
           <p className={styles.copyright}>
-            &copy; {year} Paper &amp; Stone
+            &copy; {year} {copyrightName}
           </p>
         </div>
       </Container>

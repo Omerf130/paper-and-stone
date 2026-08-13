@@ -5,24 +5,58 @@ import FeaturedProductsSection from "@/components/home/FeaturedProductsSection/F
 import HeroSection from "@/components/home/HeroSection/HeroSection";
 import InspirationSection from "@/components/home/InspirationSection/InspirationSection";
 import ProfessionalsSection from "@/components/home/ProfessionalsSection/ProfessionalsSection";
+import { buildVisibleHomepageSections } from "@/lib/cms/build-visible-homepage-sections";
+import { getPublicHomepageContent } from "@/lib/cms/get-public-homepage-content";
 import { getFeaturedProducts } from "@/lib/products/getFeaturedProducts";
+import type { HomepageSectionKey } from "@/types/cms-content";
 
-export const dynamic = "force-dynamic";
+function renderHomepageSection(
+  key: HomepageSectionKey,
+  homepage: Awaited<ReturnType<typeof getPublicHomepageContent>>,
+  featuredProducts: Awaited<ReturnType<typeof getFeaturedProducts>>,
+) {
+  switch (key) {
+    case "hero":
+      return <HeroSection key={key} content={homepage.hero} />;
+    case "categories":
+      return <CategoriesSection key={key} content={homepage.categories} />;
+    case "featuredProducts":
+      return (
+        <FeaturedProductsSection
+          key={key}
+          content={homepage.featuredProducts}
+          products={featuredProducts}
+        />
+      );
+    case "about":
+      return <AboutSection key={key} content={homepage.about} />;
+    case "professionals":
+      return <ProfessionalsSection key={key} content={homepage.professionals} />;
+    case "inspiration":
+      return <InspirationSection key={key} content={homepage.inspiration} />;
+    case "closing":
+      return <ContactCtaSection key={key} content={homepage.closing} />;
+    default:
+      return null;
+  }
+}
 
 export default async function Home() {
-  const featuredProducts = await getFeaturedProducts();
+  const [homepage, featuredProducts] = await Promise.all([
+    getPublicHomepageContent(),
+    getFeaturedProducts(),
+  ]);
+
+  const visibleSections = buildVisibleHomepageSections(
+    homepage,
+    featuredProducts.length,
+  );
 
   return (
     <>
-      <HeroSection />
-      <CategoriesSection />
-      {featuredProducts.length > 0 ? (
-        <FeaturedProductsSection products={featuredProducts} />
-      ) : null}
-      <AboutSection />
-      <ProfessionalsSection />
-      <InspirationSection />
-      <ContactCtaSection />
+      {visibleSections.map((key) =>
+        renderHomepageSection(key, homepage, featuredProducts),
+      )}
     </>
   );
 }

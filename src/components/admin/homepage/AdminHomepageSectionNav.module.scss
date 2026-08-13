@@ -1,0 +1,30 @@
+@use "../../../styles/tokens" as *;
+@use "../../../styles/mixins" as *;
+
+.nav {
+  padding-bottom: $spacing-md;
+  border-bottom: 1px solid $color-border;
+}
+
+.list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm $spacing-lg;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.link {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  text-decoration: none;
+
+  &:hover {
+    color: $color-text-primary;
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+  }
+
+  @include focus-visible;
+}

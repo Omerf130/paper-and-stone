@@ -1,30 +1,36 @@
 import Container from "@/components/Container/Container";
 import VisualPlaceholder from "@/components/VisualPlaceholder/VisualPlaceholder";
+import PublicCmsImage from "@/components/home/PublicCmsImage/PublicCmsImage";
+import type { PublicHomepageAboutSectionView } from "@/types/public-homepage-content";
 import styles from "./AboutSection.module.scss";
 
-export default function AboutSection() {
+type AboutSectionProps = {
+  content: PublicHomepageAboutSectionView;
+};
+
+export default function AboutSection({ content }: AboutSectionProps) {
   return (
     <section className={styles.section} aria-labelledby="home-about-heading">
       <Container variant="wide">
         <div className={styles.layout}>
           <div className={styles.content}>
-            <p className={styles.eyebrow}>Paper &amp; Stone</p>
+            <p className={styles.eyebrow}>{content.eyebrow}</p>
             <h2 id="home-about-heading" className={styles.heading}>
-              ריהוט, חומרים ופתרונות לפרויקטים מדויקים
+              {content.heading}
             </h2>
-            <p className={styles.lead}>
-              Paper &amp; Stone מייבאת ומשווקת ריהוט, חומרים ופתרונות עיצוב
-              לפרויקטים פרטיים ומקצועיים.
-            </p>
-            <p className={styles.body}>
-              אנחנו עובדים עם אדריכלים, מעצבי פנים ולקוחות פרטיים שמחפשים
-              איכות, דיוק וגישה מקצועית — מהבחירה הראשונה ועד הכניסה
-              לפרויקט.
-            </p>
+            {content.lead ? <p className={styles.lead}>{content.lead}</p> : null}
+            {content.body ? <p className={styles.body}>{content.body}</p> : null}
           </div>
 
           <div className={styles.visual}>
-            <VisualPlaceholder aspectRatio="portrait" variant="subtle" />
+            {content.image ? (
+              <PublicCmsImage
+                image={content.image}
+                sizes="(min-width: 1024px) 40vw, 100vw"
+              />
+            ) : (
+              <VisualPlaceholder aspectRatio="portrait" variant="subtle" />
+            )}
           </div>
         </div>
       </Container>

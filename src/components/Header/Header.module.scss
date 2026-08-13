@@ -21,20 +21,41 @@
   }
 }
 
-.wordmark {
+.brandLink {
   flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+
+  @include focus-visible;
+}
+
+.wordmark {
   font-size: $font-size-base;
   font-weight: $font-weight-semibold;
   letter-spacing: $letter-spacing-tight;
   color: $color-text-primary;
-  text-decoration: none;
   white-space: nowrap;
-
-  @include focus-visible;
 
   @include tablet-up {
     font-size: $font-size-lg;
   }
+}
+
+.logoWrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  block-size: 40px;
+  max-inline-size: 160px;
+}
+
+.logo {
+  block-size: auto;
+  max-block-size: 40px;
+  inline-size: auto;
+  max-inline-size: 160px;
+  object-fit: contain;
 }
 
 .desktopNav {

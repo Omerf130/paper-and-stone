@@ -1,0 +1,26 @@
+export const CMS_SCHEMA_VERSION = 1;
+
+export const CMS_LIMITS = {
+  brandName: 120,
+  eyebrow: 120,
+  heading: 200,
+  supportingText: 500,
+  body: 2000,
+  ctaLabel: 80,
+  ctaHref: 500,
+  contactField: 200,
+  address: 500,
+  footerDescription: 500,
+  copyrightCompanyName: 120,
+  seoTitle: 120,
+  seoDescription: 320,
+  inspirationTitle: 120,
+  inspirationSubtitle: 120,
+  professionalStepTitle: 120,
+  professionalStepNumber: 10,
+  categoryDisplayTitle: 120,
+  imageAlt: 500,
+  homepageCategoryItems: 12,
+  inspirationItems: 12,
+  professionalSteps: 10,
+} as const;

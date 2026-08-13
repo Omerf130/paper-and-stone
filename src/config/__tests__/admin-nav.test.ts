@@ -6,7 +6,7 @@ import {
 } from "@/config/admin-nav";
 
 describe("admin-nav", () => {
-  it("contains all seven admin routes in groups", () => {
+  it("contains all admin routes in groups", () => {
     const hrefs = adminNavGroups.flatMap((group) =>
       group.items.map((item) => item.href),
     );
@@ -18,12 +18,13 @@ describe("admin-nav", () => {
       "/admin/materials",
       "/admin/colors",
       "/admin/projects",
+      "/admin/content",
       "/admin/users",
     ]);
   });
 
   it("derives a flat nav list from groups", () => {
-    expect(adminNavItems).toHaveLength(7);
+    expect(adminNavItems).toHaveLength(8);
     expect(adminNavItems.map((item) => item.label)).toContain("פרויקטים");
   });
 

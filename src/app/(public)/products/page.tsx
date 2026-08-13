@@ -13,9 +13,8 @@ import {
 } from "@/lib/catalog/catalog-params";
 import { getCatalogEmptyState } from "@/lib/catalog/get-catalog-empty-state";
 import { getPublicCategories } from "@/lib/catalog/getPublicCategories";
+import { getPublicCatalogPageContent } from "@/lib/cms/get-public-catalog-page-content";
 import { getPublicProducts } from "@/lib/products/getPublicProducts";
-
-export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "מוצרים | Paper & Stone",
@@ -41,13 +40,14 @@ export default async function ProductsCatalogPage({
   const resolvedSearchParams = await searchParams;
   const catalogParams = parseCatalogParams(resolvedSearchParams);
 
-  const [categories, catalogResult] = await Promise.all([
+  const [categories, catalogResult, catalogContent] = await Promise.all([
     getPublicCategories(),
     getPublicProducts({
       query: catalogParams.query,
       categorySlug: catalogParams.categorySlug,
       page: catalogParams.page,
     }),
+    getPublicCatalogPageContent(),
   ]);
 
   const filtersApplied = hasCatalogFilters({
@@ -72,7 +72,7 @@ export default async function ProductsCatalogPage({
   return (
     <Section contained={false}>
       <Container variant="wide">
-        <CatalogHero />
+        <CatalogHero content={catalogContent} />
 
         <CatalogToolbar
           query={catalogResult.appliedFilters.query}

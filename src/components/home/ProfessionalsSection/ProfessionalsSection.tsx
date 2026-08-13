@@ -1,45 +1,71 @@
 import Button from "@/components/Button/Button";
 import Container from "@/components/Container/Container";
 import VisualPlaceholder from "@/components/VisualPlaceholder/VisualPlaceholder";
-import { workflowSteps } from "../homepage-data";
+import PublicCmsImage from "@/components/home/PublicCmsImage/PublicCmsImage";
+import type { PublicHomepageProfessionalsSectionView } from "@/types/public-homepage-content";
 import styles from "./ProfessionalsSection.module.scss";
 
-export default function ProfessionalsSection() {
+type ProfessionalsSectionProps = {
+  content: PublicHomepageProfessionalsSectionView;
+};
+
+function renderCta(
+  cta: PublicHomepageProfessionalsSectionView["primaryCta"],
+  variant: "primary" | "text",
+) {
+  if (cta.isVisible === false) {
+    return null;
+  }
+
+  return (
+    <Button href={cta.href} variant={variant}>
+      {cta.label}
+    </Button>
+  );
+}
+
+export default function ProfessionalsSection({ content }: ProfessionalsSectionProps) {
+  const primaryCta = renderCta(content.primaryCta, "primary");
+  const secondaryCta = renderCta(content.secondaryCta, "text");
+
   return (
     <section className={styles.section} aria-labelledby="home-professionals-heading">
       <Container variant="wide">
         <div className={styles.layout}>
           <div className={styles.visual}>
-            <VisualPlaceholder aspectRatio="portrait" className={styles.placeholder} />
+            {content.image ? (
+              <PublicCmsImage
+                image={content.image}
+                className={styles.placeholder}
+                sizes="(min-width: 1024px) 40vw, 100vw"
+              />
+            ) : (
+              <VisualPlaceholder aspectRatio="portrait" className={styles.placeholder} />
+            )}
           </div>
 
           <div className={styles.content}>
-            <p className={styles.eyebrow}>לאדריכלים ומעצבים</p>
+            <p className={styles.eyebrow}>{content.eyebrow}</p>
             <h2 id="home-professionals-heading" className={styles.heading}>
-              כל הפרויקט. במקום אחד.
+              {content.heading}
             </h2>
-            <p className={styles.supporting}>
-              פלטפורמה מקצועית לניהול פרויקטים — מארגון חדרים ומוצרים
-              ועד שליחה לתמחור ומעקב.
-            </p>
+            <p className={styles.supporting}>{content.body}</p>
 
             <ol className={styles.steps}>
-              {workflowSteps.map((step) => (
-                <li key={step.step} className={styles.step}>
+              {content.steps.map((step) => (
+                <li key={step.id} className={styles.step}>
                   <span className={styles.stepNumber}>{step.step}</span>
                   <span className={styles.stepTitle}>{step.title}</span>
                 </li>
               ))}
             </ol>
 
-            <div className={styles.actions}>
-              <Button href="/register" variant="primary">
-                פתיחת חשבון מקצועי
-              </Button>
-              <Button href="/login" variant="text">
-                התחברות
-              </Button>
-            </div>
+            {primaryCta || secondaryCta ? (
+              <div className={styles.actions}>
+                {primaryCta}
+                {secondaryCta}
+              </div>
+            ) : null}
           </div>
         </div>
       </Container>
