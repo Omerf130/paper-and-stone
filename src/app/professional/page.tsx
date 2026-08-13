@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { requireProfessional } from "@/lib/auth/authorization";
-import {
-  getDisplayName,
-  getProfileCompletenessSummary,
-} from "@/lib/professionals/profile-completeness";
-import { getMyProfessionalProfileView } from "@/lib/professionals/ensureProfessionalProfile";
-import styles from "./page.module.scss";
+import { getProfessionalDashboardData } from "@/lib/professionals/getProfessionalDashboardData";
+import InternalPage from "@/components/internal/InternalPage/InternalPage";
+import InternalPageHeader from "@/components/internal/InternalPageHeader/InternalPageHeader";
+import ProfessionalDashboardAttention from "@/components/professional/dashboard/ProfessionalDashboardAttention";
+import ProfessionalDashboardProfile from "@/components/professional/dashboard/ProfessionalDashboardProfile";
+import ProfessionalDashboardProjects from "@/components/professional/dashboard/ProfessionalDashboardProjects";
+import Button from "@/components/ui/Button/Button";
 
 export const metadata: Metadata = {
   title: "אזור מקצועי | Paper & Stone",
@@ -14,38 +14,30 @@ export const metadata: Metadata = {
 
 export default async function ProfessionalDashboardPage() {
   const user = await requireProfessional();
-  const profile = await getMyProfessionalProfileView(user.id);
-  const completeness = getProfileCompletenessSummary(profile);
-  const displayName = getDisplayName(profile, user.email);
+  const dashboard = await getProfessionalDashboardData(user.id, user.email);
 
   return (
-    <div className={styles.page}>
-      <header className={styles.header}>
-        <h1 className={styles.title}>שלום, {displayName}</h1>
-        <p className={styles.description}>
-          ברוכים הבאים לאזור המקצועי. כאן תוכלו לנהל את הפרופיל שלכם ולהיערך
-          לפרויקטים עתידיים.
-        </p>
-      </header>
+    <InternalPage width="default">
+      <InternalPageHeader
+        title={`שלום, ${dashboard.displayName}`}
+        description="סביבת העבודה שלכם לניהול פרויקטים, מעקב אחר סטטוסים ותקשורת עם צוות Paper & Stone."
+        actions={
+          <Button href="/professional/projects/new" size="sm">
+            יצירת פרויקט חדש
+          </Button>
+        }
+      />
 
-      <section className={styles.card} aria-labelledby="profile-status-title">
-        <h2 id="profile-status-title" className={styles.cardTitle}>
-          מצב הפרופיל
-        </h2>
-        <p className={styles.cardText}>
-          {completeness.isComplete
-            ? "הפרופיל שלכם מלא."
-            : `הושלמו ${completeness.filledCount} מתוך ${completeness.totalCount} שדות.`}
-        </p>
-        {!completeness.isComplete && (
-          <p className={styles.missingFields}>
-            חסרים: {completeness.missingFields.join(", ")}
-          </p>
-        )}
-        <Link href="/professional/profile" className={styles.primaryAction}>
-          {completeness.isComplete ? "עריכת פרופיל" : "השלמת פרופיל"}
-        </Link>
-      </section>
-    </div>
+      <ProfessionalDashboardAttention
+        changesRequestedCount={dashboard.changesRequestedCount}
+        unreadNotificationCount={dashboard.unreadNotificationCount}
+        unreadMessageCount={dashboard.unreadMessageCount}
+        profileIncomplete={!dashboard.profileCompleteness.isComplete}
+      />
+
+      <ProfessionalDashboardProjects projects={dashboard.dashboardProjects} />
+
+      <ProfessionalDashboardProfile completeness={dashboard.profileCompleteness} />
+    </InternalPage>
   );
 }

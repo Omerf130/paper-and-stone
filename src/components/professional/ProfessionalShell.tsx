@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { ProfessionalNavItem } from "@/config/professional-nav";
 import { logoutAction } from "@/lib/auth/logout-action";
 import NotificationBadgeLink from "@/components/professional/NotificationBadgeLink/NotificationBadgeLink";
+import ProfessionalBrand from "@/components/professional/ProfessionalBrand/ProfessionalBrand";
 import ProfessionalMobileNav from "./ProfessionalMobileNav";
 import ProfessionalSidebar from "./ProfessionalSidebar";
 import styles from "./ProfessionalShell.module.scss";
@@ -25,9 +26,7 @@ export default function ProfessionalShell({
         <header className={styles.topBar}>
           <div className={styles.topBarStart}>
             <ProfessionalMobileNav items={navItems} />
-            <Link href="/professional" className={styles.brand}>
-              Paper &amp; Stone — אזור מקצועי
-            </Link>
+            <ProfessionalBrand className={styles.mobileBrand} compact />
           </div>
 
           <div className={styles.topBarActions}>

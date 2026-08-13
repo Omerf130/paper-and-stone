@@ -1,0 +1,65 @@
+@use "../../../styles/tokens" as *;
+@use "../../../styles/mixins" as *;
+
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+  list-style: none;
+}
+
+.mobileRoot {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  list-style: none;
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  padding-block: $spacing-sm;
+  padding-inline: $spacing-md;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  text-decoration: none;
+  border-inline-start: 2px solid transparent;
+  transition:
+    color $transition-fast,
+    background-color $transition-fast,
+    border-color $transition-fast;
+
+  @include focus-visible;
+
+  @include reduced-motion {
+    transition: none;
+  }
+}
+
+.linkContent {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-sm;
+  width: 100%;
+}
+
+.active {
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+  background-color: $color-interactive-hover;
+  border-inline-start-color: $color-accent;
+}
+
+.mobileRoot .link {
+  padding-inline: 0;
+  font-size: $font-size-base;
+  border-inline-start-width: 0;
+  border-bottom: 1px solid transparent;
+}
+
+.mobileRoot .active {
+  border-inline-start-color: transparent;
+  border-bottom-color: $color-border;
+  background-color: transparent;
+}

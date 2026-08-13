@@ -1,107 +1,11 @@
 @use "../../../../styles/tokens" as *;
-@use "../../../../styles/mixins" as *;
 
 .list {
   display: flex;
   flex-direction: column;
-  gap: $spacing-md;
+  gap: 0;
 }
 
-.emptyBlock {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-md;
-  padding: $spacing-lg;
-  border: 1px solid $color-border;
-}
-
-.empty {
-  margin: 0;
-  font-size: $font-size-sm;
-  color: $color-text-secondary;
-  text-align: center;
-}
-
-.addLink {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: fit-content;
-  min-height: 2.75rem;
-  padding-inline: $spacing-lg;
-  font-size: $font-size-sm;
-  font-weight: $font-weight-medium;
-  color: $color-background;
-  text-decoration: none;
-  background-color: $color-text-primary;
-  border: 1px solid $color-text-primary;
-
-  @include focus-visible;
-}
-
-.error {
-  margin: 0;
-  font-size: $font-size-sm;
-  color: $color-accent;
-}
-
-.card {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-md;
-  padding: $spacing-lg;
-  border: 1px solid $color-border;
-  background-color: $color-background-subtle;
-}
-
-.cardHeader {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: $spacing-md;
-}
-
-.productName {
-  margin: 0 0 $spacing-xs;
-  font-size: $font-size-base;
-  font-weight: $font-weight-semibold;
-  color: $color-text-primary;
-}
-
-.summary {
-  margin: 0;
-  font-size: $font-size-sm;
-  color: $color-text-secondary;
-}
-
-.staleBadge {
-  margin: $spacing-xs 0 0;
-  font-size: $font-size-sm;
-  color: $color-accent;
-}
-
-.cardActions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: $spacing-sm;
-}
-
-.actionButton {
-  padding: 0;
-  font: inherit;
-  font-size: $font-size-sm;
-  color: $color-text-secondary;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  text-decoration: underline;
-  text-underline-offset: 0.15em;
-
-  @include focus-visible;
-
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
+.footer {
+  padding-top: $spacing-lg;
 }

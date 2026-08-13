@@ -44,8 +44,25 @@
 .toolbar {
   display: flex;
   flex-wrap: wrap;
+  gap: $spacing-md;
+  align-items: center;
+  padding-block: $spacing-sm;
+  border-top: 1px solid $color-border;
+  border-bottom: 1px solid $color-border;
+}
+
+.toolbarGroup {
+  display: flex;
+  flex-wrap: wrap;
   gap: $spacing-sm;
   align-items: center;
+  padding-inline-end: $spacing-md;
+  border-inline-end: 1px solid $color-border;
+
+  &:last-child {
+    border-inline-end: none;
+    padding-inline-end: 0;
+  }
 }
 
 .toolButton {

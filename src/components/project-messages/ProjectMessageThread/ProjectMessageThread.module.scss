@@ -8,6 +8,11 @@
   scroll-margin-top: $spacing-xl;
 }
 
+.admin {
+  gap: $spacing-lg;
+  scroll-margin-top: $spacing-xl;
+}
+
 .title {
   margin: 0;
   font-size: $font-size-lg;
@@ -25,16 +30,45 @@
 .list {
   display: flex;
   flex-direction: column;
-  gap: $spacing-md;
+  gap: 0;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
 .item {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+  padding: $spacing-md 0;
+}
+
+.admin .item {
+  padding: $spacing-lg 0;
+  padding-inline-start: $spacing-md;
+  border-inline-start: 2px solid $color-border;
+}
+
+.admin .adminMessage {
+  border-inline-start-color: $color-text-primary;
+}
+
+.admin .professionalMessage {
+  border-inline-start-color: $color-border;
+}
+
+.admin .list > .item + .item {
+  border-top: 1px solid $color-border;
+}
+
+.default .item {
   padding: $spacing-md;
   border: 1px solid $color-border;
   background: $color-surface;
+}
+
+.default .list {
+  gap: $spacing-md;
 }
 
 .header {
@@ -42,7 +76,6 @@
   flex-wrap: wrap;
   justify-content: space-between;
   gap: $spacing-sm;
-  margin-bottom: $spacing-xs;
 }
 
 .sender {
@@ -56,7 +89,7 @@
 }
 
 .readState {
-  margin: 0 0 $spacing-xs;
+  margin: 0;
   font-size: $font-size-sm;
   color: $color-text-secondary;
 }
@@ -64,6 +97,7 @@
 .body {
   margin: 0;
   font-size: $font-size-sm;
+  line-height: $line-height-relaxed;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }

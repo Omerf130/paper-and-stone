@@ -9,6 +9,7 @@ import {
   type PointerEvent as ReactPointerEvent,
 } from "react";
 import ProductRecolorCanvas from "@/components/product/ProductRecolorCanvas/ProductRecolorCanvas";
+import Button from "@/components/ui/Button/Button";
 import {
   applyBrushStroke,
   type BrushMode,
@@ -598,13 +599,9 @@ export default function ProductMaskEditor({
           {error ?? "לא ניתן לפתוח את עורך המסכה."}
         </p>
         <div className={styles.actions}>
-          <button
-            type="button"
-            className={styles.secondaryButton}
-            onClick={onCancel}
-          >
+          <Button variant="ghost" onClick={onCancel}>
             סגירה
-          </button>
+          </Button>
         </div>
       </div>
     );
@@ -638,120 +635,128 @@ export default function ProductMaskEditor({
       ) : null}
 
       <div className={styles.toolbar} role="toolbar" aria-label="כלי עריכת מסכה">
-        <button
-          type="button"
-          className={styles.toolButton}
-          aria-pressed={viewMode === "edit"}
-          disabled={isSaving || status === "loading"}
-          onClick={() => setViewMode("edit")}
-        >
-          עריכת מסכה
-        </button>
-        <button
-          type="button"
-          className={styles.toolButton}
-          aria-pressed={viewMode === "preview"}
-          disabled={isSaving || status === "loading"}
-          onClick={() => setViewMode("preview")}
-        >
-          תצוגת צביעה
-        </button>
+        <div className={styles.toolbarGroup}>
+          <button
+            type="button"
+            className={styles.toolButton}
+            aria-pressed={viewMode === "edit"}
+            disabled={isSaving || status === "loading"}
+            onClick={() => setViewMode("edit")}
+          >
+            עריכת מסכה
+          </button>
+          <button
+            type="button"
+            className={styles.toolButton}
+            aria-pressed={viewMode === "preview"}
+            disabled={isSaving || status === "loading"}
+            onClick={() => setViewMode("preview")}
+          >
+            תצוגת צביעה
+          </button>
+        </div>
 
         {viewMode === "edit" ? (
           <>
-            <button
-              type="button"
-              className={styles.toolButton}
-              aria-pressed={tool === "paint"}
-              disabled={isSaving}
-              onClick={() => setTool("paint")}
-            >
-              מברשת
-            </button>
-            <button
-              type="button"
-              className={styles.toolButton}
-              aria-pressed={tool === "erase"}
-              disabled={isSaving}
-              onClick={() => setTool("erase")}
-            >
-              מחק
-            </button>
-            <button
-              type="button"
-              className={styles.toolButton}
-              aria-pressed={tool === "fill"}
-              disabled={isSaving}
-              onClick={() => setTool("fill")}
-            >
-              מילוי
-            </button>
-            <label className={styles.brushControl} htmlFor={brushSliderId}>
-              גודל מברשת
-              <input
-                id={brushSliderId}
-                className={styles.brushSlider}
-                type="range"
-                min={BRUSH_SIZE_MIN}
-                max={BRUSH_SIZE_MAX}
-                value={brushSize}
-                aria-valuemin={BRUSH_SIZE_MIN}
-                aria-valuemax={BRUSH_SIZE_MAX}
-                aria-valuenow={brushSize}
+            <div className={styles.toolbarGroup}>
+              <button
+                type="button"
+                className={styles.toolButton}
+                aria-pressed={tool === "paint"}
                 disabled={isSaving}
-                onChange={(event) => setBrushSize(Number(event.target.value))}
-              />
-              <span>{brushSize}px</span>
-            </label>
-            <label className={styles.brushControl}>
-              <input
-                type="checkbox"
-                checked={showOverlay}
-                disabled={isSaving}
-                onChange={(event) => setShowOverlay(event.target.checked)}
-              />
-              הצגת שכבת מסכה
-            </label>
-            <div className={styles.zoomControl}>
-              <span>זום</span>
-              <select
-                className={styles.select}
-                value={zoomIndex}
-                disabled={isSaving}
-                onChange={(event) =>
-                  setZoomIndex(Number(event.target.value) as ZoomModeIndex)
-                }
+                onClick={() => setTool("paint")}
               >
-                <option value={0}>התאמה</option>
-                <option value={1}>100%</option>
-                <option value={2}>150%</option>
-                <option value={3}>200%</option>
-              </select>
+                מברשת
+              </button>
+              <button
+                type="button"
+                className={styles.toolButton}
+                aria-pressed={tool === "erase"}
+                disabled={isSaving}
+                onClick={() => setTool("erase")}
+              >
+                מחק
+              </button>
+              <button
+                type="button"
+                className={styles.toolButton}
+                aria-pressed={tool === "fill"}
+                disabled={isSaving}
+                onClick={() => setTool("fill")}
+              >
+                מילוי
+              </button>
             </div>
-            <button
-              type="button"
-              className={styles.toolButton}
-              disabled={isSaving || !undoAvailable}
-              onClick={handleUndo}
-            >
-              ביטול
-            </button>
-            <button
-              type="button"
-              className={styles.toolButton}
-              disabled={isSaving || !redoAvailable}
-              onClick={handleRedo}
-            >
-              שחזור
-            </button>
-            <button
-              type="button"
-              className={styles.toolButton}
-              disabled={isSaving}
-              onClick={handleClear}
-            >
-              ניקוי
-            </button>
+            <div className={styles.toolbarGroup}>
+              <label className={styles.brushControl} htmlFor={brushSliderId}>
+                גודל מברשת
+                <input
+                  id={brushSliderId}
+                  className={styles.brushSlider}
+                  type="range"
+                  min={BRUSH_SIZE_MIN}
+                  max={BRUSH_SIZE_MAX}
+                  value={brushSize}
+                  aria-valuemin={BRUSH_SIZE_MIN}
+                  aria-valuemax={BRUSH_SIZE_MAX}
+                  aria-valuenow={brushSize}
+                  disabled={isSaving}
+                  onChange={(event) => setBrushSize(Number(event.target.value))}
+                />
+                <span>{brushSize}px</span>
+              </label>
+              <label className={styles.brushControl}>
+                <input
+                  type="checkbox"
+                  checked={showOverlay}
+                  disabled={isSaving}
+                  onChange={(event) => setShowOverlay(event.target.checked)}
+                />
+                הצגת שכבת מסכה
+              </label>
+              <div className={styles.zoomControl}>
+                <span>זום</span>
+                <select
+                  className={styles.select}
+                  value={zoomIndex}
+                  disabled={isSaving}
+                  onChange={(event) =>
+                    setZoomIndex(Number(event.target.value) as ZoomModeIndex)
+                  }
+                >
+                  <option value={0}>התאמה</option>
+                  <option value={1}>100%</option>
+                  <option value={2}>150%</option>
+                  <option value={3}>200%</option>
+                </select>
+              </div>
+            </div>
+            <div className={styles.toolbarGroup}>
+              <button
+                type="button"
+                className={styles.toolButton}
+                disabled={isSaving || !undoAvailable}
+                onClick={handleUndo}
+              >
+                ביטול
+              </button>
+              <button
+                type="button"
+                className={styles.toolButton}
+                disabled={isSaving || !redoAvailable}
+                onClick={handleRedo}
+              >
+                שחזור
+              </button>
+              <button
+                type="button"
+                className={styles.toolButton}
+                disabled={isSaving}
+                onClick={handleClear}
+              >
+                ניקוי
+              </button>
+            </div>
           </>
         ) : null}
       </div>
@@ -813,22 +818,16 @@ export default function ProductMaskEditor({
       )}
 
       <div className={styles.actions}>
-        <button
-          type="button"
-          className={styles.primaryButton}
+        <Button
+          variant="primary"
           disabled={isSaving || status === "loading"}
           onClick={() => void handleSave()}
         >
           {isSaving ? "שומר…" : "שמירת מסכה"}
-        </button>
-        <button
-          type="button"
-          className={styles.secondaryButton}
-          disabled={isSaving}
-          onClick={onCancel}
-        >
+        </Button>
+        <Button variant="ghost" disabled={isSaving} onClick={onCancel}>
           ביטול
-        </button>
+        </Button>
       </div>
     </div>
   );

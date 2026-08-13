@@ -1,10 +1,15 @@
 import type { Metadata } from "next";
 import NotificationItem from "@/components/professional/notifications/NotificationItem/NotificationItem";
 import NotificationMarkAllButton from "@/components/professional/notifications/NotificationMarkAllButton/NotificationMarkAllButton";
-import NotificationsPagination from "@/components/professional/notifications/NotificationsPagination/NotificationsPagination";
+import AdminPagination from "@/components/admin/list/AdminPagination";
 import EmptyState from "@/components/ui/EmptyState/EmptyState";
+import InternalPage from "@/components/internal/InternalPage/InternalPage";
+import InternalPageHeader from "@/components/internal/InternalPageHeader/InternalPageHeader";
 import { requireProfessional } from "@/lib/auth/authorization";
-import { parseNotificationsParams } from "@/lib/notifications/notification-params";
+import {
+  buildNotificationsHref,
+  parseNotificationsParams,
+} from "@/lib/notifications/notification-params";
 import {
   getProfessionalNotifications,
   getUnreadNotificationCount,
@@ -31,16 +36,12 @@ export default async function ProfessionalNotificationsPage({
   ]);
 
   return (
-    <div className={styles.page}>
-      <header className={styles.header}>
-        <div>
-          <h1 className={styles.title}>התראות</h1>
-          <p className={styles.description}>
-            עדכונים על פרויקטים שנשלחו לבדיקה.
-          </p>
-        </div>
-        <NotificationMarkAllButton disabled={unreadCount === 0} />
-      </header>
+    <InternalPage width="default">
+      <InternalPageHeader
+        title="התראות"
+        description="עדכונים על פרויקטים שנשלחו לבדיקה."
+        actions={<NotificationMarkAllButton disabled={unreadCount === 0} />}
+      />
 
       {result.notifications.length === 0 ? (
         <EmptyState
@@ -57,10 +58,11 @@ export default async function ProfessionalNotificationsPage({
         </ul>
       )}
 
-      <NotificationsPagination
+      <AdminPagination
         page={result.page}
         totalPages={result.totalPages}
+        hrefForPage={(pageNumber) => buildNotificationsHref({ page: pageNumber })}
       />
-    </div>
+    </InternalPage>
   );
 }

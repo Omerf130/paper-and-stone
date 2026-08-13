@@ -3,6 +3,7 @@ import { getLatestAdminFeedback } from "@/lib/projects/project-review-history";
 import type { ProjectReviewHistoryEntry } from "@/types/project";
 import FeedbackBanner from "@/components/ui/FeedbackBanner/FeedbackBanner";
 import StatusBadge from "@/components/ui/StatusBadge/StatusBadge";
+import { formatDateTime } from "@/lib/ui/format-date-time";
 import { mapProjectStatusToBadge } from "@/lib/ui/map-status-badge";
 import styles from "./ProjectStatusBanner.module.scss";
 
@@ -11,13 +12,6 @@ type ProjectStatusBannerProps = {
   reviewHistory: ProjectReviewHistoryEntry[];
   submittedAt?: string;
 };
-
-function formatDate(value: string): string {
-  return new Intl.DateTimeFormat("he-IL", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(new Date(value));
-}
 
 function getBannerTone(
   status: ProjectStatus,
@@ -34,6 +28,23 @@ function getBannerTone(
   }
 }
 
+function getStatusCopy(status: ProjectStatus): string | null {
+  switch (status) {
+    case "draft":
+      return "ניתן להמשיך לערוך ולשלוח לבדיקה.";
+    case "submitted":
+      return "הפרויקט נשלח וממתין לבדיקה. לא ניתן לערוך עד לקבלת תשובה.";
+    case "changes_requested":
+      return "האדמין ביקש שינויים — ניתן לערוך ולשלוח מחדש.";
+    case "approved":
+      return "הפרויקט אושר.";
+    case "rejected":
+      return "הפרויקט נדחה.";
+    default:
+      return null;
+  }
+}
+
 export default function ProjectStatusBanner({
   status,
   reviewHistory,
@@ -41,6 +52,7 @@ export default function ProjectStatusBanner({
 }: ProjectStatusBannerProps) {
   const latestFeedback = getLatestAdminFeedback(reviewHistory);
   const statusBadge = mapProjectStatusToBadge(status);
+  const statusCopy = getStatusCopy(status);
 
   return (
     <FeedbackBanner tone={getBannerTone(status)}>
@@ -50,25 +62,15 @@ export default function ProjectStatusBanner({
       </p>
 
       {submittedAt && status !== "draft" ? (
-        <p className={styles.metaLine}>נשלח: {formatDate(submittedAt)}</p>
+        <p className={styles.metaLine}>נשלח: {formatDateTime(submittedAt)}</p>
       ) : null}
 
-      {status === "submitted" ? (
-        <p>הפרויקט נמצא בבדיקה. לא ניתן לערוך עד לקבלת תשובה.</p>
-      ) : null}
-
-      {status === "approved" ? <p>הפרויקט אושר.</p> : null}
-
-      {status === "rejected" ? <p>הפרויקט נדחה.</p> : null}
-
-      {status === "changes_requested" ? (
-        <p>נדרשים שינויים. ניתן לערוך ולשלוח מחדש.</p>
-      ) : null}
+      {statusCopy ? <p>{statusCopy}</p> : null}
 
       {latestFeedback?.message &&
       (status === "changes_requested" || status === "rejected") ? (
         <div className={styles.feedback}>
-          <p className={styles.feedbackLabel}>משוב אחרון מהמנהל:</p>
+          <p className={styles.feedbackLabel}>משוב מהמנהל:</p>
           <p className={styles.feedbackMessage}>{latestFeedback.message}</p>
         </div>
       ) : null}

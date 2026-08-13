@@ -1,0 +1,32 @@
+@use "../../../styles/tokens" as *;
+@use "../../../styles/mixins" as *;
+
+.brand {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+  color: $color-text-primary;
+  text-decoration: none;
+
+  @include focus-visible;
+}
+
+.wordmark {
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  line-height: $line-height-tight;
+}
+
+.descriptor {
+  font-size: $font-size-meta;
+  font-weight: $font-weight-medium;
+  letter-spacing: $letter-spacing-wide;
+  text-transform: uppercase;
+  color: $color-text-secondary;
+}
+
+.compact {
+  .wordmark {
+    font-size: $font-size-sm;
+  }
+}

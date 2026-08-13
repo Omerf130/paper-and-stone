@@ -1,0 +1,40 @@
+@use "../../../styles/tokens" as *;
+@use "../../../styles/mixins" as *;
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+  padding-block-start: $spacing-xl;
+  border-top: 1px solid $color-border;
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: $spacing-md;
+}
+
+.title {
+  margin: 0;
+  font-size: $font-size-section-title;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+}
+
+.footerLink {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  text-decoration: none;
+
+  @include focus-visible;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  list-style: none;
+}

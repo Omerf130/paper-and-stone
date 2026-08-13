@@ -1,6 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import AdminPage from "@/components/admin/AdminPage/AdminPage";
+import AdminPageHeader from "@/components/admin/AdminPageHeader/AdminPageHeader";
+import AdminDetailSection from "@/components/admin/project-detail/AdminDetailSection/AdminDetailSection";
+import AdminProjectItemsList from "@/components/admin/project-detail/AdminProjectItemsList/AdminProjectItemsList";
+import AdminProjectOverview from "@/components/admin/project-detail/AdminProjectOverview/AdminProjectOverview";
+import AdminProjectReviewHistory from "@/components/admin/project-detail/AdminProjectReviewHistory/AdminProjectReviewHistory";
 import ProjectReviewPanel from "@/components/admin/ProjectReviewPanel/ProjectReviewPanel";
 import ProjectMessageReadMarker from "@/components/project-messages/ProjectMessageReadMarker/ProjectMessageReadMarker";
 import ProjectMessageThread from "@/components/project-messages/ProjectMessageThread/ProjectMessageThread";
@@ -12,27 +18,16 @@ import { requireAdmin } from "@/lib/auth/authorization";
 import { getProjectMessages } from "@/lib/project-messages/getProjectMessages";
 import { hasEverBeenSubmitted } from "@/lib/projects/project-review-history";
 import { getAdminProjectDetailView } from "@/lib/projects/getAdminProjects";
-import {
-  formatProjectItemSummary,
-  getProjectReviewActionLabel,
-  getProjectStatusLabel,
-} from "@/lib/projects/project-display-helpers";
+import { getReviewUnavailableCopy } from "@/lib/projects/project-display-helpers";
+import { formatDateTime } from "@/lib/ui/format-date-time";
+import { mapProjectStatusToBadge } from "@/lib/ui/map-status-badge";
+import Button from "@/components/ui/Button/Button";
+import StatusBadge from "@/components/ui/StatusBadge/StatusBadge";
 import styles from "./page.module.scss";
 
 export const metadata: Metadata = {
   title: "פרויקט | Paper & Stone",
 };
-
-function formatDate(value?: string): string {
-  if (!value) {
-    return "—";
-  }
-
-  return new Intl.DateTimeFormat("he-IL", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(new Date(value));
-}
 
 type AdminProjectDetailPageProps = PageProps<"/admin/projects/[id]">;
 
@@ -53,117 +48,77 @@ export default async function AdminProjectDetailPage({
     })),
   });
   const messageThread = await getProjectMessages(user.id, "admin", id);
+  const unreadMessageCount = messageThread.messages.filter(
+    (message) => !message.isOwnMessage && !message.isReadForCurrentUser,
+  ).length;
+  const statusBadge = mapProjectStatusToBadge(project.status);
 
   return (
-    <div className={styles.page}>
-      <header className={styles.header}>
-        <div>
-          <Link href="/admin/projects" className={styles.backLink}>
-            חזרה לרשימה
-          </Link>
-          <h1 className={styles.title}>{project.name}</h1>
-          <p className={styles.status}>{getProjectStatusLabel(project.status)}</p>
+    <AdminPage width="wide">
+      <AdminPageHeader
+        title={project.name}
+        actions={
+          <Button href="/admin/projects" variant="ghost" size="sm">
+            חזרה לפרויקטים
+          </Button>
+        }
+      >
+        <div className={styles.metaStrip}>
+          <StatusBadge tone={statusBadge.tone}>{statusBadge.label}</StatusBadge>
+          <span className={styles.metaItem}>
+            {project.professionalName ?? project.professionalEmail}
+          </span>
+          <span className={styles.metaItem}>
+            {project.items.length} מוצרים
+          </span>
+          {project.submittedAt ? (
+            <span className={styles.metaItem}>
+              נשלח{" "}
+              <time dateTime={project.submittedAt}>
+                {formatDateTime(project.submittedAt)}
+              </time>
+            </span>
+          ) : null}
+          <span className={styles.metaItem}>
+            עודכן{" "}
+            <time dateTime={project.updatedAt}>
+              {formatDateTime(project.updatedAt)}
+            </time>
+          </span>
+          {unreadMessageCount > 0 ? (
+            <Link href="#messages" className={styles.unreadLink}>
+              {unreadMessageCount} הודעות שלא נקראו
+            </Link>
+          ) : null}
         </div>
-      </header>
+      </AdminPageHeader>
 
-      <section className={styles.section} aria-labelledby="professional-info-title">
-        <h2 id="professional-info-title" className={styles.sectionTitle}>
-          איש מקצוע
-        </h2>
-        <dl className={styles.metaList}>
-          <div className={styles.metaItem}>
-            <dt>אימייל</dt>
-            <dd dir="ltr">{project.professionalEmail}</dd>
-          </div>
-          {project.professionalName ? (
-            <div className={styles.metaItem}>
-              <dt>שם</dt>
-              <dd>{project.professionalName}</dd>
-            </div>
-          ) : null}
-          <div className={styles.metaItem}>
-            <dt>נשלח</dt>
-            <dd>{formatDate(project.submittedAt)}</dd>
-          </div>
-          <div className={styles.metaItem}>
-            <dt>נבדק</dt>
-            <dd>{formatDate(project.reviewedAt)}</dd>
-          </div>
-        </dl>
-      </section>
+      <AdminDetailSection id="project-overview" title="סקירת פרויקט">
+        <AdminProjectOverview project={project} />
+      </AdminDetailSection>
 
-      <section className={styles.section} aria-labelledby="project-details-title">
-        <h2 id="project-details-title" className={styles.sectionTitle}>
-          פרטי פרויקט
-        </h2>
-        <dl className={styles.metaList}>
-          {project.clientName ? (
-            <div className={styles.metaItem}>
-              <dt>לקוח</dt>
-              <dd>{project.clientName}</dd>
-            </div>
-          ) : null}
-          {project.location ? (
-            <div className={styles.metaItem}>
-              <dt>מיקום</dt>
-              <dd>{project.location}</dd>
-            </div>
-          ) : null}
-          {project.description ? (
-            <div className={styles.metaItem}>
-              <dt>תיאור</dt>
-              <dd>{project.description}</dd>
-            </div>
-          ) : null}
-        </dl>
-      </section>
+      <AdminDetailSection
+        id="project-items"
+        title="מוצרים בפרויקט"
+        description={`${project.items.length} מוצרים בפרויקט`}
+      >
+        <AdminProjectItemsList items={project.items} />
+      </AdminDetailSection>
 
-      <section className={styles.section} aria-labelledby="project-items-title">
-        <h2 id="project-items-title" className={styles.sectionTitle}>
-          מוצרים ({project.items.length})
-        </h2>
-        {project.items.length === 0 ? (
-          <p className={styles.empty}>אין מוצרים בפרויקט.</p>
+      <AdminDetailSection id="project-review" title="בדיקת פרויקט">
+        {project.status === "submitted" ? (
+          <ProjectReviewPanel projectId={project.id} status={project.status} />
         ) : (
-          <ul className={styles.itemList}>
-            {project.items.map((item) => (
-              <li key={item.id} className={styles.itemCard}>
-                <p className={styles.itemName}>{item.snapshot.productName}</p>
-                <p className={styles.itemSummary}>
-                  {formatProjectItemSummary(item)}
-                </p>
-                {!item.isProductActive ? (
-                  <p className={styles.staleBadge} role="status">
-                    המוצר אינו פעיל
-                  </p>
-                ) : null}
-              </li>
-            ))}
-          </ul>
+          <p className={styles.reviewUnavailable}>
+            {getReviewUnavailableCopy(project.status)}
+          </p>
         )}
-      </section>
+      </AdminDetailSection>
 
       {project.reviewHistory.length > 0 ? (
-        <section className={styles.section} aria-labelledby="review-history-title">
-          <h2 id="review-history-title" className={styles.sectionTitle}>
-            היסטוריית בדיקה
-          </h2>
-          <ol className={styles.historyList}>
-            {project.reviewHistory.map((entry, index) => (
-              <li key={`${entry.createdAt}-${index}`} className={styles.historyItem}>
-                <div className={styles.historyHeader}>
-                  <span>{getProjectReviewActionLabel(entry.action)}</span>
-                  <time dateTime={entry.createdAt}>
-                    {formatDate(entry.createdAt)}
-                  </time>
-                </div>
-                {entry.message ? (
-                  <p className={styles.historyMessage}>{entry.message}</p>
-                ) : null}
-              </li>
-            ))}
-          </ol>
-        </section>
+        <AdminDetailSection id="review-history" title="היסטוריית בדיקה">
+          <AdminProjectReviewHistory history={project.reviewHistory} />
+        </AdminDetailSection>
       ) : null}
 
       <ProjectMessageReadMarker
@@ -171,15 +126,18 @@ export default async function AdminProjectDetailPage({
         messagingAvailable={messagingAvailable}
         markReadAction={markAdminProjectMessagesReadAction}
       />
-      <ProjectMessageThread
-        projectId={project.id}
-        messages={messageThread.messages}
-        messagingAvailable={messagingAvailable}
-        truncated={messageThread.truncated}
-        sendAction={sendAdminProjectMessageAction}
-      />
 
-      <ProjectReviewPanel projectId={project.id} status={project.status} />
-    </div>
+      <AdminDetailSection id="project-messages" title="שיחה על הפרויקט">
+        <ProjectMessageThread
+          projectId={project.id}
+          messages={messageThread.messages}
+          messagingAvailable={messagingAvailable}
+          truncated={messageThread.truncated}
+          sendAction={sendAdminProjectMessageAction}
+          variant="admin"
+          hideTitle
+        />
+      </AdminDetailSection>
+    </AdminPage>
   );
 }

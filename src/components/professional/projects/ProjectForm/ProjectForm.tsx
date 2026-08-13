@@ -8,14 +8,17 @@ import {
   deleteProjectAction,
   updateProjectAction,
 } from "@/app/professional/projects/actions";
+import Button from "@/components/ui/Button/Button";
+import ConfirmDialog from "@/components/ui/ConfirmDialog/ConfirmDialog";
+import FormField, { formFieldStyles } from "@/components/ui/FormField/FormField";
+import { useToast } from "@/components/ui/Toast/ToastProvider";
 import type { ProjectFormInput, ProjectFormState } from "@/types/project";
-import styles from "@/components/admin/ProductForm/form-section.module.scss";
+import styles from "@/components/professional/professional-form.module.scss";
 
 type ProjectFormProps = {
   mode: "create" | "edit";
   initialProject: ProjectFormInput;
   projectId?: string;
-  showSavedBanner?: boolean;
   showDelete?: boolean;
   readOnly?: boolean;
 };
@@ -26,15 +29,15 @@ export default function ProjectForm({
   mode,
   initialProject,
   projectId,
-  showSavedBanner = false,
   showDelete = false,
   readOnly = false,
 }: ProjectFormProps) {
   const router = useRouter();
+  const { toast } = useToast();
   const [formState, setFormState] = useState(initialState);
   const [project, setProject] = useState(initialProject);
   const [isPending, startTransition] = useTransition();
-  const [savedBanner, setSavedBanner] = useState(showSavedBanner);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const updateField = <K extends keyof ProjectFormInput>(
     key: K,
@@ -44,7 +47,6 @@ export default function ProjectForm({
   };
 
   const handleSubmit = () => {
-    setSavedBanner(false);
     setFormState(initialState);
 
     startTransition(async () => {
@@ -55,10 +57,17 @@ export default function ProjectForm({
 
       setFormState(result);
 
-      if (result.success) {
-        setSavedBanner(true);
-        router.refresh();
+      if (result.fieldErrors) {
+        return;
       }
+
+      if (result.error) {
+        toast({ type: "error", message: result.error });
+        return;
+      }
+
+      toast({ type: "success", message: "הפרויקט נשמר" });
+      router.refresh();
     });
   };
 
@@ -67,142 +76,110 @@ export default function ProjectForm({
       return;
     }
 
-    if (!window.confirm("למחוק את הפרויקט? פעולה זו אינה ניתנת לביטול.")) {
-      return;
-    }
-
     startTransition(async () => {
       const result = await deleteProjectAction(projectId);
       setFormState(result);
+
+      if (result.error) {
+        toast({ type: "error", message: result.error });
+        setDeleteDialogOpen(false);
+      }
     });
   };
 
   const fieldErrors = formState.fieldErrors ?? {};
 
   return (
-    <div className={styles.stack}>
-      {(savedBanner || showSavedBanner) && (
-        <p className={styles.formSuccess} role="status">
-          הפרויקט נשמר בהצלחה.
-        </p>
-      )}
-
-      {formState.error && (
-        <p className={styles.formError} role="alert">
-          {formState.error}
-        </p>
-      )}
-
-      <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>פרטי פרויקט</h2>
-
+    <>
+      <div className={styles.stack}>
         <div className={styles.fieldGrid}>
-          <div className={styles.field}>
-            <label htmlFor="project-name" className={styles.label}>
-              שם פרויקט
-            </label>
+          <FormField label="שם פרויקט" htmlFor="project-name" error={fieldErrors.name}>
             <input
               id="project-name"
-              name="name"
-              type="text"
-              className={styles.input}
+              className={formFieldStyles.input}
               value={project.name}
               onChange={(event) => updateField("name", event.target.value)}
-              required
               readOnly={readOnly}
               disabled={readOnly}
+              aria-invalid={Boolean(fieldErrors.name)}
             />
-            {fieldErrors.name && (
-              <p className={styles.fieldError}>{fieldErrors.name}</p>
-            )}
-          </div>
+          </FormField>
 
-          <div className={styles.field}>
-            <label htmlFor="client-name" className={styles.label}>
-              שם לקוח
-            </label>
+          <FormField label="שם לקוח" htmlFor="client-name" error={fieldErrors.clientName}>
             <input
               id="client-name"
-              name="clientName"
-              type="text"
-              className={styles.input}
+              className={formFieldStyles.input}
               value={project.clientName ?? ""}
               onChange={(event) => updateField("clientName", event.target.value)}
               readOnly={readOnly}
               disabled={readOnly}
+              aria-invalid={Boolean(fieldErrors.clientName)}
             />
-            {fieldErrors.clientName && (
-              <p className={styles.fieldError}>{fieldErrors.clientName}</p>
-            )}
-          </div>
+          </FormField>
 
-          <div className={styles.field}>
-            <label htmlFor="location" className={styles.label}>
-              מיקום
-            </label>
+          <FormField label="מיקום" htmlFor="location" error={fieldErrors.location}>
             <input
               id="location"
-              name="location"
-              type="text"
-              className={styles.input}
+              className={formFieldStyles.input}
               value={project.location ?? ""}
               onChange={(event) => updateField("location", event.target.value)}
               readOnly={readOnly}
               disabled={readOnly}
+              aria-invalid={Boolean(fieldErrors.location)}
             />
-            {fieldErrors.location && (
-              <p className={styles.fieldError}>{fieldErrors.location}</p>
-            )}
+          </FormField>
+
+          <div className={styles.fullWidth}>
+            <FormField label="תיאור" htmlFor="description" error={fieldErrors.description}>
+              <textarea
+                id="description"
+                className={formFieldStyles.textarea}
+                value={project.description ?? ""}
+                onChange={(event) => updateField("description", event.target.value)}
+                rows={4}
+                readOnly={readOnly}
+                disabled={readOnly}
+                aria-invalid={Boolean(fieldErrors.description)}
+              />
+            </FormField>
           </div>
         </div>
 
-        <div className={styles.field}>
-          <label htmlFor="description" className={styles.label}>
-            תיאור
-          </label>
-          <textarea
-            id="description"
-            name="description"
-            className={styles.textarea}
-            value={project.description ?? ""}
-            onChange={(event) => updateField("description", event.target.value)}
-            rows={4}
-            readOnly={readOnly}
-            disabled={readOnly}
-          />
-          {fieldErrors.description && (
-            <p className={styles.fieldError}>{fieldErrors.description}</p>
-          )}
-        </div>
-      </section>
-
-      <div className={styles.actions}>
-        {!readOnly ? (
-          <button
-            type="button"
-            className={styles.submitButton}
-            onClick={handleSubmit}
-            disabled={isPending}
-          >
-            {isPending ? "שומר..." : mode === "create" ? "יצירת פרויקט" : "שמירה"}
-          </button>
-        ) : null}
-        {mode === "edit" ? (
-          <Link href="/professional/projects" className={styles.cancelLink}>
-            חזרה לרשימה
-          </Link>
-        ) : null}
-        {showDelete && !readOnly ? (
-          <button
-            type="button"
-            className={styles.removeButton}
-            onClick={handleDelete}
-            disabled={isPending}
-          >
-            מחיקת פרויקט
-          </button>
+        {!readOnly || mode === "edit" ? (
+          <div className={styles.actions}>
+            {!readOnly ? (
+              <Button onClick={handleSubmit} loading={isPending} loadingLabel="שומר...">
+                {mode === "create" ? "יצירת פרויקט" : "שמירה"}
+              </Button>
+            ) : null}
+            {mode === "edit" ? (
+              <Link href="/professional/projects" className={styles.cancelLink}>
+                חזרה לרשימה
+              </Link>
+            ) : null}
+            {showDelete && !readOnly ? (
+              <Button
+                variant="ghost"
+                onClick={() => setDeleteDialogOpen(true)}
+                disabled={isPending}
+              >
+                מחיקת פרויקט
+              </Button>
+            ) : null}
+          </div>
         ) : null}
       </div>
-    </div>
+
+      <ConfirmDialog
+        open={deleteDialogOpen}
+        title="מחיקת פרויקט"
+        description="למחוק את הפרויקט? פעולה זו אינה ניתנת לביטול."
+        confirmLabel="מחיקה"
+        tone="danger"
+        loading={isPending}
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteDialogOpen(false)}
+      />
+    </>
   );
 }

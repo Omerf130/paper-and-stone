@@ -4,28 +4,35 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { updateMyProfessionalProfileAction } from "@/app/professional/profile/actions";
+import Button from "@/components/ui/Button/Button";
+import FeedbackBanner from "@/components/ui/FeedbackBanner/FeedbackBanner";
+import FormField, { formFieldStyles } from "@/components/ui/FormField/FormField";
+import { useToast } from "@/components/ui/Toast/ToastProvider";
+import {
+  getProfileCompletenessSummary,
+} from "@/lib/professionals/profile-completeness";
 import type {
   ProfessionalProfileFormInput,
   ProfessionalProfileFormState,
 } from "@/types/professional-profile";
-import styles from "@/components/admin/ProductForm/form-section.module.scss";
+import styles from "@/components/professional/professional-form.module.scss";
 
 type ProfessionalProfileFormProps = {
   initialProfile: ProfessionalProfileFormInput;
-  showSavedBanner?: boolean;
 };
 
 const initialState: ProfessionalProfileFormState = {};
 
 export default function ProfessionalProfileForm({
   initialProfile,
-  showSavedBanner = false,
 }: ProfessionalProfileFormProps) {
   const router = useRouter();
+  const { toast } = useToast();
   const [formState, setFormState] = useState(initialState);
   const [profile, setProfile] = useState(initialProfile);
   const [isPending, startTransition] = useTransition();
-  const [savedBanner, setSavedBanner] = useState(showSavedBanner);
+
+  const completeness = getProfileCompletenessSummary(profile);
 
   const updateField = <K extends keyof ProfessionalProfileFormInput>(
     key: K,
@@ -35,17 +42,23 @@ export default function ProfessionalProfileForm({
   };
 
   const handleSubmit = () => {
-    setSavedBanner(false);
     setFormState(initialState);
 
     startTransition(async () => {
       const result = await updateMyProfessionalProfileAction(profile);
       setFormState(result);
 
-      if (result.success) {
-        setSavedBanner(true);
-        router.refresh();
+      if (result.fieldErrors) {
+        return;
       }
+
+      if (result.error) {
+        toast({ type: "error", message: result.error });
+        return;
+      }
+
+      toast({ type: "success", message: "הפרופיל נשמר" });
+      router.refresh();
     });
   };
 
@@ -53,130 +66,90 @@ export default function ProfessionalProfileForm({
 
   return (
     <div className={styles.stack}>
-      {(savedBanner || showSavedBanner) && (
-        <p className={styles.formSuccess} role="status">
-          הפרופיל נשמר בהצלחה.
-        </p>
-      )}
-
-      {formState.error && (
-        <p className={styles.formError} role="alert">
-          {formState.error}
-        </p>
-      )}
+      {!completeness.isComplete ? (
+        <FeedbackBanner tone="info">
+          הושלמו {completeness.filledCount} מתוך {completeness.totalCount} שדות.
+          {completeness.missingFields.length > 0
+            ? ` חסרים: ${completeness.missingFields.join(", ")}.`
+            : null}
+        </FeedbackBanner>
+      ) : null}
 
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>פרטים אישיים</h2>
-
         <div className={styles.fieldGrid}>
-          <div className={styles.field}>
-            <label htmlFor="fullName" className={styles.label}>
-              שם מלא
-            </label>
+          <FormField label="שם מלא" htmlFor="fullName" error={fieldErrors.fullName}>
             <input
               id="fullName"
-              name="fullName"
-              type="text"
-              className={styles.input}
+              className={formFieldStyles.input}
               value={profile.fullName ?? ""}
               onChange={(event) => updateField("fullName", event.target.value)}
               autoComplete="name"
+              aria-invalid={Boolean(fieldErrors.fullName)}
             />
-            {fieldErrors.fullName && (
-              <p className={styles.fieldError}>{fieldErrors.fullName}</p>
-            )}
-          </div>
+          </FormField>
 
-          <div className={styles.field}>
-            <label htmlFor="phone" className={styles.label}>
-              טלפון
-            </label>
+          <FormField label="טלפון" htmlFor="phone" error={fieldErrors.phone}>
             <input
               id="phone"
-              name="phone"
-              type="tel"
-              className={styles.input}
+              className={formFieldStyles.input}
               value={profile.phone ?? ""}
               onChange={(event) => updateField("phone", event.target.value)}
               autoComplete="tel"
+              aria-invalid={Boolean(fieldErrors.phone)}
             />
-            {fieldErrors.phone && (
-              <p className={styles.fieldError}>{fieldErrors.phone}</p>
-            )}
-          </div>
+          </FormField>
         </div>
       </section>
 
       <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>פרטים מקצועיים</h2>
-
+        <h2 className={styles.sectionTitle}>פרטי משרד</h2>
         <div className={styles.fieldGrid}>
-          <div className={styles.field}>
-            <label htmlFor="companyName" className={styles.label}>
-              שם חברה / משרד
-            </label>
+          <FormField
+            label="שם חברה / משרד"
+            htmlFor="companyName"
+            error={fieldErrors.companyName}
+          >
             <input
               id="companyName"
-              name="companyName"
-              type="text"
-              className={styles.input}
+              className={formFieldStyles.input}
               value={profile.companyName ?? ""}
-              onChange={(event) =>
-                updateField("companyName", event.target.value)
-              }
+              onChange={(event) => updateField("companyName", event.target.value)}
               autoComplete="organization"
+              aria-invalid={Boolean(fieldErrors.companyName)}
             />
-            {fieldErrors.companyName && (
-              <p className={styles.fieldError}>{fieldErrors.companyName}</p>
-            )}
-          </div>
+          </FormField>
 
-          <div className={styles.field}>
-            <label htmlFor="city" className={styles.label}>
-              עיר
-            </label>
+          <FormField label="עיר" htmlFor="city" error={fieldErrors.city}>
             <input
               id="city"
-              name="city"
-              type="text"
-              className={styles.input}
+              className={formFieldStyles.input}
               value={profile.city ?? ""}
               onChange={(event) => updateField("city", event.target.value)}
               autoComplete="address-level2"
+              aria-invalid={Boolean(fieldErrors.city)}
             />
-            {fieldErrors.city && (
-              <p className={styles.fieldError}>{fieldErrors.city}</p>
-            )}
-          </div>
-        </div>
+          </FormField>
 
-        <div className={styles.field}>
-          <label htmlFor="bio" className={styles.label}>
-            אודות
-          </label>
-          <textarea
-            id="bio"
-            name="bio"
-            className={styles.textarea}
-            value={profile.bio ?? ""}
-            onChange={(event) => updateField("bio", event.target.value)}
-            rows={5}
-          />
-          {fieldErrors.bio && (
-            <p className={styles.fieldError}>{fieldErrors.bio}</p>
-          )}
+          <div className={styles.fullWidth}>
+            <FormField label="אודות" htmlFor="bio" error={fieldErrors.bio}>
+              <textarea
+                id="bio"
+                className={formFieldStyles.textarea}
+                value={profile.bio ?? ""}
+                onChange={(event) => updateField("bio", event.target.value)}
+                rows={5}
+                aria-invalid={Boolean(fieldErrors.bio)}
+              />
+            </FormField>
+          </div>
         </div>
       </section>
 
       <div className={styles.actions}>
-        <button
-          type="button"
-          className={styles.submitButton}
-          onClick={handleSubmit}
-          disabled={isPending}
-        >
-          {isPending ? "שומר..." : "שמירה"}
-        </button>
+        <Button onClick={handleSubmit} loading={isPending} loadingLabel="שומר...">
+          שמירה
+        </Button>
         <Link href="/professional" className={styles.cancelLink}>
           חזרה לראשי
         </Link>

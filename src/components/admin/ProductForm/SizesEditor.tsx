@@ -1,6 +1,7 @@
 "use client";
 
 import { createSizeKey } from "@/lib/products/config-keys";
+import Button from "@/components/ui/Button/Button";
 import type { ProductSizeInput } from "@/types/admin-product";
 import styles from "./form-section.module.scss";
 
@@ -40,6 +41,7 @@ export default function SizesEditor({
 
   return (
     <div className={styles.stack}>
+      <p className={styles.subheading}>מידות לבחירה בקונפיגורטור</p>
       {sizes.map((size, index) => (
         <div key={size.key} className={styles.inlineRow}>
           <div className={styles.field}>
@@ -58,19 +60,20 @@ export default function SizesEditor({
               </p>
             )}
           </div>
-          <button
+          <Button
             type="button"
-            className={styles.removeButton}
+            variant="ghost"
+            size="sm"
             onClick={() => removeSize(index)}
           >
             הסרת מידה
-          </button>
+          </Button>
         </div>
       ))}
 
-      <button type="button" className={styles.addButton} onClick={addSize}>
+      <Button type="button" variant="secondary" size="sm" onClick={addSize}>
         הוספת מידה
-      </button>
+      </Button>
     </div>
   );
 }

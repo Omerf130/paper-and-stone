@@ -21,7 +21,7 @@ export default async function AdminNewProductPage() {
     <AdminPage width="form">
       <AdminPageHeader
         title="יצירת מוצר"
-        description="הזינו את פרטי המוצר והגדרות התצורה. לאחר שמירת המוצר ניתן להוסיף תמונות."
+        description="לאחר שמירת המוצר ניתן להוסיף תמונות ולהגדיר צביעה אוטומטית."
         actions={
           <Button href="/admin/products" variant="ghost" size="sm">
             חזרה למוצרים

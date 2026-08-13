@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Button from "@/components/ui/Button/Button";
 import type { AdminMaterialWithColors } from "@/lib/products/material-options/getActiveMaterialsWithColors";
 import type { ProductMaterialOptionInput } from "@/types/admin-product";
 import HexPreview from "../ColorForm/HexPreview";
@@ -77,7 +78,7 @@ export default function MaterialOptionsEditor({
 
   return (
     <div className={styles.stack}>
-      <p style={{ margin: 0, fontSize: "0.875rem", color: "inherit" }}>
+      <p className={styles.helperText}>
         בחרו חומרים וצבעים מהספרייה המרכזית.{" "}
         <Link href="/admin/materials">ניהול חומרים</Link>
         {" · "}
@@ -99,29 +100,35 @@ export default function MaterialOptionsEditor({
           return null;
         }
 
-        const inactiveLabel = material.isActive ? "" : " (לא פעיל)";
+        const selectedCount = option.allowedColorIds.length;
 
         return (
-          <div key={option.materialId} className={styles.nestedCard}>
-            <div className={styles.row}>
-              <div className={styles.field}>
-                <p className={styles.subheading}>
+          <div key={option.materialId} className={styles.materialBlock}>
+            <div className={styles.materialHeader}>
+              <div>
+                <p className={styles.materialTitle}>
                   {material.nameHe}
-                  {inactiveLabel}
+                  {!material.isActive ? (
+                    <span className={styles.inactiveNote}> (לא פעיל)</span>
+                  ) : null}
+                </p>
+                <p className={styles.materialMeta}>
+                  {selectedCount} צבעים נבחרו
                 </p>
               </div>
-              <button
+              <Button
                 type="button"
-                className={styles.removeButton}
+                variant="ghost"
+                size="sm"
                 onClick={() => removeMaterial(option.materialId)}
               >
                 הסרת חומר
-              </button>
+              </Button>
             </div>
 
             <div className={styles.subsection}>
               <p className={styles.subheading}>צבעים זמינים למוצר</p>
-              <ul className={styles.stack}>
+              <ul className={styles.colorGrid}>
                 {material.colors
                   .filter(
                     (color) =>
@@ -129,46 +136,57 @@ export default function MaterialOptionsEditor({
                       option.allowedColorIds.includes(color.id),
                   )
                   .map((color) => {
-                  const isSelected = option.allowedColorIds.includes(color.id);
-                  const isInactive = !color.isActive;
+                    const isSelected = option.allowedColorIds.includes(
+                      color.id,
+                    );
+                    const isInactive = !color.isActive;
 
-                  return (
-                    <li key={color.id}>
-                      <label className={styles.checkboxLabel}>
-                        <input
-                          type="checkbox"
-                          checked={isSelected}
-                          disabled={isInactive && isSelected}
-                          onChange={(event) => {
-                            if (event.target.checked) {
-                              updateColors(option.materialId, [
-                                ...option.allowedColorIds,
-                                color.id,
-                              ]);
-                              return;
-                            }
+                    return (
+                      <li key={color.id} className={styles.colorOption}>
+                        <label className={styles.checkboxLabel}>
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            disabled={isInactive && isSelected}
+                            onChange={(event) => {
+                              if (event.target.checked) {
+                                updateColors(option.materialId, [
+                                  ...option.allowedColorIds,
+                                  color.id,
+                                ]);
+                                return;
+                              }
 
-                            updateColors(
-                              option.materialId,
-                              option.allowedColorIds.filter(
-                                (id) => id !== color.id,
-                              ),
-                            );
-                          }}
-                        />
-                        <HexPreview hex={color.hex} size="sm" />
-                        <span>
-                          {color.nameHe}
-                          {isInactive ? " (לא פעיל)" : ""}
-                        </span>
-                      </label>
-                    </li>
-                  );
-                })}
+                              updateColors(
+                                option.materialId,
+                                option.allowedColorIds.filter(
+                                  (id) => id !== color.id,
+                                ),
+                              );
+                            }}
+                          />
+                          <HexPreview hex={color.hex} size="sm" />
+                          <span>
+                            {color.nameHe}
+                            {isInactive ? (
+                              <span className={styles.inactiveNote}>
+                                {" "}
+                                (לא פעיל)
+                              </span>
+                            ) : null}
+                          </span>
+                        </label>
+                      </li>
+                    );
+                  })}
               </ul>
               {fieldErrors[`materialOptions.${optionIndex}.allowedColorIds`] ? (
                 <p className={styles.fieldError}>
-                  {fieldErrors[`materialOptions.${optionIndex}.allowedColorIds`]}
+                  {
+                    fieldErrors[
+                      `materialOptions.${optionIndex}.allowedColorIds`
+                    ]
+                  }
                 </p>
               ) : null}
             </div>
@@ -199,7 +217,7 @@ export default function MaterialOptionsEditor({
           </select>
         </div>
       ) : (
-        <p style={{ margin: 0, fontSize: "0.875rem", color: "inherit" }}>
+        <p className={styles.helperText}>
           {activeMaterials.length === 0 ? (
             <>
               אין חומרים פעילים בספרייה.{" "}

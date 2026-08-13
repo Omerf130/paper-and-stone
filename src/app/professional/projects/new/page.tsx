@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { requireProfessional } from "@/lib/auth/authorization";
 import { getMyProfessionalProfileView } from "@/lib/professionals/ensureProfessionalProfile";
 import { isProfileReadyForProjects } from "@/lib/professionals/profile-readiness";
+import InternalPage from "@/components/internal/InternalPage/InternalPage";
+import InternalPageHeader from "@/components/internal/InternalPageHeader/InternalPageHeader";
+import Button from "@/components/ui/Button/Button";
+import FeedbackBanner from "@/components/ui/FeedbackBanner/FeedbackBanner";
 import ProjectForm from "@/components/professional/projects/ProjectForm/ProjectForm";
-import styles from "./page.module.scss";
 
 export const metadata: Metadata = {
   title: "יצירת פרויקט | Paper & Stone",
@@ -16,23 +18,19 @@ export default async function NewProjectPage() {
   const profileReady = isProfileReadyForProjects(profile);
 
   return (
-    <div className={styles.page}>
-      <header className={styles.header}>
-        <h1 className={styles.title}>יצירת פרויקט חדש</h1>
-        <p className={styles.description}>
-          הזינו את פרטי הפרויקט הבסיסיים. לאחר היצירה תוכלו להוסיף מוצרים.
-        </p>
-      </header>
+    <InternalPage width="form">
+      <InternalPageHeader
+        title="יצירת פרויקט חדש"
+        description="הזינו את פרטי הפרויקט הבסיסיים. לאחר היצירה תוכלו להוסיף מוצרים."
+      />
 
       {!profileReady ? (
-        <div className={styles.notice}>
-          <p>
-            יש להשלים שם מלא וטלפון בפרופיל לפני יצירת פרויקט.
-          </p>
-          <Link href="/professional/profile" className={styles.profileLink}>
+        <FeedbackBanner tone="warning">
+          <p>יש להשלים שם מלא וטלפון בפרופיל לפני יצירת פרויקט.</p>
+          <Button href="/professional/profile" variant="secondary" size="sm">
             השלמת פרופיל
-          </Link>
-        </div>
+          </Button>
+        </FeedbackBanner>
       ) : (
         <ProjectForm
           mode="create"
@@ -44,6 +42,6 @@ export default async function NewProjectPage() {
           }}
         />
       )}
-    </div>
+    </InternalPage>
   );
 }

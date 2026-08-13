@@ -4,107 +4,39 @@
 .panel {
   display: flex;
   flex-direction: column;
-  gap: $spacing-md;
-  padding: $spacing-md;
-  border: 1px solid $color-border;
-  background: $color-surface;
-}
-
-.title {
-  margin: 0;
-  font-size: $font-size-lg;
-  font-weight: $font-weight-semibold;
-}
-
-.actionsGrid {
-  display: grid;
   gap: $spacing-lg;
-
-  @include tablet-up {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
 }
 
-.actionBlock {
+.intro,
+.actionIntro {
+  margin: 0;
+  font-size: $font-size-sm;
+  line-height: $line-height-relaxed;
+  color: $color-text-secondary;
+}
+
+.actionChooser {
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
   gap: $spacing-sm;
 }
 
-.actionTitle {
-  margin: 0;
-  font-size: $font-size-base;
-  font-weight: $font-weight-medium;
+.actionPanel {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  padding-top: $spacing-sm;
 }
 
-.label {
-  font-size: $font-size-sm;
-  font-weight: $font-weight-medium;
-}
-
-.textarea {
-  width: 100%;
-  min-height: 5rem;
-  padding: $spacing-sm $spacing-md;
-  font: inherit;
-  font-size: $font-size-sm;
-  border: 1px solid $color-border;
-  border-radius: $radius-sm;
-  resize: vertical;
-
-  @include focus-visible;
-}
-
-.approveButton,
-.changesButton,
-.rejectButton {
-  min-height: 2.75rem;
-  padding: $spacing-sm $spacing-md;
-  font: inherit;
-  font-size: $font-size-sm;
-  border-radius: $radius-sm;
-  cursor: pointer;
-
-  @include focus-visible;
-
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-}
-
-.approveButton {
-  color: $color-surface;
-  background: $color-text-primary;
-  border: 1px solid $color-text-primary;
-}
-
-.changesButton {
-  color: $color-text-primary;
-  background: $color-surface;
-  border: 1px solid $color-border;
-}
-
-.rejectButton {
-  color: $color-surface;
-  background: #8b1e1e;
-  border: 1px solid #8b1e1e;
+.actionFooter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+  justify-content: flex-start;
 }
 
 .error {
   margin: 0;
   font-size: $font-size-sm;
-  color: #8b1e1e;
-}
-
-.success {
-  margin: 0;
-  font-size: $font-size-sm;
-  color: $color-text-primary;
-}
-
-.fieldError {
-  margin: 0;
-  font-size: $font-size-sm;
-  color: #8b1e1e;
+  color: $color-danger-text;
 }

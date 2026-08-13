@@ -1,7 +1,10 @@
 import type { ProjectMessageActionState } from "@/types/project-message";
 import type { ProjectMessageView } from "@/types/project-message";
 import ProjectMessageForm from "@/components/project-messages/ProjectMessageForm/ProjectMessageForm";
+import { formatDateTime } from "@/lib/ui/format-date-time";
 import styles from "./ProjectMessageThread.module.scss";
+
+type ProjectMessageThreadVariant = "default" | "admin";
 
 type ProjectMessageThreadProps = {
   projectId: string;
@@ -12,14 +15,9 @@ type ProjectMessageThreadProps = {
     projectId: string,
     body: string,
   ) => Promise<ProjectMessageActionState>;
+  variant?: ProjectMessageThreadVariant;
+  hideTitle?: boolean;
 };
-
-function formatDate(value: string): string {
-  return new Intl.DateTimeFormat("he-IL", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(new Date(value));
-}
 
 export default function ProjectMessageThread({
   projectId,
@@ -27,16 +25,23 @@ export default function ProjectMessageThread({
   messagingAvailable,
   truncated,
   sendAction,
+  variant = "default",
+  hideTitle = false,
 }: ProjectMessageThreadProps) {
+  const sectionClassName =
+    variant === "admin" ? `${styles.section} ${styles.admin}` : styles.section;
+
   return (
     <section
       id="messages"
-      className={styles.section}
-      aria-labelledby="project-messages-title"
+      className={sectionClassName}
+      aria-labelledby={hideTitle ? undefined : "project-messages-title"}
     >
-      <h2 id="project-messages-title" className={styles.title}>
-        שיחה על הפרויקט
-      </h2>
+      {hideTitle ? null : (
+        <h2 id="project-messages-title" className={styles.title}>
+          שיחה על הפרויקט
+        </h2>
+      )}
 
       {!messagingAvailable ? (
         <p className={styles.unavailable}>
@@ -55,11 +60,18 @@ export default function ProjectMessageThread({
           ) : (
             <ol className={styles.list}>
               {messages.map((message) => (
-                <li key={message.id} className={styles.item}>
+                <li
+                  key={message.id}
+                  className={
+                    message.senderRole === "admin"
+                      ? `${styles.item} ${styles.adminMessage}`
+                      : `${styles.item} ${styles.professionalMessage}`
+                  }
+                >
                   <div className={styles.header}>
                     <span className={styles.sender}>{message.senderLabel}</span>
                     <time className={styles.time} dateTime={message.createdAt}>
-                      {formatDate(message.createdAt)}
+                      {formatDateTime(message.createdAt)}
                     </time>
                   </div>
                   {!message.isOwnMessage ? (
@@ -77,6 +89,7 @@ export default function ProjectMessageThread({
             projectId={projectId}
             sendAction={sendAction}
             disabled={!messagingAvailable}
+            variant={variant}
           />
         </>
       )}

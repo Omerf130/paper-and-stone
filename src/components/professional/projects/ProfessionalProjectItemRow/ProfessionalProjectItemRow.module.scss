@@ -1,0 +1,83 @@
+@use "../../../../styles/tokens" as *;
+@use "../../../../styles/mixins" as *;
+
+.row {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  padding-block: $spacing-lg;
+  border-top: 1px solid $color-border;
+
+  &:first-child {
+    border-top: none;
+    padding-top: 0;
+  }
+}
+
+.identity {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.productName {
+  margin: 0;
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.configuration {
+  display: grid;
+  gap: $spacing-sm $spacing-lg;
+  margin: 0;
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.configItem {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+  min-width: 0;
+}
+
+.configLabel {
+  margin: 0;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.configValue {
+  margin: 0;
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+}
+
+.colorValue {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.swatch {
+  width: 1rem;
+  height: 1rem;
+  border: 1px solid $color-border;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+}
+
+.editorWrap {
+  padding-top: $spacing-md;
+  border-top: 1px solid $color-border;
+}

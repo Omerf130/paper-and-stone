@@ -1,24 +1,16 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import type { ProfessionalNavItem } from "@/config/professional-nav";
 import { CloseIcon, MenuIcon } from "@/components/Header/icons";
-import NavBadge from "@/components/shared/NavBadge/NavBadge";
+import ProfessionalBrand from "@/components/professional/ProfessionalBrand/ProfessionalBrand";
+import ProfessionalNavList from "@/components/professional/ProfessionalNavList/ProfessionalNavList";
 import styles from "./ProfessionalMobileNav.module.scss";
 
 type ProfessionalMobileNavProps = {
   items: ProfessionalNavItem[];
 };
-
-function isActivePath(pathname: string, href: string): boolean {
-  if (href === "/professional") {
-    return pathname === "/professional";
-  }
-
-  return pathname.startsWith(href);
-}
 
 export default function ProfessionalMobileNav({
   items,
@@ -81,7 +73,7 @@ export default function ProfessionalMobileNav({
             aria-label="ניווט אזור מקצועי"
           >
             <div className={styles.panelHeader}>
-              <span className={styles.panelTitle}>אזור מקצועי</span>
+              <ProfessionalBrand compact />
               <button
                 type="button"
                 className={styles.closeButton}
@@ -92,31 +84,12 @@ export default function ProfessionalMobileNav({
               </button>
             </div>
 
-            <ul className={styles.list}>
-              {items.map((item) => (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    className={
-                      isActivePath(pathname, item.href)
-                        ? `${styles.link} ${styles.active}`
-                        : styles.link
-                    }
-                    onClick={closeMenu}
-                  >
-                    <span className={styles.linkContent}>
-                      {item.label}
-                      {item.badgeCount && item.badgeCount > 0 ? (
-                        <NavBadge
-                          count={item.badgeCount}
-                          ariaLabel={`${item.badgeCount} התראות שלא נקראו`}
-                        />
-                      ) : null}
-                    </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            <ProfessionalNavList
+              items={items}
+              pathname={pathname}
+              onNavigate={closeMenu}
+              variant="mobile"
+            />
           </nav>
         </div>
       )}

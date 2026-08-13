@@ -16,12 +16,14 @@ type ProjectMessageFormProps = {
     body: string,
   ) => Promise<ProjectMessageActionState>;
   disabled?: boolean;
+  variant?: "default" | "admin";
 };
 
 export default function ProjectMessageForm({
   projectId,
   sendAction,
   disabled = false,
+  variant = "default",
 }: ProjectMessageFormProps) {
   const router = useRouter();
   const { toast } = useToast();
@@ -54,7 +56,11 @@ export default function ProjectMessageForm({
   };
 
   return (
-    <div className={styles.form}>
+    <div
+      className={
+        variant === "admin" ? `${styles.form} ${styles.admin}` : styles.form
+      }
+    >
       <FormField
         label="הודעה"
         htmlFor={`message-body-${projectId}`}

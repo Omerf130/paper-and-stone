@@ -1,9 +1,10 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useTransition } from "react";
 import { markAllNotificationsReadAction } from "@/app/professional/notifications/actions";
-import styles from "./NotificationMarkAllButton.module.scss";
+import Button from "@/components/ui/Button/Button";
+import { useToast } from "@/components/ui/Toast/ToastProvider";
 
 type NotificationMarkAllButtonProps = {
   disabled?: boolean;
@@ -13,15 +14,14 @@ export default function NotificationMarkAllButton({
   disabled = false,
 }: NotificationMarkAllButtonProps) {
   const router = useRouter();
+  const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
-  const [error, setError] = useState<string | undefined>();
 
   const handleClick = () => {
-    setError(undefined);
     startTransition(async () => {
       const result = await markAllNotificationsReadAction();
       if (result.error) {
-        setError(result.error);
+        toast({ type: "error", message: result.error });
         return;
       }
 
@@ -30,20 +30,15 @@ export default function NotificationMarkAllButton({
   };
 
   return (
-    <div className={styles.wrap}>
-      {error ? (
-        <p className={styles.error} role="alert">
-          {error}
-        </p>
-      ) : null}
-      <button
-        type="button"
-        className={styles.button}
-        onClick={handleClick}
-        disabled={disabled || isPending}
-      >
-        {isPending ? "מעדכן..." : "סמן הכל כנקרא"}
-      </button>
-    </div>
+    <Button
+      variant="secondary"
+      size="sm"
+      onClick={handleClick}
+      disabled={disabled}
+      loading={isPending}
+      loadingLabel="מעדכן..."
+    >
+      סמן הכל כנקרא
+    </Button>
   );
 }

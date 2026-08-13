@@ -7,17 +7,28 @@
   gap: $spacing-md;
 }
 
+.stackEdit {
+  padding-bottom: 5rem;
+}
+
 .section {
   display: flex;
   flex-direction: column;
   gap: $spacing-lg;
-  padding-block: $spacing-lg;
+  padding-block: $spacing-xl;
   border-top: 1px solid $color-border;
+  scroll-margin-top: $spacing-xl;
 
   &:first-child {
     border-top: none;
     padding-top: 0;
   }
+}
+
+.sectionHeader {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
 }
 
 .sectionTitle {
@@ -27,6 +38,14 @@
   color: $color-text-primary;
 }
 
+.sectionDescription {
+  margin: 0;
+  max-width: 42rem;
+  font-size: $font-size-sm;
+  line-height: $line-height-relaxed;
+  color: $color-text-secondary;
+}
+
 .fieldGrid {
   display: grid;
   gap: $spacing-md;
@@ -34,6 +53,10 @@
   @include tablet-up {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+}
+
+.fieldGridItem {
+  min-width: 0;
 }
 
 .field {
@@ -70,7 +93,7 @@
 .fieldError {
   margin: 0;
   font-size: $font-size-sm;
-  color: $color-accent;
+  color: $color-danger-text;
 }
 
 .formError,
@@ -113,7 +136,6 @@
   border-top: 1px solid $color-border;
 }
 
-.submitButton,
 .cancelLink {
   display: inline-flex;
   align-items: center;
@@ -123,36 +145,82 @@
   font-size: $font-size-sm;
   font-weight: $font-weight-medium;
   text-decoration: none;
-}
-
-.submitButton {
-  color: $color-background;
-  background-color: $color-text-primary;
-  border: 1px solid $color-text-primary;
-  cursor: pointer;
-
-  @include focus-visible;
-
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-}
-
-.cancelLink {
   color: $color-text-secondary;
   border: 1px solid $color-border;
 
   @include focus-visible;
 }
 
+.helperText {
+  margin: 0;
+  font-size: $font-size-sm;
+  line-height: $line-height-relaxed;
+  color: $color-text-secondary;
+}
+
+.materialBlock {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  padding-block: $spacing-lg;
+  border-top: 1px solid $color-border;
+
+  &:first-child {
+    border-top: none;
+    padding-top: 0;
+  }
+}
+
+.materialHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: $spacing-md;
+}
+
+.materialTitle {
+  margin: 0;
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.materialMeta {
+  margin: $spacing-xs 0 0;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.colorGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm $spacing-lg;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.colorOption {
+  min-width: 0;
+}
+
+.inactiveNote {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
 .nestedCard {
   display: flex;
   flex-direction: column;
   gap: $spacing-md;
-  padding: $spacing-md;
-  background-color: $color-background-subtle;
-  border: 1px solid $color-border;
+  padding-block: $spacing-lg;
+  border-top: 1px solid $color-border;
+
+  &:first-child {
+    border-top: none;
+    padding-top: 0;
+  }
 }
 
 .row,

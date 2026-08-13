@@ -1,0 +1,56 @@
+@use "../../../../styles/tokens" as *;
+@use "../../../../styles/mixins" as *;
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  margin: 0;
+}
+
+.item {
+  display: grid;
+  gap: $spacing-xs;
+
+  @include tablet-up {
+    grid-template-columns: 9rem minmax(0, 1fr);
+    align-items: baseline;
+    gap: $spacing-lg;
+  }
+}
+
+.label {
+  margin: 0;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text-secondary;
+}
+
+.value {
+  margin: 0;
+  font-size: $font-size-base;
+  line-height: $line-height-relaxed;
+  overflow-wrap: anywhere;
+}
+
+.descriptionBlock {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+  padding-top: $spacing-sm;
+
+  @include tablet-up {
+    display: grid;
+    grid-template-columns: 9rem minmax(0, 1fr);
+    gap: $spacing-lg;
+    align-items: start;
+  }
+}
+
+.description {
+  margin: 0;
+  font-size: $font-size-base;
+  line-height: $line-height-relaxed;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}

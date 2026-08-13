@@ -1,13 +1,16 @@
 @use "../../../../styles/tokens" as *;
-@use "../../../../styles/mixins" as *;
 
-.card {
+.row {
   display: flex;
   flex-direction: column;
-  gap: $spacing-sm;
-  padding: $spacing-md;
-  border: 1px solid $color-border;
-  background: $color-surface;
+  gap: $spacing-md;
+  padding-block: $spacing-lg;
+  border-top: 1px solid $color-border;
+
+  &:first-child {
+    border-top: none;
+    padding-top: 0;
+  }
 }
 
 .header {
@@ -15,13 +18,6 @@
   flex-wrap: wrap;
   justify-content: space-between;
   gap: $spacing-sm;
-}
-
-.readState {
-  margin: 0;
-  font-size: $font-size-sm;
-  font-weight: $font-weight-medium;
-  color: $color-text-secondary;
 }
 
 .time {
@@ -32,32 +28,14 @@
 .title {
   margin: 0;
   font-size: $font-size-base;
-  font-weight: $font-weight-medium;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
 }
 
 .preview {
   margin: 0;
   font-size: $font-size-sm;
+  line-height: $line-height-relaxed;
   color: $color-text-secondary;
   white-space: pre-wrap;
-}
-
-.openButton {
-  align-self: flex-start;
-  min-height: 2.75rem;
-  padding: $spacing-sm $spacing-md;
-  font: inherit;
-  font-size: $font-size-sm;
-  color: $color-text-primary;
-  background: $color-surface;
-  border: 1px solid $color-border;
-  border-radius: $radius-sm;
-  cursor: pointer;
-
-  @include focus-visible;
-
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
 }

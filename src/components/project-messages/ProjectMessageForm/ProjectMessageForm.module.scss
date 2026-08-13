@@ -8,6 +8,12 @@
   margin-top: $spacing-md;
 }
 
+.admin {
+  margin-top: $spacing-lg;
+  padding-top: $spacing-lg;
+  border-top: 1px solid $color-border;
+}
+
 .label {
   font-size: $font-size-sm;
   font-weight: $font-weight-medium;

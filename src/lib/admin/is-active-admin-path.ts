@@ -1,7 +1,1 @@
-export function isActiveAdminPath(pathname: string, href: string): boolean {
-  if (href === "/admin") {
-    return pathname === "/admin";
-  }
-
-  return pathname.startsWith(href);
-}
+export { isActiveInternalPath as isActiveAdminPath } from "@/lib/navigation/is-active-internal-path";

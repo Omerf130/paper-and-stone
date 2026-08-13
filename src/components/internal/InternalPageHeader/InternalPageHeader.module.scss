@@ -1,0 +1,52 @@
+@use "../../../styles/tokens" as *;
+@use "../../../styles/mixins" as *;
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+}
+
+.main {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: $spacing-md;
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  min-width: 0;
+}
+
+.title {
+  margin: 0;
+  font-size: $font-size-page-title;
+  font-weight: $font-weight-semibold;
+  line-height: $line-height-tight;
+  color: $color-text-primary;
+}
+
+.description {
+  margin: 0;
+  max-width: 42rem;
+  font-size: $font-size-base;
+  line-height: $line-height-relaxed;
+  color: $color-text-secondary;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.below {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}

@@ -1,31 +1,25 @@
 @use "../../../../styles/tokens" as *;
-@use "../../../../styles/mixins" as *;
-
-.section {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-md;
-}
-
-.title {
-  margin: 0;
-  font-size: $font-size-lg;
-  font-weight: $font-weight-semibold;
-}
 
 .list {
   display: flex;
   flex-direction: column;
-  gap: $spacing-md;
+  gap: 0;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
 .item {
-  padding: $spacing-md;
-  border: 1px solid $color-border;
-  background: $color-surface;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  padding-block: $spacing-lg;
+  border-top: 1px solid $color-border;
+
+  &:first-child {
+    border-top: none;
+    padding-top: 0;
+  }
 }
 
 .header {
@@ -35,10 +29,13 @@
   gap: $spacing-sm;
   font-size: $font-size-sm;
   font-weight: $font-weight-medium;
+  color: $color-text-primary;
 }
 
 .message {
-  margin: $spacing-sm 0 0;
+  margin: 0;
   font-size: $font-size-sm;
+  line-height: $line-height-relaxed;
+  color: $color-text-secondary;
   white-space: pre-wrap;
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import {
   approveProjectAction,
   rejectProjectAction,
@@ -9,7 +9,7 @@ import {
 } from "@/app/admin/projects/actions";
 import Button from "@/components/ui/Button/Button";
 import ConfirmDialog from "@/components/ui/ConfirmDialog/ConfirmDialog";
-import { FieldError, formFieldStyles } from "@/components/ui/FormField/FormField";
+import FormField, { formFieldStyles } from "@/components/ui/FormField/FormField";
 import { useToast } from "@/components/ui/Toast/ToastProvider";
 import type { AdminReviewActionState } from "@/types/project";
 import styles from "./ProjectReviewPanel.module.scss";
@@ -20,6 +20,7 @@ type ProjectReviewPanelProps = {
 };
 
 type PendingAction = "approve" | "reject" | "changes" | null;
+type SelectedAction = "approve" | "changes" | "reject" | null;
 
 const initialState: AdminReviewActionState = {};
 
@@ -30,6 +31,7 @@ export default function ProjectReviewPanel({
   const router = useRouter();
   const { toast } = useToast();
   const [formState, setFormState] = useState(initialState);
+  const [selectedAction, setSelectedAction] = useState<SelectedAction>(null);
   const [approveNote, setApproveNote] = useState("");
   const [changesMessage, setChangesMessage] = useState("");
   const [rejectReason, setRejectReason] = useState("");
@@ -38,12 +40,30 @@ export default function ProjectReviewPanel({
   );
   const [pendingAction, setPendingAction] = useState<PendingAction>(null);
   const [isPending, startTransition] = useTransition();
+  const changesRef = useRef<HTMLTextAreaElement>(null);
+  const rejectRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (selectedAction === "changes") {
+      changesRef.current?.focus();
+    }
+
+    if (selectedAction === "reject") {
+      rejectRef.current?.focus();
+    }
+  }, [selectedAction]);
 
   if (status !== "submitted") {
     return null;
   }
 
   const fieldErrors = formState.fieldErrors ?? {};
+
+  const resetSelection = () => {
+    setSelectedAction(null);
+    setFormState(initialState);
+    setConfirmAction(null);
+  };
 
   const runApprove = () => {
     setFormState(initialState);
@@ -112,102 +132,168 @@ export default function ProjectReviewPanel({
   };
 
   return (
-    <section className={styles.panel} aria-labelledby="review-panel-title">
-      <h2 id="review-panel-title" className={styles.title}>
-        בדיקת פרויקט
-      </h2>
-
+    <div className={styles.panel}>
       {formState.error ? (
         <p className={styles.error} role="alert">
           {formState.error}
         </p>
       ) : null}
 
-      <div className={styles.actionsGrid}>
-        <div className={styles.actionBlock}>
-          <h3 className={styles.actionTitle}>אישור</h3>
-          <label className={styles.label} htmlFor="approve-note">
-            הערה (אופציונלי)
-          </label>
-          <textarea
-            id="approve-note"
-            className={formFieldStyles.textarea}
-            value={approveNote}
-            onChange={(event) => setApproveNote(event.target.value)}
-            rows={3}
-            disabled={isPending}
-          />
-          {fieldErrors.note ? (
-            <FieldError message={fieldErrors.note} />
-          ) : null}
-          <Button
-            onClick={() => setConfirmAction("approve")}
-            loading={pendingAction === "approve"}
-            loadingLabel="מאשר..."
-            disabled={isPending}
-          >
-            אישור פרויקט
-          </Button>
-        </div>
+      {selectedAction === null ? (
+        <>
+          <p className={styles.intro}>
+            בחרו את הפעולה המתאימה לפרויקט זה. ניתן לבצע פעולה אחת בכל פעם.
+          </p>
+          <div className={styles.actionChooser}>
+            <Button
+              onClick={() => setSelectedAction("approve")}
+              disabled={isPending}
+            >
+              אישור פרויקט
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={() => setSelectedAction("changes")}
+              disabled={isPending}
+            >
+              בקשת שינויים
+            </Button>
+            <Button
+              variant="danger"
+              onClick={() => setSelectedAction("reject")}
+              disabled={isPending}
+            >
+              דחיית פרויקט
+            </Button>
+          </div>
+        </>
+      ) : null}
 
-        <div className={styles.actionBlock}>
-          <h3 className={styles.actionTitle}>בקשת שינויים</h3>
-          <label className={styles.label} htmlFor="changes-message">
-            הודעה (חובה)
-          </label>
-          <textarea
-            id="changes-message"
-            className={formFieldStyles.textarea}
-            value={changesMessage}
-            onChange={(event) => setChangesMessage(event.target.value)}
-            rows={3}
-            required
-            disabled={isPending}
-            aria-invalid={Boolean(fieldErrors.message)}
-          />
-          {fieldErrors.message ? (
-            <FieldError message={fieldErrors.message} />
-          ) : null}
-          <Button
-            variant="secondary"
-            onClick={handleRequestChanges}
-            loading={pendingAction === "changes"}
-            loadingLabel="שולח..."
-            disabled={isPending}
+      {selectedAction === "approve" ? (
+        <div className={styles.actionPanel}>
+          <p className={styles.actionIntro}>
+            לאשר את הפרויקט. ניתן להוסיף הערה שתופיע בהיסטוריית הבדיקה.
+          </p>
+          <FormField
+            label="הערה (אופציונלי)"
+            htmlFor="approve-note"
+            error={fieldErrors.note}
           >
-            בקשת שינויים
-          </Button>
+            <textarea
+              id="approve-note"
+              className={formFieldStyles.textarea}
+              value={approveNote}
+              onChange={(event) => setApproveNote(event.target.value)}
+              rows={4}
+              disabled={isPending}
+            />
+          </FormField>
+          <div className={styles.actionFooter}>
+            <Button
+              variant="ghost"
+              onClick={resetSelection}
+              disabled={isPending}
+            >
+              חזרה
+            </Button>
+            <Button
+              onClick={() => setConfirmAction("approve")}
+              loading={pendingAction === "approve"}
+              loadingLabel="מאשר..."
+              disabled={isPending}
+            >
+              אישור פרויקט
+            </Button>
+          </div>
         </div>
+      ) : null}
 
-        <div className={styles.actionBlock}>
-          <h3 className={styles.actionTitle}>דחייה</h3>
-          <label className={styles.label} htmlFor="reject-reason">
-            סיבת דחייה (חובה)
-          </label>
-          <textarea
-            id="reject-reason"
-            className={formFieldStyles.textarea}
-            value={rejectReason}
-            onChange={(event) => setRejectReason(event.target.value)}
-            rows={3}
-            required
-            disabled={isPending}
-            aria-invalid={Boolean(fieldErrors.reason)}
-          />
-          {fieldErrors.reason ? (
-            <FieldError message={fieldErrors.reason} />
-          ) : null}
-          <Button
-            variant="danger"
-            onClick={() => setConfirmAction("reject")}
-            loading={pendingAction === "reject"}
-            loadingLabel="דוחה..."
-            disabled={isPending}
+      {selectedAction === "changes" ? (
+        <div className={styles.actionPanel}>
+          <p className={styles.actionIntro}>
+            פרטו מה נדרש לשנות — ההודעה תישלח לאיש המקצוע ותופיע בהיסטוריית
+            הבדיקה.
+          </p>
+          <FormField
+            label="הודעה (חובה)"
+            htmlFor="changes-message"
+            error={fieldErrors.message}
           >
-            דחיית פרויקט
-          </Button>
+            <textarea
+              ref={changesRef}
+              id="changes-message"
+              className={formFieldStyles.textarea}
+              value={changesMessage}
+              onChange={(event) => setChangesMessage(event.target.value)}
+              rows={4}
+              required
+              disabled={isPending}
+              aria-invalid={Boolean(fieldErrors.message)}
+            />
+          </FormField>
+          <div className={styles.actionFooter}>
+            <Button
+              variant="ghost"
+              onClick={resetSelection}
+              disabled={isPending}
+            >
+              חזרה
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={handleRequestChanges}
+              loading={pendingAction === "changes"}
+              loadingLabel="שולח..."
+              disabled={isPending}
+            >
+              שליחת בקשת שינויים
+            </Button>
+          </div>
         </div>
-      </div>
+      ) : null}
+
+      {selectedAction === "reject" ? (
+        <div className={styles.actionPanel}>
+          <p className={styles.actionIntro}>
+            לדחות את הפרויקט. יש לציין סיבה — ההודעה תישלח לאיש המקצוע.
+          </p>
+          <FormField
+            label="סיבת דחייה (חובה)"
+            htmlFor="reject-reason"
+            error={fieldErrors.reason}
+          >
+            <textarea
+              ref={rejectRef}
+              id="reject-reason"
+              className={formFieldStyles.textarea}
+              value={rejectReason}
+              onChange={(event) => setRejectReason(event.target.value)}
+              rows={4}
+              required
+              disabled={isPending}
+              aria-invalid={Boolean(fieldErrors.reason)}
+            />
+          </FormField>
+          <div className={styles.actionFooter}>
+            <Button
+              variant="ghost"
+              onClick={resetSelection}
+              disabled={isPending}
+            >
+              חזרה
+            </Button>
+            <Button
+              variant="danger"
+              onClick={() => setConfirmAction("reject")}
+              loading={pendingAction === "reject"}
+              loadingLabel="דוחה..."
+              disabled={isPending}
+            >
+              דחיית פרויקט
+            </Button>
+          </div>
+        </div>
+      ) : null}
 
       <ConfirmDialog
         open={confirmAction === "approve"}
@@ -229,6 +315,6 @@ export default function ProjectReviewPanel({
         onConfirm={runReject}
         onCancel={() => setConfirmAction(null)}
       />
-    </section>
+    </div>
   );
 }

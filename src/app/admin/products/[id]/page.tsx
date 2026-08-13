@@ -1,15 +1,20 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import AdminDetailSection from "@/components/admin/project-detail/AdminDetailSection/AdminDetailSection";
+import AdminProductSectionNav from "@/components/admin/product-edit/AdminProductSectionNav";
 import ProductForm from "@/components/admin/ProductForm/ProductForm";
 import ProductMediaManager from "@/components/admin/ProductMediaManager/ProductMediaManager";
 import ProductRecolorManager from "@/components/admin/ProductRecolorManager/ProductRecolorManager";
 import AdminPage from "@/components/admin/AdminPage/AdminPage";
 import AdminPageHeader from "@/components/admin/AdminPageHeader/AdminPageHeader";
 import Button from "@/components/ui/Button/Button";
+import StatusBadge from "@/components/ui/StatusBadge/StatusBadge";
+import { mapEntityActiveToBadge } from "@/lib/ui/map-status-badge";
 import { getProductFormCategoryOptions } from "@/lib/categories/getProductFormCategoryOptions";
 import { getAdminProductMediaById } from "@/lib/media/getAdminProductMediaById";
 import { getAdminProductById } from "@/lib/products/getAdminProductById";
 import { getProductMaterialOptionsForAdmin } from "@/lib/products/material-options/getProductMaterialOptionsForAdmin";
+import styles from "./page.module.scss";
 
 type AdminEditProductPageProps = PageProps<"/admin/products/[id]">;
 
@@ -44,24 +49,43 @@ export default async function AdminEditProductPage({
     getProductMaterialOptionsForAdmin(product.materialOptions),
   ]);
 
-  const previewColors = materialOptionsData.assignedMaterials.flatMap(
-    (material) => material.colors,
-  ).filter(
-    (color, index, colors) =>
-      colors.findIndex((candidate) => candidate.id === color.id) === index,
-  );
+  const categoryName =
+    categories.find((category) => category.id === product.categoryId)?.nameHe ??
+    undefined;
+
+  const previewColors = materialOptionsData.assignedMaterials
+    .flatMap((material) => material.colors)
+    .filter(
+      (color, index, colors) =>
+        colors.findIndex((candidate) => candidate.id === color.id) === index,
+    );
+
+  const activeStatus = mapEntityActiveToBadge(product.isActive);
 
   return (
     <AdminPage width="wide">
       <AdminPageHeader
-        title="עריכת מוצר"
-        description={product.nameHe}
+        title={product.nameHe}
+        description={
+          [product.nameEn, product.sku ? `SKU: ${product.sku}` : null, categoryName]
+            .filter(Boolean)
+            .join(" · ") || undefined
+        }
         actions={
           <Button href="/admin/products" variant="ghost" size="sm">
             חזרה למוצרים
           </Button>
         }
-      />
+      >
+        <div className={styles.metaStrip}>
+          <StatusBadge tone={activeStatus.tone}>{activeStatus.label}</StatusBadge>
+          {product.isFeatured ? (
+            <StatusBadge tone="positive">מומלץ</StatusBadge>
+          ) : null}
+        </div>
+      </AdminPageHeader>
+
+      <AdminProductSectionNav />
 
       <ProductForm
         mode="edit"
@@ -71,19 +95,26 @@ export default async function AdminEditProductPage({
         showSavedBanner={resolvedSearchParams.saved === "1"}
         activeMaterials={materialOptionsData.activeMaterials}
         assignedMaterials={materialOptionsData.assignedMaterials}
-      />
-
-      {media ? <ProductMediaManager media={media} /> : null}
-      {media ? (
-        <ProductRecolorManager
-          media={media}
-          previewColors={previewColors.map((color) => ({
-            id: color.id,
-            name: color.nameHe,
-            hex: color.hex,
-          }))}
-        />
-      ) : null}
+      >
+        {media ? (
+          <AdminDetailSection id="product-media" title="מדיה">
+            <ProductMediaManager media={media} hideTitle />
+          </AdminDetailSection>
+        ) : null}
+        {media ? (
+          <AdminDetailSection id="product-recolor" title="צביעה אוטומטית">
+            <ProductRecolorManager
+              media={media}
+              hideTitle
+              previewColors={previewColors.map((color) => ({
+                id: color.id,
+                name: color.nameHe,
+                hex: color.hex,
+              }))}
+            />
+          </AdminDetailSection>
+        ) : null}
+      </ProductForm>
     </AdminPage>
   );
 }

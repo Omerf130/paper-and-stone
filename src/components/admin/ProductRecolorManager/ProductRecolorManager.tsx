@@ -9,7 +9,15 @@ import {
 } from "@/app/admin/products/media-actions";
 import ProductMaskEditor from "@/components/admin/ProductMaskEditor/ProductMaskEditor";
 import ProductRecolorCanvas from "@/components/product/ProductRecolorCanvas/ProductRecolorCanvas";
+import Button from "@/components/ui/Button/Button";
+import ConfirmDialog from "@/components/ui/ConfirmDialog/ConfirmDialog";
+import FeedbackBanner from "@/components/ui/FeedbackBanner/FeedbackBanner";
+import { useToast } from "@/components/ui/Toast/ToastProvider";
 import { uploadRecolorMaskFile } from "@/lib/media/upload-recolor-mask-client";
+import {
+  mapRecolorStatusPresentation,
+  mapRecolorStatusToFeedbackTone,
+} from "@/lib/media/map-recolor-status-presentation";
 import { loadImageDimensionsFromUrl } from "@/lib/recolor/load-image-dimensions";
 import type { AdminProductMediaView } from "@/types/admin-product-media";
 import styles from "./ProductRecolorManager.module.scss";
@@ -23,16 +31,19 @@ type PreviewColor = {
 type ProductRecolorManagerProps = {
   media: AdminProductMediaView;
   previewColors: PreviewColor[];
+  hideTitle?: boolean;
 };
 
 export default function ProductRecolorManager({
   media,
   previewColors,
+  hideTitle = false,
 }: ProductRecolorManagerProps) {
   const router = useRouter();
+  const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
+  const [confirmDeleteMask, setConfirmDeleteMask] = useState(false);
   const [previewColorId, setPreviewColorId] = useState<string>(
     previewColors[0]?.id ?? "",
   );
@@ -55,10 +66,9 @@ export default function ProductRecolorManager({
 
   const openEditor = async () => {
     setError(null);
-    setSuccess(null);
 
     if (!primaryImage) {
-      setError("יש להעלות תמונה ראשית לפני שניתן להגדיר צביעה דינמית.");
+      setError("יש להעלות תמונה ראשית לפני שניתן להגדיר צביעה אוטומטית.");
       return;
     }
 
@@ -73,10 +83,9 @@ export default function ProductRecolorManager({
 
   const handleMaskUpload = async (file: File) => {
     setError(null);
-    setSuccess(null);
 
     if (!primaryImage) {
-      setError("יש להעלות תמונה ראשית לפני שניתן להגדיר צביעה דינמית.");
+      setError("יש להעלות תמונה ראשית לפני שניתן להגדיר צביעה אוטומטית.");
       return;
     }
 
@@ -90,13 +99,16 @@ export default function ProductRecolorManager({
 
         if (result.error) {
           setError(result.error);
+          toast({ type: "error", message: result.error });
           return;
         }
 
-        setSuccess("מסכת הצביעה נשמרה בהצלחה.");
+        toast({ type: "success", message: "מסכת הצביעה נשמרה בהצלחה." });
         router.refresh();
       } catch {
-        setError("אירעה שגיאה בהעלאת המסכה.");
+        const message = "אירעה שגיאה בהעלאת המסכה.";
+        setError(message);
+        toast({ type: "error", message });
       }
     });
   };
@@ -107,7 +119,6 @@ export default function ProductRecolorManager({
     }
 
     setError(null);
-    setSuccess(null);
 
     startTransition(async () => {
       try {
@@ -119,57 +130,58 @@ export default function ProductRecolorManager({
 
         if (result.error) {
           setError(result.error);
+          toast({ type: "error", message: result.error });
           return;
         }
 
-        setSuccess("מסכת הצביעה נשמרה בהצלחה.");
+        toast({ type: "success", message: "מסכת הצביעה נשמרה בהצלחה." });
         setEditorOpen(false);
         router.refresh();
       } catch {
-        setError("אירעה שגיאה בשמירת המסכה.");
+        const message = "אירעה שגיאה בשמירת המסכה.";
+        setError(message);
+        toast({ type: "error", message });
       }
     });
   };
 
   const handleDeleteMask = () => {
     setError(null);
-    setSuccess(null);
 
     startTransition(async () => {
       const result = await deleteRecolorMaskAction(media.productId);
       if (result.error) {
         setError(result.error);
+        toast({ type: "error", message: result.error });
         return;
       }
 
-      setSuccess("מסכת הצביעה הוסרה.");
+      toast({ type: "success", message: "מסכת הצביעה הוסרה." });
+      setConfirmDeleteMask(false);
       router.refresh();
     });
   };
 
   const handleToggleEnabled = (enabled: boolean) => {
     setError(null);
-    setSuccess(null);
 
     startTransition(async () => {
       const result = await setRecolorEnabledAction(media.productId, enabled);
       if (result.error) {
         setError(result.error);
+        toast({ type: "error", message: result.error });
         return;
       }
 
-      setSuccess(enabled ? "צביעה דינמית הופעלה." : "צביעה דינמית הושבתה.");
+      toast({
+        type: "success",
+        message: enabled ? "צביעה אוטומטית הופעלה." : "צביעה אוטומטית הושבתה.",
+      });
       router.refresh();
     });
   };
 
-  const statusMessages: Record<string, string> = {
-    missing_primary: "יש להעלות תמונה ראשית.",
-    missing_mask: "יש ליצור או להעלות מסכת צביעה.",
-    invalid_source:
-      "התמונה הראשית השתנתה — יש ליצור מסכה חדשה התואמת לתמונה הנוכחית.",
-    ready: "הגדרות הצביעה מוכנות.",
-  };
+  const statusPresentation = mapRecolorStatusPresentation(recolorConfig.status);
 
   const canPreview =
     primaryImage &&
@@ -183,30 +195,45 @@ export default function ProductRecolorManager({
   const controlsDisabled = isPending || editorOpen;
 
   return (
-    <section className={styles.section}>
-      <h2 className={styles.title}>צביעה דינמית</h2>
-      <p className={styles.description}>
-        צרו מסכה ישירות באתר או העלו קובץ PNG קיים. המסכה קובעת איזה אזור
-        בתמונה הראשית ישנה צבע כאשר הלקוח בוחר צבע.
-      </p>
+    <div className={styles.section}>
+      {hideTitle ? null : (
+        <>
+          <h2 className={styles.title}>צביעה אוטומטית</h2>
+          <p className={styles.description}>
+            צרו מסכה ישירות באתר או העלו קובץ PNG קיים. המסכה קובעת איזה אזור
+            בתמונה הראשית ישנה צבע כאשר הלקוח בוחר צבע.
+          </p>
+        </>
+      )}
 
       {error ? (
         <p className={styles.error} role="alert">
           {error}
         </p>
       ) : null}
-      {success ? (
-        <p className={styles.success} role="status">
-          {success}
-        </p>
-      ) : null}
 
       {!primaryImage ? (
         <p className={styles.notice}>
-          יש להעלות תמונה ראשית לפני שניתן להגדיר צביעה דינמית.
+          יש להעלות תמונה ראשית לפני שניתן להגדיר צביעה אוטומטית.
         </p>
       ) : (
         <>
+          <FeedbackBanner
+            tone={mapRecolorStatusToFeedbackTone(recolorConfig.status)}
+          >
+            {statusPresentation.message}
+          </FeedbackBanner>
+
+          <ol className={styles.workflowSteps}>
+            <li className={primaryImage ? styles.stepDone : ""}>
+              תמונה ראשית
+            </li>
+            <li className={recolorMask ? styles.stepDone : ""}>מסכת צביעה</li>
+            <li className={recolorConfig.enabled ? styles.stepDone : ""}>
+              הפעלה בדף המוצר
+            </li>
+          </ol>
+
           <div className={styles.previewGrid}>
             <div className={styles.previewCard}>
               <p className={styles.previewLabel}>תמונה ראשית</p>
@@ -233,38 +260,30 @@ export default function ProductRecolorManager({
             ) : null}
           </div>
 
-          <p className={styles.status}>
-            סטטוס: {statusMessages[recolorConfig.status] ?? recolorConfig.status}
-          </p>
-
           <div className={styles.actions}>
-            <button
-              type="button"
-              className={styles.primaryButton}
+            <Button
               disabled={controlsDisabled}
               onClick={() => void openEditor()}
             >
               {recolorMask ? "עריכת מסכה" : "יצירת מסכה"}
-            </button>
+            </Button>
 
-            <button
-              type="button"
-              className={styles.secondaryButton}
+            <Button
+              variant="secondary"
               disabled={controlsDisabled}
               onClick={() => setShowManualUpload((value) => !value)}
             >
               {showManualUpload ? "הסתרת העלאה ידנית" : "העלאת מסכה קיימת"}
-            </button>
+            </Button>
 
             {recolorMask ? (
-              <button
-                type="button"
-                className={styles.secondaryButton}
+              <Button
+                variant="danger"
                 disabled={controlsDisabled}
-                onClick={handleDeleteMask}
+                onClick={() => setConfirmDeleteMask(true)}
               >
                 מחיקת מסכה
-              </button>
+              </Button>
             ) : null}
           </div>
 
@@ -301,7 +320,7 @@ export default function ProductRecolorManager({
               allowLoadExistingMask={allowLoadExistingMask}
               invalidSourceWarning={
                 recolorConfig.status === "invalid_source"
-                  ? statusMessages.invalid_source
+                  ? statusPresentation.message
                   : null
               }
               previewColors={previewColors}
@@ -319,7 +338,7 @@ export default function ProductRecolorManager({
                 disabled={controlsDisabled || recolorConfig.status !== "ready"}
                 onChange={(event) => handleToggleEnabled(event.target.checked)}
               />
-              הפעלת צביעה דינמית בדף המוצר
+              הפעלת צביעה אוטומטית בדף המוצר
             </label>
           ) : null}
 
@@ -364,6 +383,17 @@ export default function ProductRecolorManager({
           ) : null}
         </>
       )}
-    </section>
+
+      <ConfirmDialog
+        open={confirmDeleteMask}
+        title="מחיקת מסכת צביעה"
+        description="למחוק את מסכת הצביעה? פעולה זו תשבית את הצביעה האוטומטית."
+        confirmLabel="מחיקת מסכה"
+        tone="danger"
+        loading={isPending}
+        onConfirm={handleDeleteMask}
+        onCancel={() => setConfirmDeleteMask(false)}
+      />
+    </div>
   );
 }

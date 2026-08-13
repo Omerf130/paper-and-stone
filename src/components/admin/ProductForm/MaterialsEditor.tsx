@@ -29,6 +29,7 @@ export default function MaterialsEditor({
 
   return (
     <div className={styles.stack}>
+      <p className={styles.subheading}>חומרים (טקסט לתצוגה במפרט)</p>
       {materials.map((material, index) => (
         <div key={`material-${index}`} className={styles.inlineRow}>
           <div className={styles.field}>

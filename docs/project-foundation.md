@@ -239,7 +239,29 @@ Prefer CSS logical properties (`margin-inline`, `padding-inline`, `text-align: s
 - ProductForm: submit Button only; Product edit shell only
 - `UserRowActions`: ConfirmDialog + toast
 
-See also: [`docs/demo-1-public-shell.md`](demo-1-public-shell.md), [`docs/demo-2-homepage.md`](demo-2-homepage.md), [`docs/demo-3-product-page.md`](demo-3-product-page.md), [`docs/demo-4-mongodb-product-foundation.md`](demo-4-mongodb-product-foundation.md), [`docs/demo-5a-authentication.md`](demo-5a-authentication.md), [`docs/demo-5b-admin-products.md`](demo-5b-admin-products.md), [`docs/demo-6-public-catalog.md`](demo-6-public-catalog.md), [`docs/demo-7a-category-management.md`](demo-7a-category-management.md), [`docs/demo-7b-catalog-search-filter-pagination.md`](demo-7b-catalog-search-filter-pagination.md), [`docs/demo-8a-product-media-foundation.md`](demo-8a-product-media-foundation.md), [`docs/demo-8b-vercel-blob-media-manager.md`](demo-8b-vercel-blob-media-manager.md), [`docs/demo-9a-material-color-library.md`](demo-9a-material-color-library.md), [`docs/demo-9b-product-material-assignment.md`](demo-9b-product-material-assignment.md), [`docs/demo-9c1-product-recolor-foundation.md`](demo-9c1-product-recolor-foundation.md), [`docs/demo-9c2-admin-mask-creator.md`](demo-9c2-admin-mask-creator.md), [`docs/demo-10a-admin-users-management.md`](demo-10a-admin-users-management.md), [`docs/demo-10b-professional-area.md`](demo-10b-professional-area.md), [`docs/demo-10c-project-foundation.md`](demo-10c-project-foundation.md), [`docs/demo-10d-project-submission-admin-review.md`](demo-10d-project-submission-admin-review.md), [`docs/demo-10e1-notifications.md`](demo-10e1-notifications.md), [`docs/demo-10e2-project-messaging.md`](demo-10e2-project-messaging.md), [`docs/demo-11a-design-system-feedback-foundation.md`](demo-11a-design-system-feedback-foundation.md), [`docs/demo-11b-admin-shell-dashboard-redesign.md`](demo-11b-admin-shell-dashboard-redesign.md), [`docs/demo-11c-admin-lists-forms-redesign.md`](demo-11c-admin-lists-forms-redesign.md)
+**Demo 11D — Admin Project Detail Redesign:**
+- `/admin/projects/[id]` migrated to `AdminPage` / `AdminPageHeader` / `AdminDetailSection`
+- Structured project item configuration from snapshots (no live catalog refetch)
+- Review workspace with progressive disclosure in `ProjectReviewPanel`
+- Review history (newest first) and messages remain separate domains
+- Admin message thread styling via `ProjectMessageThread variant="admin"`
+- Future quote/pricing slot documented between items and review (not rendered)
+
+**Demo 11E — Admin Product Management Redesign:**
+- Product create/edit migrated to editorial section architecture (`ProductFormSection`)
+- Edit page: rich header, `AdminProductSectionNav`, media/recolor in `AdminDetailSection`
+- Create: footer save; Edit: single `ProductEditStickySave` (no duplicate footer save)
+- Material/color/size editors polished; media/recolor/mask managers use 11A Button/Toast/ConfirmDialog
+- `mapRecolorStatusPresentation` helper + tests; no schema/query/workflow changes
+
+**Demo 11F — Professional Area Redesign:**
+- Professional shell aligned with 11B foundations (`ProfessionalBrand`, `ProfessionalNavList`, shared nav active helper)
+- Dashboard with attention area + priority project summary via `getProfessionalDashboardData`
+- All Professional pages use shared `InternalPage` / `InternalPageHeader` / `InternalDetailSection` (Admin thin re-exports only)
+- Editorial project list/detail, profile + notifications migrated to 11A primitives
+- No workflow/schema/route changes
+
+See also: [`docs/demo-1-public-shell.md`](demo-1-public-shell.md), [`docs/demo-2-homepage.md`](demo-2-homepage.md), [`docs/demo-3-product-page.md`](demo-3-product-page.md), [`docs/demo-4-mongodb-product-foundation.md`](demo-4-mongodb-product-foundation.md), [`docs/demo-5a-authentication.md`](demo-5a-authentication.md), [`docs/demo-5b-admin-products.md`](demo-5b-admin-products.md), [`docs/demo-6-public-catalog.md`](demo-6-public-catalog.md), [`docs/demo-7a-category-management.md`](demo-7a-category-management.md), [`docs/demo-7b-catalog-search-filter-pagination.md`](demo-7b-catalog-search-filter-pagination.md), [`docs/demo-8a-product-media-foundation.md`](demo-8a-product-media-foundation.md), [`docs/demo-8b-vercel-blob-media-manager.md`](demo-8b-vercel-blob-media-manager.md), [`docs/demo-9a-material-color-library.md`](demo-9a-material-color-library.md), [`docs/demo-9b-product-material-assignment.md`](demo-9b-product-material-assignment.md), [`docs/demo-9c1-product-recolor-foundation.md`](demo-9c1-product-recolor-foundation.md), [`docs/demo-9c2-admin-mask-creator.md`](demo-9c2-admin-mask-creator.md), [`docs/demo-10a-admin-users-management.md`](demo-10a-admin-users-management.md), [`docs/demo-10b-professional-area.md`](demo-10b-professional-area.md), [`docs/demo-10c-project-foundation.md`](demo-10c-project-foundation.md), [`docs/demo-10d-project-submission-admin-review.md`](demo-10d-project-submission-admin-review.md), [`docs/demo-10e1-notifications.md`](demo-10e1-notifications.md), [`docs/demo-10e2-project-messaging.md`](demo-10e2-project-messaging.md), [`docs/demo-11a-design-system-feedback-foundation.md`](demo-11a-design-system-feedback-foundation.md), [`docs/demo-11b-admin-shell-dashboard-redesign.md`](demo-11b-admin-shell-dashboard-redesign.md), [`docs/demo-11c-admin-lists-forms-redesign.md`](demo-11c-admin-lists-forms-redesign.md), [`docs/demo-11d-admin-project-detail-redesign.md`](demo-11d-admin-project-detail-redesign.md), [`docs/demo-11e-admin-product-management-redesign.md`](demo-11e-admin-product-management-redesign.md), [`docs/demo-11f-professional-area-redesign.md`](demo-11f-professional-area-redesign.md)
 
 ## Intentionally Deferred
 

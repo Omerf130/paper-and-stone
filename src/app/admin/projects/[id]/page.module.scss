@@ -1,139 +1,31 @@
 @use "../../../../styles/tokens" as *;
 @use "../../../../styles/mixins" as *;
 
-.page {
+.metaStrip {
   display: flex;
-  flex-direction: column;
-  gap: $spacing-xl;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: $spacing-sm $spacing-lg;
 }
 
-.header {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-sm;
-}
-
-.backLink {
+.metaItem {
   font-size: $font-size-sm;
   color: $color-text-secondary;
+}
+
+.unreadLink {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
   text-decoration: underline;
   text-underline-offset: 0.15em;
 
   @include focus-visible;
 }
 
-.title {
+.reviewUnavailable {
   margin: 0;
-  font-size: $font-size-xl;
-  font-weight: $font-weight-semibold;
-}
-
-.status {
-  margin: 0;
-  font-size: $font-size-base;
+  font-size: $font-size-sm;
+  line-height: $line-height-relaxed;
   color: $color-text-secondary;
-}
-
-.section {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-md;
-}
-
-.sectionTitle {
-  margin: 0;
-  font-size: $font-size-lg;
-  font-weight: $font-weight-semibold;
-}
-
-.metaList {
-  display: grid;
-  gap: $spacing-sm;
-  margin: 0;
-}
-
-.metaItem {
-  display: grid;
-  gap: $spacing-xs;
-
-  dt {
-    margin: 0;
-    font-size: $font-size-sm;
-    font-weight: $font-weight-medium;
-    color: $color-text-secondary;
-  }
-
-  dd {
-    margin: 0;
-    font-size: $font-size-base;
-  }
-}
-
-.itemList {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-md;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.itemCard {
-  padding: $spacing-md;
-  border: 1px solid $color-border;
-  background: $color-surface;
-}
-
-.itemName {
-  margin: 0 0 $spacing-xs;
-  font-size: $font-size-base;
-  font-weight: $font-weight-medium;
-}
-
-.itemSummary {
-  margin: 0;
-  font-size: $font-size-sm;
-  color: $color-text-secondary;
-}
-
-.staleBadge {
-  margin: $spacing-xs 0 0;
-  font-size: $font-size-sm;
-  color: #8b1e1e;
-}
-
-.empty {
-  margin: 0;
-  font-size: $font-size-sm;
-  color: $color-text-secondary;
-}
-
-.historyList {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-md;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.historyItem {
-  padding: $spacing-md;
-  border: 1px solid $color-border;
-  background: $color-background-subtle;
-}
-
-.historyHeader {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: $spacing-sm;
-  font-size: $font-size-sm;
-  font-weight: $font-weight-medium;
-}
-
-.historyMessage {
-  margin: $spacing-sm 0 0;
-  font-size: $font-size-sm;
-  white-space: pre-wrap;
 }

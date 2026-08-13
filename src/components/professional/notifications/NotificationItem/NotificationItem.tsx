@@ -3,19 +3,15 @@
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import { markNotificationReadAction } from "@/app/professional/notifications/actions";
+import Button from "@/components/ui/Button/Button";
+import StatusBadge from "@/components/ui/StatusBadge/StatusBadge";
+import { formatDateTime } from "@/lib/ui/format-date-time";
 import type { NotificationView } from "@/types/notification";
 import styles from "./NotificationItem.module.scss";
 
 type NotificationItemProps = {
   notification: NotificationView;
 };
-
-function formatDate(value: string): string {
-  return new Intl.DateTimeFormat("he-IL", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(new Date(value));
-}
 
 export default function NotificationItem({ notification }: NotificationItemProps) {
   const router = useRouter();
@@ -32,13 +28,13 @@ export default function NotificationItem({ notification }: NotificationItemProps
   };
 
   return (
-    <article className={styles.card}>
+    <article className={styles.row}>
       <div className={styles.header}>
-        <p className={styles.readState}>
+        <StatusBadge tone={notification.isRead ? "neutral" : "info"}>
           {notification.isRead ? "נקרא" : "לא נקרא"}
-        </p>
+        </StatusBadge>
         <time className={styles.time} dateTime={notification.createdAt}>
-          {formatDate(notification.createdAt)}
+          {formatDateTime(notification.createdAt)}
         </time>
       </div>
 
@@ -48,14 +44,15 @@ export default function NotificationItem({ notification }: NotificationItemProps
         <p className={styles.preview}>{notification.bodyPreview}</p>
       ) : null}
 
-      <button
-        type="button"
-        className={styles.openButton}
+      <Button
+        variant="secondary"
+        size="sm"
         onClick={handleOpen}
-        disabled={isPending}
+        loading={isPending}
+        loadingLabel="פותח..."
       >
-        {isPending ? "פותח..." : "פתיחת פרויקט"}
-      </button>
+        פתיחת פרויקט
+      </Button>
     </article>
   );
 }

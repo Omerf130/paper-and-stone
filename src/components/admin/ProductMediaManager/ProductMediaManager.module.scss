@@ -4,9 +4,7 @@
 .section {
   display: flex;
   flex-direction: column;
-  gap: $spacing-lg;
-  padding-block: $spacing-lg;
-  border-top: 1px solid $color-border;
+  gap: $spacing-xl;
 }
 
 .sectionTitle {
@@ -135,9 +133,13 @@
   flex-wrap: wrap;
   gap: $spacing-md;
   align-items: flex-start;
-  padding: $spacing-md;
-  background-color: $color-background-subtle;
-  border: 1px solid $color-border;
+  padding-block: $spacing-lg;
+  border-top: 1px solid $color-border;
+
+  &:first-child {
+    border-top: none;
+    padding-top: 0;
+  }
 }
 
 .galleryPreview {

@@ -15,6 +15,9 @@ import {
   updatePrimaryAltTextAction,
   updateTechnicalAltTextAction,
 } from "@/app/admin/products/media-actions";
+import Button from "@/components/ui/Button/Button";
+import ConfirmDialog from "@/components/ui/ConfirmDialog/ConfirmDialog";
+import { useToast } from "@/components/ui/Toast/ToastProvider";
 import { GALLERY_MAX_COUNT } from "@/lib/media/media-validation";
 import type {
   AdminMediaItemView,
@@ -26,6 +29,7 @@ import styles from "./ProductMediaManager.module.scss";
 
 type ProductMediaManagerProps = {
   media: AdminProductMediaView;
+  hideTitle?: boolean;
 };
 
 type PendingKey =
@@ -41,12 +45,22 @@ type PendingKey =
   | "technical-alt"
   | null;
 
-export default function ProductMediaManager({ media }: ProductMediaManagerProps) {
+type ConfirmAction =
+  | { type: "primary-delete" }
+  | { type: "gallery-delete"; id: string }
+  | { type: "technical-delete" }
+  | null;
+
+export default function ProductMediaManager({
+  media,
+  hideTitle = false,
+}: ProductMediaManagerProps) {
   const router = useRouter();
+  const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
   const [pendingKey, setPendingKey] = useState<PendingKey>(null);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
+  const [confirmAction, setConfirmAction] = useState<ConfirmAction>(null);
 
   const [primaryAlt, setPrimaryAlt] = useState(
     media.primaryImage?.altText ?? "",
@@ -69,7 +83,6 @@ export default function ProductMediaManager({ media }: ProductMediaManagerProps)
     successMessage?: string,
   ) => {
     setError(null);
-    setSuccess(null);
     setPendingKey(key);
 
     startTransition(async () => {
@@ -77,12 +90,18 @@ export default function ProductMediaManager({ media }: ProductMediaManagerProps)
         const result = await action();
         if (result && "error" in result && result.error) {
           setError(result.error);
+          toast({ type: "error", message: result.error });
         } else {
-          setSuccess(successMessage ?? "הפעולה בוצעה בהצלחה.");
+          toast({
+            type: "success",
+            message: successMessage ?? "הפעולה בוצעה בהצלחה.",
+          });
           router.refresh();
         }
       } catch {
-        setError("אירעה שגיאה. נסו שוב.");
+        const message = "אירעה שגיאה. נסו שוב.";
+        setError(message);
+        toast({ type: "error", message });
       } finally {
         setPendingKey(null);
       }
@@ -104,7 +123,6 @@ export default function ProductMediaManager({ media }: ProductMediaManagerProps)
           : "technical-upload";
 
     setError(null);
-    setSuccess(null);
     setPendingKey(pending);
 
     startTransition(async () => {
@@ -118,6 +136,7 @@ export default function ProductMediaManager({ media }: ProductMediaManagerProps)
 
         if ("error" in prepared) {
           setError(prepared.error);
+          toast({ type: "error", message: prepared.error });
           return;
         }
 
@@ -141,13 +160,16 @@ export default function ProductMediaManager({ media }: ProductMediaManagerProps)
 
         if (finalize.error) {
           setError(finalize.error);
+          toast({ type: "error", message: finalize.error });
           return;
         }
 
-        setSuccess("הקובץ הועלה בהצלחה.");
+        toast({ type: "success", message: "הקובץ הועלה בהצלחה." });
         router.refresh();
       } catch {
-        setError("אירעה שגיאה בהעלאת הקובץ.");
+        const message = "אירעה שגיאה בהעלאת הקובץ.";
+        setError(message);
+        toast({ type: "error", message });
       } finally {
         setPendingKey(null);
       }
@@ -172,18 +194,21 @@ export default function ProductMediaManager({ media }: ProductMediaManagerProps)
   const galleryFull = galleryCount >= GALLERY_MAX_COUNT;
 
   return (
-    <section className={styles.section} aria-labelledby="product-media-title">
-      <div>
-        <h2 id="product-media-title" className={styles.sectionTitle}>
-          ניהול מדיה
-        </h2>
-        <p className={styles.sectionDescription}>
-          ניהול תמונה ראשית, גלריה ושרטוט טכני למוצר.
-        </p>
-      </div>
+    <div className={styles.section}>
+      {hideTitle ? null : (
+        <div>
+          <h2 className={styles.sectionTitle}>מדיה</h2>
+          <p className={styles.sectionDescription}>
+            תמונה ראשית, גלריה ושרטוט טכני למוצר.
+          </p>
+        </div>
+      )}
 
-      {error ? <p className={styles.messageError}>{error}</p> : null}
-      {success ? <p className={styles.messageSuccess}>{success}</p> : null}
+      {error ? (
+        <p className={styles.messageError} role="alert">
+          {error}
+        </p>
+      ) : null}
 
       <PrimarySection
         item={media.primaryImage}
@@ -198,14 +223,7 @@ export default function ProductMediaManager({ media }: ProductMediaManagerProps)
             updatePrimaryAltTextAction(media.productId, primaryAlt),
           )
         }
-        onDelete={() => {
-          if (!window.confirm("להסיר את התמונה הראשית?")) {
-            return;
-          }
-          runAction("primary-delete", () =>
-            deletePrimaryImageAction(media.productId),
-          );
-        }}
+        onDelete={() => setConfirmAction({ type: "primary-delete" })}
       />
 
       <GallerySection
@@ -228,14 +246,7 @@ export default function ProductMediaManager({ media }: ProductMediaManagerProps)
             ),
           )
         }
-        onDelete={(id) => {
-          if (!window.confirm("להסיר תמונה זו מהגלריה?")) {
-            return;
-          }
-          runAction(`gallery-delete-${id}`, () =>
-            deleteGalleryImageAction(media.productId, id),
-          );
-        }}
+        onDelete={(id) => setConfirmAction({ type: "gallery-delete", id })}
         onMove={(id, direction) =>
           runAction(`gallery-move-${id}`, () =>
             moveGalleryImageAction(media.productId, id, direction),
@@ -258,16 +269,64 @@ export default function ProductMediaManager({ media }: ProductMediaManagerProps)
             updateTechnicalAltTextAction(media.productId, technicalAlt),
           )
         }
-        onDelete={() => {
-          if (!window.confirm("להסיר את השרטוט הטכני?")) {
+        onDelete={() => setConfirmAction({ type: "technical-delete" })}
+      />
+
+      <ConfirmDialog
+        open={confirmAction?.type === "primary-delete"}
+        title="הסרת תמונה ראשית"
+        description="להסיר את התמונה הראשית?"
+        confirmLabel="הסרה"
+        tone="danger"
+        loading={pendingKey === "primary-delete"}
+        onConfirm={() => {
+          runAction("primary-delete", () =>
+            deletePrimaryImageAction(media.productId),
+          );
+          setConfirmAction(null);
+        }}
+        onCancel={() => setConfirmAction(null)}
+      />
+
+      <ConfirmDialog
+        open={confirmAction?.type === "gallery-delete"}
+        title="הסרת תמונה מהגלריה"
+        description="להסיר תמונה זו מהגלריה?"
+        confirmLabel="הסרה"
+        tone="danger"
+        loading={
+          confirmAction?.type === "gallery-delete" &&
+          pendingKey === `gallery-delete-${confirmAction.id}`
+        }
+        onConfirm={() => {
+          if (confirmAction?.type !== "gallery-delete") {
             return;
           }
+          const id = confirmAction.id;
+          runAction(`gallery-delete-${id}`, () =>
+            deleteGalleryImageAction(media.productId, id),
+          );
+          setConfirmAction(null);
+        }}
+        onCancel={() => setConfirmAction(null)}
+      />
+
+      <ConfirmDialog
+        open={confirmAction?.type === "technical-delete"}
+        title="הסרת שרטוט טכני"
+        description="להסיר את השרטוט הטכני?"
+        confirmLabel="הסרה"
+        tone="danger"
+        loading={pendingKey === "technical-delete"}
+        onConfirm={() => {
           runAction("technical-delete", () =>
             deleteTechnicalDrawingAction(media.productId),
           );
+          setConfirmAction(null);
         }}
+        onCancel={() => setConfirmAction(null)}
       />
-    </section>
+    </div>
   );
 }
 
@@ -314,7 +373,7 @@ function PrimarySection({
 
       <div className={styles.field}>
         <label className={styles.label} htmlFor={`${inputId}-alt`}>
-          טקסט alt
+          טקסט חלופי
         </label>
         <input
           id={`${inputId}-alt`}
@@ -326,9 +385,16 @@ function PrimarySection({
       </div>
 
       <div className={styles.actions}>
-        <label className={styles.button} htmlFor={inputId}>
+        <Button
+          variant="secondary"
+          size="sm"
+          disabled={isBusy}
+          loading={pendingKey === "primary-upload"}
+          loadingLabel="מעלה..."
+          onClick={() => document.getElementById(inputId)?.click()}
+        >
           {item ? "החלפת תמונה" : "העלאת תמונה"}
-        </label>
+        </Button>
         <input
           id={inputId}
           type="file"
@@ -341,22 +407,24 @@ function PrimarySection({
 
         {item ? (
           <>
-            <button
-              type="button"
-              className={styles.button}
+            <Button
+              variant="secondary"
+              size="sm"
               onClick={onSaveAlt}
-              disabled={isBusy || pendingKey === "primary-alt"}
+              disabled={isBusy}
+              loading={pendingKey === "primary-alt"}
+              loadingLabel="שומר..."
             >
               שמירת alt
-            </button>
-            <button
-              type="button"
-              className={styles.dangerButton}
+            </Button>
+            <Button
+              variant="danger"
+              size="sm"
               onClick={onDelete}
               disabled={isBusy || pendingKey === "primary-delete"}
             >
               הסרה
-            </button>
+            </Button>
           </>
         ) : null}
       </div>
@@ -423,40 +491,46 @@ function GallerySection({
                   />
                 </div>
                 <div className={styles.galleryActions}>
-                  <button
+                  <Button
                     type="button"
-                    className={styles.iconButton}
+                    variant="ghost"
+                    size="sm"
                     onClick={() => onMove(item.id, "up")}
                     disabled={isBusy || index === 0}
                     aria-label={`הזזת תמונה ${index + 1} למעלה`}
                   >
                     ↑
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     type="button"
-                    className={styles.iconButton}
+                    variant="ghost"
+                    size="sm"
                     onClick={() => onMove(item.id, "down")}
                     disabled={isBusy || index === items.length - 1}
                     aria-label={`הזזת תמונה ${index + 1} למטה`}
                   >
                     ↓
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     type="button"
-                    className={styles.button}
+                    variant="secondary"
+                    size="sm"
                     onClick={() => onSaveAlt(item.id)}
-                    disabled={isBusy || pendingKey === `gallery-alt-${item.id}`}
+                    disabled={isBusy}
+                    loading={pendingKey === `gallery-alt-${item.id}`}
+                    loadingLabel="שומר..."
                   >
                     שמירת alt
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     type="button"
-                    className={styles.dangerButton}
+                    variant="danger"
+                    size="sm"
                     onClick={() => onDelete(item.id)}
                     disabled={isBusy || pendingKey === `gallery-delete-${item.id}`}
                   >
                     הסרה
-                  </button>
+                  </Button>
                 </div>
               </div>
             </li>
@@ -467,13 +541,16 @@ function GallerySection({
       )}
 
       <div className={styles.actions}>
-        <label
-          className={galleryFull ? styles.iconButton : styles.button}
-          htmlFor={inputId}
-          aria-disabled={galleryFull || isBusy}
+        <Button
+          variant="secondary"
+          size="sm"
+          disabled={isBusy || galleryFull}
+          loading={pendingKey === "gallery-upload"}
+          loadingLabel="מעלה..."
+          onClick={() => document.getElementById(inputId)?.click()}
         >
           הוספת תמונה לגלריה
-        </label>
+        </Button>
         <input
           id={inputId}
           type="file"
@@ -544,9 +621,16 @@ function TechnicalSection({
       </div>
 
       <div className={styles.actions}>
-        <label className={styles.button} htmlFor={inputId}>
+        <Button
+          variant="secondary"
+          size="sm"
+          disabled={isBusy}
+          loading={pendingKey === "technical-upload"}
+          loadingLabel="מעלה..."
+          onClick={() => document.getElementById(inputId)?.click()}
+        >
           {item ? "החלפת שרטוט" : "העלאת שרטוט"}
-        </label>
+        </Button>
         <input
           id={inputId}
           type="file"
@@ -559,22 +643,24 @@ function TechnicalSection({
 
         {item ? (
           <>
-            <button
-              type="button"
-              className={styles.button}
+            <Button
+              variant="secondary"
+              size="sm"
               onClick={onSaveAlt}
-              disabled={isBusy || pendingKey === "technical-alt"}
+              disabled={isBusy}
+              loading={pendingKey === "technical-alt"}
+              loadingLabel="שומר..."
             >
               שמירת alt
-            </button>
-            <button
-              type="button"
-              className={styles.dangerButton}
+            </Button>
+            <Button
+              variant="danger"
+              size="sm"
               onClick={onDelete}
               disabled={isBusy || pendingKey === "technical-delete"}
             >
               הסרה
-            </button>
+            </Button>
           </>
         ) : null}
       </div>
