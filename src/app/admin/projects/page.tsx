@@ -85,6 +85,11 @@ export default async function AdminProjectsPage({
                               הודעות חדשות: {project.unreadMessageCount}
                             </div>
                           ) : null}
+                          {project.quoteStatusLabel ? (
+                            <div className={cardStyles.unread} role="status">
+                              הצעת מחיר: {project.quoteStatusLabel}
+                            </div>
+                          ) : null}
                         </td>
                         <td>
                           <div dir="ltr">{project.professionalEmail}</div>
@@ -129,6 +134,11 @@ export default async function AdminProjectsPage({
                     {(project.unreadMessageCount ?? 0) > 0 ? (
                       <p className={cardStyles.unread} role="status">
                         הודעות חדשות: {project.unreadMessageCount}
+                      </p>
+                    ) : null}
+                    {project.quoteStatusLabel ? (
+                      <p className={cardStyles.unread} role="status">
+                        הצעת מחיר: {project.quoteStatusLabel}
                       </p>
                     ) : null}
                   </div>

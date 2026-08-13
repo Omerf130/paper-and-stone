@@ -7,6 +7,7 @@ import AdminDetailSection from "@/components/admin/project-detail/AdminDetailSec
 import AdminProjectItemsList from "@/components/admin/project-detail/AdminProjectItemsList/AdminProjectItemsList";
 import AdminProjectOverview from "@/components/admin/project-detail/AdminProjectOverview/AdminProjectOverview";
 import AdminProjectReviewHistory from "@/components/admin/project-detail/AdminProjectReviewHistory/AdminProjectReviewHistory";
+import AdminQuotePanel from "@/components/admin/project-detail/AdminQuotePanel/AdminQuotePanel";
 import ProjectReviewPanel from "@/components/admin/ProjectReviewPanel/ProjectReviewPanel";
 import ProjectMessageReadMarker from "@/components/project-messages/ProjectMessageReadMarker/ProjectMessageReadMarker";
 import ProjectMessageThread from "@/components/project-messages/ProjectMessageThread/ProjectMessageThread";
@@ -18,6 +19,7 @@ import { requireAdmin } from "@/lib/auth/authorization";
 import { getProjectMessages } from "@/lib/project-messages/getProjectMessages";
 import { hasEverBeenSubmitted } from "@/lib/projects/project-review-history";
 import { getAdminProjectDetailView } from "@/lib/projects/getAdminProjects";
+import { getAdminQuotePanelView } from "@/lib/quotes/quote-queries";
 import { getReviewUnavailableCopy } from "@/lib/projects/project-display-helpers";
 import { formatDateTime } from "@/lib/ui/format-date-time";
 import { mapProjectStatusToBadge } from "@/lib/ui/map-status-badge";
@@ -41,6 +43,8 @@ export default async function AdminProjectDetailPage({
   if (!project) {
     notFound();
   }
+
+  const quotePanel = await getAdminQuotePanelView(id);
 
   const messagingAvailable = hasEverBeenSubmitted({
     reviewHistory: project.reviewHistory.map((entry) => ({
@@ -90,6 +94,11 @@ export default async function AdminProjectDetailPage({
               {unreadMessageCount} הודעות שלא נקראו
             </Link>
           ) : null}
+          {quotePanel?.currentQuote ? (
+            <Link href="#project-pricing" className={styles.unreadLink}>
+              {`הצעה ${quotePanel.currentQuote.statusLabel}`}
+            </Link>
+          ) : null}
         </div>
       </AdminPageHeader>
 
@@ -105,9 +114,22 @@ export default async function AdminProjectDetailPage({
         <AdminProjectItemsList items={project.items} />
       </AdminDetailSection>
 
+      {quotePanel ? (
+        <AdminDetailSection
+          id="project-pricing"
+          title="תמחור / הצעת מחיר"
+        >
+          <AdminQuotePanel panel={quotePanel} />
+        </AdminDetailSection>
+      ) : null}
+
       <AdminDetailSection id="project-review" title="בדיקת פרויקט">
         {project.status === "submitted" ? (
-          <ProjectReviewPanel projectId={project.id} status={project.status} />
+          <ProjectReviewPanel
+            projectId={project.id}
+            status={project.status}
+            approvalBlockedReason={quotePanel?.approvalBlockedReason}
+          />
         ) : (
           <p className={styles.reviewUnavailable}>
             {getReviewUnavailableCopy(project.status)}

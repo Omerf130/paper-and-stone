@@ -6,6 +6,7 @@ import Product from "@/models/Product";
 import Project from "@/models/Project";
 import User from "@/models/User";
 import { getUnreadAdminProjectMessageCount } from "@/lib/project-messages/getUnreadAdminProjectMessageCount";
+import { getAdminQuoteAttentionSummary } from "@/lib/quotes/quote-queries";
 import type { AdminDashboardData } from "@/types/admin-dashboard";
 
 export async function getAdminDashboardData(
@@ -16,6 +17,7 @@ export async function getAdminDashboardData(
   const [
     submittedProjectCount,
     unreadAdminMessageCount,
+    quoteAttention,
     activeProducts,
     featuredProducts,
     activeCategories,
@@ -26,6 +28,7 @@ export async function getAdminDashboardData(
   ] = await Promise.all([
     Project.countDocuments({ status: "submitted" }),
     getUnreadAdminProjectMessageCount(adminUserId),
+    getAdminQuoteAttentionSummary(),
     Product.countDocuments({ isActive: true }),
     Product.countDocuments({ isFeatured: true }),
     Category.countDocuments({ isActive: true }),
@@ -42,6 +45,11 @@ export async function getAdminDashboardData(
   return {
     submittedProjectCount,
     unreadAdminMessageCount,
+    quoteAcceptedAwaitingApprovalCount:
+      quoteAttention.quoteAcceptedAwaitingApprovalCount,
+    quoteChangeRequestedCount: quoteAttention.quoteChangeRequestedCount,
+    quoteAwaitingProfessionalCount:
+      quoteAttention.quoteAwaitingProfessionalCount,
     metrics: {
       activeProducts,
       featuredProducts,

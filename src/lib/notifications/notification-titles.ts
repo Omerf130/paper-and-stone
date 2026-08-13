@@ -13,6 +13,8 @@ export function buildNotificationTitle(
       return `נדרשים שינויים בפרויקט ${projectNameSnapshot}`;
     case "PROJECT_MESSAGE":
       return `הודעה חדשה בפרויקט ${projectNameSnapshot}`;
+    case "PROJECT_QUOTE_SENT":
+      return `הצעת מחיר נשלחה לפרויקט ${projectNameSnapshot}`;
     default:
       return projectNameSnapshot;
   }
@@ -25,6 +27,10 @@ export function buildNotificationHref(
   const base = `/professional/projects/${projectId}`;
   if (type === "PROJECT_MESSAGE") {
     return `${base}#messages`;
+  }
+
+  if (type === "PROJECT_QUOTE_SENT") {
+    return `${base}#project-quote`;
   }
 
   return base;

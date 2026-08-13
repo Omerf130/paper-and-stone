@@ -45,6 +45,7 @@ export interface IProject extends Document {
   location?: string;
   description?: string;
   status: ProjectStatus;
+  submissionRevision: number;
   items: IProjectItem[];
   reviewHistory: IProjectReviewHistoryEntry[];
   submittedAt?: Date;
@@ -134,6 +135,7 @@ const projectSchema = new Schema<IProject>(
       default: "draft",
       required: true,
     },
+    submissionRevision: { type: Number, default: 0, min: 0, required: true },
     items: { type: [projectItemSchema], default: [] },
     reviewHistory: { type: [projectReviewHistorySchema], default: [] },
     submittedAt: { type: Date },

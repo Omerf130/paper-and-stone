@@ -9,6 +9,7 @@ import {
 } from "@/app/admin/projects/actions";
 import Button from "@/components/ui/Button/Button";
 import ConfirmDialog from "@/components/ui/ConfirmDialog/ConfirmDialog";
+import FeedbackBanner from "@/components/ui/FeedbackBanner/FeedbackBanner";
 import FormField, { formFieldStyles } from "@/components/ui/FormField/FormField";
 import { useToast } from "@/components/ui/Toast/ToastProvider";
 import type { AdminReviewActionState } from "@/types/project";
@@ -17,6 +18,7 @@ import styles from "./ProjectReviewPanel.module.scss";
 type ProjectReviewPanelProps = {
   projectId: string;
   status: "submitted" | "approved" | "changes_requested" | "rejected" | "draft";
+  approvalBlockedReason?: string;
 };
 
 type PendingAction = "approve" | "reject" | "changes" | null;
@@ -27,6 +29,7 @@ const initialState: AdminReviewActionState = {};
 export default function ProjectReviewPanel({
   projectId,
   status,
+  approvalBlockedReason,
 }: ProjectReviewPanelProps) {
   const router = useRouter();
   const { toast } = useToast();
@@ -133,6 +136,10 @@ export default function ProjectReviewPanel({
 
   return (
     <div className={styles.panel}>
+      {approvalBlockedReason ? (
+        <FeedbackBanner tone="warning">{approvalBlockedReason}</FeedbackBanner>
+      ) : null}
+
       {formState.error ? (
         <p className={styles.error} role="alert">
           {formState.error}
@@ -147,7 +154,7 @@ export default function ProjectReviewPanel({
           <div className={styles.actionChooser}>
             <Button
               onClick={() => setSelectedAction("approve")}
-              disabled={isPending}
+              disabled={isPending || Boolean(approvalBlockedReason)}
             >
               אישור פרויקט
             </Button>
@@ -200,7 +207,7 @@ export default function ProjectReviewPanel({
               onClick={() => setConfirmAction("approve")}
               loading={pendingAction === "approve"}
               loadingLabel="מאשר..."
-              disabled={isPending}
+              disabled={isPending || Boolean(approvalBlockedReason)}
             >
               אישור פרויקט
             </Button>

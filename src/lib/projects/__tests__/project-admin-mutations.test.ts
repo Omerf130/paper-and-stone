@@ -19,6 +19,14 @@ vi.mock("@/lib/notifications/createWorkflowNotification", () => ({
   createWorkflowNotification: createWorkflowNotificationMock,
 }));
 
+vi.mock("@/lib/quotes/quote-mutations", () => ({
+  assertQuoteApprovalGate: vi.fn(async () => undefined),
+}));
+
+vi.mock("@/lib/quotes/supersedeActiveQuotes", () => ({
+  supersedeActiveQuotes: vi.fn(),
+}));
+
 describe("project-admin-mutations", () => {
   beforeEach(() => {
     updateOneMock.mockReset();

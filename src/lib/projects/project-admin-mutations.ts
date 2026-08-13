@@ -9,6 +9,9 @@ import {
   createReviewEventId,
 } from "@/lib/projects/project-review-history";
 import { createWorkflowNotification } from "@/lib/notifications/createWorkflowNotification";
+import { assertQuoteApprovalGate } from "@/lib/quotes/quote-mutations";
+import { QuoteMutationError } from "@/lib/quotes/quote-errors";
+import { supersedeActiveQuotes } from "@/lib/quotes/supersedeActiveQuotes";
 import type { NotificationType } from "@/types/notification";
 import type { ProjectStatus } from "@/types/project";
 
@@ -75,6 +78,16 @@ async function applyAdminReviewTransition(
     throw new ProjectMutationError(PROJECT_ERRORS.NOT_FOUND);
   }
 
+  if (
+    transition.action === "changes_requested" ||
+    transition.action === "rejected"
+  ) {
+    await supersedeActiveQuotes(
+      projectId,
+      transition.action === "rejected" ? "reject" : "request_changes",
+    );
+  }
+
   await createWorkflowNotification({
     recipientUserId: project.ownerUserId.toString(),
     type: transition.notificationType,
@@ -90,6 +103,15 @@ export async function approveProject(
   projectId: string,
   note?: string,
 ): Promise<void> {
+  try {
+    await assertQuoteApprovalGate(projectId);
+  } catch (error: unknown) {
+    if (error instanceof QuoteMutationError) {
+      throw new ProjectMutationError(error.message);
+    }
+    throw error;
+  }
+
   await applyAdminReviewTransition(adminUserId, projectId, {
     toStatus: "approved",
     action: "approved",

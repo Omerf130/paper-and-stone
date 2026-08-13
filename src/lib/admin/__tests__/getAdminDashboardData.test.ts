@@ -54,6 +54,12 @@ vi.mock("@/lib/project-messages/getUnreadAdminProjectMessageCount", () => ({
   getUnreadAdminProjectMessageCount: unreadCountMock,
 }));
 
+const quoteAttentionMock = vi.fn();
+
+vi.mock("@/lib/quotes/quote-queries", () => ({
+  getAdminQuoteAttentionSummary: quoteAttentionMock,
+}));
+
 describe("getAdminDashboardData", () => {
   beforeEach(() => {
     projectCountDocumentsMock.mockReset();
@@ -64,9 +70,15 @@ describe("getAdminDashboardData", () => {
     colorCountDocumentsMock.mockReset();
     userCountDocumentsMock.mockReset();
     unreadCountMock.mockReset();
+    quoteAttentionMock.mockReset();
 
     projectCountDocumentsMock.mockResolvedValue(3);
     unreadCountMock.mockResolvedValue(2);
+    quoteAttentionMock.mockResolvedValue({
+      quoteAcceptedAwaitingApprovalCount: 1,
+      quoteChangeRequestedCount: 2,
+      quoteAwaitingProfessionalCount: 3,
+    });
     productCountDocumentsMock
       .mockResolvedValueOnce(10)
       .mockResolvedValueOnce(4);
@@ -100,6 +112,9 @@ describe("getAdminDashboardData", () => {
 
     expect(data.submittedProjectCount).toBe(3);
     expect(data.unreadAdminMessageCount).toBe(2);
+    expect(data.quoteAcceptedAwaitingApprovalCount).toBe(1);
+    expect(data.quoteChangeRequestedCount).toBe(2);
+    expect(data.quoteAwaitingProfessionalCount).toBe(3);
     expect(data.metrics).toEqual({
       activeProducts: 10,
       featuredProducts: 4,

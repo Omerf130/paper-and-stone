@@ -1,0 +1,134 @@
+@use "../../../../styles/tokens" as *;
+@use "../../../../styles/mixins" as *;
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+}
+
+.empty {
+  margin: 0;
+  font-size: $font-size-sm;
+  line-height: $line-height-relaxed;
+  color: $color-text-secondary;
+}
+
+.quoteCard {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  padding: $spacing-lg;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+}
+
+.quoteHeader {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+  align-items: center;
+}
+
+.meta {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.lineList,
+.additionalList,
+.historyList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lineItem {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  padding-bottom: $spacing-md;
+  border-bottom: 1px solid $color-border;
+
+  @include tablet-up {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: $spacing-xl;
+  }
+}
+
+.productName {
+  margin: 0;
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+}
+
+.configuration,
+.quantity,
+.note,
+.generalNote {
+  margin: 0;
+  font-size: $font-size-sm;
+  line-height: $line-height-relaxed;
+  color: $color-text-secondary;
+}
+
+.pricing {
+  text-align: start;
+  font-size: $font-size-sm;
+
+  @include tablet-up {
+    text-align: end;
+    flex-shrink: 0;
+  }
+}
+
+.lineTotal {
+  margin: $spacing-xs 0 0;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.additionalItem {
+  display: flex;
+  justify-content: space-between;
+  gap: $spacing-md;
+  font-size: $font-size-sm;
+}
+
+.actions,
+.changeForm {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.error {
+  margin: 0;
+  font-size: $font-size-sm;
+  color: $color-danger-text;
+}
+
+.history {
+  border-top: 1px solid $color-border;
+  padding-top: $spacing-md;
+}
+
+.historySummary {
+  cursor: pointer;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text-secondary;
+}
+
+.historyItem {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm $spacing-md;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}

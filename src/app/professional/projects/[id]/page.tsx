@@ -14,6 +14,7 @@ import {
   getOwnedProjectDetailView,
   loadProductViewsByIds,
 } from "@/lib/projects/project-queries";
+import { getProfessionalQuoteSectionView } from "@/lib/quotes/quote-queries";
 import InternalPage from "@/components/internal/InternalPage/InternalPage";
 import InternalPageHeader from "@/components/internal/InternalPageHeader/InternalPageHeader";
 import InternalDetailSection from "@/components/internal/InternalDetailSection/InternalDetailSection";
@@ -25,6 +26,7 @@ import ProjectItemsList from "@/components/professional/projects/ProjectItemsLis
 import ProjectReviewHistory from "@/components/professional/projects/ProjectReviewHistory/ProjectReviewHistory";
 import ProjectStatusBanner from "@/components/professional/projects/ProjectStatusBanner/ProjectStatusBanner";
 import ProjectSubmitButton from "@/components/professional/projects/ProjectSubmitButton/ProjectSubmitButton";
+import ProfessionalQuoteSection from "@/components/professional/projects/ProfessionalQuoteSection/ProfessionalQuoteSection";
 import styles from "./page.module.scss";
 
 export async function generateMetadata({
@@ -68,6 +70,7 @@ export default async function ProjectDetailPage({
     })),
   });
   const messageThread = await getProjectMessages(user.id, "professional", id);
+  const quoteSection = await getProfessionalQuoteSectionView(user.id, id);
   const statusBadge = mapProjectStatusToBadge(project.status);
   const metaParts = [
     project.clientName,
@@ -105,8 +108,6 @@ export default async function ProjectDetailPage({
         itemCount={project.items.length}
       />
 
-      {/* Future quote/pricing section belongs between items and review history. */}
-
       <InternalDetailSection id="project-overview" title="פרטי פרויקט">
         <ProjectForm
           mode="edit"
@@ -130,6 +131,12 @@ export default async function ProjectDetailPage({
           readOnly={readOnly}
         />
       </InternalDetailSection>
+
+      {quoteSection ? (
+        <InternalDetailSection id="project-quote" title="הצעת מחיר">
+          <ProfessionalQuoteSection section={quoteSection} />
+        </InternalDetailSection>
+      ) : null}
 
       {project.reviewHistory.length > 0 ? (
         <InternalDetailSection

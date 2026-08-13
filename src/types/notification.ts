@@ -4,15 +4,20 @@ export const WORKFLOW_NOTIFICATION_TYPES = [
   "PROJECT_CHANGES_REQUESTED",
 ] as const;
 
+export const QUOTE_NOTIFICATION_TYPES = ["PROJECT_QUOTE_SENT"] as const;
+
 export const MESSAGE_NOTIFICATION_TYPES = ["PROJECT_MESSAGE"] as const;
 
 export const NOTIFICATION_TYPES = [
   ...WORKFLOW_NOTIFICATION_TYPES,
+  ...QUOTE_NOTIFICATION_TYPES,
   ...MESSAGE_NOTIFICATION_TYPES,
 ] as const;
 
 export type WorkflowNotificationType =
   (typeof WORKFLOW_NOTIFICATION_TYPES)[number];
+
+export type QuoteNotificationType = (typeof QUOTE_NOTIFICATION_TYPES)[number];
 
 export type MessageNotificationType =
   (typeof MESSAGE_NOTIFICATION_TYPES)[number];

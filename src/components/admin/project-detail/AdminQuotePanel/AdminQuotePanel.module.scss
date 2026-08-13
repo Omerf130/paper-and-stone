@@ -1,0 +1,163 @@
+@use "../../../../styles/tokens" as *;
+@use "../../../../styles/mixins" as *;
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+}
+
+.unavailable,
+.helper {
+  margin: 0;
+  font-size: $font-size-sm;
+  line-height: $line-height-relaxed;
+  color: $color-text-secondary;
+}
+
+.error {
+  margin: 0;
+  font-size: $font-size-sm;
+  color: $color-danger-text;
+}
+
+.formSection {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.sectionHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-sm;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+}
+
+.itemList,
+.additionalList,
+.historyList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.itemRow,
+.additionalRow {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  padding: $spacing-md 0;
+  border-top: 1px solid $color-border;
+
+  &:first-child {
+    border-top: 0;
+    padding-top: 0;
+  }
+
+  @include tablet-up {
+    .itemRow {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: $spacing-xl;
+    }
+  }
+}
+
+.itemRow {
+  @include tablet-up {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: $spacing-xl;
+    align-items: start;
+  }
+}
+
+.itemIdentity {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+  min-width: 0;
+}
+
+.productName {
+  margin: 0;
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+}
+
+.configuration,
+.quantity,
+.meta {
+  margin: 0;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.itemPricing {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.additionalRow {
+  @include tablet-up {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr) auto;
+    align-items: end;
+    gap: $spacing-md;
+  }
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+}
+
+.currentQuote {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  padding: $spacing-lg;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  background: $color-surface;
+}
+
+.currentQuoteHeader {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+  align-items: center;
+}
+
+.history {
+  border-top: 1px solid $color-border;
+  padding-top: $spacing-md;
+}
+
+.historySummary {
+  cursor: pointer;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text-secondary;
+}
+
+.historyItem {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm $spacing-md;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}

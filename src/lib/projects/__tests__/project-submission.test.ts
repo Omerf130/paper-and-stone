@@ -21,6 +21,10 @@ vi.mock("@/lib/professionals/ensureProfessionalProfile", () => ({
   })),
 }));
 
+vi.mock("@/lib/quotes/supersedeActiveQuotes", () => ({
+  supersedeActiveQuotes: vi.fn(),
+}));
+
 describe("project-submission", () => {
   beforeEach(() => {
     updateOneMock.mockReset();
@@ -47,6 +51,9 @@ describe("project-submission", () => {
           status: "submitted",
           submittedAt: expect.any(Date),
         }),
+        $inc: {
+          submissionRevision: 1,
+        },
         $push: expect.objectContaining({
           reviewHistory: expect.objectContaining({
             action: "submitted",

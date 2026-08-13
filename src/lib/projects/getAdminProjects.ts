@@ -20,6 +20,7 @@ import type {
 } from "@/types/admin-project";
 import type { ProjectStatus } from "@/types/project";
 import { getUnreadMessageCountsForProjects } from "@/lib/project-messages/getUnreadMessageCountsForProjects";
+import { getAdminProjectQuoteStatusSummaries } from "@/lib/quotes/quote-queries";
 
 type AdminProjectsFilter = {
   status: ProjectStatus;
@@ -165,20 +166,29 @@ async function mapProjectsToAdminListItems(
     ...new Set(projects.map((project) => project.ownerUserId.toString())),
   ];
   const projectIds = projects.map((project) => project._id.toString());
-  const [emailsByOwnerId, namesByOwnerId, unreadCounts] = await Promise.all([
+  const [emailsByOwnerId, namesByOwnerId, unreadCounts, quoteSummaries] =
+    await Promise.all([
     resolveOwnerEmails(ownerUserIds),
     resolveOwnerNames(ownerUserIds),
     getUnreadMessageCountsForProjects(projectIds, adminUserId, "admin"),
+    getAdminProjectQuoteStatusSummaries(projectIds),
   ]);
 
-  return projects.map((project) => ({
-    ...mapLeanProjectToAdminListItem(
-      project,
-      emailsByOwnerId.get(project.ownerUserId.toString()) ?? "—",
-      namesByOwnerId.get(project.ownerUserId.toString()),
-    ),
-    unreadMessageCount: unreadCounts.get(project._id.toString()) ?? 0,
-  }));
+  return projects.map((project) => {
+    const projectId = project._id.toString();
+    const quoteSummary = quoteSummaries.get(projectId);
+
+    return {
+      ...mapLeanProjectToAdminListItem(
+        project,
+        emailsByOwnerId.get(project.ownerUserId.toString()) ?? "—",
+        namesByOwnerId.get(project.ownerUserId.toString()),
+      ),
+      unreadMessageCount: unreadCounts.get(projectId) ?? 0,
+      quoteStatusLabel: quoteSummary?.quoteStatusLabel,
+      quoteAttention: quoteSummary?.quoteAttention,
+    };
+  });
 }
 
 export async function getAdminProjectDetailView(

@@ -24,6 +24,8 @@ export const PROJECT_ERRORS = {
   INVALID_SELECTION: "הבחירה אינה תקינה עבור מוצר זה.",
   CHANGES_MESSAGE_REQUIRED: "נדרשת הודעה לבקשת שינויים.",
   REJECT_REASON_REQUIRED: "נדרשת סיבת דחייה.",
+  APPROVAL_REQUIRES_ACCEPTED_QUOTE:
+    "לא ניתן לאשר את הפרויקט לפני שהצעת המחיר הנוכחית אושרה.",
 } as const;
 
 const optionalTrimmedString = (max: number) =>

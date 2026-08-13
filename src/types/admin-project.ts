@@ -11,6 +11,8 @@ export type AdminProjectListItemView = {
   submittedAt?: string;
   updatedAt: string;
   unreadMessageCount?: number;
+  quoteStatusLabel?: string;
+  quoteAttention?: "accepted" | "change_requested" | "awaiting_professional";
 };
 
 export type AdminProjectDetailView = {

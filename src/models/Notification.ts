@@ -10,6 +10,7 @@ export interface INotification extends Document {
   projectId: Types.ObjectId;
   reviewHistoryId?: Types.ObjectId;
   messageId?: Types.ObjectId;
+  quoteId?: Types.ObjectId;
   projectNameSnapshot: string;
   bodyPreview?: string;
   idempotencyKey: string;
@@ -39,6 +40,7 @@ const notificationSchema = new Schema<INotification>(
     },
     reviewHistoryId: { type: Schema.Types.ObjectId },
     messageId: { type: Schema.Types.ObjectId, ref: "ProjectMessage" },
+    quoteId: { type: Schema.Types.ObjectId, ref: "ProjectQuote" },
     projectNameSnapshot: {
       type: String,
       required: true,

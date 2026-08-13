@@ -11,6 +11,7 @@ import {
 import { buildReviewHistoryEntry } from "@/lib/projects/project-review-history";
 import { getMyProfessionalProfileView } from "@/lib/professionals/ensureProfessionalProfile";
 import { isProfileReadyForProjects } from "@/lib/professionals/profile-readiness";
+import { supersedeActiveQuotes } from "@/lib/quotes/supersedeActiveQuotes";
 
 async function assertProfileReadyForProjects(userId: string): Promise<void> {
   const profile = await getMyProfessionalProfileView(userId);
@@ -73,6 +74,9 @@ export async function submitProject(
         status: toStatus,
         submittedAt: now,
       },
+      $inc: {
+        submissionRevision: 1,
+      },
       $push: {
         reviewHistory: historyEntry,
       },
@@ -82,4 +86,6 @@ export async function submitProject(
   if (result.matchedCount === 0) {
     throw new ProjectMutationError(PROJECT_ERRORS.NOT_SUBMITTABLE);
   }
+
+  await supersedeActiveQuotes(projectId, "resubmit");
 }
