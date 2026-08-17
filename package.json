@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
-    "seed": "tsx --env-file=.env.local scripts/seed.ts"
+    "seed": "tsx --env-file=.env.local scripts/seed.ts",
+    "migrate:17a-roles": "tsx --env-file=.env.local scripts/migrate-user-roles-17a.ts"
   },
   "dependencies": {
     "@vercel/blob": "^2.8.0",

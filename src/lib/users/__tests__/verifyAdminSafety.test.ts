@@ -19,7 +19,7 @@ describe("verifyAdminSafety", () => {
       verifySelfRoleChange(
         currentAdmin,
         { id: "admin-1", role: "admin", isActive: true },
-        "customer",
+        "client",
       ),
     ).toThrow(UserMutationError);
 
@@ -27,7 +27,7 @@ describe("verifyAdminSafety", () => {
       verifySelfRoleChange(
         currentAdmin,
         { id: "admin-1", role: "admin", isActive: true },
-        "professional",
+        "architect",
       );
     } catch (error) {
       expect(error).toBeInstanceOf(UserMutationError);
@@ -53,7 +53,7 @@ describe("verifyAdminSafety", () => {
     await expect(
       verifyLastActiveAdmin(
         { id: "admin-1", role: "admin", isActive: true },
-        "customer",
+        "client",
         null,
         countActiveAdmins,
       ),
@@ -79,7 +79,7 @@ describe("verifyAdminSafety", () => {
     await expect(
       verifyLastActiveAdmin(
         { id: "admin-1", role: "admin", isActive: true },
-        "customer",
+        "client",
         null,
         countActiveAdmins,
       ),

@@ -20,7 +20,7 @@ type UserRowActionsProps = {
   layout?: "table" | "card";
 };
 
-const ROLE_OPTIONS: UserRole[] = ["customer", "professional", "admin"];
+const ROLE_OPTIONS: UserRole[] = ["client", "architect", "admin"];
 
 type PendingAction = "promote" | "deactivate" | null;
 

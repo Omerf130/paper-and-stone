@@ -1,12 +1,13 @@
 import { connectDB } from "@/lib/db/mongoose";
 import User from "@/models/User";
-import type { SafeUser } from "@/types/user";
+import type { SafeUser, StoredUserRole } from "@/types/user";
+import { normalizeUserRole } from "./user-role";
 import { readSessionTokenFromCookie, findValidSessionByToken } from "./session";
 
 export function toSafeUser(user: {
   _id: { toString(): string };
   email: string;
-  role: SafeUser["role"];
+  role: StoredUserRole;
   isActive: boolean;
 }): SafeUser | null {
   if (!user.isActive) {
@@ -16,7 +17,7 @@ export function toSafeUser(user: {
   return {
     id: user._id.toString(),
     email: user.email,
-    role: user.role,
+    role: normalizeUserRole(user.role),
   };
 }
 

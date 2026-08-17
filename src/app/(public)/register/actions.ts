@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { AUTH_ERRORS } from "@/lib/auth/errors";
 import { createSession } from "@/lib/auth/session";
 import {
-  createCustomerUser,
+  createRegisteredUser,
   emailExists,
 } from "@/lib/auth/user-service";
 import {
@@ -18,9 +18,12 @@ export async function registerAction(
   formData: FormData,
 ): Promise<AuthFormState> {
   const parsed = registerSchema.safeParse({
+    fullName: formData.get("fullName"),
     email: formData.get("email"),
     password: formData.get("password"),
     passwordConfirm: formData.get("passwordConfirm"),
+    identificationNumber: formData.get("identificationNumber"),
+    userType: formData.get("userType"),
   });
 
   if (!parsed.success) {
@@ -31,11 +34,13 @@ export async function registerAction(
     return { error: AUTH_ERRORS.DUPLICATE_EMAIL };
   }
 
-  const user = await createCustomerUser(
-    parsed.data.email,
-    parsed.data.password,
-  );
+  const user = await createRegisteredUser(parsed.data);
 
   await createSession(user._id.toString());
+
+  if (parsed.data.userType === "architect") {
+    redirect("/?registered=architect-request");
+  }
+
   redirect("/");
 }

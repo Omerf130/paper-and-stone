@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
   isAdminUser,
+  isArchitectUser,
+  isClientUser,
   isProfessionalUser,
 } from "@/lib/auth/authorization";
 import type { SafeUser } from "@/types/user";
@@ -16,61 +18,47 @@ describe("authorization", () => {
     expect(isAdminUser(user)).toBe(true);
   });
 
-  it("rejects customer users", () => {
+  it("accepts client users", () => {
     const user: SafeUser = {
       id: "2",
-      email: "customer@example.com",
-      role: "customer",
+      email: "client@example.com",
+      role: "client",
     };
 
+    expect(isClientUser(user)).toBe(true);
     expect(isAdminUser(user)).toBe(false);
+    expect(isArchitectUser(user)).toBe(false);
   });
 
-  it("rejects professional users for admin check", () => {
+  it("accepts architect users", () => {
     const user: SafeUser = {
       id: "3",
-      email: "pro@example.com",
-      role: "professional",
+      email: "architect@example.com",
+      role: "architect",
     };
 
-    expect(isAdminUser(user)).toBe(false);
-  });
-
-  it("rejects null users for admin check", () => {
-    expect(isAdminUser(null)).toBe(false);
-  });
-
-  it("accepts professional users", () => {
-    const user: SafeUser = {
-      id: "4",
-      email: "pro@example.com",
-      role: "professional",
-    };
-
+    expect(isArchitectUser(user)).toBe(true);
     expect(isProfessionalUser(user)).toBe(true);
+    expect(isAdminUser(user)).toBe(false);
+    expect(isClientUser(user)).toBe(false);
   });
 
-  it("rejects customer users for professional check", () => {
-    const user: SafeUser = {
-      id: "5",
-      email: "customer@example.com",
-      role: "customer",
-    };
-
-    expect(isProfessionalUser(user)).toBe(false);
-  });
-
-  it("rejects admin users for professional check", () => {
-    const user: SafeUser = {
-      id: "6",
-      email: "admin@example.com",
-      role: "admin",
-    };
-
-    expect(isProfessionalUser(user)).toBe(false);
-  });
-
-  it("rejects null users for professional check", () => {
+  it("rejects null users for all role checks", () => {
+    expect(isAdminUser(null)).toBe(false);
+    expect(isClientUser(null)).toBe(false);
+    expect(isArchitectUser(null)).toBe(false);
     expect(isProfessionalUser(null)).toBe(false);
+  });
+
+  it("does not treat client as architect even when applicant requested architect access", () => {
+    const applicant: SafeUser = {
+      id: "4",
+      email: "applicant@example.com",
+      role: "client",
+    };
+
+    expect(isArchitectUser(applicant)).toBe(false);
+    expect(isProfessionalUser(applicant)).toBe(false);
+    expect(isClientUser(applicant)).toBe(true);
   });
 });

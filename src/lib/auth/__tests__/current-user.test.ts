@@ -2,29 +2,41 @@ import { describe, expect, it } from "vitest";
 import { toSafeUser } from "@/lib/auth/current-user";
 
 describe("toSafeUser", () => {
-  it("rejects inactive users", () => {
-    const result = toSafeUser({
+  it("returns normalized client role for legacy customer storage", () => {
+    const user = toSafeUser({
       _id: { toString: () => "user-id" },
-      email: "inactive@example.com",
-      role: "customer",
-      isActive: false,
-    });
-
-    expect(result).toBeNull();
-  });
-
-  it("returns a safe user for active users", () => {
-    const result = toSafeUser({
-      _id: { toString: () => "user-id" },
-      email: "active@example.com",
+      email: "user@example.com",
       role: "customer",
       isActive: true,
     });
 
-    expect(result).toEqual({
+    expect(user).toEqual({
       id: "user-id",
-      email: "active@example.com",
-      role: "customer",
+      email: "user@example.com",
+      role: "client",
     });
+  });
+
+  it("returns null for inactive users", () => {
+    const user = toSafeUser({
+      _id: { toString: () => "user-id" },
+      email: "user@example.com",
+      role: "client",
+      isActive: false,
+    });
+
+    expect(user).toBeNull();
+  });
+
+  it("does not expose identificationNumber in safe user", () => {
+    const user = toSafeUser({
+      _id: { toString: () => "user-id" },
+      email: "user@example.com",
+      role: "client",
+      isActive: true,
+    });
+
+    expect(user).not.toHaveProperty("identificationNumber");
+    expect(user).not.toHaveProperty("requestedRole");
   });
 });

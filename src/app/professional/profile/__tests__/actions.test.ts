@@ -6,7 +6,7 @@ vi.mock("@/lib/auth/authorization", () => ({
   requireProfessional: vi.fn(async () => ({
     id: "507f1f77bcf86cd799439011",
     email: "pro@example.com",
-    role: "professional" as const,
+    role: "architect" as const,
   })),
 }));
 

@@ -340,7 +340,7 @@ The following are planned for future phases — not blockers for the foundation:
 |------|-------------|
 | Public website | Premium marketing site, catalog browsing, product detail |
 | Catalog | Categories, brands, designers, collections, materials library |
-| Accounts | Customer and professional (architect/designer) roles |
+| Accounts | Client, architect, and admin roles; architect access requests via Admin queue (Phase 17A) |
 | Projects | Rooms, configured products, quote requests |
 | Admin | Product management, pricing workflow, order tracking |
 | Content | Documents/PDFs, notifications, multi-language support |

@@ -14,7 +14,7 @@ const METRIC_ITEMS: Array<{
   { key: "activeCategories", label: "קטגוריות פעילות" },
   { key: "activeMaterials", label: "חומרים פעילים" },
   { key: "activeColors", label: "צבעים פעילים" },
-  { key: "activeProfessionals", label: "אנשי מקצוע פעילים" },
+  { key: "activeArchitects", label: "אדריכלים פעילים" },
 ];
 
 export default function AdminDashboardMetrics({

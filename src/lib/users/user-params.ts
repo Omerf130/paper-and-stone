@@ -18,7 +18,7 @@ export type AdminUsersHrefInput = {
   page?: number;
 };
 
-const USER_ROLES: UserRole[] = ["customer", "professional", "admin"];
+const USER_ROLES: UserRole[] = ["client", "architect", "admin"];
 const USER_STATUSES: UserStatusFilter[] = ["active", "inactive"];
 
 function parsePageValue(raw: string | string[] | undefined): number {

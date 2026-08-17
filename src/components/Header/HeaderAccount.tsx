@@ -29,9 +29,9 @@ export default function HeaderAccount({ user }: HeaderAccountProps) {
           ניהול
         </Link>
       )}
-      {user.role === "professional" && (
+      {user.role === "architect" && (
         <Link href="/professional" className={styles.professionalLink}>
-          אזור מקצועי
+          אזור אדריכל
         </Link>
       )}
       <form action={logoutAction}>

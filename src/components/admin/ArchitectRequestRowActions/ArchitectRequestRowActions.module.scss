@@ -1,0 +1,15 @@
+@use "../../../styles/tokens" as *;
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+}
+
+.cardActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+  padding-block-start: $spacing-sm;
+  border-top: 1px solid $color-border;
+}

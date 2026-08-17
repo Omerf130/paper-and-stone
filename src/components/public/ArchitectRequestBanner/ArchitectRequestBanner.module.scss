@@ -1,0 +1,42 @@
+.banner {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0 auto;
+  max-width: var(--content-max-width, 72rem);
+  padding: 1rem 1.5rem;
+  background: var(--color-surface-muted, #f5f3ef);
+  border: 1px solid var(--color-border, #e5e1da);
+  border-radius: 0.5rem;
+}
+
+.message {
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+.dismiss {
+  flex-shrink: 0;
+  padding: 0.25rem 0.75rem;
+  font: inherit;
+  font-size: 0.875rem;
+  color: inherit;
+  background: transparent;
+  border: 1px solid currentColor;
+  border-radius: 0.25rem;
+  cursor: pointer;
+}
+
+.dismiss:focus-visible {
+  outline: 2px solid var(--color-focus, #1a1a1a);
+  outline-offset: 2px;
+}
+
+@media (max-width: 768px) {
+  .banner {
+    flex-direction: column;
+    margin-inline: 1rem;
+  }
+}

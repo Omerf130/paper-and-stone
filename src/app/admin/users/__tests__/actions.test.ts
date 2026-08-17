@@ -30,7 +30,7 @@ describe("admin user actions", () => {
     const { requireAdmin } = await import("@/lib/auth/authorization");
     const { updateUserRoleAction } = await import("@/app/admin/users/actions");
 
-    await updateUserRoleAction("507f1f77bcf86cd799439011", "professional");
+    await updateUserRoleAction("507f1f77bcf86cd799439011", "architect");
 
     expect(requireAdmin).toHaveBeenCalled();
     expect(updateUserRoleMock).toHaveBeenCalled();

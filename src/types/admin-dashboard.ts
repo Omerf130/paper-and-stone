@@ -4,7 +4,7 @@ export type AdminDashboardMetrics = {
   activeCategories: number;
   activeMaterials: number;
   activeColors: number;
-  activeProfessionals: number;
+  activeArchitects: number;
 };
 
 export type AdminDashboardRecentProject = {
@@ -18,7 +18,8 @@ export type AdminDashboardData = {
   unreadAdminMessageCount: number;
   quoteAcceptedAwaitingApprovalCount: number;
   quoteChangeRequestedCount: number;
-  quoteAwaitingProfessionalCount: number;
+  quoteAwaitingArchitectCount: number;
+  pendingArchitectRequestCount: number;
   metrics: AdminDashboardMetrics;
   recentSubmittedProjects: AdminDashboardRecentProject[];
 };

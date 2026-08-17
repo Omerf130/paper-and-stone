@@ -38,7 +38,10 @@ export const adminNavGroups: AdminNavGroup[] = [
   {
     id: "system",
     label: "מערכת",
-    items: [{ label: "משתמשים", href: "/admin/users" }],
+    items: [
+      { label: "בקשות אדריכל", href: "/admin/architect-requests" },
+      { label: "משתמשים", href: "/admin/users" },
+    ],
   },
 ];
 
@@ -46,16 +49,27 @@ export const adminNavItems: AdminNavItem[] = adminNavGroups.flatMap(
   (group) => group.items,
 );
 
+type AdminNavBadgeCounts = {
+  submittedProjectCount: number;
+  pendingArchitectRequestCount: number;
+};
+
 export function applyAdminNavBadges(
   groups: AdminNavGroup[],
-  submittedProjectCount: number,
+  counts: AdminNavBadgeCounts,
 ): AdminNavGroup[] {
   return groups.map((group) => ({
     ...group,
-    items: group.items.map((item) =>
-      item.href === "/admin/projects"
-        ? { ...item, badgeCount: submittedProjectCount }
-        : item,
-    ),
+    items: group.items.map((item) => {
+      if (item.href === "/admin/projects") {
+        return { ...item, badgeCount: counts.submittedProjectCount };
+      }
+
+      if (item.href === "/admin/architect-requests") {
+        return { ...item, badgeCount: counts.pendingArchitectRequestCount };
+      }
+
+      return item;
+    }),
   }));
 }

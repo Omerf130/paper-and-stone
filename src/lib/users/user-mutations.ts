@@ -7,7 +7,11 @@ import {
   verifySelfDeactivation,
   verifySelfRoleChange,
 } from "@/lib/users/verifyAdminSafety";
+import {
+  verifyArchitectDowngradeSafety,
+} from "@/lib/users/verifyArchitectDowngrade";
 import { UserMutationError } from "@/lib/users/user-errors";
+import { normalizeUserRole } from "@/lib/auth/user-role";
 import type { SafeUser, UserRole } from "@/types/user";
 
 export async function updateUserRole(
@@ -18,16 +22,27 @@ export async function updateUserRole(
   await connectDB();
 
   const targetUser = await findUserByIdForAdmin(userId);
+  const normalizedCurrentRole = normalizeUserRole(targetUser.role);
   const target = {
     id: targetUser._id.toString(),
-    role: targetUser.role,
+    role: normalizedCurrentRole,
     isActive: targetUser.isActive,
   };
 
   verifySelfRoleChange(currentAdmin, target, newRole);
   await verifyLastActiveAdmin(target, newRole, null, countActiveAdmins);
+  await verifyArchitectDowngradeSafety(
+    userId,
+    targetUser.role,
+    newRole,
+  );
 
-  const result = await User.updateOne({ _id: userId }, { role: newRole });
+  const updatePayload = {
+    role: newRole,
+    requestedRole: null,
+  };
+
+  const result = await User.updateOne({ _id: userId }, { $set: updatePayload });
 
   if (result.matchedCount === 0) {
     throw new UserMutationError("המשתמש לא נמצא.");
@@ -44,7 +59,7 @@ export async function updateUserActiveStatus(
   const targetUser = await findUserByIdForAdmin(userId);
   const target = {
     id: targetUser._id.toString(),
-    role: targetUser.role,
+    role: normalizeUserRole(targetUser.role),
     isActive: targetUser.isActive,
   };
 

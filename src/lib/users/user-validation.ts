@@ -9,7 +9,7 @@ export const USER_ERRORS = {
   INVALID_ROLE: "תפקיד לא תקין.",
 } as const;
 
-export const userRoleSchema = z.enum(["customer", "professional", "admin"]);
+export const userRoleSchema = z.enum(["client", "architect", "admin"]);
 
 export const userIdSchema = z
   .string()

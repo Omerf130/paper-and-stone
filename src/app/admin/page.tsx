@@ -30,7 +30,8 @@ export default async function AdminDashboardPage() {
           data.quoteAcceptedAwaitingApprovalCount
         }
         quoteChangeRequestedCount={data.quoteChangeRequestedCount}
-        quoteAwaitingProfessionalCount={data.quoteAwaitingProfessionalCount}
+        quoteAwaitingArchitectCount={data.quoteAwaitingArchitectCount}
+        pendingArchitectRequestCount={data.pendingArchitectRequestCount}
       />
 
       <AdminDashboardMetrics metrics={data.metrics} />

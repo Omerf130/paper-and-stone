@@ -13,7 +13,10 @@ import { getAdminUsers } from "@/lib/users/getAdminUsers";
 import { parseAdminUsersParams } from "@/lib/users/user-params";
 import { formatDateTime } from "@/lib/ui/format-date-time";
 import { mapEntityActiveToBadge } from "@/lib/ui/map-status-badge";
-import { USER_ROLE_LABELS } from "@/types/admin-user";
+import {
+  REQUESTED_ROLE_LABEL,
+  USER_ROLE_LABELS,
+} from "@/types/admin-user";
 
 export const metadata: Metadata = {
   title: "משתמשים | Paper & Stone",
@@ -59,6 +62,7 @@ export default async function AdminUsersPage({
               <table className={tableStyles.table}>
                 <thead>
                   <tr>
+                    <th scope="col">שם מלא</th>
                     <th scope="col">אימייל</th>
                     <th scope="col">תפקיד</th>
                     <th scope="col">סטטוס</th>
@@ -73,10 +77,21 @@ export default async function AdminUsersPage({
 
                     return (
                       <tr key={user.id}>
-                        <td className={tableStyles.primary} dir="ltr">
-                          {user.email}
+                        <td className={tableStyles.primary}>
+                          {user.fullName ?? "—"}
                         </td>
-                        <td>{USER_ROLE_LABELS[user.role]}</td>
+                        <td dir="ltr">{user.email}</td>
+                        <td>
+                          <span>{USER_ROLE_LABELS[user.role]}</span>
+                          {user.requestedRole === "architect" ? (
+                            <>
+                              {" "}
+                              <StatusBadge tone="warning">
+                                {REQUESTED_ROLE_LABEL}
+                              </StatusBadge>
+                            </>
+                          ) : null}
+                        </td>
                         <td>
                           <StatusBadge tone={status.tone}>{status.label}</StatusBadge>
                         </td>
@@ -100,13 +115,21 @@ export default async function AdminUsersPage({
               return (
                 <li key={user.id} className={cardStyles.card}>
                   <div className={cardStyles.header}>
-                    <p className={cardStyles.title} dir="ltr">
+                    <p className={cardStyles.title}>
+                      {user.fullName ?? user.email}
+                    </p>
+                    <p className={cardStyles.subtitle} dir="ltr">
                       {user.email}
                     </p>
                   </div>
 
                   <div className={cardStyles.badges}>
                     <StatusBadge tone={status.tone}>{status.label}</StatusBadge>
+                    {user.requestedRole === "architect" ? (
+                      <StatusBadge tone="warning">
+                        {REQUESTED_ROLE_LABEL}
+                      </StatusBadge>
+                    ) : null}
                   </div>
 
                   <div className={cardStyles.metaGrid}>

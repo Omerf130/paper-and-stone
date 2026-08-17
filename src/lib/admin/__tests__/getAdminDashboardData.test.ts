@@ -8,6 +8,7 @@ const materialCountDocumentsMock = vi.fn();
 const colorCountDocumentsMock = vi.fn();
 const userCountDocumentsMock = vi.fn();
 const unreadCountMock = vi.fn();
+const pendingArchitectRequestsMock = vi.fn();
 
 vi.mock("@/lib/db/mongoose", () => ({
   connectDB: vi.fn(),
@@ -60,6 +61,10 @@ vi.mock("@/lib/quotes/quote-queries", () => ({
   getAdminQuoteAttentionSummary: quoteAttentionMock,
 }));
 
+vi.mock("@/lib/users/architect-request-queries", () => ({
+  countPendingArchitectRequests: pendingArchitectRequestsMock,
+}));
+
 describe("getAdminDashboardData", () => {
   beforeEach(() => {
     projectCountDocumentsMock.mockReset();
@@ -71,6 +76,7 @@ describe("getAdminDashboardData", () => {
     userCountDocumentsMock.mockReset();
     unreadCountMock.mockReset();
     quoteAttentionMock.mockReset();
+    pendingArchitectRequestsMock.mockReset();
 
     projectCountDocumentsMock.mockResolvedValue(3);
     unreadCountMock.mockResolvedValue(2);
@@ -79,6 +85,7 @@ describe("getAdminDashboardData", () => {
       quoteChangeRequestedCount: 2,
       quoteAwaitingProfessionalCount: 3,
     });
+    pendingArchitectRequestsMock.mockResolvedValue(2);
     productCountDocumentsMock
       .mockResolvedValueOnce(10)
       .mockResolvedValueOnce(4);
@@ -114,14 +121,15 @@ describe("getAdminDashboardData", () => {
     expect(data.unreadAdminMessageCount).toBe(2);
     expect(data.quoteAcceptedAwaitingApprovalCount).toBe(1);
     expect(data.quoteChangeRequestedCount).toBe(2);
-    expect(data.quoteAwaitingProfessionalCount).toBe(3);
+    expect(data.quoteAwaitingArchitectCount).toBe(3);
+    expect(data.pendingArchitectRequestCount).toBe(2);
     expect(data.metrics).toEqual({
       activeProducts: 10,
       featuredProducts: 4,
       activeCategories: 6,
       activeMaterials: 8,
       activeColors: 12,
-      activeProfessionals: 5,
+      activeArchitects: 5,
     });
     expect(data.recentSubmittedProjects).toEqual([
       {

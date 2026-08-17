@@ -13,8 +13,8 @@ type AdminUsersToolbarProps = {
 
 const ROLE_OPTIONS: Array<{ value: string; label: string }> = [
   { value: "", label: "הכל" },
-  { value: "customer", label: "לקוחות" },
-  { value: "professional", label: "אנשי מקצוע" },
+  { value: "client", label: "לקוחות" },
+  { value: "architect", label: "אדריכלים" },
   { value: "admin", label: "אדמינים" },
 ];
 

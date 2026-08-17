@@ -108,9 +108,9 @@ export default function MobileMenu({
                       ניהול
                     </Link>
                   )}
-                  {user.role === "professional" && (
+                  {user.role === "architect" && (
                     <Link href="/professional" className={styles.authLink}>
-                      אזור מקצועי
+                      אזור אדריכל
                     </Link>
                   )}
                   <form action={logoutAction}>

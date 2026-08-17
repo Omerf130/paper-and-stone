@@ -16,6 +16,32 @@ const passwordField = z
   .min(8, "הסיסמה חייבת להכיל לפחות 8 תווים")
   .max(128, "הסיסמה ארוכה מדי");
 
+const fullNameField = z
+  .string()
+  .min(1, "נא להזין שם מלא")
+  .transform((value) => value.trim())
+  .pipe(
+    z
+      .string()
+      .min(2, "שם מלא קצר מדי")
+      .max(120, "שם מלא ארוך מדי"),
+  );
+
+const identificationNumberField = z
+  .string()
+  .min(1, "נא להזין ח.פ / ת.ז")
+  .transform((value) => value.trim())
+  .pipe(
+    z
+      .string()
+      .min(3, "מספר זיהוי קצר מדי")
+      .max(20, "מספר זיהוי ארוך מדי"),
+  );
+
+const userTypeField = z.enum(["client", "architect"], {
+  message: "נא לבחור סוג משתמש",
+});
+
 export const loginSchema = z.object({
   email: emailField,
   password: passwordField,
@@ -23,9 +49,12 @@ export const loginSchema = z.object({
 
 export const registerSchema = z
   .object({
+    fullName: fullNameField,
     email: emailField,
     password: passwordField,
     passwordConfirm: z.string().min(1, "נא לאשר את הסיסמה"),
+    identificationNumber: identificationNumberField,
+    userType: userTypeField,
   })
   .refine((data) => data.password === data.passwordConfirm, {
     message: "הסיסמאות אינן תואמות",

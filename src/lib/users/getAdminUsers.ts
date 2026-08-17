@@ -1,6 +1,7 @@
 import { connectDB } from "@/lib/db/mongoose";
 import { escapeRegex } from "@/lib/catalog/escape-regex";
 import { calculatePagination } from "@/lib/catalog/catalog-pagination";
+import { buildRoleFilter } from "@/lib/auth/user-role";
 import User from "@/models/User";
 import { mapLeanUserToAdminListItem } from "@/lib/users/mapUserToAdminListItem";
 import {
@@ -8,11 +9,11 @@ import {
   type AdminUsersParams,
 } from "@/lib/users/user-params";
 import type { AdminUsersPageResult } from "@/types/admin-user";
-import type { UserRole } from "@/types/user";
+import type { StoredUserRole, UserRole } from "@/types/user";
 
 type AdminUsersFilter = {
   email?: { $regex: string; $options: string };
-  role?: UserRole;
+  role?: StoredUserRole | { $in: readonly StoredUserRole[] };
   isActive?: boolean;
 };
 
@@ -29,7 +30,7 @@ export function buildAdminUsersFilter(
   }
 
   if (params.role) {
-    filter.role = params.role;
+    filter.role = buildRoleFilter(params.role) as AdminUsersFilter["role"];
   }
 
   if (params.status === "active") {
@@ -67,4 +68,8 @@ export async function getAdminUsers(
     pageSize: pagination.pageSize,
     totalPages: pagination.totalPages,
   };
+}
+
+export function isCanonicalUserRole(role: UserRole): role is UserRole {
+  return role === "client" || role === "architect" || role === "admin";
 }

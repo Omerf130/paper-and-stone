@@ -15,16 +15,16 @@ describe("buildAdminUsersFilter", () => {
     });
   });
 
-  it("combines role and status filters", () => {
+  it("combines architect role and status filters with legacy compatibility", () => {
     expect(
       buildAdminUsersFilter({
         query: null,
-        role: "professional",
+        role: "architect",
         status: "active",
         page: 1,
       }),
     ).toEqual({
-      role: "professional",
+      role: { $in: ["architect", "professional"] },
       isActive: true,
     });
   });

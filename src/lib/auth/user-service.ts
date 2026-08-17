@@ -1,21 +1,30 @@
 import { connectDB } from "@/lib/db/mongoose";
 import User, { type IUser } from "@/models/User";
+import type { RegisterInput } from "./validation";
 import { AUTH_ERRORS } from "./errors";
 import { hashPassword, verifyPassword } from "./password";
 import { normalizeEmail } from "./validation";
 
-export async function createCustomerUser(
-  email: string,
-  password: string,
+export type CreateRegisteredUserInput = Pick<
+  RegisterInput,
+  "email" | "password" | "fullName" | "identificationNumber" | "userType"
+>;
+
+export async function createRegisteredUser(
+  input: CreateRegisteredUserInput,
 ): Promise<IUser> {
   await connectDB();
 
-  const passwordHash = await hashPassword(password);
+  const passwordHash = await hashPassword(input.password);
+  const requestedRole = input.userType === "architect" ? "architect" : null;
 
   return User.create({
-    email: normalizeEmail(email),
+    email: normalizeEmail(input.email),
     passwordHash,
-    role: "customer",
+    fullName: input.fullName,
+    identificationNumber: input.identificationNumber,
+    role: "client",
+    requestedRole,
     isActive: true,
   });
 }

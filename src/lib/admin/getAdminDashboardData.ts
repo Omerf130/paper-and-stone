@@ -5,8 +5,10 @@ import Material from "@/models/Material";
 import Product from "@/models/Product";
 import Project from "@/models/Project";
 import User from "@/models/User";
+import { ARCHITECT_ROLE_FILTER } from "@/lib/auth/user-role";
 import { getUnreadAdminProjectMessageCount } from "@/lib/project-messages/getUnreadAdminProjectMessageCount";
 import { getAdminQuoteAttentionSummary } from "@/lib/quotes/quote-queries";
+import { countPendingArchitectRequests } from "@/lib/users/architect-request-queries";
 import type { AdminDashboardData } from "@/types/admin-dashboard";
 
 export async function getAdminDashboardData(
@@ -23,7 +25,8 @@ export async function getAdminDashboardData(
     activeCategories,
     activeMaterials,
     activeColors,
-    activeProfessionals,
+    activeArchitects,
+    pendingArchitectRequestCount,
     recentSubmittedProjects,
   ] = await Promise.all([
     Project.countDocuments({ status: "submitted" }),
@@ -34,7 +37,8 @@ export async function getAdminDashboardData(
     Category.countDocuments({ isActive: true }),
     Material.countDocuments({ isActive: true }),
     Color.countDocuments({ isActive: true }),
-    User.countDocuments({ role: "professional", isActive: true }),
+    User.countDocuments({ role: ARCHITECT_ROLE_FILTER, isActive: true }),
+    countPendingArchitectRequests(),
     Project.find({ status: "submitted" })
       .sort({ submittedAt: -1 })
       .limit(5)
@@ -48,15 +52,16 @@ export async function getAdminDashboardData(
     quoteAcceptedAwaitingApprovalCount:
       quoteAttention.quoteAcceptedAwaitingApprovalCount,
     quoteChangeRequestedCount: quoteAttention.quoteChangeRequestedCount,
-    quoteAwaitingProfessionalCount:
+    quoteAwaitingArchitectCount:
       quoteAttention.quoteAwaitingProfessionalCount,
+    pendingArchitectRequestCount,
     metrics: {
       activeProducts,
       featuredProducts,
       activeCategories,
       activeMaterials,
       activeColors,
-      activeProfessionals,
+      activeArchitects,
     },
     recentSubmittedProjects: recentSubmittedProjects.map((project) => ({
       id: project._id.toString(),

@@ -1,12 +1,26 @@
-import type { UserRole } from "@/types/user";
+import type { RequestedRole, UserRole } from "@/types/user";
 
 export type AdminUserListItem = {
   id: string;
   email: string;
+  fullName?: string | null;
+  identificationNumber?: string | null;
   role: UserRole;
+  requestedRole?: RequestedRole;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
+};
+
+export type ArchitectRequestListItem = {
+  id: string;
+  email: string;
+  fullName?: string | null;
+  identificationNumber?: string | null;
+  role: UserRole;
+  requestedRole: "architect";
+  isActive: boolean;
+  createdAt: string;
 };
 
 export type AdminUsersPageResult = {
@@ -23,7 +37,14 @@ export type UserMutationState = {
 };
 
 export const USER_ROLE_LABELS: Record<UserRole, string> = {
-  customer: "לקוח",
-  professional: "איש מקצוע",
+  client: "לקוח",
+  architect: "אדריכל",
   admin: "אדמין",
 };
+
+export const REQUESTED_ROLE_LABEL = "ביקש הרשאת אדריכל";
+
+export const USER_TYPE_LABELS = {
+  client: "לקוח",
+  architect: "אדריכל",
+} as const;

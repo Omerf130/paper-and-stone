@@ -5,6 +5,7 @@ import FeaturedProductsSection from "@/components/home/FeaturedProductsSection/F
 import HeroSection from "@/components/home/HeroSection/HeroSection";
 import InspirationSection from "@/components/home/InspirationSection/InspirationSection";
 import ProfessionalsSection from "@/components/home/ProfessionalsSection/ProfessionalsSection";
+import ArchitectRequestBanner from "@/components/public/ArchitectRequestBanner/ArchitectRequestBanner";
 import { buildVisibleHomepageSections } from "@/lib/cms/build-visible-homepage-sections";
 import { getPublicHomepageContent } from "@/lib/cms/get-public-homepage-content";
 import { getFeaturedProducts } from "@/lib/products/getFeaturedProducts";
@@ -41,7 +42,15 @@ function renderHomepageSection(
   }
 }
 
-export default async function Home() {
+export default async function Home({
+  searchParams,
+}: PageProps<"/">) {
+  const resolvedSearchParams = await searchParams;
+  const registered = Array.isArray(resolvedSearchParams.registered)
+    ? resolvedSearchParams.registered[0]
+    : resolvedSearchParams.registered;
+  const showArchitectRequestBanner = registered === "architect-request";
+
   const [homepage, featuredProducts] = await Promise.all([
     getPublicHomepageContent(),
     getFeaturedProducts(),
@@ -54,6 +63,7 @@ export default async function Home() {
 
   return (
     <>
+      <ArchitectRequestBanner show={showArchitectRequestBanner} />
       {visibleSections.map((key) =>
         renderHomepageSection(key, homepage, featuredProducts),
       )}

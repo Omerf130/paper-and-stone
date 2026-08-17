@@ -6,7 +6,8 @@ type AdminDashboardAttentionProps = {
   unreadAdminMessageCount: number;
   quoteAcceptedAwaitingApprovalCount: number;
   quoteChangeRequestedCount: number;
-  quoteAwaitingProfessionalCount: number;
+  quoteAwaitingArchitectCount: number;
+  pendingArchitectRequestCount: number;
 };
 
 export default function AdminDashboardAttention({
@@ -14,7 +15,8 @@ export default function AdminDashboardAttention({
   unreadAdminMessageCount,
   quoteAcceptedAwaitingApprovalCount,
   quoteChangeRequestedCount,
-  quoteAwaitingProfessionalCount,
+  quoteAwaitingArchitectCount,
+  pendingArchitectRequestCount,
 }: AdminDashboardAttentionProps) {
   return (
     <section className={styles.section} aria-labelledby="dashboard-attention-title">
@@ -23,6 +25,18 @@ export default function AdminDashboardAttention({
       </h2>
 
       <ul className={styles.list}>
+        <li className={styles.item}>
+          {pendingArchitectRequestCount > 0 ? (
+            <Link href="/admin/architect-requests" className={styles.link}>
+              בקשות אדריכל שממתינות לטיפול: {pendingArchitectRequestCount}
+            </Link>
+          ) : (
+            <span className={styles.empty}>
+              אין כרגע בקשות אדריכל ממתינות
+            </span>
+          )}
+        </li>
+
         <li className={styles.item}>
           {submittedProjectCount > 0 ? (
             <Link href="/admin/projects" className={styles.link}>
@@ -68,14 +82,13 @@ export default function AdminDashboardAttention({
         </li>
 
         <li className={styles.item}>
-          {quoteAwaitingProfessionalCount > 0 ? (
+          {quoteAwaitingArchitectCount > 0 ? (
             <Link href="/admin/projects" className={styles.link}>
-              {quoteAwaitingProfessionalCount} הצעות מחיר ממתינות לתגובת איש
-              מקצוע
+              {quoteAwaitingArchitectCount} הצעות מחיר ממתינות לתגובת אדריכל
             </Link>
           ) : (
             <span className={styles.empty}>
-              אין הצעות מחיר שממתינות לתגובת איש מקצוע
+              אין הצעות מחיר שממתינות לתגובת אדריכל
             </span>
           )}
         </li>
