@@ -88,6 +88,16 @@ export function isMessagingAvailable(project: ProjectGateInput): boolean {
   return project.onboardingStatus != null;
 }
 
+export function usesRoomBasedWorkspace(
+  project: Pick<IProject, "onboardingStatus">,
+): boolean {
+  return !isLegacyProject(project);
+}
+
+export function isProjectRoomEditable(project: ProjectGateInput): boolean {
+  return usesRoomBasedWorkspace(project) && isProjectItemEditable(project);
+}
+
 export function isProjectItemWorkspaceVisible(
   project: ProjectGateInput,
 ): boolean {

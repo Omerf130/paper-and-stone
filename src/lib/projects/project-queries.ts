@@ -88,6 +88,7 @@ export async function getOwnedProjectById(
 export async function getOwnedProjectDetailView(
   ownerUserId: string,
   projectId: string,
+  selectedRoomId?: string | null,
 ): Promise<ProjectDetailView | null> {
   const project = await getOwnedProjectById(ownerUserId, projectId);
 
@@ -95,7 +96,7 @@ export async function getOwnedProjectDetailView(
     return null;
   }
 
-  return mapProjectToDetailView(project);
+  return mapProjectToDetailView(project, selectedRoomId);
 }
 
 export async function loadProductViewsByIds(

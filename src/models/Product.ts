@@ -63,6 +63,7 @@ export interface IProduct extends Document {
   nameEn?: string;
   slug: string;
   sku: string;
+  skuNormalized?: string;
   categoryId: Types.ObjectId;
   brand?: string;
   designer?: string;
@@ -178,6 +179,7 @@ const productSchema = new Schema<IProduct>(
     nameEn: { type: String },
     slug: { type: String, required: true, unique: true, index: true },
     sku: { type: String, required: true, unique: true, index: true },
+    skuNormalized: { type: String, unique: true, sparse: true, index: true },
     categoryId: {
       type: Schema.Types.ObjectId,
       ref: "Category",

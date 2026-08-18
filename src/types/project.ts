@@ -66,6 +66,7 @@ export type ProjectItemSnapshot = {
 export type ProjectItemView = {
   id: string;
   productId: string;
+  roomId?: string | null;
   selectedMaterialId: string | null;
   selectedColorId: string | null;
   selectedSizeKey: string | null;
@@ -108,6 +109,10 @@ export type ProjectDetailView = {
   isItemWorkspaceVisible: boolean;
   isOnboardingDeletable: boolean;
   canResubmitOnboarding: boolean;
+  usesRoomBasedWorkspace: boolean;
+  isRoomEditable: boolean;
+  rooms: import("@/types/project-room").ProjectRoomView[];
+  selectedRoomId?: string | null;
 };
 
 export type ProjectOptionView = {
@@ -137,6 +142,7 @@ export type ProjectFormState = {
 export type AddToProjectInput = {
   projectId: string;
   productSlug: string;
+  roomId?: string;
   selectedMaterialId?: string;
   selectedColorId?: string;
   selectedSizeKey?: string;
@@ -146,10 +152,17 @@ export type AddToProjectInput = {
 export type UpdateProjectItemInput = {
   projectId: string;
   itemId: string;
+  roomId?: string;
   selectedMaterialId?: string;
   selectedColorId?: string;
   selectedSizeKey?: string;
   quantity: number;
+};
+
+export type MoveProjectItemInput = {
+  projectId: string;
+  itemId: string;
+  targetRoomId: string;
 };
 
 export type AddToProjectState = {

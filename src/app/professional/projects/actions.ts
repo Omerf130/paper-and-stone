@@ -147,6 +147,7 @@ export async function addProductToProjectAction(
       parsed.data.selectedMaterialId,
       parsed.data.selectedColorId,
       parsed.data.selectedSizeKey,
+      parsed.data.roomId,
     );
     revalidatePath(`/professional/projects/${parsed.data.projectId}`);
     revalidatePath("/professional/projects");

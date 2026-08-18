@@ -1,0 +1,80 @@
+@use "../../../styles/tokens" as *;
+@use "../../../styles/mixins" as *;
+
+.dialog {
+  width: min(100% - 2rem, 24rem);
+  padding: 0;
+  border: none;
+  border-radius: $radius-md;
+  background-color: transparent;
+  box-shadow: $shadow-sm;
+
+  &::backdrop {
+    background-color: rgb(0 0 0 / 45%);
+  }
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+  padding: $spacing-xl;
+  background-color: $color-background;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: $spacing-md;
+  padding-block-end: $spacing-md;
+  border-block-end: 1px solid $color-border;
+}
+
+.title {
+  margin: 0;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  line-height: $line-height-tight;
+  color: $color-text-primary;
+}
+
+.closeButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  font-size: $font-size-xl;
+  line-height: 1;
+  color: $color-text-secondary;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: $radius-sm;
+  cursor: pointer;
+
+  @include focus-visible;
+
+  &:hover {
+    color: $color-text-primary;
+    border-color: $color-border;
+  }
+}
+
+.description {
+  margin: 0;
+  font-size: $font-size-sm;
+  line-height: $line-height-relaxed;
+  color: $color-text-secondary;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: $spacing-md;
+  padding-block-start: $spacing-sm;
+}

@@ -22,6 +22,7 @@ export interface IProjectItemSnapshot {
 export interface IProjectItem {
   _id: Types.ObjectId;
   productId: Types.ObjectId;
+  roomId?: Types.ObjectId | null;
   selectedMaterialId: string | null;
   selectedColorId: string | null;
   selectedSizeKey: string | null;
@@ -82,6 +83,11 @@ const projectItemSchema = new Schema<IProjectItem>(
       type: Schema.Types.ObjectId,
       ref: "Product",
       required: true,
+    },
+    roomId: {
+      type: Schema.Types.ObjectId,
+      ref: "ProjectRoom",
+      default: null,
     },
     selectedMaterialId: { type: String, default: null },
     selectedColorId: { type: String, default: null },

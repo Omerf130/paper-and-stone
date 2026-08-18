@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import { requireProfessional } from "@/lib/auth/authorization";
 import { isProjectReadOnly } from "@/lib/projects/assertProjectEditable";
 import { getProjectMessages } from "@/lib/project-messages/getProjectMessages";
@@ -20,6 +21,7 @@ import {
 } from "@/lib/ui/map-status-badge";
 import ProjectForm from "@/components/professional/projects/ProjectForm/ProjectForm";
 import ProjectItemsList from "@/components/professional/projects/ProjectItemsList/ProjectItemsList";
+import ProjectRoomWorkspace from "@/components/professional/projects/ProjectRoomWorkspace/ProjectRoomWorkspace";
 import ProjectResubmitOnboardingButton from "@/components/professional/projects/ProjectResubmitOnboardingButton/ProjectResubmitOnboardingButton";
 import ProjectReviewHistory from "@/components/professional/projects/ProjectReviewHistory/ProjectReviewHistory";
 import ProjectStatusBanner from "@/components/professional/projects/ProjectStatusBanner/ProjectStatusBanner";
@@ -49,10 +51,13 @@ export async function generateMetadata({
 
 export default async function ProjectDetailPage({
   params,
+  searchParams,
 }: PageProps<"/professional/projects/[id]">) {
   const user = await requireProfessional();
   const { id } = await params;
-  const project = await getOwnedProjectDetailView(user.id, id);
+  const { room } = await searchParams;
+  const selectedRoomId = typeof room === "string" ? room : undefined;
+  const project = await getOwnedProjectDetailView(user.id, id, selectedRoomId);
 
   if (!project) {
     notFound();
@@ -87,7 +92,9 @@ export default async function ProjectDetailPage({
         title={project.name}
         description={metaParts.join(" · ") || undefined}
         actions={
-          project.isItemWorkspaceVisible && !itemsReadOnly ? (
+          project.isItemWorkspaceVisible &&
+          !itemsReadOnly &&
+          !project.usesRoomBasedWorkspace ? (
             <Button href="/products" variant="secondary" size="sm">
               הוספת מוצרים
             </Button>
@@ -144,12 +151,22 @@ export default async function ProjectDetailPage({
 
       {project.isItemWorkspaceVisible ? (
         <InternalDetailSection id="project-items" title="מוצרים בפרויקט">
-          <ProjectItemsList
-            projectId={project.id}
-            items={project.items}
-            productViewsById={productViewsById}
-            readOnly={itemsReadOnly}
-          />
+          {project.usesRoomBasedWorkspace ? (
+            <Suspense fallback={null}>
+              <ProjectRoomWorkspace
+                project={project}
+                productViewsById={productViewsById}
+                readOnly={itemsReadOnly}
+              />
+            </Suspense>
+          ) : (
+            <ProjectItemsList
+              projectId={project.id}
+              items={project.items}
+              productViewsById={productViewsById}
+              readOnly={itemsReadOnly}
+            />
+          )}
         </InternalDetailSection>
       ) : null}
 

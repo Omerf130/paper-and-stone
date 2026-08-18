@@ -1,4 +1,5 @@
 import { getProjectItemConfigurationRows } from "@/lib/projects/project-display-helpers";
+import Button from "@/components/ui/Button/Button";
 import StatusBadge from "@/components/ui/StatusBadge/StatusBadge";
 import type { ProjectItemView } from "@/types/project";
 import styles from "./ProfessionalProjectItemRow.module.scss";
@@ -7,12 +8,16 @@ type ProfessionalProjectItemRowProps = {
   item: ProjectItemView;
   actions?: React.ReactNode;
   editor?: React.ReactNode;
+  showMove?: boolean;
+  onMove?: () => void;
 };
 
 export default function ProfessionalProjectItemRow({
   item,
   actions,
   editor,
+  showMove = false,
+  onMove,
 }: ProfessionalProjectItemRowProps) {
   const configurationRows = getProjectItemConfigurationRows(item);
 
@@ -47,7 +52,16 @@ export default function ProfessionalProjectItemRow({
         ))}
       </dl>
 
-      {actions ? <div className={styles.actions}>{actions}</div> : null}
+      {actions || showMove ? (
+        <div className={styles.actions}>
+          {showMove && onMove ? (
+            <Button variant="ghost" size="sm" onClick={onMove}>
+              העברה
+            </Button>
+          ) : null}
+          {actions}
+        </div>
+      ) : null}
       {editor ? <div className={styles.editorWrap}>{editor}</div> : null}
     </article>
   );

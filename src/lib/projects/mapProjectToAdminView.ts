@@ -3,7 +3,9 @@ import {
   mapProjectItemToView,
   resolveActiveProductIds,
 } from "@/lib/projects/mapProjectToView";
+import { getProjectRoomViews } from "@/lib/projects/project-room-queries";
 import { mapReviewHistoryEntryToView } from "@/lib/projects/project-review-history";
+import { usesRoomBasedWorkspace } from "@/lib/projects/project-workspace-gates";
 import { resolveAssignedClientFullName } from "@/lib/admin/clients/client-lookup-queries";
 import type {
   AdminProjectDetailView,
@@ -47,6 +49,10 @@ export async function mapLeanProjectToAdminDetailView(
   const assignedClientFullName = project.clientUserId
     ? await resolveAssignedClientFullName(project.clientUserId)
     : null;
+  const roomBased = usesRoomBasedWorkspace(project);
+  const rooms = roomBased
+    ? await getProjectRoomViews(project._id.toString(), project.items)
+    : [];
 
   return {
     id: project._id.toString(),
@@ -61,6 +67,8 @@ export async function mapLeanProjectToAdminDetailView(
     items: project.items.map((item) =>
       mapProjectItemToView(item, activeProductIds),
     ),
+    usesRoomBasedWorkspace: roomBased,
+    rooms,
     reviewHistory: (project.reviewHistory ?? []).map(mapReviewHistoryEntryToView),
     submittedAt: project.submittedAt?.toISOString(),
     reviewedAt: project.reviewedAt?.toISOString(),

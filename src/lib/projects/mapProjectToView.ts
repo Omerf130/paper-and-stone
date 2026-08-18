@@ -16,7 +16,10 @@ import {
   isProjectItemWorkspaceVisible,
   isProjectMetadataEditable,
   isProjectOnboardingDeletable,
+  isProjectRoomEditable,
+  usesRoomBasedWorkspace,
 } from "@/lib/projects/project-workspace-gates";
+import { getProjectRoomViews } from "@/lib/projects/project-room-queries";
 import { resolveAssignedClientFullName } from "@/lib/admin/clients/client-lookup-queries";
 
 export function mapProjectItemToView(
@@ -26,6 +29,7 @@ export function mapProjectItemToView(
   return {
     id: item._id.toString(),
     productId: item.productId.toString(),
+    roomId: item.roomId?.toString() ?? null,
     selectedMaterialId: item.selectedMaterialId ?? null,
     selectedColorId: item.selectedColorId ?? null,
     selectedSizeKey: item.selectedSizeKey ?? null,
@@ -84,6 +88,7 @@ export async function mapProjectToListItemView(
 
 export async function mapProjectToDetailView(
   project: IProject,
+  selectedRoomId?: string | null,
 ): Promise<ProjectDetailView> {
   const productIds = [...new Set(project.items.map((item) => item.productId.toString()))];
   const activeProductIds = await resolveActiveProductIds(productIds);
@@ -91,6 +96,9 @@ export async function mapProjectToDetailView(
   const assignedClientFullName = project.clientUserId
     ? await resolveAssignedClientFullName(project.clientUserId)
     : null;
+  const rooms = usesRoomBasedWorkspace(project)
+    ? await getProjectRoomViews(project._id.toString(), project.items)
+    : [];
 
   return {
     id: project._id.toString(),
@@ -115,6 +123,10 @@ export async function mapProjectToDetailView(
     isItemWorkspaceVisible: isProjectItemWorkspaceVisible(project),
     isOnboardingDeletable: isProjectOnboardingDeletable(project),
     canResubmitOnboarding: canResubmitOnboarding(project),
+    usesRoomBasedWorkspace: usesRoomBasedWorkspace(project),
+    isRoomEditable: isProjectRoomEditable(project),
+    rooms,
+    selectedRoomId: selectedRoomId ?? null,
   };
 }
 

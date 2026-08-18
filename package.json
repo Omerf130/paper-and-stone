@@ -9,7 +9,8 @@
     "lint": "eslint",
     "test": "vitest run",
     "seed": "tsx --env-file=.env.local scripts/seed.ts",
-    "migrate:17a-roles": "tsx --env-file=.env.local scripts/migrate-user-roles-17a.ts"
+    "migrate:17a-roles": "tsx --env-file=.env.local scripts/migrate-user-roles-17a.ts",
+    "backfill:17c-sku-normalized": "tsx --env-file=.env.local scripts/backfill-sku-normalized-17c.ts"
   },
   "dependencies": {
     "@vercel/blob": "^2.8.0",

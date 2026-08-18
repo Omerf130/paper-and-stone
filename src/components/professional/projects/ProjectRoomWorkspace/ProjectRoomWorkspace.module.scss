@@ -1,0 +1,44 @@
+@use "../../../../styles/tokens" as *;
+
+.workspace {
+  display: grid;
+  gap: $spacing-xl;
+
+  @media (min-width: 768px) {
+    grid-template-columns: minmax(12rem, 16rem) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
+.navColumn {
+  min-width: 0;
+}
+
+.itemsColumn {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+  min-width: 0;
+}
+
+.roomHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-md;
+  padding-block-end: $spacing-md;
+  border-bottom: 1px solid $color-border;
+}
+
+.roomTitle {
+  margin: 0;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+}

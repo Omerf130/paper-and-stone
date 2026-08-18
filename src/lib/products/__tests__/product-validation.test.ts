@@ -77,6 +77,7 @@ describe("mapProductInputToWriteFields", () => {
       nameEn: "Milano Sofa",
       slug: "milano-sofa",
       sku: "PS-MIL-001",
+      skuNormalized: "ps-mil-001",
       categoryId: "507f1f77bcf86cd799439011",
       brand: "Paper & Stone",
       designer: "Studio Forma",

@@ -5,6 +5,7 @@ import AdminPage from "@/components/admin/AdminPage/AdminPage";
 import AdminPageHeader from "@/components/admin/AdminPageHeader/AdminPageHeader";
 import AdminDetailSection from "@/components/admin/project-detail/AdminDetailSection/AdminDetailSection";
 import AdminProjectItemsList from "@/components/admin/project-detail/AdminProjectItemsList/AdminProjectItemsList";
+import AdminProjectRoomsPanel from "@/components/admin/project-detail/AdminProjectRoomsPanel/AdminProjectRoomsPanel";
 import AdminProjectOverview from "@/components/admin/project-detail/AdminProjectOverview/AdminProjectOverview";
 import AdminProjectReviewHistory from "@/components/admin/project-detail/AdminProjectReviewHistory/AdminProjectReviewHistory";
 import AdminQuotePanel from "@/components/admin/project-detail/AdminQuotePanel/AdminQuotePanel";
@@ -152,7 +153,14 @@ export default async function AdminProjectDetailPage({
           title="מוצרים בפרויקט"
           description={`${project.items.length} מוצרים בפרויקט`}
         >
-          <AdminProjectItemsList items={project.items} />
+          {project.usesRoomBasedWorkspace ? (
+            <AdminProjectRoomsPanel
+              rooms={project.rooms}
+              items={project.items}
+            />
+          ) : (
+            <AdminProjectItemsList items={project.items} />
+          )}
         </AdminDetailSection>
       ) : null}
 

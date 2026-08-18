@@ -1,0 +1,108 @@
+@use "../../../../styles/tokens" as *;
+@use "../../../../styles/mixins" as *;
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  @media (max-width: 767px) {
+    flex-direction: row;
+    overflow-x: auto;
+    padding-block-end: $spacing-xs;
+    scrollbar-width: thin;
+  }
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+  min-width: 0;
+
+  @media (max-width: 767px) {
+    flex: 0 0 auto;
+    min-width: 10rem;
+  }
+}
+
+.roomButton,
+.roomActive {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-md;
+  width: 100%;
+  padding: $spacing-sm $spacing-md;
+  font: inherit;
+  text-align: start;
+  color: $color-text-primary;
+  background: transparent;
+  border: 1px solid $color-border;
+  border-radius: $radius-sm;
+  cursor: pointer;
+
+  @include focus-visible;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.roomActive {
+  border-color: $color-text-primary;
+  background-color: rgb(0 0 0 / 3%);
+}
+
+.roomName {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.itemCount {
+  flex-shrink: 0;
+  min-width: 1.5rem;
+  padding-inline: $spacing-xs;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  line-height: 1.5;
+  text-align: center;
+  color: $color-text-secondary;
+  background-color: $color-background;
+  border: 1px solid $color-border;
+  border-radius: $radius-sm;
+}
+
+.roomActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-xs;
+  padding-inline-start: $spacing-xs;
+
+  @media (max-width: 767px) {
+    display: none;
+  }
+}
+
+.createWrap {
+  padding-block-start: $spacing-sm;
+  border-top: 1px solid $color-border;
+
+  @media (max-width: 767px) {
+    border-top: none;
+    padding-block-start: 0;
+  }
+}

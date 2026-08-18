@@ -154,7 +154,7 @@ export default function ProductForm({
               />
             </FormField>
 
-            <FormField label='מק"ט' htmlFor="sku" error={fieldErrors.sku}>
+            <FormField label="קוד מוצר" htmlFor="sku" error={fieldErrors.sku}>
               <input
                 id="sku"
                 className={formFieldStyles.input}

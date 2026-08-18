@@ -29,6 +29,8 @@ export type AdminProjectDetailView = {
   description?: string;
   status: ProjectStatus;
   items: import("@/types/project").ProjectItemView[];
+  usesRoomBasedWorkspace: boolean;
+  rooms: import("@/types/project-room").ProjectRoomView[];
   reviewHistory: import("@/types/project").ProjectReviewHistoryEntry[];
   submittedAt?: string;
   reviewedAt?: string;

@@ -89,6 +89,7 @@ const quantitySchema = z
 export const addToProjectInputSchema = z.object({
   projectId: objectIdString,
   productSlug: z.string().trim().min(1).max(200),
+  roomId: objectIdString.optional(),
   selectedMaterialId: z.string().min(1).optional(),
   selectedColorId: z.string().min(1).optional(),
   selectedSizeKey: z.string().min(1).optional(),

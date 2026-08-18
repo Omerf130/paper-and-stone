@@ -211,6 +211,14 @@ Prefer CSS logical properties (`margin-inline`, `padding-inline`, `text-align: s
 - Admin↔Architect messaging available during onboarding review
 - See [`docs/phase-17b-project-onboarding-client-assignment.md`](phase-17b-project-onboarding-client-assignment.md)
 
+**Phase 17C — Rooms + Product Workspace:**
+- Separate `ProjectRoom` collection; embedded items gain optional `roomId`
+- Room-based workspace for onboarding-workflow projects (`usesRoomBasedWorkspace`); legacy flat list unchanged
+- Architect workspace: room rail, `?room=` URL, Product Picker with server search/ranking
+- SKU as canonical product code; `skuNormalized` for case-insensitive uniqueness
+- Admin room-grouped project view; commercial submit/review semantics preserved
+- See [`docs/phase-17c-rooms-product-workspace.md`](phase-17c-rooms-product-workspace.md)
+
 **Demo 10E.1 — Notification Foundation:**
 - Separate `Notification` collection for Professional inbox
 - Workflow hooks on admin approve / reject / request changes

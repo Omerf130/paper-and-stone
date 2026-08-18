@@ -46,11 +46,20 @@ vi.mock("@/lib/projects/buildProjectItemSnapshot", () => ({
   buildProjectItemSnapshot: vi.fn(() => ({
     productName: "Milano",
     productSlug: "milano-sofa",
+    sku: "SKU-1",
   })),
+}));
+
+vi.mock("@/lib/projects/project-room-mutations", () => ({
+  verifyRoomBelongsToProject: vi.fn(async () => undefined),
 }));
 
 describe("project-mutations", () => {
   const draftProject = { _id: { toString: () => "project-1" }, status: "draft", items: [] };
+  const roomBasedProject = {
+    ...draftProject,
+    onboardingStatus: "active" as const,
+  };
 
   beforeEach(() => {
     createMock.mockReset();
@@ -167,5 +176,23 @@ describe("project-mutations", () => {
         }),
       }),
     );
+  });
+
+  it("requires roomId when adding to room-based projects", async () => {
+    findOneMock.mockResolvedValueOnce(roomBasedProject);
+
+    const { addProductToProject } = await import("@/lib/projects/project-mutations");
+    const { PROJECT_ROOM_ERRORS } = await import("@/types/project-room");
+
+    await expect(
+      addProductToProject(
+        "507f1f77bcf86cd799439011",
+        "507f1f77bcf86cd799439013",
+        "milano-sofa",
+        1,
+      ),
+    ).rejects.toMatchObject({
+      message: PROJECT_ROOM_ERRORS.ROOM_REQUIRED,
+    });
   });
 });

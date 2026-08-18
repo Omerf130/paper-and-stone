@@ -1,9 +1,10 @@
 import { z } from "zod";
+import { normalizeProductSku } from "@/lib/products/normalize-product-sku";
 import type { AdminProductFormInput } from "@/types/admin-product";
 
 export const PRODUCT_ERRORS = {
   DUPLICATE_SLUG: "כבר קיים מוצר עם כתובת זו",
-  DUPLICATE_SKU: "כבר קיים מוצר עם מק״ט זה",
+  DUPLICATE_SKU: "קוד המוצר כבר קיים במערכת",
   INVALID_CATEGORY: "הקטגוריה שנבחרה אינה תקינה",
   GENERIC: "אירעה שגיאה בשמירת המוצר. נסו שוב.",
 } as const;
@@ -46,7 +47,7 @@ export const productInputSchema = z
         /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
         "כתובת חייבת להכיל אותיות קטנות, מספרים ומקפים בלבד",
       ),
-    sku: z.string().min(1, "נא להזין מק״ט").max(50),
+    sku: z.string().min(1, "נא להזין קוד מוצר").max(50),
     categoryId: z.string().min(1, "נא לבחור קטגוריה"),
     brand: optionalString(120),
     designer: optionalString(120),
@@ -101,6 +102,7 @@ export type ProductWriteFields = {
   nameEn?: string;
   slug: string;
   sku: string;
+  skuNormalized: string;
   categoryId: string;
   brand?: string;
   designer?: string;
@@ -142,6 +144,7 @@ export function mapProductInputToWriteFields(
     nameEn: emptyToUndefined(input.nameEn),
     slug: input.slug.trim(),
     sku: input.sku.trim(),
+    skuNormalized: normalizeProductSku(input.sku),
     categoryId: input.categoryId,
     brand: emptyToUndefined(input.brand),
     designer: emptyToUndefined(input.designer),
@@ -196,7 +199,7 @@ export function parseProductFormInput(
 
 export function isDuplicateKeyError(
   error: unknown,
-): "slug" | "sku" | null {
+): "slug" | "sku" | "skuNormalized" | null {
   if (
     typeof error === "object" &&
     error !== null &&
@@ -210,7 +213,7 @@ export function isDuplicateKeyError(
     if ("slug" in keyPattern) {
       return "slug";
     }
-    if ("sku" in keyPattern) {
+    if ("sku" in keyPattern || "skuNormalized" in keyPattern) {
       return "sku";
     }
   }

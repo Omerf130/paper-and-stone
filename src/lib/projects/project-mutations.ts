@@ -28,7 +28,10 @@ import {
   isLegacyProject,
   isProjectItemEditable,
   isProjectOnboardingDeletable,
+  usesRoomBasedWorkspace,
 } from "@/lib/projects/project-workspace-gates";
+import { verifyRoomBelongsToProject } from "@/lib/projects/project-room-mutations";
+import { PROJECT_ROOM_ERRORS } from "@/types/project-room";
 
 async function assertProfileReadyForProjects(userId: string): Promise<void> {
   const profile = await getMyProfessionalProfileView(userId);
@@ -186,12 +189,14 @@ export async function deleteProject(
 function buildNewProjectItem(
   verified: Awaited<ReturnType<typeof verifyProjectItemSelectionForAdd>>,
   quantity: number,
+  roomId?: Types.ObjectId | null,
 ): IProjectItem {
   const snapshot = buildProjectItemSnapshot(verified.productView, verified);
 
   return {
     _id: new Types.ObjectId(),
     productId: new Types.ObjectId(verified.productId),
+    roomId: roomId ?? null,
     selectedMaterialId: verified.selectedMaterialId,
     selectedColorId: verified.selectedColorId,
     selectedSizeKey: verified.selectedSizeKey,
@@ -208,12 +213,24 @@ export async function addProductToProject(
   selectedMaterialId?: string,
   selectedColorId?: string,
   selectedSizeKey?: string,
+  roomId?: string,
 ): Promise<void> {
   await assertProfileReadyForProjects(ownerUserId);
   const project = await getItemEditableOwnedProject(ownerUserId, projectId);
 
   if (!isProjectItemEditable(project)) {
     throw new ProjectMutationError(PROJECT_ERRORS.NOT_EDITABLE);
+  }
+
+  let roomObjectId: Types.ObjectId | null = null;
+
+  if (usesRoomBasedWorkspace(project)) {
+    if (!roomId?.trim()) {
+      throw new ProjectMutationError(PROJECT_ROOM_ERRORS.ROOM_REQUIRED);
+    }
+
+    await verifyRoomBelongsToProject(projectId, roomId);
+    roomObjectId = new Types.ObjectId(roomId);
   }
 
   const verified = await verifyProjectItemSelectionForAdd(
@@ -228,6 +245,7 @@ export async function addProductToProject(
     selectedMaterialId,
     selectedColorId,
     selectedSizeKey,
+    roomObjectId,
   );
 
   const editableFilter = buildItemEditableFilter(projectId, ownerUserId);
@@ -288,7 +306,7 @@ export async function addProductToProject(
     throw new ProjectMutationError(PROJECT_ERRORS.QUANTITY_EXCEEDS_MAX);
   }
 
-  const newItem = buildNewProjectItem(verified, quantity);
+  const newItem = buildNewProjectItem(verified, quantity, roomObjectId);
 
   const pushResult = await Project.updateOne(editableFilter, {
     $push: { items: newItem },

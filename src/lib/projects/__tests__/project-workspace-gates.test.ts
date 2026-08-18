@@ -8,7 +8,9 @@ import {
   isProjectMetadataEditable,
   isProjectOnboardingActive,
   isProjectOnboardingDeletable,
+  isProjectRoomEditable,
   isProjectWorkspaceActive,
+  usesRoomBasedWorkspace,
 } from "@/lib/projects/project-workspace-gates";
 
 const legacyDraft = {
@@ -87,5 +89,28 @@ describe("project-workspace-gates", () => {
     expect(isProjectOnboardingActive(activeProject)).toBe(true);
     expect(isProjectWorkspaceActive(activeProject)).toBe(true);
     expect(isProjectWorkspaceActive(pendingProject)).toBe(false);
+  });
+
+  it("enables room-based workspace only for new onboarding workflow", () => {
+    expect(usesRoomBasedWorkspace(legacyDraft)).toBe(false);
+    expect(usesRoomBasedWorkspace(activeProject)).toBe(true);
+  });
+
+  it("allows room edits only when onboarding active and commercial editable", () => {
+    expect(isProjectRoomEditable(activeProject)).toBe(true);
+    expect(isProjectRoomEditable(pendingProject)).toBe(false);
+    expect(isProjectRoomEditable(legacyDraft)).toBe(false);
+    expect(
+      isProjectRoomEditable({
+        ...activeProject,
+        status: "submitted",
+      }),
+    ).toBe(false);
+    expect(
+      isProjectRoomEditable({
+        ...activeProject,
+        status: "changes_requested",
+      }),
+    ).toBe(true);
   });
 });
