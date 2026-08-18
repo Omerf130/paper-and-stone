@@ -3,6 +3,7 @@ import styles from "./AdminDashboardAttention.module.scss";
 
 type AdminDashboardAttentionProps = {
   submittedProjectCount: number;
+  pendingOnboardingProjectCount: number;
   unreadAdminMessageCount: number;
   quoteAcceptedAwaitingApprovalCount: number;
   quoteChangeRequestedCount: number;
@@ -12,6 +13,7 @@ type AdminDashboardAttentionProps = {
 
 export default function AdminDashboardAttention({
   submittedProjectCount,
+  pendingOnboardingProjectCount,
   unreadAdminMessageCount,
   quoteAcceptedAwaitingApprovalCount,
   quoteChangeRequestedCount,
@@ -33,6 +35,21 @@ export default function AdminDashboardAttention({
           ) : (
             <span className={styles.empty}>
               אין כרגע בקשות אדריכל ממתינות
+            </span>
+          )}
+        </li>
+
+        <li className={styles.item}>
+          {pendingOnboardingProjectCount > 0 ? (
+            <Link
+              href="/admin/projects?queue=onboarding"
+              className={styles.link}
+            >
+              פרויקטים שממתינים לאישור פתיחה: {pendingOnboardingProjectCount}
+            </Link>
+          ) : (
+            <span className={styles.empty}>
+              אין פרויקטים שממתינים לאישור פתיחה
             </span>
           )}
         </li>

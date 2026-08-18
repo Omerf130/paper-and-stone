@@ -1,0 +1,15 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.title {
+  margin: 0;
+  font-size: 1.125rem;
+}
+
+.current {
+  margin: 0;
+  font-size: 0.9375rem;
+}

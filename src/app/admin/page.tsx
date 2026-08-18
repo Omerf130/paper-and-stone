@@ -25,6 +25,7 @@ export default async function AdminDashboardPage() {
 
       <AdminDashboardAttention
         submittedProjectCount={data.submittedProjectCount}
+        pendingOnboardingProjectCount={data.pendingOnboardingProjectCount}
         unreadAdminMessageCount={data.unreadAdminMessageCount}
         quoteAcceptedAwaitingApprovalCount={
           data.quoteAcceptedAwaitingApprovalCount

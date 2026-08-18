@@ -1,7 +1,9 @@
 import mongoose, { Schema, type Document, type Model, Types } from "mongoose";
 import {
+  PROJECT_ONBOARDING_STATUSES,
   PROJECT_REVIEW_ACTIONS,
   PROJECT_STATUSES,
+  type ProjectOnboardingStatus,
   type ProjectReviewAction,
   type ProjectReviewActorRole,
   type ProjectStatus,
@@ -45,6 +47,12 @@ export interface IProject extends Document {
   location?: string;
   description?: string;
   status: ProjectStatus;
+  onboardingStatus?: ProjectOnboardingStatus | null;
+  clientUserId?: Types.ObjectId | null;
+  clientAssignedAt?: Date;
+  clientAssignedByUserId?: Types.ObjectId;
+  onboardingApprovedAt?: Date;
+  onboardingApprovedByUserId?: Types.ObjectId;
   submissionRevision: number;
   items: IProjectItem[];
   reviewHistory: IProjectReviewHistoryEntry[];
@@ -135,6 +143,26 @@ const projectSchema = new Schema<IProject>(
       default: "draft",
       required: true,
     },
+    onboardingStatus: {
+      type: String,
+      enum: [...PROJECT_ONBOARDING_STATUSES, null],
+      default: null,
+    },
+    clientUserId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
+    clientAssignedAt: { type: Date },
+    clientAssignedByUserId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+    },
+    onboardingApprovedAt: { type: Date },
+    onboardingApprovedByUserId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+    },
     submissionRevision: { type: Number, default: 0, min: 0, required: true },
     items: { type: [projectItemSchema], default: [] },
     reviewHistory: { type: [projectReviewHistorySchema], default: [] },
@@ -148,6 +176,9 @@ const projectSchema = new Schema<IProject>(
 projectSchema.index({ ownerUserId: 1, updatedAt: -1 });
 projectSchema.index({ ownerUserId: 1, status: 1 });
 projectSchema.index({ status: 1, submittedAt: -1 });
+projectSchema.index({ onboardingStatus: 1, updatedAt: -1 });
+projectSchema.index({ clientUserId: 1, onboardingStatus: 1 });
+projectSchema.index({ ownerUserId: 1, onboardingStatus: 1 });
 
 const Project: Model<IProject> =
   mongoose.models.Project ?? mongoose.model<IProject>("Project", projectSchema);

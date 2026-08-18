@@ -6,3 +6,9 @@ export async function getSubmittedProjectCount(): Promise<number> {
 
   return Project.countDocuments({ status: "submitted" });
 }
+
+export async function getPendingOnboardingProjectCount(): Promise<number> {
+  await connectDB();
+
+  return Project.countDocuments({ onboardingStatus: "pending_approval" });
+}

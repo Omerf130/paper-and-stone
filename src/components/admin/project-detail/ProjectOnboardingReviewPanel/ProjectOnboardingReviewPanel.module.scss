@@ -1,0 +1,44 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.title {
+  margin: 0;
+  font-size: 1.125rem;
+}
+
+.meta {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+}
+
+.meta div {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.meta dt {
+  font-size: 0.875rem;
+  color: var(--color-text-muted, #666);
+}
+
+.meta dd {
+  margin: 0;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.rejectPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--color-border, #ddd);
+}

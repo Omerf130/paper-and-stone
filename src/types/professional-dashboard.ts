@@ -1,4 +1,4 @@
-import type { ProjectStatus } from "@/types/project";
+import type { ProjectOnboardingStatus, ProjectStatus } from "@/types/project";
 
 export type ProfileCompletenessSummary = {
   filledCount: number;
@@ -11,6 +11,8 @@ export type ProfessionalDashboardProject = {
   id: string;
   name: string;
   clientName?: string;
+  assignedClientFullName?: string | null;
+  onboardingStatus?: ProjectOnboardingStatus | null;
   status: ProjectStatus;
   itemCount: number;
   updatedAt: string;

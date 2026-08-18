@@ -1,34 +1,55 @@
 import type { IProject } from "@/models/Project";
 import {
-  EDITABLE_PROJECT_STATUSES,
-  type ProjectStatus,
-} from "@/types/project";
+  isEditableCommercialStatus,
+  isProjectMetadataEditable,
+  isProjectOnboardingDeletable,
+  isProjectItemEditable,
+  isProjectReadOnlyForCommercialStatus,
+} from "@/lib/projects/project-workspace-gates";
 import { ProjectMutationError } from "@/lib/projects/project-errors";
 import { PROJECT_ERRORS } from "@/lib/projects/project-validation";
 import { hasEverBeenSubmitted } from "@/lib/projects/project-review-history";
+import type { ProjectStatus } from "@/types/project";
 
 export function isEditableProjectStatus(status: ProjectStatus): boolean {
-  return EDITABLE_PROJECT_STATUSES.includes(
-    status as (typeof EDITABLE_PROJECT_STATUSES)[number],
-  );
+  return isEditableCommercialStatus(status);
 }
 
-export function assertProjectEditable(project: IProject | null): IProject {
+export function assertProjectItemEditable(project: IProject | null): IProject {
   if (!project) {
     throw new ProjectMutationError(PROJECT_ERRORS.NOT_FOUND);
   }
 
-  if (!isEditableProjectStatus(project.status)) {
+  if (!isProjectItemEditable(project)) {
     throw new ProjectMutationError(PROJECT_ERRORS.NOT_EDITABLE);
   }
 
   return project;
 }
 
+export function assertProjectMetadataEditable(
+  project: IProject | null,
+): IProject {
+  if (!project) {
+    throw new ProjectMutationError(PROJECT_ERRORS.NOT_FOUND);
+  }
+
+  if (!isProjectMetadataEditable(project)) {
+    throw new ProjectMutationError(PROJECT_ERRORS.NOT_EDITABLE);
+  }
+
+  return project;
+}
+
+/** @deprecated Use assertProjectItemEditable or assertProjectMetadataEditable */
+export function assertProjectEditable(project: IProject | null): IProject {
+  return assertProjectItemEditable(project);
+}
+
 export function isProjectDeletable(
-  project: Pick<IProject, "status" | "reviewHistory">,
+  project: Pick<IProject, "status" | "reviewHistory" | "onboardingStatus" | "onboardingApprovedAt">,
 ): boolean {
-  return project.status === "draft" && !hasEverBeenSubmitted(project);
+  return isProjectOnboardingDeletable(project);
 }
 
 export function assertProjectDeletable(project: IProject | null): IProject {
@@ -44,9 +65,11 @@ export function assertProjectDeletable(project: IProject | null): IProject {
 }
 
 export function isProjectReadOnly(status: ProjectStatus): boolean {
-  return !isEditableProjectStatus(status);
+  return isProjectReadOnlyForCommercialStatus(status);
 }
 
 export const EDITABLE_STATUS_FILTER = {
-  $in: [...EDITABLE_PROJECT_STATUSES],
+  $in: ["draft", "changes_requested"],
 } as const;
+
+export { hasEverBeenSubmitted };

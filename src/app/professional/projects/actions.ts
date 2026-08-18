@@ -1,9 +1,19 @@
 "use server";
 
-import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { requireProfessional } from "@/lib/auth/authorization";
 import { ProjectMutationError } from "@/lib/projects/project-errors";
+import { resubmitProjectOnboarding } from "@/lib/projects/project-onboarding-mutations";
+import {
+  PROJECT_ERRORS,
+  parseProjectCreateInput,
+  parseProjectFormInput,
+} from "@/lib/projects/project-validation";
+import type {
+  ProjectCreateFormInput,
+  ProjectFormInput,
+  ProjectFormState,
+} from "@/types/project";
 import {
   addProductToProject,
   createProject,
@@ -14,25 +24,18 @@ import {
 } from "@/lib/projects/project-mutations";
 import { submitProject } from "@/lib/projects/project-submission";
 import {
-  PROJECT_ERRORS,
   parseAddToProjectInput,
-  parseProjectFormInput,
   parseUpdateProjectItemInput,
 } from "@/lib/projects/project-validation";
-import type {
-  AddToProjectInput,
-  AddToProjectState,
-  ProjectFormInput,
-  ProjectFormState,
-  UpdateProjectItemInput,
-} from "@/types/project";
+import type { AddToProjectInput, UpdateProjectItemInput } from "@/types/project";
+import { redirect } from "next/navigation";
 
 export async function createProjectAction(
-  input: ProjectFormInput,
+  input: ProjectCreateFormInput,
 ): Promise<ProjectFormState> {
   const user = await requireProfessional();
 
-  const parsed = parseProjectFormInput(input);
+  const parsed = parseProjectCreateInput(input);
   if (!parsed.success) {
     return { fieldErrors: parsed.fieldErrors };
   }
@@ -84,6 +87,27 @@ export async function updateProjectAction(
   }
 }
 
+export async function resubmitProjectOnboardingAction(
+  projectId: string,
+): Promise<ProjectFormState> {
+  const user = await requireProfessional();
+
+  try {
+    await resubmitProjectOnboarding(user.id, projectId);
+    revalidatePath(`/professional/projects/${projectId}`);
+    revalidatePath("/professional/projects");
+    revalidatePath("/admin/projects");
+    revalidatePath("/admin");
+    return { success: true };
+  } catch (error: unknown) {
+    if (error instanceof ProjectMutationError) {
+      return { error: error.message };
+    }
+
+    return { error: PROJECT_ERRORS.GENERIC };
+  }
+}
+
 export async function deleteProjectAction(projectId: string): Promise<ProjectFormState> {
   const user = await requireProfessional();
 
@@ -106,7 +130,7 @@ export async function deleteProjectAction(projectId: string): Promise<ProjectFor
 
 export async function addProductToProjectAction(
   input: AddToProjectInput,
-): Promise<AddToProjectState> {
+): Promise<{ error?: string; success?: boolean }> {
   const user = await requireProfessional();
 
   const parsed = parseAddToProjectInput(input);

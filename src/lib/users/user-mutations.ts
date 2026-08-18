@@ -10,6 +10,7 @@ import {
 import {
   verifyArchitectDowngradeSafety,
 } from "@/lib/users/verifyArchitectDowngrade";
+import { verifyClientRoleChangeSafety } from "@/lib/users/verifyClientRoleChange";
 import { UserMutationError } from "@/lib/users/user-errors";
 import { normalizeUserRole } from "@/lib/auth/user-role";
 import type { SafeUser, UserRole } from "@/types/user";
@@ -32,6 +33,11 @@ export async function updateUserRole(
   verifySelfRoleChange(currentAdmin, target, newRole);
   await verifyLastActiveAdmin(target, newRole, null, countActiveAdmins);
   await verifyArchitectDowngradeSafety(
+    userId,
+    targetUser.role,
+    newRole,
+  );
+  await verifyClientRoleChangeSafety(
     userId,
     targetUser.role,
     newRole,

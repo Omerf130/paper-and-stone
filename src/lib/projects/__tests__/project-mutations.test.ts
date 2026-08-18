@@ -75,6 +75,8 @@ describe("project-mutations", () => {
         ownerUserId: expect.anything(),
         name: "פרויקט חדש",
         status: "draft",
+        onboardingStatus: "pending_approval",
+        clientUserId: null,
         items: [],
       }),
     );

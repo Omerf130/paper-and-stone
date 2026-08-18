@@ -1,4 +1,5 @@
-import type { ProjectStatus } from "@/types/project";
+import type { ProjectOnboardingStatus, ProjectStatus } from "@/types/project";
+import { ONBOARDING_STATUS_LABELS } from "@/types/project";
 import { getProjectStatusLabel } from "@/lib/projects/project-display-helpers";
 import type { StatusBadgeTone } from "@/components/ui/StatusBadge/StatusBadge";
 
@@ -19,6 +20,25 @@ export function mapProjectStatusToBadge(status: ProjectStatus): {
       return { label, tone: "info" };
     default:
       return { label, tone: "neutral" };
+  }
+}
+
+export function mapOnboardingStatusToBadge(
+  status: ProjectOnboardingStatus,
+): {
+  label: string;
+  tone: StatusBadgeTone;
+} {
+  const label = ONBOARDING_STATUS_LABELS[status];
+
+  switch (status) {
+    case "active":
+      return { label, tone: "positive" };
+    case "rejected":
+      return { label, tone: "negative" };
+    case "pending_approval":
+    default:
+      return { label, tone: "warning" };
   }
 }
 

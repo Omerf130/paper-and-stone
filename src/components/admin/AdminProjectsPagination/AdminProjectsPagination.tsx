@@ -22,6 +22,7 @@ export default function AdminProjectsPagination({
       hrefForPage={(pageNumber) =>
         buildAdminProjectsHref({
           query: params.query,
+          queue: params.queue,
           status: params.status,
           page: pageNumber,
         })

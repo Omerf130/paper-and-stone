@@ -2,16 +2,20 @@ import type { ProjectStatus } from "@/types/project";
 
 export const PROJECTS_PAGE_SIZE = 20;
 
+export type AdminProjectsQueue = "commercial" | "onboarding";
+
 export type AdminProjectsStatusFilter = ProjectStatus;
 
 export type AdminProjectsParams = {
   query: string | null;
+  queue: AdminProjectsQueue;
   status: AdminProjectsStatusFilter;
   page: number;
 };
 
 export type AdminProjectsHrefInput = {
   query?: string | null;
+  queue?: AdminProjectsQueue;
   status?: AdminProjectsStatusFilter;
   page?: number;
 };
@@ -23,6 +27,8 @@ const PROJECT_STATUSES: ProjectStatus[] = [
   "approved",
   "rejected",
 ];
+
+const PROJECT_QUEUES: AdminProjectsQueue[] = ["commercial", "onboarding"];
 
 function parsePageValue(raw: string | string[] | undefined): number {
   const value = Array.isArray(raw) ? raw[0] : raw;
@@ -61,19 +67,30 @@ function parseStatusParam(
   return value as ProjectStatus;
 }
 
+function parseQueueParam(
+  raw: string | string[] | undefined,
+): AdminProjectsQueue {
+  const value = parseStringParam(raw);
+
+  if (!value || !PROJECT_QUEUES.includes(value as AdminProjectsQueue)) {
+    return "commercial";
+  }
+
+  return value as AdminProjectsQueue;
+}
+
 export function parseAdminProjectsParams(
   raw: Record<string, string | string[] | undefined>,
 ): AdminProjectsParams {
   return {
     query: parseStringParam(raw.q),
+    queue: parseQueueParam(raw.queue),
     status: parseStatusParam(raw.status),
     page: parsePageValue(raw.page),
   };
 }
 
-export function buildAdminProjectsHref(
-  input: AdminProjectsHrefInput = {},
-): string {
+export function buildAdminProjectsHref(input: AdminProjectsHrefInput = {}): string {
   const params = new URLSearchParams();
 
   const query = input.query?.trim();
@@ -81,9 +98,12 @@ export function buildAdminProjectsHref(
     params.set("q", query);
   }
 
-  const status = input.status ?? "submitted";
-  if (status !== "submitted") {
-    params.set("status", status);
+  if (input.queue && input.queue !== "commercial") {
+    params.set("queue", input.queue);
+  }
+
+  if (input.status && input.status !== "submitted") {
+    params.set("status", input.status);
   }
 
   if (input.page && input.page > 1) {

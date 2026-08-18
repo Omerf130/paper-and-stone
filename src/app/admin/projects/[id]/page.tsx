@@ -8,6 +8,8 @@ import AdminProjectItemsList from "@/components/admin/project-detail/AdminProjec
 import AdminProjectOverview from "@/components/admin/project-detail/AdminProjectOverview/AdminProjectOverview";
 import AdminProjectReviewHistory from "@/components/admin/project-detail/AdminProjectReviewHistory/AdminProjectReviewHistory";
 import AdminQuotePanel from "@/components/admin/project-detail/AdminQuotePanel/AdminQuotePanel";
+import ProjectClientReassignPanel from "@/components/admin/project-detail/ProjectClientReassignPanel/ProjectClientReassignPanel";
+import ProjectOnboardingReviewPanel from "@/components/admin/project-detail/ProjectOnboardingReviewPanel/ProjectOnboardingReviewPanel";
 import ProjectReviewPanel from "@/components/admin/ProjectReviewPanel/ProjectReviewPanel";
 import ProjectMessageReadMarker from "@/components/project-messages/ProjectMessageReadMarker/ProjectMessageReadMarker";
 import ProjectMessageThread from "@/components/project-messages/ProjectMessageThread/ProjectMessageThread";
@@ -17,12 +19,15 @@ import {
 } from "@/app/admin/projects/message-actions";
 import { requireAdmin } from "@/lib/auth/authorization";
 import { getProjectMessages } from "@/lib/project-messages/getProjectMessages";
-import { hasEverBeenSubmitted } from "@/lib/projects/project-review-history";
 import { getAdminProjectDetailView } from "@/lib/projects/getAdminProjects";
 import { getAdminQuotePanelView } from "@/lib/quotes/quote-queries";
 import { getReviewUnavailableCopy } from "@/lib/projects/project-display-helpers";
+import { isMessagingAvailable } from "@/lib/projects/project-workspace-gates";
 import { formatDateTime } from "@/lib/ui/format-date-time";
-import { mapProjectStatusToBadge } from "@/lib/ui/map-status-badge";
+import {
+  mapOnboardingStatusToBadge,
+  mapProjectStatusToBadge,
+} from "@/lib/ui/map-status-badge";
 import Button from "@/components/ui/Button/Button";
 import StatusBadge from "@/components/ui/StatusBadge/StatusBadge";
 import styles from "./page.module.scss";
@@ -44,18 +49,28 @@ export default async function AdminProjectDetailPage({
     notFound();
   }
 
-  const quotePanel = await getAdminQuotePanelView(id);
+  const isOnboardingPending = project.onboardingStatus === "pending_approval";
+  const isOnboardingActive = project.onboardingStatus === "active";
+  const isLegacyProject = project.onboardingStatus == null;
 
-  const messagingAvailable = hasEverBeenSubmitted({
-    reviewHistory: project.reviewHistory.map((entry) => ({
-      action: entry.action,
-    })),
+  const quotePanel =
+    isOnboardingPending || (!isLegacyProject && !isOnboardingActive)
+      ? null
+      : await getAdminQuotePanelView(id);
+
+  const messagingAvailable = isMessagingAvailable({
+    status: project.status,
+    onboardingStatus: project.onboardingStatus ?? undefined,
+    reviewHistory: project.reviewHistory,
   });
   const messageThread = await getProjectMessages(user.id, "admin", id);
   const unreadMessageCount = messageThread.messages.filter(
     (message) => !message.isOwnMessage && !message.isReadForCurrentUser,
   ).length;
   const statusBadge = mapProjectStatusToBadge(project.status);
+  const onboardingBadge = project.onboardingStatus
+    ? mapOnboardingStatusToBadge(project.onboardingStatus)
+    : null;
 
   return (
     <AdminPage width="wide">
@@ -68,13 +83,26 @@ export default async function AdminProjectDetailPage({
         }
       >
         <div className={styles.metaStrip}>
-          <StatusBadge tone={statusBadge.tone}>{statusBadge.label}</StatusBadge>
+          {onboardingBadge ? (
+            <StatusBadge tone={onboardingBadge.tone}>
+              {onboardingBadge.label}
+            </StatusBadge>
+          ) : (
+            <StatusBadge tone={statusBadge.tone}>{statusBadge.label}</StatusBadge>
+          )}
           <span className={styles.metaItem}>
             {project.professionalName ?? project.professionalEmail}
           </span>
-          <span className={styles.metaItem}>
-            {project.items.length} מוצרים
-          </span>
+          {!isOnboardingPending ? (
+            <span className={styles.metaItem}>
+              {project.items.length} מוצרים
+            </span>
+          ) : null}
+          {project.assignedClientFullName ? (
+            <span className={styles.metaItem}>
+              לקוח: {project.assignedClientFullName}
+            </span>
+          ) : null}
           {project.submittedAt ? (
             <span className={styles.metaItem}>
               נשלח{" "}
@@ -106,13 +134,27 @@ export default async function AdminProjectDetailPage({
         <AdminProjectOverview project={project} />
       </AdminDetailSection>
 
-      <AdminDetailSection
-        id="project-items"
-        title="מוצרים בפרויקט"
-        description={`${project.items.length} מוצרים בפרויקט`}
-      >
-        <AdminProjectItemsList items={project.items} />
-      </AdminDetailSection>
+      {isOnboardingPending ? (
+        <AdminDetailSection id="onboarding-review" title="אישור פתיחה">
+          <ProjectOnboardingReviewPanel project={project} />
+        </AdminDetailSection>
+      ) : null}
+
+      {isOnboardingActive ? (
+        <AdminDetailSection id="client-assignment" title="לקוח משויך">
+          <ProjectClientReassignPanel project={project} />
+        </AdminDetailSection>
+      ) : null}
+
+      {!isOnboardingPending ? (
+        <AdminDetailSection
+          id="project-items"
+          title="מוצרים בפרויקט"
+          description={`${project.items.length} מוצרים בפרויקט`}
+        >
+          <AdminProjectItemsList items={project.items} />
+        </AdminDetailSection>
+      ) : null}
 
       {quotePanel ? (
         <AdminDetailSection
@@ -123,19 +165,21 @@ export default async function AdminProjectDetailPage({
         </AdminDetailSection>
       ) : null}
 
-      <AdminDetailSection id="project-review" title="בדיקת פרויקט">
-        {project.status === "submitted" ? (
-          <ProjectReviewPanel
-            projectId={project.id}
-            status={project.status}
-            approvalBlockedReason={quotePanel?.approvalBlockedReason}
-          />
-        ) : (
-          <p className={styles.reviewUnavailable}>
-            {getReviewUnavailableCopy(project.status)}
-          </p>
-        )}
-      </AdminDetailSection>
+      {!isOnboardingPending ? (
+        <AdminDetailSection id="project-review" title="בדיקת פרויקט">
+          {project.status === "submitted" ? (
+            <ProjectReviewPanel
+              projectId={project.id}
+              status={project.status}
+              approvalBlockedReason={quotePanel?.approvalBlockedReason}
+            />
+          ) : (
+            <p className={styles.reviewUnavailable}>
+              {getReviewUnavailableCopy(project.status)}
+            </p>
+          )}
+        </AdminDetailSection>
+      ) : null}
 
       {project.reviewHistory.length > 0 ? (
         <AdminDetailSection id="review-history" title="היסטוריית בדיקה">

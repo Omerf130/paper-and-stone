@@ -21,7 +21,7 @@ export default async function NewProjectPage() {
     <InternalPage width="form">
       <InternalPageHeader
         title="יצירת פרויקט חדש"
-        description="הזינו את פרטי הפרויקט הבסיסיים. לאחר היצירה תוכלו להוסיף מוצרים."
+        description="לאחר היצירה הפרויקט יישלח לאישור מנהל המערכת. לאחר האישור תוכלו להוסיף מוצרים."
       />
 
       {!profileReady ? (
@@ -36,7 +36,6 @@ export default async function NewProjectPage() {
           mode="create"
           initialProject={{
             name: "",
-            clientName: "",
             location: "",
             description: "",
           }}

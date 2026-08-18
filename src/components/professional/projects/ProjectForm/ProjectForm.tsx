@@ -21,6 +21,7 @@ type ProjectFormProps = {
   projectId?: string;
   showDelete?: boolean;
   readOnly?: boolean;
+  showClientName?: boolean;
 };
 
 const initialState: ProjectFormState = {};
@@ -31,6 +32,7 @@ export default function ProjectForm({
   projectId,
   showDelete = false,
   readOnly = false,
+  showClientName = false,
 }: ProjectFormProps) {
   const router = useRouter();
   const { toast } = useToast();
@@ -105,17 +107,19 @@ export default function ProjectForm({
             />
           </FormField>
 
-          <FormField label="שם לקוח" htmlFor="client-name" error={fieldErrors.clientName}>
-            <input
-              id="client-name"
-              className={formFieldStyles.input}
-              value={project.clientName ?? ""}
-              onChange={(event) => updateField("clientName", event.target.value)}
-              readOnly={readOnly}
-              disabled={readOnly}
-              aria-invalid={Boolean(fieldErrors.clientName)}
-            />
-          </FormField>
+          {showClientName ? (
+            <FormField label="שם לקוח" htmlFor="client-name" error={fieldErrors.clientName}>
+              <input
+                id="client-name"
+                className={formFieldStyles.input}
+                value={project.clientName ?? ""}
+                onChange={(event) => updateField("clientName", event.target.value)}
+                readOnly={readOnly}
+                disabled={readOnly}
+                aria-invalid={Boolean(fieldErrors.clientName)}
+              />
+            </FormField>
+          ) : null}
 
           <FormField label="מיקום" htmlFor="location" error={fieldErrors.location}>
             <input

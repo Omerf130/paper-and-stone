@@ -203,6 +203,14 @@ Prefer CSS logical properties (`margin-inline`, `padding-inline`, `text-align: s
 - Profile readiness gate: fullName + phone required before project actions
 - Nav: **הפרויקטים שלי**
 
+**Phase 17B — Project Onboarding + Client Assignment:**
+- Separate onboarding axis: `onboardingStatus` + `clientUserId` on `Project`
+- New architect projects start `pending_approval`; Admin assigns active client on approval
+- Central workspace gates block item edits until onboarding active; legacy projects unchanged
+- Admin onboarding queue, review panel, client picker; architect pending/rejected/active UX
+- Admin↔Architect messaging available during onboarding review
+- See [`docs/phase-17b-project-onboarding-client-assignment.md`](phase-17b-project-onboarding-client-assignment.md)
+
 **Demo 10E.1 — Notification Foundation:**
 - Separate `Notification` collection for Professional inbox
 - Workflow hooks on admin approve / reject / request changes
@@ -340,8 +348,8 @@ The following are planned for future phases — not blockers for the foundation:
 |------|-------------|
 | Public website | Premium marketing site, catalog browsing, product detail |
 | Catalog | Categories, brands, designers, collections, materials library |
-| Accounts | Client, architect, and admin roles; architect access requests via Admin queue (Phase 17A) |
-| Projects | Rooms, configured products, quote requests |
+| Accounts | Client, architect, and admin roles; architect access requests (17A); client assignment privacy (17B) |
+| Projects | Onboarding + client assignment (17B); rooms and configured workspace deferred to 17C |
 | Admin | Product management, pricing workflow, order tracking |
 | Content | Documents/PDFs, notifications, multi-language support |
 | Integrations | External design tools, ERP/CRM, import/export |

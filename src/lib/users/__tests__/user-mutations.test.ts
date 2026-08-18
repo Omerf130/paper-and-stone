@@ -29,6 +29,10 @@ vi.mock("@/lib/users/verifyArchitectDowngrade", () => ({
   verifyArchitectDowngradeSafety: verifyArchitectDowngradeSafetyMock,
 }));
 
+vi.mock("@/lib/users/verifyClientRoleChange", () => ({
+  verifyClientRoleChangeSafety: vi.fn().mockResolvedValue(undefined),
+}));
+
 describe("user-mutations", () => {
   beforeEach(() => {
     findUserByIdMock.mockReset();

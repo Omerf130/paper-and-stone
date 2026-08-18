@@ -18,31 +18,29 @@ import type {
   AdminProjectDetailView,
   AdminProjectsPageResult,
 } from "@/types/admin-project";
-import type { ProjectStatus } from "@/types/project";
 import { getUnreadMessageCountsForProjects } from "@/lib/project-messages/getUnreadMessageCountsForProjects";
 import { getAdminProjectQuoteStatusSummaries } from "@/lib/quotes/quote-queries";
 
-type AdminProjectsFilter = {
-  status: ProjectStatus;
-  $or?: Array<Record<string, unknown>>;
-};
+type AdminProjectsFilter = Record<string, unknown>;
 
 export function buildAdminProjectsFilter(
-  params: AdminProjectsParams,
+  params: Pick<AdminProjectsParams, "queue" | "status">,
 ): AdminProjectsFilter {
-  const filter: AdminProjectsFilter = {
-    status: params.status,
-  };
-
-  if (params.query) {
-    const regex = escapeRegex(params.query);
-    filter.$or = [
-      { name: { $regex: regex, $options: "i" } },
-      { clientName: { $regex: regex, $options: "i" } },
-    ];
+  if (params.queue === "onboarding") {
+    return { onboardingStatus: "pending_approval" };
   }
 
-  return filter;
+  return {
+    $and: [
+      { status: params.status },
+      {
+        $or: [
+          { onboardingStatus: null },
+          { onboardingStatus: { $exists: false } },
+        ],
+      },
+    ],
+  };
 }
 
 async function resolveOwnerEmails(
@@ -53,7 +51,7 @@ async function resolveOwnerEmails(
   }
 
   const users = await User.find({ _id: { $in: ownerUserIds } })
-    .select("_id email")
+    .select("_id email fullName")
     .lean();
 
   return new Map(
@@ -68,19 +66,28 @@ async function resolveOwnerNames(
     return new Map();
   }
 
-  const profiles = await ProfessionalProfile.find({
-    userId: { $in: ownerUserIds },
-  })
-    .select("userId fullName")
+  const users = await User.find({ _id: { $in: ownerUserIds } })
+    .select("_id fullName email")
     .lean();
 
-  return new Map(
-    profiles
-      .filter((profile): profile is typeof profile & { fullName: string } =>
-        Boolean(profile.fullName?.trim()),
-      )
-      .map((profile) => [profile.userId.toString(), profile.fullName.trim()]),
-  );
+  const names = new Map<string, string>();
+
+  for (const user of users) {
+    if (user.fullName?.trim()) {
+      names.set(user._id.toString(), user.fullName.trim());
+      continue;
+    }
+
+    const profile = await ProfessionalProfile.findOne({ userId: user._id })
+      .select("fullName")
+      .lean();
+
+    if (profile?.fullName?.trim()) {
+      names.set(user._id.toString(), profile.fullName.trim());
+    }
+  }
+
+  return names;
 }
 
 export async function getAdminProjects(
@@ -89,10 +96,9 @@ export async function getAdminProjects(
 ): Promise<AdminProjectsPageResult> {
   await connectDB();
 
-  const filter = buildAdminProjectsFilter(params);
+  const baseFilter = buildAdminProjectsFilter(params);
 
-  let total: number;
-  let projects: IProject[];
+  let filter: AdminProjectsFilter = baseFilter;
 
   if (params.query) {
     const regex = escapeRegex(params.query);
@@ -103,48 +109,38 @@ export async function getAdminProjects(
       .lean();
 
     const ownerIdsFromEmail = matchingUsers.map((user) => user._id);
+    const searchOr: AdminProjectsFilter[] = [
+      { name: { $regex: regex, $options: "i" } },
+      { clientName: { $regex: regex, $options: "i" } },
+    ];
 
-    const combinedFilter = {
-      status: params.status,
-      $or: [
-        ...(filter.$or ?? []),
-        ...(ownerIdsFromEmail.length > 0
-          ? [{ ownerUserId: { $in: ownerIdsFromEmail } }]
-          : []),
+    if (ownerIdsFromEmail.length > 0) {
+      searchOr.push({ ownerUserId: { $in: ownerIdsFromEmail } });
+    }
+
+    filter = {
+      $and: [
+        ...(Array.isArray(baseFilter.$and)
+          ? baseFilter.$and
+          : [baseFilter]),
+        { $or: searchOr },
       ],
-    };
-
-    total = await Project.countDocuments(combinedFilter);
-    const pagination = calculatePagination({
-      total,
-      page: params.page,
-      pageSize: PROJECTS_PAGE_SIZE,
-    });
-
-    projects = (await Project.find(combinedFilter)
-      .sort({ submittedAt: -1, updatedAt: -1 })
-      .skip(pagination.skip)
-      .limit(pagination.pageSize)
-      .lean()) as IProject[];
-
-    return {
-      projects: await mapProjectsToAdminListItems(projects, adminUserId),
-      total,
-      page: pagination.page,
-      pageSize: pagination.pageSize,
-      totalPages: pagination.totalPages,
     };
   }
 
-  total = await Project.countDocuments(filter);
+  const total = await Project.countDocuments(filter);
   const pagination = calculatePagination({
     total,
     page: params.page,
     pageSize: PROJECTS_PAGE_SIZE,
   });
 
-  projects = (await Project.find(filter)
-    .sort({ submittedAt: -1, updatedAt: -1 })
+  const projects = (await Project.find(filter)
+    .sort(
+      params.queue === "onboarding"
+        ? { updatedAt: -1 }
+        : { submittedAt: -1, updatedAt: -1 },
+    )
     .skip(pagination.skip)
     .limit(pagination.pageSize)
     .lean()) as IProject[];
@@ -174,21 +170,24 @@ async function mapProjectsToAdminListItems(
     getAdminProjectQuoteStatusSummaries(projectIds),
   ]);
 
-  return projects.map((project) => {
-    const projectId = project._id.toString();
-    const quoteSummary = quoteSummaries.get(projectId);
+  return Promise.all(
+    projects.map(async (project) => {
+      const projectId = project._id.toString();
+      const quoteSummary = quoteSummaries.get(projectId);
+      const ownerId = project.ownerUserId.toString();
 
-    return {
-      ...mapLeanProjectToAdminListItem(
-        project,
-        emailsByOwnerId.get(project.ownerUserId.toString()) ?? "—",
-        namesByOwnerId.get(project.ownerUserId.toString()),
-      ),
-      unreadMessageCount: unreadCounts.get(projectId) ?? 0,
-      quoteStatusLabel: quoteSummary?.quoteStatusLabel,
-      quoteAttention: quoteSummary?.quoteAttention,
-    };
-  });
+      return {
+        ...(await mapLeanProjectToAdminListItem(
+          project,
+          emailsByOwnerId.get(ownerId) ?? "—",
+          namesByOwnerId.get(ownerId),
+        )),
+        unreadMessageCount: unreadCounts.get(projectId) ?? 0,
+        quoteStatusLabel: quoteSummary?.quoteStatusLabel,
+        quoteAttention: quoteSummary?.quoteAttention,
+      };
+    }),
+  );
 }
 
 export async function getAdminProjectDetailView(

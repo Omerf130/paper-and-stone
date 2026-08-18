@@ -7,7 +7,17 @@ import type {
 } from "@/types/project";
 import Product from "@/models/Product";
 import { connectDB } from "@/lib/db/mongoose";
-import { mapReviewHistoryEntryToView } from "@/lib/projects/project-review-history";
+import {
+  getLatestOnboardingRejectionReason,
+  mapReviewHistoryEntryToView,
+} from "@/lib/projects/project-review-history";
+import {
+  canResubmitOnboarding,
+  isProjectItemWorkspaceVisible,
+  isProjectMetadataEditable,
+  isProjectOnboardingDeletable,
+} from "@/lib/projects/project-workspace-gates";
+import { resolveAssignedClientFullName } from "@/lib/admin/clients/client-lookup-queries";
 
 export function mapProjectItemToView(
   item: IProjectItem,
@@ -52,11 +62,19 @@ export async function resolveActiveProductIds(
   return new Set(activeProducts.map((product) => product._id.toString()));
 }
 
-export function mapProjectToListItemView(project: IProject): ProjectListItemView {
+export async function mapProjectToListItemView(
+  project: IProject,
+): Promise<ProjectListItemView> {
+  const assignedClientFullName = project.clientUserId
+    ? await resolveAssignedClientFullName(project.clientUserId)
+    : null;
+
   return {
     id: project._id.toString(),
     name: project.name,
     clientName: project.clientName,
+    assignedClientFullName,
+    onboardingStatus: project.onboardingStatus ?? null,
     status: project.status,
     itemCount: project.items.length,
     submittedAt: project.submittedAt?.toISOString(),
@@ -69,23 +87,34 @@ export async function mapProjectToDetailView(
 ): Promise<ProjectDetailView> {
   const productIds = [...new Set(project.items.map((item) => item.productId.toString()))];
   const activeProductIds = await resolveActiveProductIds(productIds);
+  const reviewHistory = (project.reviewHistory ?? []).map(mapReviewHistoryEntryToView);
+  const assignedClientFullName = project.clientUserId
+    ? await resolveAssignedClientFullName(project.clientUserId)
+    : null;
 
   return {
     id: project._id.toString(),
     name: project.name,
     clientName: project.clientName,
+    assignedClientFullName,
+    onboardingStatus: project.onboardingStatus ?? null,
+    onboardingRejectionReason: getLatestOnboardingRejectionReason(reviewHistory),
     location: project.location,
     description: project.description,
     status: project.status,
     items: project.items.map((item) =>
       mapProjectItemToView(item, activeProductIds),
     ),
-    reviewHistory: (project.reviewHistory ?? []).map(mapReviewHistoryEntryToView),
+    reviewHistory,
     submittedAt: project.submittedAt?.toISOString(),
     reviewedAt: project.reviewedAt?.toISOString(),
     reviewedByUserId: project.reviewedByUserId?.toString(),
     createdAt: project.createdAt.toISOString(),
     updatedAt: project.updatedAt.toISOString(),
+    isMetadataEditable: isProjectMetadataEditable(project),
+    isItemWorkspaceVisible: isProjectItemWorkspaceVisible(project),
+    isOnboardingDeletable: isProjectOnboardingDeletable(project),
+    canResubmitOnboarding: canResubmitOnboarding(project),
   };
 }
 

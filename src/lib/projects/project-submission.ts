@@ -9,6 +9,7 @@ import {
   isSubmittableStatus,
 } from "@/lib/projects/project-status-transitions";
 import { buildReviewHistoryEntry } from "@/lib/projects/project-review-history";
+import { isLegacyProject, isProjectOnboardingActive } from "@/lib/projects/project-workspace-gates";
 import { getMyProfessionalProfileView } from "@/lib/professionals/ensureProfessionalProfile";
 import { isProfileReadyForProjects } from "@/lib/professionals/profile-readiness";
 import { supersedeActiveQuotes } from "@/lib/quotes/supersedeActiveQuotes";
@@ -39,6 +40,10 @@ export async function submitProject(
 
   if (!project) {
     throw new ProjectMutationError(PROJECT_ERRORS.NOT_FOUND);
+  }
+
+  if (!isLegacyProject(project) && !isProjectOnboardingActive(project)) {
+    throw new ProjectMutationError(PROJECT_ERRORS.NOT_SUBMITTABLE);
   }
 
   if (!isSubmittableStatus(project.status)) {

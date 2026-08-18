@@ -57,6 +57,22 @@ export type ProjectWriteFields = {
   description?: string;
 };
 
+export type ProjectCreateFields = {
+  name: string;
+  location?: string;
+  description?: string;
+};
+
+export const projectCreateInputSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(2, "נא להזין שם פרויקט")
+    .max(120, "שם הפרויקט ארוך מדי"),
+  location: optionalTrimmedString(120),
+  description: optionalTrimmedString(1000),
+});
+
 const objectIdString = z
   .string()
   .regex(/^[a-f\d]{24}$/i, "מזהה לא תקין");
@@ -99,6 +115,20 @@ function formatZodErrors(error: z.ZodError): Record<string, string> {
   }
 
   return fieldErrors;
+}
+
+export function parseProjectCreateInput(
+  input: import("@/types/project").ProjectCreateFormInput,
+):
+  | { success: true; data: ProjectCreateFields }
+  | { success: false; fieldErrors: Record<string, string> } {
+  const parsed = projectCreateInputSchema.safeParse(input);
+
+  if (!parsed.success) {
+    return { success: false, fieldErrors: formatZodErrors(parsed.error) };
+  }
+
+  return { success: true, data: parsed.data };
 }
 
 export function parseProjectFormInput(

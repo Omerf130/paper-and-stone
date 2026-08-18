@@ -1,9 +1,12 @@
-import type { ProjectStatus } from "@/types/project";
+import type { ProjectOnboardingStatus, ProjectStatus } from "@/types/project";
 
 export type AdminProjectListItemView = {
   id: string;
   name: string;
   clientName?: string;
+  assignedClientFullName?: string | null;
+  clientUserId?: string | null;
+  onboardingStatus?: ProjectOnboardingStatus | null;
   status: ProjectStatus;
   itemCount: number;
   professionalEmail: string;
@@ -19,6 +22,9 @@ export type AdminProjectDetailView = {
   id: string;
   name: string;
   clientName?: string;
+  assignedClientFullName?: string | null;
+  clientUserId?: string | null;
+  onboardingStatus?: ProjectOnboardingStatus | null;
   location?: string;
   description?: string;
   status: ProjectStatus;
@@ -49,6 +55,15 @@ export const PROJECT_STATUS_LABELS: Record<ProjectStatus, string> = {
   rejected: "נדחה",
 };
 
+export const ONBOARDING_STATUS_LABELS: Record<
+  ProjectOnboardingStatus,
+  string
+> = {
+  pending_approval: "ממתין לאישור",
+  active: "פעיל",
+  rejected: "נדחה",
+};
+
 export const PROJECT_REVIEW_ACTION_LABELS: Record<
   import("@/types/project").ProjectReviewAction,
   string
@@ -58,4 +73,9 @@ export const PROJECT_REVIEW_ACTION_LABELS: Record<
   approved: "אושר",
   rejected: "נדחה",
   changes_requested: "נדרשו שינויים",
+  onboarding_created: "נוצר וממתין לאישור",
+  onboarding_approved: "אושר לפתיחה",
+  onboarding_rejected: "נדחה בפתיחה",
+  onboarding_resubmitted: "נשלח מחדש לאישור פתיחה",
+  onboarding_client_reassigned: "לקוח עודכן",
 };

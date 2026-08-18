@@ -17,13 +17,18 @@ const projectId = "507f1f77bcf86cd799439013";
 const ownerId = "507f1f77bcf86cd799439012";
 const otherProId = "507f1f77bcf86cd799439014";
 
-function mockProject(reviewHistory: Array<{ action: string }> = [{ action: "submitted" }]) {
+function mockProject(
+  reviewHistory: Array<{ action: string }> = [{ action: "submitted" }],
+  onboardingStatus?: string | null,
+) {
   findByIdMock.mockReturnValue({
     select: vi.fn().mockResolvedValue({
       _id: new Types.ObjectId(projectId),
       ownerUserId: new Types.ObjectId(ownerId),
       name: "Villa",
+      status: "draft",
       reviewHistory,
+      onboardingStatus,
     }),
   });
 }
@@ -79,6 +84,22 @@ describe("verifyProjectMessagingAccess", () => {
     );
 
     expect(context.messagingAvailable).toBe(false);
+  });
+
+  it("allows messaging on onboarding pending project before commercial submit", async () => {
+    mockProject([], "pending_approval");
+
+    const { verifyProjectMessagingAccess } = await import(
+      "@/lib/project-messages/verifyProjectMessagingAccess"
+    );
+
+    const context = await verifyProjectMessagingAccess(
+      projectId,
+      "professional",
+      ownerId,
+    );
+
+    expect(context.messagingAvailable).toBe(true);
   });
 
   it("allows admin on submitted project", async () => {

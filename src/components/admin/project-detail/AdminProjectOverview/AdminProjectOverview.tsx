@@ -49,7 +49,9 @@ function buildOverviewRows(project: AdminProjectDetailView): OverviewRow[] {
     });
   }
 
-  if (project.clientName) {
+  if (project.assignedClientFullName) {
+    rows.push({ label: "לקוח משויך", value: project.assignedClientFullName });
+  } else if (project.clientName) {
     rows.push({ label: "לקוח", value: project.clientName });
   }
 

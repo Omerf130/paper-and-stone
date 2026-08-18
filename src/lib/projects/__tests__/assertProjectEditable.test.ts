@@ -54,4 +54,14 @@ describe("assertProjectEditable", () => {
       } as never),
     ).toThrow(PROJECT_ERRORS.NOT_DELETABLE);
   });
+
+  it("allows delete for onboarding pending projects", () => {
+    expect(
+      isProjectDeletable({
+        status: "draft",
+        onboardingStatus: "pending_approval",
+        reviewHistory: [{ action: "onboarding_created" } as never],
+      }),
+    ).toBe(true);
+  });
 });

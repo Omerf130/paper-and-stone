@@ -64,12 +64,26 @@ export function getLatestAdminFeedback(
   const feedbackActions = new Set<ProjectReviewAction>([
     "changes_requested",
     "rejected",
+    "onboarding_rejected",
   ]);
 
   for (let index = history.length - 1; index >= 0; index -= 1) {
     const entry = history[index];
     if (feedbackActions.has(entry.action) && entry.message?.trim()) {
       return entry as ProjectReviewHistoryEntry;
+    }
+  }
+
+  return null;
+}
+
+export function getLatestOnboardingRejectionReason(
+  history: Pick<ProjectReviewHistoryEntry, "action" | "message" | "createdAt">[],
+): string | null {
+  for (let index = history.length - 1; index >= 0; index -= 1) {
+    const entry = history[index];
+    if (entry.action === "onboarding_rejected" && entry.message?.trim()) {
+      return entry.message.trim();
     }
   }
 
@@ -83,5 +97,15 @@ export function hasEverBeenSubmitted(
 ): boolean {
   return project.reviewHistory.some(
     (entry) => entry.action === "submitted" || entry.action === "resubmitted",
+  );
+}
+
+export function hasOnboardingBeenApproved(
+  project: {
+    reviewHistory: Array<Pick<IProjectReviewHistoryEntry, "action">>;
+  },
+): boolean {
+  return project.reviewHistory.some(
+    (entry) => entry.action === "onboarding_approved",
   );
 }

@@ -2,9 +2,10 @@ import { describe, expect, it } from "vitest";
 import { applyAdminNavBadges, adminNavGroups } from "@/config/admin-nav";
 
 describe("applyAdminNavBadges", () => {
-  it("badges architect requests and submitted projects", () => {
+  it("badges architect requests and combined project attention", () => {
     const groups = applyAdminNavBadges(adminNavGroups, {
       submittedProjectCount: 4,
+      pendingOnboardingProjectCount: 2,
       pendingArchitectRequestCount: 2,
     });
 
@@ -15,7 +16,7 @@ describe("applyAdminNavBadges", () => {
       .flatMap((group) => group.items)
       .find((item) => item.href === "/admin/architect-requests");
 
-    expect(projectsItem?.badgeCount).toBe(4);
+    expect(projectsItem?.badgeCount).toBe(6);
     expect(architectRequestsItem?.badgeCount).toBe(2);
   });
 });

@@ -11,6 +11,10 @@ export function buildNotificationTitle(
       return `הפרויקט ${projectNameSnapshot} נדחה`;
     case "PROJECT_CHANGES_REQUESTED":
       return `נדרשים שינויים בפרויקט ${projectNameSnapshot}`;
+    case "PROJECT_ONBOARDING_APPROVED":
+      return `הפרויקט ${projectNameSnapshot} אושר לפתיחה`;
+    case "PROJECT_ONBOARDING_REJECTED":
+      return `בקשת פתיחת הפרויקט ${projectNameSnapshot} נדחתה`;
     case "PROJECT_MESSAGE":
       return `הודעה חדשה בפרויקט ${projectNameSnapshot}`;
     case "PROJECT_QUOTE_SENT":

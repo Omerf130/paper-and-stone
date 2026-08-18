@@ -4,20 +4,28 @@ import {
   resolveActiveProductIds,
 } from "@/lib/projects/mapProjectToView";
 import { mapReviewHistoryEntryToView } from "@/lib/projects/project-review-history";
+import { resolveAssignedClientFullName } from "@/lib/admin/clients/client-lookup-queries";
 import type {
   AdminProjectDetailView,
   AdminProjectListItemView,
 } from "@/types/admin-project";
 
-export function mapLeanProjectToAdminListItem(
+export async function mapLeanProjectToAdminListItem(
   project: IProject,
   professionalEmail: string,
   professionalName?: string,
-): AdminProjectListItemView {
+): Promise<AdminProjectListItemView> {
+  const assignedClientFullName = project.clientUserId
+    ? await resolveAssignedClientFullName(project.clientUserId)
+    : null;
+
   return {
     id: project._id.toString(),
     name: project.name,
     clientName: project.clientName,
+    assignedClientFullName,
+    clientUserId: project.clientUserId?.toString() ?? null,
+    onboardingStatus: project.onboardingStatus ?? null,
     status: project.status,
     itemCount: project.items.length,
     professionalEmail,
@@ -36,11 +44,17 @@ export async function mapLeanProjectToAdminDetailView(
     ...new Set(project.items.map((item) => item.productId.toString())),
   ];
   const activeProductIds = await resolveActiveProductIds(productIds);
+  const assignedClientFullName = project.clientUserId
+    ? await resolveAssignedClientFullName(project.clientUserId)
+    : null;
 
   return {
     id: project._id.toString(),
     name: project.name,
     clientName: project.clientName,
+    assignedClientFullName,
+    clientUserId: project.clientUserId?.toString() ?? null,
+    onboardingStatus: project.onboardingStatus ?? null,
     location: project.location,
     description: project.description,
     status: project.status,

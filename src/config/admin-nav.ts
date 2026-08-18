@@ -51,6 +51,7 @@ export const adminNavItems: AdminNavItem[] = adminNavGroups.flatMap(
 
 type AdminNavBadgeCounts = {
   submittedProjectCount: number;
+  pendingOnboardingProjectCount: number;
   pendingArchitectRequestCount: number;
 };
 
@@ -58,11 +59,14 @@ export function applyAdminNavBadges(
   groups: AdminNavGroup[],
   counts: AdminNavBadgeCounts,
 ): AdminNavGroup[] {
+  const projectsBadgeCount =
+    counts.submittedProjectCount + counts.pendingOnboardingProjectCount;
+
   return groups.map((group) => ({
     ...group,
     items: group.items.map((item) => {
       if (item.href === "/admin/projects") {
-        return { ...item, badgeCount: counts.submittedProjectCount };
+        return { ...item, badgeCount: projectsBadgeCount };
       }
 
       if (item.href === "/admin/architect-requests") {

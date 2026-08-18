@@ -79,3 +79,35 @@
 
   @include focus-visible;
 }
+
+.queueTabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+}
+
+.queueTab,
+.queueTabActive {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.25rem;
+  padding-inline: $spacing-md;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  text-decoration: none;
+  border: 1px solid $color-border;
+  border-radius: $radius-sm;
+
+  @include focus-visible;
+}
+
+.queueTab {
+  color: $color-text-secondary;
+  background-color: $color-background;
+}
+
+.queueTabActive {
+  color: $color-text-primary;
+  background-color: $color-background;
+  border-color: $color-text-primary;
+}

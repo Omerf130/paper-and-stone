@@ -33,15 +33,13 @@ function mapLeanProjectToDashboardProject(
   project: LeanProject,
   unreadMessageCount: number,
 ): ProfessionalDashboardProject {
-  const listView = mapProjectToListItemView(project as IProject);
-
   return {
-    id: listView.id,
-    name: listView.name,
-    clientName: listView.clientName,
-    status: listView.status,
-    itemCount: listView.itemCount,
-    updatedAt: listView.updatedAt,
+    id: project._id.toString(),
+    name: project.name,
+    clientName: project.clientName,
+    status: project.status,
+    itemCount: project.items.length,
+    updatedAt: project.updatedAt.toISOString(),
     unreadMessageCount,
   };
 }
@@ -116,16 +114,16 @@ export async function getProfessionalDashboardData(
       status: "changes_requested",
     }),
     Project.find({ ownerUserId: ownerObjectId, status: "changes_requested" })
-      .select("_id name clientName status updatedAt items")
+      .select("_id name clientName status updatedAt items onboardingStatus clientUserId")
       .sort({ updatedAt: -1 })
       .lean(),
     Project.find({ ownerUserId: ownerObjectId, status: "draft" })
-      .select("_id name clientName status updatedAt items")
+      .select("_id name clientName status updatedAt items onboardingStatus clientUserId")
       .sort({ updatedAt: -1 })
       .limit(DASHBOARD_LIMIT)
       .lean(),
     Project.find({ ownerUserId: ownerObjectId, status: "submitted" })
-      .select("_id name clientName status updatedAt items")
+      .select("_id name clientName status updatedAt items onboardingStatus clientUserId")
       .sort({ updatedAt: -1 })
       .limit(DASHBOARD_LIMIT)
       .lean(),
@@ -133,7 +131,7 @@ export async function getProfessionalDashboardData(
       ownerUserId: ownerObjectId,
       status: { $in: ["approved", "rejected"] satisfies ProjectStatus[] },
     })
-      .select("_id name clientName status updatedAt items")
+      .select("_id name clientName status updatedAt items onboardingStatus clientUserId")
       .sort({ updatedAt: -1 })
       .limit(DASHBOARD_LIMIT)
       .lean(),
@@ -152,7 +150,7 @@ export async function getProfessionalDashboardData(
     "professional",
   );
 
-  const dashboardProjects = mergePriorityDashboardProjects(
+  const mergedProjects = mergePriorityDashboardProjects(
     {
       changesRequested: changesRequestedProjects as LeanProject[],
       drafts: draftProjects as LeanProject[],
@@ -160,6 +158,30 @@ export async function getProfessionalDashboardData(
       finalized: finalizedProjects as LeanProject[],
     },
     unreadCounts,
+  );
+
+  const dashboardProjects = await Promise.all(
+    mergedProjects.map(async (project) => {
+      const source = [
+        ...changesRequestedProjects,
+        ...draftProjects,
+        ...submittedProjects,
+        ...finalizedProjects,
+      ].find((candidate) => candidate._id.toString() === project.id);
+
+      if (!source) {
+        return project;
+      }
+
+      const listView = await mapProjectToListItemView(source as IProject);
+
+      return {
+        ...project,
+        clientName: listView.clientName,
+        assignedClientFullName: listView.assignedClientFullName,
+        onboardingStatus: listView.onboardingStatus,
+      };
+    }),
   );
 
   return {

@@ -1,7 +1,7 @@
 import { Types } from "mongoose";
 import { connectDB } from "@/lib/db/mongoose";
 import Project from "@/models/Project";
-import { hasEverBeenSubmitted } from "@/lib/projects/project-review-history";
+import { isMessagingAvailable } from "@/lib/projects/project-workspace-gates";
 import { MESSAGE_ERRORS } from "@/lib/project-messages/message-errors";
 import { ProjectMessageMutationError } from "@/lib/project-messages/message-errors";
 import type { ProjectMessageAudience } from "@/types/project-message";
@@ -34,7 +34,7 @@ export async function verifyProjectMessagingAccess(
   }
 
   const project = await Project.findById(projectId).select(
-    "_id ownerUserId name reviewHistory",
+    "_id ownerUserId name reviewHistory onboardingStatus status",
   );
 
   if (!project) {
@@ -47,7 +47,7 @@ export async function verifyProjectMessagingAccess(
     }
   }
 
-  const messagingAvailable = hasEverBeenSubmitted(project);
+  const messagingAvailable = isMessagingAvailable(project);
 
   return {
     projectId: project._id.toString(),

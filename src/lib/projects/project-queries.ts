@@ -34,9 +34,15 @@ export async function getProfessionalProjects(
     "professional",
   );
 
-  return projects.map((project) => ({
-    ...mapProjectToListItemView(project as IProject),
-    unreadMessageCount: unreadCounts.get(project._id.toString()) ?? 0,
+  const mapped = await Promise.all(
+    projects.map((project) =>
+      mapProjectToListItemView(project as IProject),
+    ),
+  );
+
+  return mapped.map((project, index) => ({
+    ...project,
+    unreadMessageCount: unreadCounts.get(projectIds[index] ?? "") ?? 0,
   }));
 }
 
@@ -48,6 +54,11 @@ export async function getProfessionalProjectOptions(
   const projects = await Project.find({
     ownerUserId: new Types.ObjectId(ownerUserId),
     status: { $in: ["draft", "changes_requested"] },
+    $or: [
+      { onboardingStatus: null },
+      { onboardingStatus: { $exists: false } },
+      { onboardingStatus: "active" },
+    ],
   })
     .select("_id name")
     .sort({ updatedAt: -1 })
