@@ -1,0 +1,40 @@
+import { parseShekelsInputToAgorot } from "@/lib/money/parse-money-input";
+import {
+  isValidMarkupBasisPoints,
+  percentageStringToBasisPoints,
+} from "@/lib/pricing/markup-basis-points";
+
+export const PRICING_ERRORS = {
+  INVALID_COST: "יש להזין עלות תקינה",
+  INVALID_MARKUP: "Markup חייב להיות בין 0% ל־1000%",
+  NOT_EDITABLE: "לא ניתן לתמחר פרויקט שאינו פעיל",
+  ARCHITECT_PRICE_REQUIRED: "יש לקבוע מחיר לאדריכל לפני תמחור ללקוח",
+  STALE_CLIENT_PRICE: "מחיר הלקוח דורש בדיקה מחדש",
+  INCOMPLETE_PRICING: "יש להשלים תמחור לכל המוצרים לפני שליחה",
+  STALE_PRICING_SUBMIT: "יש מוצרים שדורשים עדכון מחיר לקוח לפני שליחה",
+  VERSION_CONFLICT: "התמחור עודכן במקביל. יש לרענן ולנסות שוב.",
+  ITEM_NOT_FOUND: "המוצר לא נמצא בפרויקט",
+  PROJECT_NOT_FOUND: "הפרויקט לא נמצא",
+  MARKUP_REQUIRED: "לא הוגדר Markup",
+  COST_REQUIRED: "לא הוגדרה עלות",
+} as const;
+
+export function parseInternalCostInput(value: string): number | null {
+  const parsed = parseShekelsInputToAgorot(value);
+
+  if (parsed == null || parsed < 0) {
+    return null;
+  }
+
+  return parsed;
+}
+
+export function parseMarkupPercentageInput(value: string): number | null {
+  const basisPoints = percentageStringToBasisPoints(value);
+
+  if (basisPoints == null || !isValidMarkupBasisPoints(basisPoints)) {
+    return null;
+  }
+
+  return basisPoints;
+}

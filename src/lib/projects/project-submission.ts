@@ -12,6 +12,7 @@ import { buildReviewHistoryEntry } from "@/lib/projects/project-review-history";
 import { isLegacyProject, isProjectOnboardingActive } from "@/lib/projects/project-workspace-gates";
 import { getMyProfessionalProfileView } from "@/lib/professionals/ensureProfessionalProfile";
 import { isProfileReadyForProjects } from "@/lib/professionals/profile-readiness";
+import { assertLayeredPricingCompleteForSubmit } from "@/lib/pricing/pricing-gates";
 import { supersedeActiveQuotes } from "@/lib/quotes/supersedeActiveQuotes";
 
 async function assertProfileReadyForProjects(userId: string): Promise<void> {
@@ -53,6 +54,8 @@ export async function submitProject(
   if (project.items.length === 0) {
     throw new ProjectMutationError(PROJECT_ERRORS.EMPTY_PROJECT);
   }
+
+  assertLayeredPricingCompleteForSubmit(project);
 
   const fromStatus = project.status;
   const toStatus = "submitted";

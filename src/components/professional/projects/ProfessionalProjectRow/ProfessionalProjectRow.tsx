@@ -6,6 +6,7 @@ import {
   mapOnboardingStatusToBadge,
   mapProjectStatusToBadge,
 } from "@/lib/ui/map-status-badge";
+import { getArchitectProjectActionHint } from "@/lib/projects/architect-project-attention";
 import { getProjectRequiredActionHint } from "@/lib/projects/get-project-required-action-hint";
 import type { ProfessionalDashboardProject } from "@/types/professional-dashboard";
 import type { ProjectListItemView } from "@/types/project";
@@ -22,13 +23,21 @@ export default function ProfessionalProjectRow({
   const statusBadge = hasOnboarding && project.onboardingStatus
     ? mapOnboardingStatusToBadge(project.onboardingStatus)
     : mapProjectStatusToBadge(project.status);
-  const actionHint = hasOnboarding
-    ? project.onboardingStatus === "rejected"
-      ? "יש לערוך ולשלוח מחדש לאישור"
-      : project.onboardingStatus === "pending_approval"
-        ? "ממתין לאישור מנהל המערכת"
-        : null
-    : getProjectRequiredActionHint(project.status);
+  const actionHint =
+    "actionHint" in project && project.actionHint
+      ? project.actionHint
+      : hasOnboarding
+        ? project.onboardingStatus === "rejected"
+          ? "יש לערוך ולשלוח מחדש לאישור"
+          : project.onboardingStatus === "pending_approval"
+            ? "ממתין לאישור מנהל המערכת"
+            : getArchitectProjectActionHint({
+                onboardingStatus: project.onboardingStatus ?? null,
+                status: project.status,
+                items: [],
+              })
+        : getProjectRequiredActionHint(project.status);
+  const roomCount = "roomCount" in project ? project.roomCount : undefined;
   const unreadCount =
     "unreadMessageCount" in project ? (project.unreadMessageCount ?? 0) : 0;
   const clientLabel = hasOnboarding
@@ -54,6 +63,7 @@ export default function ProfessionalProjectRow({
           ) : null}
         </div>
         <p className={styles.details}>
+          {roomCount != null ? `${roomCount} חדרים · ` : ""}
           {project.itemCount} מוצרים · עודכן {formatDateTime(project.updatedAt)}
         </p>
         {unreadCount > 0 ? (
@@ -66,10 +76,10 @@ export default function ProfessionalProjectRow({
       <div className={styles.side}>
         <Button
           href={`/professional/projects/${project.id}`}
-          variant="ghost"
+          variant="secondary"
           size="sm"
         >
-          פתיחה
+          פתיחת פרויקט
         </Button>
       </div>
     </article>

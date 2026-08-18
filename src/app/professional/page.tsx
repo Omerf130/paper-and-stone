@@ -29,7 +29,10 @@ export default async function ProfessionalDashboardPage() {
       />
 
       <ProfessionalDashboardAttention
+        attentionProjectCount={dashboard.attentionProjectCount}
+        stalePricingProjectCount={dashboard.stalePricingProjectCount}
         changesRequestedCount={dashboard.changesRequestedCount}
+        pendingOnboardingCount={dashboard.pendingOnboardingCount}
         unreadNotificationCount={dashboard.unreadNotificationCount}
         unreadMessageCount={dashboard.unreadMessageCount}
         profileIncomplete={!dashboard.profileCompleteness.isComplete}

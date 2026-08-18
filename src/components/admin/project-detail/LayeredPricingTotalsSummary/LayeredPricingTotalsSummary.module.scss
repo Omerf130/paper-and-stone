@@ -1,0 +1,70 @@
+@use "../../../../styles/tokens" as *;
+
+.totals {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+  margin: $spacing-md 0 0;
+  padding: $spacing-md;
+  background-color: $color-surface;
+  border-radius: $radius-sm;
+}
+
+.project {
+  margin-top: $spacing-lg;
+  padding: $spacing-lg;
+  border-top: 1px solid $color-border;
+  border-radius: 0;
+  background-color: transparent;
+}
+
+.label {
+  margin: 0 0 $spacing-sm;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: $spacing-sm;
+
+  dt {
+    margin: 0;
+    font-size: $font-size-sm;
+    color: $color-text-secondary;
+  }
+
+  dd {
+    margin: 0;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    color: $color-text-primary;
+  }
+}
+
+.meta,
+.metaWarning {
+  margin: $spacing-xs 0 0;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.metaWarning {
+  color: $color-danger-text;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

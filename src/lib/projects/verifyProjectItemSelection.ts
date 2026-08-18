@@ -20,6 +20,7 @@ import {
 export type VerifiedProjectItemSelection = {
   productId: string;
   productView: ProductView;
+  defaultInternalCostAgorot?: number;
   selectedMaterialId: string | null;
   selectedColorId: string | null;
   selectedSizeKey: string | null;
@@ -150,6 +151,7 @@ export async function verifyProjectItemSelectionForAdd(
   return {
     ...verified,
     productId: loaded.product._id.toString(),
+    defaultInternalCostAgorot: loaded.product.defaultInternalCostAgorot,
   };
 }
 
@@ -175,5 +177,6 @@ export async function verifyProjectItemSelectionForEdit(
   return {
     ...verified,
     productId: loaded.product._id.toString(),
+    defaultInternalCostAgorot: loaded.product.defaultInternalCostAgorot,
   };
 }

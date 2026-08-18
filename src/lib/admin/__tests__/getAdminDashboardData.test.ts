@@ -61,10 +61,12 @@ vi.mock("@/lib/quotes/quote-queries", () => ({
   getAdminQuoteAttentionSummary: quoteAttentionMock,
 }));
 
-const pendingOnboardingCountMock = vi.fn();
+const attentionCountMock = vi.fn();
+const activeCountMock = vi.fn();
 
-vi.mock("@/lib/projects/getSubmittedProjectCount", () => ({
-  getPendingOnboardingProjectCount: pendingOnboardingCountMock,
+vi.mock("@/lib/projects/getAdminProjects", () => ({
+  getAdminProjectAttentionCount: attentionCountMock,
+  getActiveProjectCount: activeCountMock,
 }));
 
 vi.mock("@/lib/users/architect-request-queries", () => ({
@@ -83,10 +85,14 @@ describe("getAdminDashboardData", () => {
     unreadCountMock.mockReset();
     quoteAttentionMock.mockReset();
     pendingArchitectRequestsMock.mockReset();
-    pendingOnboardingCountMock.mockReset();
+    attentionCountMock.mockReset();
+    activeCountMock.mockReset();
 
-    projectCountDocumentsMock.mockResolvedValue(3);
-    pendingOnboardingCountMock.mockResolvedValue(5);
+    attentionCountMock.mockResolvedValue(7);
+    activeCountMock.mockResolvedValue(12);
+    projectCountDocumentsMock
+      .mockResolvedValueOnce(3)
+      .mockResolvedValueOnce(5);
     unreadCountMock.mockResolvedValue(2);
     quoteAttentionMock.mockResolvedValue({
       quoteAcceptedAwaitingApprovalCount: 1,
@@ -125,6 +131,8 @@ describe("getAdminDashboardData", () => {
 
     const data = await getAdminDashboardData("507f1f77bcf86cd799439011");
 
+    expect(data.attentionProjectCount).toBe(7);
+    expect(data.activeProjectCount).toBe(12);
     expect(data.submittedProjectCount).toBe(3);
     expect(data.pendingOnboardingProjectCount).toBe(5);
     expect(data.unreadAdminMessageCount).toBe(2);

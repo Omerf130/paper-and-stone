@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { normalizeProductSku } from "@/lib/products/normalize-product-sku";
+import { parseInternalCostInput } from "@/lib/pricing/pricing-validation";
 import type { AdminProductFormInput } from "@/types/admin-product";
 
 export const PRODUCT_ERRORS = {
@@ -65,6 +66,7 @@ export const productInputSchema = z
     countryOfOrigin: optionalString(120),
     materialOptions: z.array(productMaterialOptionSchema),
     sizes: z.array(productSizeSchema),
+    defaultInternalCostShekels: z.string().optional().or(z.literal("")),
   })
   .superRefine((value, context) => {
     const seenMaterialIds = new Set<string>();
@@ -120,6 +122,7 @@ export type ProductWriteFields = {
   countryOfOrigin?: string;
   materialOptions: ProductInput["materialOptions"];
   sizes: ProductInput["sizes"];
+  defaultInternalCostAgorot?: number;
 };
 
 function parseOptionalNumber(value: string | undefined): number | undefined {
@@ -162,6 +165,9 @@ export function mapProductInputToWriteFields(
     countryOfOrigin: emptyToUndefined(input.countryOfOrigin),
     materialOptions: input.materialOptions,
     sizes: input.sizes,
+    defaultInternalCostAgorot: input.defaultInternalCostShekels
+      ? parseInternalCostInput(input.defaultInternalCostShekels) ?? undefined
+      : undefined,
   };
 }
 

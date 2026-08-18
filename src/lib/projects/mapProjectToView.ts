@@ -17,10 +17,16 @@ import {
   isProjectMetadataEditable,
   isProjectOnboardingDeletable,
   isProjectRoomEditable,
+  usesLayeredPricing,
   usesRoomBasedWorkspace,
 } from "@/lib/projects/project-workspace-gates";
 import { getProjectRoomViews } from "@/lib/projects/project-room-queries";
 import { resolveAssignedClientFullName } from "@/lib/admin/clients/client-lookup-queries";
+import {
+  mapArchitectPricingTotalsView,
+  mapArchitectProjectItemPricingView,
+  mapArchitectProjectPricingSettingsView,
+} from "@/lib/pricing/pricing-view-mappers";
 
 export function mapProjectItemToView(
   item: IProjectItem,
@@ -99,6 +105,7 @@ export async function mapProjectToDetailView(
   const rooms = usesRoomBasedWorkspace(project)
     ? await getProjectRoomViews(project._id.toString(), project.items)
     : [];
+  const layeredPricing = usesLayeredPricing(project);
 
   return {
     id: project._id.toString(),
@@ -110,9 +117,14 @@ export async function mapProjectToDetailView(
     location: project.location,
     description: project.description,
     status: project.status,
-    items: project.items.map((item) =>
-      mapProjectItemToView(item, activeProductIds),
-    ),
+    items: project.items.map((item) => ({
+      ...mapProjectItemToView(item, activeProductIds),
+      ...(layeredPricing
+        ? {
+            architectPricing: mapArchitectProjectItemPricingView(item, project),
+          }
+        : {}),
+    })),
     reviewHistory,
     submittedAt: project.submittedAt?.toISOString(),
     reviewedAt: project.reviewedAt?.toISOString(),
@@ -127,6 +139,12 @@ export async function mapProjectToDetailView(
     isRoomEditable: isProjectRoomEditable(project),
     rooms,
     selectedRoomId: selectedRoomId ?? null,
+    ...(layeredPricing
+      ? {
+          pricingSettings: mapArchitectProjectPricingSettingsView(project),
+          pricingTotals: mapArchitectPricingTotalsView(project.items),
+        }
+      : {}),
   };
 }
 

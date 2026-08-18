@@ -5,10 +5,10 @@ import {
 } from "@/lib/projects/project-params";
 
 describe("project-params", () => {
-  it("defaults admin list status to submitted and commercial queue", () => {
+  it("defaults admin list to attention queue", () => {
     expect(parseAdminProjectsParams({})).toEqual({
       query: null,
-      queue: "commercial",
+      queue: "attention",
       status: "submitted",
       page: 1,
     });

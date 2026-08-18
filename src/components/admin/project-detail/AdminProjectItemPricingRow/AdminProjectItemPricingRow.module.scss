@@ -1,0 +1,134 @@
+@use "../../../../styles/tokens" as *;
+
+.row {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  padding: $spacing-md;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  background: $color-surface;
+}
+
+.identity {
+  display: flex;
+  gap: $spacing-md;
+  align-items: flex-start;
+}
+
+.imageWrap {
+  flex-shrink: 0;
+}
+
+.image,
+.imagePlaceholder {
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: $radius-sm;
+  object-fit: cover;
+}
+
+.imagePlaceholder {
+  background: $color-placeholder-subtle;
+  border: 1px solid $color-border;
+}
+
+.identityText {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+  min-width: 0;
+}
+
+.productName {
+  margin: 0;
+  font-size: $font-size-base;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+}
+
+.productCode,
+.configSummary,
+.quantity {
+  margin: 0;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.pricingGrid {
+  display: grid;
+  gap: $spacing-md;
+}
+
+.previewBlock,
+.clientBlock {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+}
+
+.previewLabel {
+  margin: 0;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.previewValue {
+  margin: 0;
+  font-size: $font-size-base;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+}
+
+.readOnlyValue {
+  margin: 0;
+  font-size: $font-size-base;
+  color: $color-text-primary;
+}
+
+.markupControls {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.staleWarning {
+  margin: 0;
+  font-size: $font-size-sm;
+  color: $color-warning-text;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.dirtyHint {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+@media (min-width: 768px) {
+  .pricingGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .row {
+    display: grid;
+    grid-template-columns: minmax(12rem, 1.2fr) minmax(0, 2fr) auto;
+    align-items: start;
+    gap: $spacing-lg;
+  }
+
+  .pricingGrid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .actions {
+    align-self: end;
+  }
+}

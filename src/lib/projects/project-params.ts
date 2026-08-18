@@ -2,7 +2,11 @@ import type { ProjectStatus } from "@/types/project";
 
 export const PROJECTS_PAGE_SIZE = 20;
 
-export type AdminProjectsQueue = "commercial" | "onboarding";
+export type AdminProjectsQueue =
+  | "attention"
+  | "active"
+  | "commercial"
+  | "onboarding";
 
 export type AdminProjectsStatusFilter = ProjectStatus;
 
@@ -28,7 +32,12 @@ const PROJECT_STATUSES: ProjectStatus[] = [
   "rejected",
 ];
 
-const PROJECT_QUEUES: AdminProjectsQueue[] = ["commercial", "onboarding"];
+const PROJECT_QUEUES: AdminProjectsQueue[] = [
+  "attention",
+  "active",
+  "commercial",
+  "onboarding",
+];
 
 function parsePageValue(raw: string | string[] | undefined): number {
   const value = Array.isArray(raw) ? raw[0] : raw;
@@ -73,7 +82,7 @@ function parseQueueParam(
   const value = parseStringParam(raw);
 
   if (!value || !PROJECT_QUEUES.includes(value as AdminProjectsQueue)) {
-    return "commercial";
+    return "attention";
   }
 
   return value as AdminProjectsQueue;
@@ -98,7 +107,7 @@ export function buildAdminProjectsHref(input: AdminProjectsHrefInput = {}): stri
     params.set("q", query);
   }
 
-  if (input.queue && input.queue !== "commercial") {
+  if (input.queue && input.queue !== "attention") {
     params.set("queue", input.queue);
   }
 
@@ -113,3 +122,10 @@ export function buildAdminProjectsHref(input: AdminProjectsHrefInput = {}): stri
   const search = params.toString();
   return search ? `/admin/projects?${search}` : "/admin/projects";
 }
+
+export const ADMIN_PROJECTS_QUEUE_LABELS: Record<AdminProjectsQueue, string> = {
+  attention: "דורש טיפול",
+  active: "פעילים",
+  commercial: "ממתינים לבדיקה",
+  onboarding: "ממתינים לאישור פתיחה",
+};

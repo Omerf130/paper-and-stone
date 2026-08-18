@@ -98,7 +98,7 @@ export async function getAdminQuotePanelView(
 
   let unavailableReason: string | undefined;
   if (!canManage) {
-    unavailableReason = "תמחור זמין רק לפרויקטים שנשלחו לבדיקה.";
+    unavailableReason = "ניהול הצעת מחיר זמין רק לאחר שליחת הפרויקט לבדיקה.";
   }
 
   let draftView = draft ? mapQuoteToAdminFormView(draft) : null;

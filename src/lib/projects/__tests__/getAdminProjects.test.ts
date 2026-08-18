@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { buildAdminProjectsFilter } from "@/lib/projects/getAdminProjects";
+import { buildAdminProjectAttentionFilter } from "@/lib/projects/admin-project-attention";
 
 describe("buildAdminProjectsFilter", () => {
   it("filters onboarding queue to pending approval", () => {
@@ -10,19 +11,25 @@ describe("buildAdminProjectsFilter", () => {
     });
   });
 
-  it("excludes new-workflow projects from commercial queue", () => {
+  it("filters active queue to onboardingStatus active", () => {
+    expect(
+      buildAdminProjectsFilter({ queue: "active", status: "submitted" }),
+    ).toEqual({
+      onboardingStatus: "active",
+    });
+  });
+
+  it("includes new-workflow projects in commercial queue", () => {
     expect(
       buildAdminProjectsFilter({ queue: "commercial", status: "submitted" }),
     ).toEqual({
-      $and: [
-        { status: "submitted" },
-        {
-          $or: [
-            { onboardingStatus: null },
-            { onboardingStatus: { $exists: false } },
-          ],
-        },
-      ],
+      status: "submitted",
     });
+  });
+
+  it("uses attention filter for attention queue", () => {
+    expect(
+      buildAdminProjectsFilter({ queue: "attention", status: "submitted" }),
+    ).toEqual(buildAdminProjectAttentionFilter());
   });
 });

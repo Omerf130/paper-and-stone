@@ -8,6 +8,7 @@ import {
   getOwnedProjectDetailView,
   loadProductViewsByIds,
 } from "@/lib/projects/project-queries";
+import { loadProductThumbnailMap } from "@/lib/products/loadProductThumbnailMap";
 import { getProfessionalQuoteSectionView } from "@/lib/quotes/quote-queries";
 import { isMessagingAvailable } from "@/lib/projects/project-workspace-gates";
 import InternalPage from "@/components/internal/InternalPage/InternalPage";
@@ -22,6 +23,7 @@ import {
 import ProjectForm from "@/components/professional/projects/ProjectForm/ProjectForm";
 import ProjectItemsList from "@/components/professional/projects/ProjectItemsList/ProjectItemsList";
 import ProjectRoomWorkspace from "@/components/professional/projects/ProjectRoomWorkspace/ProjectRoomWorkspace";
+import ArchitectProjectWorkspace from "@/components/professional/projects/ArchitectProjectWorkspace/ArchitectProjectWorkspace";
 import ProjectResubmitOnboardingButton from "@/components/professional/projects/ProjectResubmitOnboardingButton/ProjectResubmitOnboardingButton";
 import ProjectReviewHistory from "@/components/professional/projects/ProjectReviewHistory/ProjectReviewHistory";
 import ProjectStatusBanner from "@/components/professional/projects/ProjectStatusBanner/ProjectStatusBanner";
@@ -65,17 +67,25 @@ export default async function ProjectDetailPage({
 
   const productIds = [...new Set(project.items.map((item) => item.productId))];
   const productViewsById = await loadProductViewsByIds(productIds);
-  const itemsReadOnly = isProjectReadOnly(project.status);
+  const productThumbnailsById = await loadProductThumbnailMap(productIds);
+  const itemsReadOnly = project.usesRoomBasedWorkspace
+    ? !project.isRoomEditable
+    : isProjectReadOnly(project.status);
   const isLegacyProject = project.onboardingStatus == null;
+  const useArchitectWorkspace =
+    project.onboardingStatus === "active" &&
+    project.usesRoomBasedWorkspace &&
+    (project.pricingSettings?.usesLayeredPricing ?? false);
   const messagingAvailable = isMessagingAvailable({
     status: project.status,
     onboardingStatus: project.onboardingStatus ?? undefined,
     reviewHistory: project.reviewHistory,
   });
   const messageThread = await getProjectMessages(user.id, "professional", id);
-  const quoteSection = project.isItemWorkspaceVisible
-    ? await getProfessionalQuoteSectionView(user.id, id)
-    : null;
+  const quoteSection =
+    project.isItemWorkspaceVisible && !project.usesRoomBasedWorkspace
+      ? await getProfessionalQuoteSectionView(user.id, id)
+      : null;
   const statusBadge = mapProjectStatusToBadge(project.status);
   const onboardingBadge = project.onboardingStatus
     ? mapOnboardingStatusToBadge(project.onboardingStatus)
@@ -150,24 +160,35 @@ export default async function ProjectDetailPage({
       </InternalDetailSection>
 
       {project.isItemWorkspaceVisible ? (
-        <InternalDetailSection id="project-items" title="מוצרים בפרויקט">
-          {project.usesRoomBasedWorkspace ? (
-            <Suspense fallback={null}>
-              <ProjectRoomWorkspace
-                project={project}
+        useArchitectWorkspace ? (
+          <InternalDetailSection id="project-workspace" title="מרחב העבודה">
+            <ArchitectProjectWorkspace
+              project={project}
+              productViewsById={productViewsById}
+              productThumbnailsById={productThumbnailsById}
+              readOnly={itemsReadOnly}
+            />
+          </InternalDetailSection>
+        ) : (
+          <InternalDetailSection id="project-items" title="מוצרים בפרויקט">
+            {project.usesRoomBasedWorkspace ? (
+              <Suspense fallback={null}>
+                <ProjectRoomWorkspace
+                  project={project}
+                  productViewsById={productViewsById}
+                  readOnly={itemsReadOnly}
+                />
+              </Suspense>
+            ) : (
+              <ProjectItemsList
+                projectId={project.id}
+                items={project.items}
                 productViewsById={productViewsById}
                 readOnly={itemsReadOnly}
               />
-            </Suspense>
-          ) : (
-            <ProjectItemsList
-              projectId={project.id}
-              items={project.items}
-              productViewsById={productViewsById}
-              readOnly={itemsReadOnly}
-            />
-          )}
-        </InternalDetailSection>
+            )}
+          </InternalDetailSection>
+        )
       ) : null}
 
       {quoteSection ? (

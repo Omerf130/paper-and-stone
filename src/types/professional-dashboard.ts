@@ -15,6 +15,8 @@ export type ProfessionalDashboardProject = {
   onboardingStatus?: ProjectOnboardingStatus | null;
   status: ProjectStatus;
   itemCount: number;
+  roomCount?: number;
+  actionHint?: string | null;
   updatedAt: string;
   unreadMessageCount: number;
 };
@@ -24,6 +26,11 @@ export type ProfessionalDashboardData = {
   unreadNotificationCount: number;
   unreadMessageCount: number;
   changesRequestedCount: number;
+  attentionProjectCount: number;
+  stalePricingProjectCount: number;
+  pendingOnboardingCount: number;
+  activeProjectCount: number;
+  submittedProjectCount: number;
   profileCompleteness: ProfileCompletenessSummary;
   dashboardProjects: ProfessionalDashboardProject[];
 };

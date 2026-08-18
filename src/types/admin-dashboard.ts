@@ -14,6 +14,8 @@ export type AdminDashboardRecentProject = {
 };
 
 export type AdminDashboardData = {
+  attentionProjectCount: number;
+  activeProjectCount: number;
   submittedProjectCount: number;
   pendingOnboardingProjectCount: number;
   unreadAdminMessageCount: number;

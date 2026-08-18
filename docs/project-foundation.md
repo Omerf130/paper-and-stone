@@ -219,6 +219,21 @@ Prefer CSS logical properties (`margin-inline`, `padding-inline`, `text-align: s
 - Admin room-grouped project view; commercial submit/review semantics preserved
 - See [`docs/phase-17c-rooms-product-workspace.md`](phase-17c-rooms-product-workspace.md)
 
+**Phase 17D — Layered Pricing + Markup:**
+- Three-tier item pricing: internal cost → Admin markup → Architect price → Architect markup → Client price
+- Agorot storage, basis-point markup, role-specific pricing views with strict DTO security
+- Product default internal cost snapshotted on new adds; no backfill for pre-17D items
+- Stale client price when Admin reprices after Client price set; Architect repricing clears stale
+- Legacy ProjectQuote unchanged; new workflow uses pricing completeness submit/approval gates
+- See [`docs/phase-17d-layered-pricing-markup.md`](phase-17d-layered-pricing-markup.md)
+
+**Phase 17D.2 — Admin Project Operations Workspace:**
+- Operational project list views: attention (default), active, commercial review, onboarding
+- Admin project workspace with room accordion and inline item pricing rows
+- Search by project/architect/client; nav badge = attention count
+- Fixes discoverability of active new-workflow projects after onboarding approval
+- See [`docs/phase-17d2-admin-project-operations-workspace.md`](phase-17d2-admin-project-operations-workspace.md)
+
 **Demo 10E.1 — Notification Foundation:**
 - Separate `Notification` collection for Professional inbox
 - Workflow hooks on admin approve / reject / request changes

@@ -1,0 +1,143 @@
+@use "../../../../styles/tokens" as *;
+
+.pricing,
+.pricingReadOnly {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  padding: $spacing-md 0 0;
+  margin-top: $spacing-md;
+  border-top: 1px dashed $color-border;
+}
+
+.unavailable {
+  margin: $spacing-md 0 0;
+  padding-top: $spacing-md;
+  border-top: 1px dashed $color-border;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.heading {
+  margin: 0;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $color-text-secondary;
+}
+
+.architectPrice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: $spacing-sm;
+  margin: 0;
+  padding: $spacing-sm $spacing-md;
+  background-color: $color-surface;
+  border-radius: $radius-sm;
+
+  dt {
+    margin: 0;
+    font-size: $font-size-sm;
+    color: $color-text-secondary;
+  }
+
+  dd {
+    margin: 0;
+    font-size: $font-size-base;
+    font-weight: $font-weight-semibold;
+    color: $color-text-primary;
+  }
+}
+
+.markupFieldset {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.legend {
+  font-size: $font-size-label;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+}
+
+.radioLabel {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  cursor: pointer;
+
+  input {
+    flex-shrink: 0;
+  }
+}
+
+.preview {
+  padding: $spacing-md;
+  background-color: $color-surface;
+  border-radius: $radius-sm;
+}
+
+.previewLabel {
+  margin: 0 0 $spacing-xs;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.previewValue {
+  margin: 0;
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.savedValue {
+  margin: $spacing-xs 0 0;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.summary {
+  display: grid;
+  gap: $spacing-sm;
+  margin: 0;
+
+  @media (min-width: 640px) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.summaryItem {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+
+  dt {
+    margin: 0;
+    font-size: $font-size-sm;
+    color: $color-text-secondary;
+  }
+
+  dd {
+    margin: 0;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    color: $color-text-primary;
+  }
+}
+
+.inherited {
+  font-weight: $font-weight-normal;
+  color: $color-text-secondary;
+}

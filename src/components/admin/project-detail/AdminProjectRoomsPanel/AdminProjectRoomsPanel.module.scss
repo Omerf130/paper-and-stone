@@ -51,6 +51,11 @@
   border-top: 1px solid $color-border;
 }
 
+.itemEntry {
+  display: flex;
+  flex-direction: column;
+}
+
 .emptyRoom {
   margin: 0;
   font-size: $font-size-sm;

@@ -8,6 +8,29 @@ import {
 } from "@/lib/projects/project-room-helpers";
 import type { ProjectRoomView } from "@/types/project-room";
 
+export async function getProjectRoomCountsByProjectIds(
+  projectIds: string[],
+): Promise<Map<string, number>> {
+  await connectDB();
+
+  const objectIds = projectIds
+    .filter((id) => Types.ObjectId.isValid(id))
+    .map((id) => new Types.ObjectId(id));
+
+  if (objectIds.length === 0) {
+    return new Map();
+  }
+
+  const grouped = await ProjectRoom.aggregate<{ _id: Types.ObjectId; count: number }>([
+    { $match: { projectId: { $in: objectIds } } },
+    { $group: { _id: "$projectId", count: { $sum: 1 } } },
+  ]);
+
+  return new Map(
+    grouped.map((entry) => [entry._id.toString(), entry.count]),
+  );
+}
+
 export async function getProjectRoomsForProject(
   projectId: string,
 ): Promise<IProjectRoom[]> {

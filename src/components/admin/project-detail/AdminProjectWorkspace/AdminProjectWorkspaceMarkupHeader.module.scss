@@ -1,0 +1,35 @@
+@use "../../../../styles/tokens" as *;
+
+.settings {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  padding: $spacing-md;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  background: $color-background-subtle;
+}
+
+.title {
+  margin: 0;
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+}
+
+.notice {
+  margin: 0;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.formRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: $spacing-md;
+
+  > :first-child {
+    flex: 1 1 12rem;
+    min-width: 0;
+  }
+}

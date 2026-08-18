@@ -2,10 +2,9 @@ import { describe, expect, it } from "vitest";
 import { applyAdminNavBadges, adminNavGroups } from "@/config/admin-nav";
 
 describe("applyAdminNavBadges", () => {
-  it("badges architect requests and combined project attention", () => {
+  it("badges architect requests and attention project count", () => {
     const groups = applyAdminNavBadges(adminNavGroups, {
-      submittedProjectCount: 4,
-      pendingOnboardingProjectCount: 2,
+      attentionProjectCount: 6,
       pendingArchitectRequestCount: 2,
     });
 

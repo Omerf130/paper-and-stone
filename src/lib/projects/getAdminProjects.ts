@@ -1,11 +1,19 @@
 import { Types } from "mongoose";
 import { connectDB } from "@/lib/db/mongoose";
-import { escapeRegex } from "@/lib/catalog/escape-regex";
 import { calculatePagination } from "@/lib/catalog/catalog-pagination";
 import Project from "@/models/Project";
 import User from "@/models/User";
 import ProfessionalProfile from "@/models/ProfessionalProfile";
 import type { IProject } from "@/models/Project";
+import {
+  buildAdminProjectAttentionFilter,
+  getAdminProjectAttentionLabels,
+  getProjectPricingAttention,
+} from "@/lib/projects/admin-project-attention";
+import {
+  buildAdminProjectSearchOrClause,
+  resolveAdminProjectSearchMatchIds,
+} from "@/lib/projects/admin-project-search";
 import {
   PROJECTS_PAGE_SIZE,
   type AdminProjectsParams,
@@ -20,27 +28,36 @@ import type {
 } from "@/types/admin-project";
 import { getUnreadMessageCountsForProjects } from "@/lib/project-messages/getUnreadMessageCountsForProjects";
 import { getAdminProjectQuoteStatusSummaries } from "@/lib/quotes/quote-queries";
+import { getProjectRoomCountsByProjectIds } from "@/lib/projects/project-room-queries";
+import { loadProductThumbnailMap } from "@/lib/products/loadProductThumbnailMap";
+import type { ProductThumbnailView } from "@/lib/products/loadProductThumbnailMap";
 
 type AdminProjectsFilter = Record<string, unknown>;
 
 export function buildAdminProjectsFilter(
   params: Pick<AdminProjectsParams, "queue" | "status">,
 ): AdminProjectsFilter {
-  if (params.queue === "onboarding") {
-    return { onboardingStatus: "pending_approval" };
+  switch (params.queue) {
+    case "onboarding":
+      return { onboardingStatus: "pending_approval" };
+    case "active":
+      return { onboardingStatus: "active" };
+    case "commercial":
+      return { status: params.status };
+    case "attention":
+    default:
+      return buildAdminProjectAttentionFilter();
   }
+}
 
-  return {
-    $and: [
-      { status: params.status },
-      {
-        $or: [
-          { onboardingStatus: null },
-          { onboardingStatus: { $exists: false } },
-        ],
-      },
-    ],
-  };
+export async function getAdminProjectAttentionCount(): Promise<number> {
+  await connectDB();
+  return Project.countDocuments(buildAdminProjectAttentionFilter());
+}
+
+export async function getActiveProjectCount(): Promise<number> {
+  await connectDB();
+  return Project.countDocuments({ onboardingStatus: "active" });
 }
 
 async function resolveOwnerEmails(
@@ -90,6 +107,14 @@ async function resolveOwnerNames(
   return names;
 }
 
+function normalizeFilterParts(filter: AdminProjectsFilter): AdminProjectsFilter[] {
+  if (Array.isArray(filter.$and)) {
+    return filter.$and as AdminProjectsFilter[];
+  }
+
+  return [filter];
+}
+
 export async function getAdminProjects(
   params: AdminProjectsParams,
   adminUserId: string,
@@ -97,34 +122,19 @@ export async function getAdminProjects(
   await connectDB();
 
   const baseFilter = buildAdminProjectsFilter(params);
-
   let filter: AdminProjectsFilter = baseFilter;
 
   if (params.query) {
-    const regex = escapeRegex(params.query);
-    const matchingUsers = await User.find({
-      email: { $regex: regex, $options: "i" },
-    })
-      .select("_id")
-      .lean();
-
-    const ownerIdsFromEmail = matchingUsers.map((user) => user._id);
-    const searchOr: AdminProjectsFilter[] = [
-      { name: { $regex: regex, $options: "i" } },
-      { clientName: { $regex: regex, $options: "i" } },
-    ];
-
-    if (ownerIdsFromEmail.length > 0) {
-      searchOr.push({ ownerUserId: { $in: ownerIdsFromEmail } });
-    }
+    const { ownerUserIds, clientUserIds } =
+      await resolveAdminProjectSearchMatchIds(params.query);
+    const searchOr = buildAdminProjectSearchOrClause({
+      query: params.query,
+      ownerUserIds,
+      clientUserIds,
+    });
 
     filter = {
-      $and: [
-        ...(Array.isArray(baseFilter.$and)
-          ? baseFilter.$and
-          : [baseFilter]),
-        { $or: searchOr },
-      ],
+      $and: [...normalizeFilterParts(baseFilter), searchOr],
     };
   }
 
@@ -135,12 +145,13 @@ export async function getAdminProjects(
     pageSize: PROJECTS_PAGE_SIZE,
   });
 
+  const sort: Record<string, 1 | -1> =
+    params.queue === "commercial"
+      ? { submittedAt: -1, updatedAt: -1 }
+      : { updatedAt: -1 };
+
   const projects = (await Project.find(filter)
-    .sort(
-      params.queue === "onboarding"
-        ? { updatedAt: -1 }
-        : { submittedAt: -1, updatedAt: -1 },
-    )
+    .sort(sort)
     .skip(pagination.skip)
     .limit(pagination.pageSize)
     .lean()) as IProject[];
@@ -162,19 +173,24 @@ async function mapProjectsToAdminListItems(
     ...new Set(projects.map((project) => project.ownerUserId.toString())),
   ];
   const projectIds = projects.map((project) => project._id.toString());
-  const [emailsByOwnerId, namesByOwnerId, unreadCounts, quoteSummaries] =
+  const [emailsByOwnerId, namesByOwnerId, unreadCounts, quoteSummaries, roomCounts] =
     await Promise.all([
-    resolveOwnerEmails(ownerUserIds),
-    resolveOwnerNames(ownerUserIds),
-    getUnreadMessageCountsForProjects(projectIds, adminUserId, "admin"),
-    getAdminProjectQuoteStatusSummaries(projectIds),
-  ]);
+      resolveOwnerEmails(ownerUserIds),
+      resolveOwnerNames(ownerUserIds),
+      getUnreadMessageCountsForProjects(projectIds, adminUserId, "admin"),
+      getAdminProjectQuoteStatusSummaries(projectIds),
+      getProjectRoomCountsByProjectIds(projectIds),
+    ]);
 
   return Promise.all(
     projects.map(async (project) => {
       const projectId = project._id.toString();
       const quoteSummary = quoteSummaries.get(projectId);
       const ownerId = project.ownerUserId.toString();
+      const roomCount =
+        project.onboardingStatus != null
+          ? roomCounts.get(projectId) ?? 0
+          : 0;
 
       return {
         ...(await mapLeanProjectToAdminListItem(
@@ -182,6 +198,9 @@ async function mapProjectsToAdminListItems(
           emailsByOwnerId.get(ownerId) ?? "—",
           namesByOwnerId.get(ownerId),
         )),
+        roomCount,
+        attentionReasons: getAdminProjectAttentionLabels(project),
+        pricingAttention: getProjectPricingAttention(project.items),
         unreadMessageCount: unreadCounts.get(projectId) ?? 0,
         quoteStatusLabel: quoteSummary?.quoteStatusLabel,
         quoteAttention: quoteSummary?.quoteAttention,
@@ -190,9 +209,26 @@ async function mapProjectsToAdminListItems(
   );
 }
 
+export type AdminProjectDetailWithThumbnails = AdminProjectDetailView & {
+  productThumbnailsById: Record<string, ProductThumbnailView>;
+};
+
 export async function getAdminProjectDetailView(
   projectId: string,
 ): Promise<AdminProjectDetailView | null> {
+  const detail = await getAdminProjectDetailViewWithThumbnails(projectId);
+  if (!detail) {
+    return null;
+  }
+
+  const { productThumbnailsById, ...view } = detail;
+  void productThumbnailsById;
+  return view;
+}
+
+export async function getAdminProjectDetailViewWithThumbnails(
+  projectId: string,
+): Promise<AdminProjectDetailWithThumbnails | null> {
   await connectDB();
 
   if (!Types.ObjectId.isValid(projectId)) {
@@ -211,9 +247,19 @@ export async function getAdminProjectDetailView(
     resolveOwnerNames([ownerUserId]),
   ]);
 
-  return mapLeanProjectToAdminDetailView(
+  const productIds = [
+    ...new Set(project.items.map((item) => item.productId.toString())),
+  ];
+  const productThumbnailsById = await loadProductThumbnailMap(productIds);
+
+  const view = await mapLeanProjectToAdminDetailView(
     project,
     emailsByOwnerId.get(ownerUserId) ?? "—",
     namesByOwnerId.get(ownerUserId),
   );
+
+  return {
+    ...view,
+    productThumbnailsById,
+  };
 }

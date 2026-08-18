@@ -1,6 +1,7 @@
 import { Types } from "mongoose";
 import { connectDB } from "@/lib/db/mongoose";
 import Product, { type IProduct } from "@/models/Product";
+import { formatAgorotToShekelsInput } from "@/lib/money/parse-money-input";
 import type { AdminProductFormInput } from "@/types/admin-product";
 
 export async function getAdminProductById(
@@ -48,5 +49,9 @@ export async function getAdminProductById(
       key: size.key,
       label: size.label,
     })),
+    defaultInternalCostShekels:
+      product.defaultInternalCostAgorot != null
+        ? formatAgorotToShekelsInput(product.defaultInternalCostAgorot)
+        : "",
   };
 }

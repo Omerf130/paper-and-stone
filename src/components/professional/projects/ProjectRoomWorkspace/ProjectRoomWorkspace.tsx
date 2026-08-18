@@ -13,6 +13,8 @@ import EmptyState from "@/components/ui/EmptyState/EmptyState";
 import { useToast } from "@/components/ui/Toast/ToastProvider";
 import ProjectItemEditor from "@/components/professional/projects/ProjectItemEditor/ProjectItemEditor";
 import ProfessionalProjectItemRow from "@/components/professional/projects/ProfessionalProjectItemRow/ProfessionalProjectItemRow";
+import ArchitectProjectPricingSettings from "@/components/professional/projects/ArchitectProjectPricingSettings/ArchitectProjectPricingSettings";
+import ArchitectProjectItemPricing from "@/components/professional/projects/ArchitectProjectItemPricing/ArchitectProjectItemPricing";
 import ProjectMoveItemDialog from "@/components/professional/projects/ProjectMoveItemDialog/ProjectMoveItemDialog";
 import ProjectProductPicker from "@/components/professional/projects/ProjectProductPicker/ProjectProductPicker";
 import ProjectRoomCreateDialog from "@/components/professional/projects/ProjectRoomCreateDialog/ProjectRoomCreateDialog";
@@ -77,6 +79,8 @@ export default function ProjectRoomWorkspace({
     ? project.items.find((item) => item.id === moveItemId)
     : null;
   const isEditable = project.isRoomEditable && !readOnly;
+  const showPricing = project.pricingSettings?.usesLayeredPricing ?? false;
+  const isPricingEditable = project.pricingSettings?.isArchitectPricingEditable ?? false;
 
   const selectRoom = (roomId: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -225,6 +229,13 @@ export default function ProjectRoomWorkspace({
         </aside>
 
         <section className={styles.itemsColumn} aria-label="מוצרים בחדר">
+          {showPricing && project.pricingSettings ? (
+            <ArchitectProjectPricingSettings
+              projectId={project.id}
+              settings={project.pricingSettings}
+            />
+          ) : null}
+
           {selectedRoom ? (
             <header className={styles.roomHeader}>
               <h3 className={styles.roomTitle}>{selectedRoom.name}</h3>
@@ -264,46 +275,58 @@ export default function ProjectRoomWorkspace({
                 const isEditing = editingItemId === item.id;
 
                 return (
-                  <ProfessionalProjectItemRow
-                    key={item.id}
-                    item={item}
-                    showMove={isEditable && rooms.length > 1}
-                    onMove={() => setMoveItemId(item.id)}
-                    actions={
-                      isEditable ? (
-                        <>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() =>
-                              setEditingItemId(isEditing ? null : item.id)
-                            }
-                            disabled={isPending || !productView}
-                          >
-                            {isEditing ? "סגירה" : "עריכה"}
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setRemoveItemId(item.id)}
-                            disabled={isPending}
-                          >
-                            הסרה
-                          </Button>
-                        </>
-                      ) : undefined
-                    }
-                    editor={
-                      isEditing && productView ? (
-                        <ProjectItemEditor
-                          projectId={project.id}
-                          item={item}
-                          product={productView}
-                          onSaved={() => setEditingItemId(null)}
-                        />
-                      ) : undefined
-                    }
-                  />
+                  <div key={item.id} className={styles.itemBlock}>
+                    <ProfessionalProjectItemRow
+                      item={item}
+                      showMove={isEditable && rooms.length > 1}
+                      onMove={() => setMoveItemId(item.id)}
+                      actions={
+                        isEditable ? (
+                          <>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() =>
+                                setEditingItemId(isEditing ? null : item.id)
+                              }
+                              disabled={isPending || !productView}
+                            >
+                              {isEditing ? "סגירה" : "עריכה"}
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setRemoveItemId(item.id)}
+                              disabled={isPending}
+                            >
+                              הסרה
+                            </Button>
+                          </>
+                        ) : undefined
+                      }
+                      editor={
+                        isEditing && productView ? (
+                          <ProjectItemEditor
+                            projectId={project.id}
+                            item={item}
+                            product={productView}
+                            onSaved={() => setEditingItemId(null)}
+                          />
+                        ) : undefined
+                      }
+                    />
+                    {showPricing && item.architectPricing ? (
+                      <ArchitectProjectItemPricing
+                        projectId={project.id}
+                        itemId={item.id}
+                        pricing={item.architectPricing}
+                        defaultArchitectMarkupPercent={
+                          project.pricingSettings?.defaultArchitectMarkupPercent
+                        }
+                        isEditable={isPricingEditable && !readOnly}
+                      />
+                    ) : null}
+                  </div>
                 );
               })}
             </div>

@@ -8,7 +8,10 @@ import User from "@/models/User";
 import { ARCHITECT_ROLE_FILTER } from "@/lib/auth/user-role";
 import { getUnreadAdminProjectMessageCount } from "@/lib/project-messages/getUnreadAdminProjectMessageCount";
 import { getAdminQuoteAttentionSummary } from "@/lib/quotes/quote-queries";
-import { getPendingOnboardingProjectCount } from "@/lib/projects/getSubmittedProjectCount";
+import {
+  getActiveProjectCount,
+  getAdminProjectAttentionCount,
+} from "@/lib/projects/getAdminProjects";
 import { countPendingArchitectRequests } from "@/lib/users/architect-request-queries";
 import type { AdminDashboardData } from "@/types/admin-dashboard";
 
@@ -18,6 +21,8 @@ export async function getAdminDashboardData(
   await connectDB();
 
   const [
+    attentionProjectCount,
+    activeProjectCount,
     submittedProjectCount,
     pendingOnboardingProjectCount,
     unreadAdminMessageCount,
@@ -31,8 +36,10 @@ export async function getAdminDashboardData(
     pendingArchitectRequestCount,
     recentSubmittedProjects,
   ] = await Promise.all([
+    getAdminProjectAttentionCount(),
+    getActiveProjectCount(),
     Project.countDocuments({ status: "submitted" }),
-    getPendingOnboardingProjectCount(),
+    Project.countDocuments({ onboardingStatus: "pending_approval" }),
     getUnreadAdminProjectMessageCount(adminUserId),
     getAdminQuoteAttentionSummary(),
     Product.countDocuments({ isActive: true }),
@@ -50,6 +57,8 @@ export async function getAdminDashboardData(
   ]);
 
   return {
+    attentionProjectCount,
+    activeProjectCount,
     submittedProjectCount,
     pendingOnboardingProjectCount,
     unreadAdminMessageCount,

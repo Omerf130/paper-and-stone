@@ -43,6 +43,7 @@ export type AdminProductFormInput = {
   countryOfOrigin: string;
   materialOptions: ProductMaterialOptionInput[];
   sizes: ProductSizeInput[];
+  defaultInternalCostShekels: string;
 };
 
 export type ProductFormState = {
@@ -73,6 +74,7 @@ export const EMPTY_PRODUCT_FORM: AdminProductFormInput = {
   countryOfOrigin: "",
   materialOptions: [],
   sizes: [],
+  defaultInternalCostShekels: "",
 };
 
 export type { ProductMaterialOptionInput };

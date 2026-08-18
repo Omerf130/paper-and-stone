@@ -14,10 +14,10 @@ import {
   type ParsedQuotePricingInput,
   type ParsedSaveQuoteDraftInput,
 } from "@/lib/quotes/quote-validation";
-import {
-  hasQuoteEverBeenSent,
-  supersedeActiveQuotes,
-} from "@/lib/quotes/supersedeActiveQuotes";
+import { hasQuoteEverBeenSent, supersedeActiveQuotes } from "@/lib/quotes/supersedeActiveQuotes";
+import { assertLayeredPricingApprovalGate } from "@/lib/pricing/pricing-gates";
+import { ProjectMutationError } from "@/lib/projects/project-errors";
+import { usesLayeredPricing } from "@/lib/projects/project-workspace-gates";
 import { createQuoteNotification } from "@/lib/notifications/createQuoteNotification";
 
 const QUOTABLE_PROJECT_STATUS = "submitted";
@@ -342,18 +342,32 @@ export async function requestProjectQuoteChange(
 }
 
 export async function assertQuoteApprovalGate(projectId: string): Promise<void> {
+  await connectDB();
+
+  const project = await Project.findById(projectId).select(
+    "submissionRevision onboardingStatus items",
+  );
+
+  if (!project) {
+    throw new QuoteMutationError(QUOTE_ERRORS.PROJECT_NOT_FOUND);
+  }
+
+  if (usesLayeredPricing(project)) {
+    try {
+      assertLayeredPricingApprovalGate(project);
+    } catch (error: unknown) {
+      if (error instanceof ProjectMutationError) {
+        throw new QuoteMutationError(error.message);
+      }
+      throw error;
+    }
+    return;
+  }
+
   const everSent = await hasQuoteEverBeenSent(projectId);
 
   if (!everSent) {
     return;
-  }
-
-  await connectDB();
-
-  const project = await Project.findById(projectId).select("submissionRevision");
-
-  if (!project) {
-    throw new QuoteMutationError(QUOTE_ERRORS.PROJECT_NOT_FOUND);
   }
 
   const submissionRevision = project.submissionRevision ?? 0;

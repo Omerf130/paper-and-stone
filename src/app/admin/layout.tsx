@@ -1,9 +1,6 @@
 import { requireAdmin } from "@/lib/auth/authorization";
 import { adminNavGroups, applyAdminNavBadges } from "@/config/admin-nav";
-import {
-  getPendingOnboardingProjectCount,
-  getSubmittedProjectCount,
-} from "@/lib/projects/getSubmittedProjectCount";
+import { getAdminProjectAttentionCount } from "@/lib/projects/getAdminProjects";
 import { countPendingArchitectRequests } from "@/lib/users/architect-request-queries";
 import AdminShell from "@/components/admin/AdminShell";
 import InternalUiProviders from "@/components/ui/InternalUiProviders";
@@ -13,17 +10,14 @@ export default async function AdminLayout({
 }: LayoutProps<"/admin">) {
   const user = await requireAdmin();
   const [
-    submittedProjectCount,
-    pendingOnboardingProjectCount,
+    attentionProjectCount,
     pendingArchitectRequestCount,
   ] = await Promise.all([
-    getSubmittedProjectCount(),
-    getPendingOnboardingProjectCount(),
+    getAdminProjectAttentionCount(),
     countPendingArchitectRequests(),
   ]);
   const navGroups = applyAdminNavBadges(adminNavGroups, {
-    submittedProjectCount,
-    pendingOnboardingProjectCount,
+    attentionProjectCount,
     pendingArchitectRequestCount,
   });
 

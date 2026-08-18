@@ -1,6 +1,6 @@
 import { Types } from "mongoose";
 import { connectDB } from "@/lib/db/mongoose";
-import Project, { type IProjectItem } from "@/models/Project";
+import Project, { type IProject, type IProjectItem } from "@/models/Project";
 import { ProjectMutationError } from "@/lib/projects/project-errors";
 import {
   MAX_PROJECT_ITEM_QUANTITY,
@@ -15,6 +15,7 @@ import {
   EDITABLE_STATUS_FILTER,
 } from "@/lib/projects/assertProjectEditable";
 import { buildProjectItemSnapshot } from "@/lib/projects/buildProjectItemSnapshot";
+import { createInitialItemPricing } from "@/lib/pricing/pricing-item-helpers";
 import {
   buildElemMatchCriteria,
   buildProjectItemSelectionKey,
@@ -29,6 +30,7 @@ import {
   isProjectItemEditable,
   isProjectOnboardingDeletable,
   usesRoomBasedWorkspace,
+  usesLayeredPricing,
 } from "@/lib/projects/project-workspace-gates";
 import { verifyRoomBelongsToProject } from "@/lib/projects/project-room-mutations";
 import { PROJECT_ROOM_ERRORS } from "@/types/project-room";
@@ -190,8 +192,19 @@ function buildNewProjectItem(
   verified: Awaited<ReturnType<typeof verifyProjectItemSelectionForAdd>>,
   quantity: number,
   roomId?: Types.ObjectId | null,
+  project?: Pick<
+    IProject,
+    "defaultAdminMarkupBp" | "defaultArchitectMarkupBp" | "onboardingStatus"
+  >,
 ): IProjectItem {
   const snapshot = buildProjectItemSnapshot(verified.productView, verified);
+  const pricing =
+    project && usesLayeredPricing(project)
+      ? createInitialItemPricing({
+          defaultInternalCostAgorot: verified.defaultInternalCostAgorot,
+          project,
+        })
+      : undefined;
 
   return {
     _id: new Types.ObjectId(),
@@ -202,6 +215,7 @@ function buildNewProjectItem(
     selectedSizeKey: verified.selectedSizeKey,
     quantity,
     snapshot,
+    ...(pricing ? { pricing } : {}),
   };
 }
 
@@ -306,7 +320,7 @@ export async function addProductToProject(
     throw new ProjectMutationError(PROJECT_ERRORS.QUANTITY_EXCEEDS_MAX);
   }
 
-  const newItem = buildNewProjectItem(verified, quantity, roomObjectId);
+  const newItem = buildNewProjectItem(verified, quantity, roomObjectId, project);
 
   const pushResult = await Project.updateOne(editableFilter, {
     $push: { items: newItem },

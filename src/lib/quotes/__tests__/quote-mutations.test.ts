@@ -43,6 +43,13 @@ describe("quote-mutations approval gate", () => {
 
   it("allows approval when no quote was ever sent", async () => {
     hasQuoteEverBeenSentMock.mockResolvedValue(false);
+    projectFindByIdMock.mockReturnValue({
+      select: vi.fn().mockResolvedValue({
+        onboardingStatus: null,
+        submissionRevision: 0,
+        items: [],
+      }),
+    });
 
     const { assertQuoteApprovalGate } = await import(
       "@/lib/quotes/quote-mutations"
@@ -56,7 +63,7 @@ describe("quote-mutations approval gate", () => {
   it("blocks approval when quote-enabled project lacks accepted quote", async () => {
     hasQuoteEverBeenSentMock.mockResolvedValue(true);
     projectFindByIdMock.mockReturnValue({
-      select: vi.fn().mockResolvedValue({ submissionRevision: 3 }),
+      select: vi.fn().mockResolvedValue({ submissionRevision: 3, onboardingStatus: null, items: [] }),
     });
     projectQuoteFindOneMock.mockReturnValue({
       sort: vi.fn().mockResolvedValue(null),

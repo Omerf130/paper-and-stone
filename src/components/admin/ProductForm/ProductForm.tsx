@@ -166,6 +166,28 @@ export default function ProductForm({
             </FormField>
 
             <FormField
+              label="עלות פנימית ברירת מחדל"
+              htmlFor="defaultInternalCostShekels"
+              error={fieldErrors.defaultInternalCostShekels}
+              hint="שדה פנימי לשימוש Admin בלבד"
+            >
+              <input
+                id="defaultInternalCostShekels"
+                type="text"
+                inputMode="decimal"
+                dir="ltr"
+                className={formFieldStyles.input}
+                value={product.defaultInternalCostShekels}
+                onChange={(event) =>
+                  updateField("defaultInternalCostShekels", event.target.value)
+                }
+                disabled={isPending}
+                placeholder="1000"
+                aria-invalid={Boolean(fieldErrors.defaultInternalCostShekels)}
+              />
+            </FormField>
+
+            <FormField
               label="קטגוריה"
               htmlFor="categoryId"
               error={fieldErrors.categoryId}

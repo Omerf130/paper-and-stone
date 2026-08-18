@@ -1,0 +1,153 @@
+@use "../../../../styles/tokens" as *;
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  padding: $spacing-md;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  background: $color-surface;
+}
+
+.identity {
+  display: flex;
+  gap: $spacing-md;
+  align-items: flex-start;
+}
+
+.imageWrap {
+  flex-shrink: 0;
+}
+
+.image,
+.imagePlaceholder {
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: $radius-sm;
+  object-fit: cover;
+}
+
+.imagePlaceholder {
+  background: $color-placeholder-subtle;
+  border: 1px solid $color-border;
+}
+
+.identityText {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+  min-width: 0;
+}
+
+.productName {
+  margin: 0;
+  font-size: $font-size-base;
+  font-weight: $font-weight-medium;
+}
+
+.productCode,
+.quantity {
+  margin: 0;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.configList {
+  display: grid;
+  gap: $spacing-xs;
+  margin: 0;
+  font-size: $font-size-sm;
+}
+
+.configItem {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr);
+  gap: $spacing-sm;
+
+  dt {
+    margin: 0;
+    color: $color-text-secondary;
+  }
+
+  dd {
+    margin: 0;
+    color: $color-text-primary;
+  }
+}
+
+.waiting {
+  margin: 0;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.pricingSection {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  padding-top: $spacing-sm;
+  border-top: 1px solid $color-border;
+}
+
+.priceRow {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+}
+
+.priceLabel {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.priceValue {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.markupFieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.markupLegend {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+  margin-bottom: $spacing-xs;
+}
+
+.radioLabel {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  min-height: 2.75rem;
+  font-size: $font-size-sm;
+  cursor: pointer;
+}
+
+.actions,
+.itemActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+}
+
+.itemActions {
+  padding-top: $spacing-sm;
+  border-top: 1px solid $color-border;
+}
+
+@media (min-width: 768px) {
+  .priceRow {
+    flex-direction: row;
+    align-items: baseline;
+    justify-content: space-between;
+  }
+}

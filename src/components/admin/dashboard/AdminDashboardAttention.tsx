@@ -2,6 +2,8 @@ import Link from "next/link";
 import styles from "./AdminDashboardAttention.module.scss";
 
 type AdminDashboardAttentionProps = {
+  attentionProjectCount: number;
+  activeProjectCount: number;
   submittedProjectCount: number;
   pendingOnboardingProjectCount: number;
   unreadAdminMessageCount: number;
@@ -12,6 +14,8 @@ type AdminDashboardAttentionProps = {
 };
 
 export default function AdminDashboardAttention({
+  attentionProjectCount,
+  activeProjectCount,
   submittedProjectCount,
   pendingOnboardingProjectCount,
   unreadAdminMessageCount,
@@ -27,6 +31,26 @@ export default function AdminDashboardAttention({
       </h2>
 
       <ul className={styles.list}>
+        <li className={styles.item}>
+          {attentionProjectCount > 0 ? (
+            <Link href="/admin/projects?queue=attention" className={styles.link}>
+              {attentionProjectCount} פרויקטים דורשים טיפול
+            </Link>
+          ) : (
+            <span className={styles.empty}>אין פרויקטים שדורשים טיפול כרגע</span>
+          )}
+        </li>
+
+        <li className={styles.item}>
+          {activeProjectCount > 0 ? (
+            <Link href="/admin/projects?queue=active" className={styles.link}>
+              {activeProjectCount} פרויקטים פעילים בעבודה
+            </Link>
+          ) : (
+            <span className={styles.empty}>אין פרויקטים פעילים</span>
+          )}
+        </li>
+
         <li className={styles.item}>
           {pendingArchitectRequestCount > 0 ? (
             <Link href="/admin/architect-requests" className={styles.link}>
@@ -56,8 +80,8 @@ export default function AdminDashboardAttention({
 
         <li className={styles.item}>
           {submittedProjectCount > 0 ? (
-            <Link href="/admin/projects" className={styles.link}>
-              {submittedProjectCount} פרויקטים ממתינים לבדיקה
+            <Link href="/admin/projects?queue=commercial" className={styles.link}>
+              {submittedProjectCount} פרויקטים ממתינים לבדיקה מסחרית
             </Link>
           ) : (
             <span className={styles.empty}>
@@ -68,7 +92,7 @@ export default function AdminDashboardAttention({
 
         <li className={styles.item}>
           {unreadAdminMessageCount > 0 ? (
-            <Link href="/admin/projects" className={styles.link}>
+            <Link href="/admin/projects?queue=attention" className={styles.link}>
               {unreadAdminMessageCount} הודעות חדשות בפרויקטים
             </Link>
           ) : (
@@ -77,7 +101,7 @@ export default function AdminDashboardAttention({
         </li>
         <li className={styles.item}>
           {quoteAcceptedAwaitingApprovalCount > 0 ? (
-            <Link href="/admin/projects" className={styles.link}>
+            <Link href="/admin/projects?queue=commercial" className={styles.link}>
               {quoteAcceptedAwaitingApprovalCount} הצעות מחיר אושרו — ממתינות
               לאישור סופי
             </Link>
@@ -90,7 +114,7 @@ export default function AdminDashboardAttention({
 
         <li className={styles.item}>
           {quoteChangeRequestedCount > 0 ? (
-            <Link href="/admin/projects" className={styles.link}>
+            <Link href="/admin/projects?queue=commercial" className={styles.link}>
               {quoteChangeRequestedCount} בקשות שינוי תמחור
             </Link>
           ) : (
@@ -100,7 +124,7 @@ export default function AdminDashboardAttention({
 
         <li className={styles.item}>
           {quoteAwaitingArchitectCount > 0 ? (
-            <Link href="/admin/projects" className={styles.link}>
+            <Link href="/admin/projects?queue=commercial" className={styles.link}>
               {quoteAwaitingArchitectCount} הצעות מחיר ממתינות לתגובת אדריכל
             </Link>
           ) : (

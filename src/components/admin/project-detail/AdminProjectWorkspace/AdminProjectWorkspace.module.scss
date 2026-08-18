@@ -1,0 +1,141 @@
+@use "../../../../styles/tokens" as *;
+
+.workspace {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xl;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  padding-bottom: $spacing-lg;
+  border-bottom: 1px solid $color-border;
+}
+
+.headerMain {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.projectName {
+  margin: 0;
+  font-size: $font-size-xl;
+  font-weight: $font-weight-semibold;
+}
+
+.badges,
+.attentionList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-lg;
+  margin: 0;
+
+  dt {
+    font-size: $font-size-sm;
+    color: $color-text-secondary;
+  }
+
+  dd {
+    margin: 0;
+    font-size: $font-size-base;
+    color: $color-text-primary;
+  }
+}
+
+.pricingAttention {
+  margin: 0;
+  font-size: $font-size-sm;
+  color: $color-warning-text;
+}
+
+.people {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+}
+
+.peopleGrid {
+  display: grid;
+  gap: $spacing-md;
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  dt {
+    font-size: $font-size-sm;
+    color: $color-text-secondary;
+  }
+
+  dd {
+    margin: 0;
+    font-size: $font-size-base;
+    color: $color-text-primary;
+  }
+}
+
+.secondary {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.reassign {
+  max-width: 32rem;
+}
+
+.emptyNotice {
+  margin: 0;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.orphanSection {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  padding-top: $spacing-md;
+  border-top: 1px solid $color-border;
+}
+
+.orphanTitle {
+  margin: 0;
+  font-size: $font-size-base;
+  font-weight: $font-weight-medium;
+}
+
+.orphanList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.backLinkWrap {
+  margin: 0;
+}
+
+.backLink {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  text-decoration: underline;
+}

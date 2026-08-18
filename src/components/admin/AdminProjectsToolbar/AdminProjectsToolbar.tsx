@@ -1,9 +1,10 @@
 import Link from "next/link";
 import {
+  ADMIN_PROJECTS_QUEUE_LABELS,
   buildAdminProjectsHref,
   type AdminProjectsParams,
 } from "@/lib/projects/project-params";
-import { ONBOARDING_STATUS_LABELS, PROJECT_STATUS_LABELS } from "@/types/admin-project";
+import { PROJECT_STATUS_LABELS } from "@/types/admin-project";
 import type { ProjectStatus } from "@/types/project";
 import Button from "@/components/ui/Button/Button";
 import styles from "@/components/admin/list/admin-list-toolbar.module.scss";
@@ -13,7 +14,7 @@ type AdminProjectsToolbarProps = {
   total: number;
 };
 
-const STATUS_OPTIONS: Array<{ value: ProjectStatus; label: string }> = [
+const COMMERCIAL_STATUS_OPTIONS: Array<{ value: ProjectStatus; label: string }> = [
   { value: "submitted", label: PROJECT_STATUS_LABELS.submitted },
   { value: "changes_requested", label: PROJECT_STATUS_LABELS.changes_requested },
   { value: "approved", label: PROJECT_STATUS_LABELS.approved },
@@ -21,53 +22,45 @@ const STATUS_OPTIONS: Array<{ value: ProjectStatus; label: string }> = [
   { value: "draft", label: PROJECT_STATUS_LABELS.draft },
 ];
 
+const QUEUE_TABS = [
+  "attention",
+  "active",
+  "commercial",
+  "onboarding",
+] as const;
+
 export default function AdminProjectsToolbar({
   params,
   total,
 }: AdminProjectsToolbarProps) {
-  const isOnboardingQueue = params.queue === "onboarding";
   const hasFilters = Boolean(
-    params.query ||
-      (isOnboardingQueue ? false : params.status !== "submitted"),
+    params.query || (params.queue === "commercial" && params.status !== "submitted"),
   );
-
-  const summaryLabel = isOnboardingQueue
-    ? ONBOARDING_STATUS_LABELS.pending_approval
-    : PROJECT_STATUS_LABELS[params.status];
 
   return (
     <section className={styles.toolbar} aria-label="סינון פרויקטים">
-      <nav className={styles.queueTabs} aria-label="תור פרויקטים">
-        <Link
-          href={buildAdminProjectsHref({
-            query: params.query,
-            queue: "onboarding",
-          })}
-          className={
-            isOnboardingQueue ? styles.queueTabActive : styles.queueTab
-          }
-          aria-current={isOnboardingQueue ? "page" : undefined}
-        >
-          אישור פתיחה
-        </Link>
-        <Link
-          href={buildAdminProjectsHref({
-            query: params.query,
-            queue: "commercial",
-            status: params.status,
-          })}
-          className={
-            !isOnboardingQueue ? styles.queueTabActive : styles.queueTab
-          }
-          aria-current={!isOnboardingQueue ? "page" : undefined}
-        >
-          בדיקה מסחרית
-        </Link>
+      <nav className={styles.queueTabs} aria-label="תצוגות פרויקט">
+        {QUEUE_TABS.map((queue) => (
+          <Link
+            key={queue}
+            href={buildAdminProjectsHref({
+              query: params.query,
+              queue,
+              status: params.queue === "commercial" ? params.status : undefined,
+            })}
+            className={
+              params.queue === queue ? styles.queueTabActive : styles.queueTab
+            }
+            aria-current={params.queue === queue ? "page" : undefined}
+          >
+            {ADMIN_PROJECTS_QUEUE_LABELS[queue]}
+          </Link>
+        ))}
       </nav>
 
       <form method="get" className={styles.form}>
-        {isOnboardingQueue ? (
-          <input type="hidden" name="queue" value="onboarding" />
+        {params.queue !== "attention" ? (
+          <input type="hidden" name="queue" value={params.queue} />
         ) : null}
 
         <div className={styles.filters}>
@@ -81,14 +74,14 @@ export default function AdminProjectsToolbar({
               type="search"
               className={styles.input}
               defaultValue={params.query ?? ""}
-              placeholder="שם פרויקט, לקוח או אימייל"
+              placeholder="שם פרויקט, אדריכל, לקוח או אימייל"
             />
           </div>
 
-          {!isOnboardingQueue ? (
+          {params.queue === "commercial" ? (
             <div className={styles.field}>
               <label className={styles.label} htmlFor="projects-status">
-                סטטוס
+                סטטוס מסחרי
               </label>
               <select
                 id="projects-status"
@@ -96,7 +89,7 @@ export default function AdminProjectsToolbar({
                 className={styles.select}
                 defaultValue={params.status}
               >
-                {STATUS_OPTIONS.map((option) => (
+                {COMMERCIAL_STATUS_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>
                     {option.label}
                   </option>
@@ -108,15 +101,11 @@ export default function AdminProjectsToolbar({
 
         <div className={styles.actions}>
           <Button type="submit" variant="secondary" size="sm">
-            סינון
+            חיפוש
           </Button>
-          {hasFilters || isOnboardingQueue ? (
+          {hasFilters ? (
             <Link
-              href={
-                isOnboardingQueue
-                  ? "/admin/projects?queue=onboarding"
-                  : "/admin/projects"
-              }
+              href={buildAdminProjectsHref({ queue: params.queue })}
               className={styles.resetLink}
             >
               ניקוי סינון
@@ -126,7 +115,10 @@ export default function AdminProjectsToolbar({
       </form>
 
       <p className={styles.summary}>
-        {total} פרויקטים · {summaryLabel}
+        {total} פרויקטים · {ADMIN_PROJECTS_QUEUE_LABELS[params.queue]}
+        {params.queue === "commercial"
+          ? ` · ${PROJECT_STATUS_LABELS[params.status]}`
+          : ""}
       </p>
     </section>
   );

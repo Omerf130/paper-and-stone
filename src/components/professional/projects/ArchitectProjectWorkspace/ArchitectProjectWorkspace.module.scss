@@ -1,0 +1,108 @@
+@use "../../../../styles/tokens" as *;
+
+.workspace {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  padding: $spacing-md;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  background: $color-background-subtle;
+}
+
+.headerMain {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+}
+
+.projectName {
+  margin: 0;
+  font-size: $font-size-xl;
+  font-weight: $font-weight-semibold;
+}
+
+.clientName {
+  margin: 0;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: $spacing-md;
+  margin: 0;
+
+  dt {
+    margin: 0;
+    font-size: $font-size-xs;
+    color: $color-text-secondary;
+  }
+
+  dd {
+    margin: 0;
+    font-size: $font-size-base;
+    font-weight: $font-weight-medium;
+  }
+}
+
+.attentionList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pricingAttention {
+  margin: 0;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.roomTools {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.sectionTitle {
+  margin: 0 0 $spacing-sm;
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+}
+
+.orphanSection {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.orphanList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (max-width: 767px) {
+  .stats {
+    grid-template-columns: 1fr;
+  }
+}

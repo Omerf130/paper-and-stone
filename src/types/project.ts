@@ -73,6 +73,8 @@ export type ProjectItemView = {
   quantity: number;
   snapshot: ProjectItemSnapshot;
   isProductActive: boolean;
+  adminPricing?: import("@/types/project-pricing").AdminProjectItemPricingView;
+  architectPricing?: import("@/types/project-pricing").ArchitectProjectItemPricingView;
 };
 
 export type ProjectListItemView = {
@@ -113,6 +115,8 @@ export type ProjectDetailView = {
   isRoomEditable: boolean;
   rooms: import("@/types/project-room").ProjectRoomView[];
   selectedRoomId?: string | null;
+  pricingSettings?: import("@/types/project-pricing").ArchitectProjectPricingSettingsView;
+  pricingTotals?: import("@/types/project-pricing").ArchitectPricingTotalsView;
 };
 
 export type ProjectOptionView = {

@@ -1,0 +1,71 @@
+@use "../../../../styles/tokens" as *;
+
+.accordion {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.roomSection {
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  overflow: hidden;
+}
+
+.roomHeader {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-md;
+  width: 100%;
+  min-height: 2.75rem;
+  padding: $spacing-md;
+  border: 0;
+  background: $color-background-subtle;
+  text-align: start;
+  cursor: pointer;
+}
+
+.chevron {
+  flex-shrink: 0;
+  color: $color-text-secondary;
+}
+
+.roomTitleWrap {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+  min-width: 0;
+}
+
+.roomName {
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+}
+
+.roomMeta {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.roomPanel {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  padding: $spacing-md;
+  border-top: 1px solid $color-border;
+}
+
+.itemList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.emptyRoom {
+  margin: 0;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}

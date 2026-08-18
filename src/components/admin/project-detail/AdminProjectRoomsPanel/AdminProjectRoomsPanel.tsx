@@ -2,17 +2,32 @@ import EmptyState from "@/components/ui/EmptyState/EmptyState";
 import { groupItemsByRoomId } from "@/lib/projects/project-room-helpers";
 import type { ProjectItemView } from "@/types/project";
 import type { ProjectRoomView } from "@/types/project-room";
+import type {
+  AdminPricingTotalsView,
+  ProjectPricingSettingsView,
+} from "@/types/project-pricing";
 import AdminProjectItemRow from "../AdminProjectItemRow/AdminProjectItemRow";
+import AdminProjectItemPricing from "../AdminProjectItemPricing/AdminProjectItemPricing";
+import AdminProjectPricingSettings from "../AdminProjectPricingSettings/AdminProjectPricingSettings";
+import LayeredPricingTotalsSummary, {
+  getRoomArchitectTotalFormatted,
+} from "../LayeredPricingTotalsSummary/LayeredPricingTotalsSummary";
 import styles from "./AdminProjectRoomsPanel.module.scss";
 
 type AdminProjectRoomsPanelProps = {
+  projectId: string;
   rooms: ProjectRoomView[];
   items: ProjectItemView[];
+  pricingSettings?: ProjectPricingSettingsView;
+  pricingTotals?: AdminPricingTotalsView;
 };
 
 export default function AdminProjectRoomsPanel({
+  projectId,
   rooms,
   items,
+  pricingSettings,
+  pricingTotals,
 }: AdminProjectRoomsPanelProps) {
   if (rooms.length === 0) {
     return (
@@ -25,11 +40,21 @@ export default function AdminProjectRoomsPanel({
 
   const itemsByRoomId = groupItemsByRoomId(items);
   const sortedRooms = [...rooms].sort((a, b) => a.order - b.order);
+  const showPricing = pricingSettings?.usesLayeredPricing ?? false;
+  const isPricingEditable = pricingSettings?.isAdminPricingEditable ?? false;
 
   return (
     <div className={styles.panel}>
+      {showPricing && pricingSettings ? (
+        <AdminProjectPricingSettings
+          projectId={projectId}
+          settings={pricingSettings}
+        />
+      ) : null}
+
       {sortedRooms.map((room) => {
         const roomItems = itemsByRoomId.get(room.id) ?? [];
+        const roomArchitectTotal = getRoomArchitectTotalFormatted(roomItems);
 
         return (
           <section
@@ -47,19 +72,52 @@ export default function AdminProjectRoomsPanel({
             </header>
 
             {roomItems.length > 0 ? (
-              <ul className={styles.itemList}>
-                {roomItems.map((item) => (
-                  <li key={item.id}>
-                    <AdminProjectItemRow item={item} />
-                  </li>
-                ))}
-              </ul>
+              <>
+                <ul className={styles.itemList}>
+                  {roomItems.map((item) => (
+                    <li key={item.id} className={styles.itemEntry}>
+                      <AdminProjectItemRow item={item} />
+                      {showPricing && item.adminPricing ? (
+                        <AdminProjectItemPricing
+                          projectId={projectId}
+                          itemId={item.id}
+                          pricing={item.adminPricing}
+                          defaultAdminMarkupPercent={
+                            pricingSettings?.defaultAdminMarkupPercent
+                          }
+                          isEditable={isPricingEditable}
+                        />
+                      ) : null}
+                    </li>
+                  ))}
+                </ul>
+                {showPricing && roomArchitectTotal ? (
+                  <LayeredPricingTotalsSummary
+                    label={`סיכום חדר — ${room.name}`}
+                    architectTotalFormatted={roomArchitectTotal}
+                    idPrefix={`room-${room.id}`}
+                  />
+                ) : null}
+              </>
             ) : (
               <p className={styles.emptyRoom}>אין מוצרים בחדר זה.</p>
             )}
           </section>
         );
       })}
+
+      {showPricing && pricingTotals ? (
+        <LayeredPricingTotalsSummary
+          label="סיכום פרויקט"
+          internalCostTotalFormatted={pricingTotals.internalCostTotalFormatted}
+          architectTotalFormatted={pricingTotals.architectTotalFormatted}
+          clientTotalFormatted={pricingTotals.clientTotalFormatted}
+          unpricedItemCount={pricingTotals.unpricedItemCount}
+          staleItemCount={pricingTotals.staleItemCount}
+          idPrefix="project"
+          variant="project"
+        />
+      ) : null}
     </div>
   );
 }

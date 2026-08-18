@@ -31,15 +31,35 @@ export function isEditableCommercialStatus(status: ProjectStatus): boolean {
   );
 }
 
-export function isProjectWorkspaceActive(project: ProjectGateInput): boolean {
+export const NEW_WORKFLOW_WORKSPACE_EDITABLE_STATUSES = [
+  "draft",
+  "changes_requested",
+  "approved",
+] as const satisfies readonly ProjectStatus[];
+
+export function isNewWorkflowWorkspaceEditableStatus(
+  status: ProjectStatus,
+): boolean {
+  return NEW_WORKFLOW_WORKSPACE_EDITABLE_STATUSES.includes(
+    status as (typeof NEW_WORKFLOW_WORKSPACE_EDITABLE_STATUSES)[number],
+  );
+}
+
+export function isArchitectWorkspaceEditable(
+  project: ProjectGateInput,
+): boolean {
   if (isLegacyProject(project)) {
     return isEditableCommercialStatus(project.status);
   }
 
   return (
     project.onboardingStatus === "active" &&
-    isEditableCommercialStatus(project.status)
+    isNewWorkflowWorkspaceEditableStatus(project.status)
   );
+}
+
+export function isProjectWorkspaceActive(project: ProjectGateInput): boolean {
+  return isArchitectWorkspaceEditable(project);
 }
 
 export function isProjectItemEditable(project: ProjectGateInput): boolean {
@@ -94,6 +114,12 @@ export function usesRoomBasedWorkspace(
   return !isLegacyProject(project);
 }
 
+export function usesLayeredPricing(
+  project: Pick<IProject, "onboardingStatus">,
+): boolean {
+  return usesRoomBasedWorkspace(project);
+}
+
 export function isProjectRoomEditable(project: ProjectGateInput): boolean {
   return usesRoomBasedWorkspace(project) && isProjectItemEditable(project);
 }
@@ -128,4 +154,12 @@ export function getOnboardingStatusOrNull(
 
 export const ITEM_EDITABLE_STATUS_FILTER = {
   $in: [...EDITABLE_PROJECT_STATUSES],
+} as const;
+
+export const ADMIN_PRICING_STATUS_FILTER = {
+  $nin: ["rejected"],
+} as const;
+
+export const ARCHITECT_WORKSPACE_EDITABLE_STATUS_FILTER = {
+  $in: [...NEW_WORKFLOW_WORKSPACE_EDITABLE_STATUSES],
 } as const;

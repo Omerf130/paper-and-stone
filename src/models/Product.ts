@@ -84,6 +84,7 @@ export interface IProduct extends Document {
   sizes: IProductSize[];
   media: IProductMedia;
   recolorConfig: IProductRecolorConfig;
+  defaultInternalCostAgorot?: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -211,6 +212,7 @@ const productSchema = new Schema<IProduct>(
       type: productRecolorConfigSchema,
       default: () => ({ enabled: false, status: "missing_primary" }),
     },
+    defaultInternalCostAgorot: { type: Number, min: 0 },
   },
   { timestamps: true },
 );

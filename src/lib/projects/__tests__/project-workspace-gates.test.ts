@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   canResubmitOnboarding,
+  isArchitectWorkspaceEditable,
   isLegacyProject,
   isMessagingAvailable,
   isProjectItemEditable,
@@ -110,6 +111,27 @@ describe("project-workspace-gates", () => {
       isProjectRoomEditable({
         ...activeProject,
         status: "changes_requested",
+      }),
+    ).toBe(true);
+    expect(
+      isProjectRoomEditable({
+        ...activeProject,
+        status: "approved",
+      }),
+    ).toBe(true);
+  });
+
+  it("keeps submitted review lock while allowing approved workspace edits", () => {
+    expect(
+      isArchitectWorkspaceEditable({
+        ...activeProject,
+        status: "submitted",
+      }),
+    ).toBe(false);
+    expect(
+      isArchitectWorkspaceEditable({
+        ...activeProject,
+        status: "approved",
       }),
     ).toBe(true);
   });

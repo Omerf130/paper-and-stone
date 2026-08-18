@@ -1,4 +1,5 @@
 import type { ProjectOnboardingStatus, ProjectStatus } from "@/types/project";
+import type { ProjectPricingAttention } from "@/lib/projects/admin-project-attention";
 
 export type AdminProjectListItemView = {
   id: string;
@@ -9,10 +10,13 @@ export type AdminProjectListItemView = {
   onboardingStatus?: ProjectOnboardingStatus | null;
   status: ProjectStatus;
   itemCount: number;
+  roomCount: number;
   professionalEmail: string;
   professionalName?: string;
   submittedAt?: string;
   updatedAt: string;
+  attentionReasons: string[];
+  pricingAttention: ProjectPricingAttention;
   unreadMessageCount?: number;
   quoteStatusLabel?: string;
   quoteAttention?: "accepted" | "change_requested" | "awaiting_professional";
@@ -39,6 +43,11 @@ export type AdminProjectDetailView = {
   professionalName?: string;
   createdAt: string;
   updatedAt: string;
+  attentionReasons: string[];
+  pricingAttention: import("@/lib/projects/admin-project-attention").ProjectPricingAttention;
+  pricingSettings?: import("@/types/project-pricing").ProjectPricingSettingsView;
+  pricingTotals?: import("@/types/project-pricing").AdminPricingTotalsView;
+  pricingApprovalBlockedReason?: string | null;
 };
 
 export type AdminProjectsPageResult = {

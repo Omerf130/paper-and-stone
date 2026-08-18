@@ -5,8 +5,18 @@ import {
 } from "@/lib/projects/mapProjectToView";
 import { getProjectRoomViews } from "@/lib/projects/project-room-queries";
 import { mapReviewHistoryEntryToView } from "@/lib/projects/project-review-history";
-import { usesRoomBasedWorkspace } from "@/lib/projects/project-workspace-gates";
+import { usesLayeredPricing, usesRoomBasedWorkspace } from "@/lib/projects/project-workspace-gates";
 import { resolveAssignedClientFullName } from "@/lib/admin/clients/client-lookup-queries";
+import {
+  mapAdminPricingTotalsView,
+  mapAdminProjectItemPricingView,
+  mapProjectPricingSettingsView,
+} from "@/lib/pricing/pricing-view-mappers";
+import { getLayeredPricingApprovalBlockedReason } from "@/lib/pricing/pricing-gates";
+import {
+  getAdminProjectAttentionLabels,
+  getProjectPricingAttention,
+} from "@/lib/projects/admin-project-attention";
 import type {
   AdminProjectDetailView,
   AdminProjectListItemView,
@@ -30,10 +40,13 @@ export async function mapLeanProjectToAdminListItem(
     onboardingStatus: project.onboardingStatus ?? null,
     status: project.status,
     itemCount: project.items.length,
+    roomCount: 0,
     professionalEmail,
     professionalName,
     submittedAt: project.submittedAt?.toISOString(),
     updatedAt: project.updatedAt.toISOString(),
+    attentionReasons: getAdminProjectAttentionLabels(project),
+    pricingAttention: getProjectPricingAttention(project.items),
   };
 }
 
@@ -53,6 +66,7 @@ export async function mapLeanProjectToAdminDetailView(
   const rooms = roomBased
     ? await getProjectRoomViews(project._id.toString(), project.items)
     : [];
+  const layeredPricing = usesLayeredPricing(project);
 
   return {
     id: project._id.toString(),
@@ -64,9 +78,14 @@ export async function mapLeanProjectToAdminDetailView(
     location: project.location,
     description: project.description,
     status: project.status,
-    items: project.items.map((item) =>
-      mapProjectItemToView(item, activeProductIds),
-    ),
+    items: project.items.map((item) => ({
+      ...mapProjectItemToView(item, activeProductIds),
+      ...(layeredPricing
+        ? {
+            adminPricing: mapAdminProjectItemPricingView(item, project),
+          }
+        : {}),
+    })),
     usesRoomBasedWorkspace: roomBased,
     rooms,
     reviewHistory: (project.reviewHistory ?? []).map(mapReviewHistoryEntryToView),
@@ -77,5 +96,16 @@ export async function mapLeanProjectToAdminDetailView(
     professionalName,
     createdAt: project.createdAt.toISOString(),
     updatedAt: project.updatedAt.toISOString(),
+    attentionReasons: getAdminProjectAttentionLabels(project),
+    pricingAttention: getProjectPricingAttention(project.items),
+    ...(layeredPricing
+      ? {
+          pricingSettings: mapProjectPricingSettingsView(project),
+          pricingTotals: mapAdminPricingTotalsView(project.items),
+          pricingApprovalBlockedReason: getLayeredPricingApprovalBlockedReason(
+            project,
+          ),
+        }
+      : {}),
   };
 }

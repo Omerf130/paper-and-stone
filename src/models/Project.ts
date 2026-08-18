@@ -19,6 +19,20 @@ export interface IProjectItemSnapshot {
   sizeLabel?: string;
 }
 
+export interface IProjectItemPricing {
+  internalCostAgorot?: number;
+  adminMarkupBp?: number;
+  architectPriceAgorot?: number;
+  architectMarkupBp?: number;
+  clientPriceAgorot?: number;
+  clientPriceStale?: boolean;
+  priceVersion: number;
+  pricedAt?: Date;
+  pricedByAdminUserId?: Types.ObjectId;
+  clientPricedAt?: Date;
+  clientPricedByArchitectUserId?: Types.ObjectId;
+}
+
 export interface IProjectItem {
   _id: Types.ObjectId;
   productId: Types.ObjectId;
@@ -28,6 +42,7 @@ export interface IProjectItem {
   selectedSizeKey: string | null;
   quantity: number;
   snapshot: IProjectItemSnapshot;
+  pricing?: IProjectItemPricing;
 }
 
 export interface IProjectReviewHistoryEntry {
@@ -55,6 +70,8 @@ export interface IProject extends Document {
   onboardingApprovedAt?: Date;
   onboardingApprovedByUserId?: Types.ObjectId;
   submissionRevision: number;
+  defaultAdminMarkupBp?: number;
+  defaultArchitectMarkupBp?: number;
   items: IProjectItem[];
   reviewHistory: IProjectReviewHistoryEntry[];
   submittedAt?: Date;
@@ -77,6 +94,23 @@ const projectItemSnapshotSchema = new Schema<IProjectItemSnapshot>(
   { _id: false },
 );
 
+const projectItemPricingSchema = new Schema<IProjectItemPricing>(
+  {
+    internalCostAgorot: { type: Number, min: 0 },
+    adminMarkupBp: { type: Number, min: 0 },
+    architectPriceAgorot: { type: Number, min: 0 },
+    architectMarkupBp: { type: Number, min: 0 },
+    clientPriceAgorot: { type: Number, min: 0 },
+    clientPriceStale: { type: Boolean, default: false },
+    priceVersion: { type: Number, default: 0, min: 0, required: true },
+    pricedAt: { type: Date },
+    pricedByAdminUserId: { type: Schema.Types.ObjectId, ref: "User" },
+    clientPricedAt: { type: Date },
+    clientPricedByArchitectUserId: { type: Schema.Types.ObjectId, ref: "User" },
+  },
+  { _id: false },
+);
+
 const projectItemSchema = new Schema<IProjectItem>(
   {
     productId: {
@@ -94,6 +128,7 @@ const projectItemSchema = new Schema<IProjectItem>(
     selectedSizeKey: { type: String, default: null },
     quantity: { type: Number, required: true, min: 1, max: 999 },
     snapshot: { type: projectItemSnapshotSchema, required: true },
+    pricing: { type: projectItemPricingSchema },
   },
   { _id: true },
 );
@@ -170,6 +205,8 @@ const projectSchema = new Schema<IProject>(
       ref: "User",
     },
     submissionRevision: { type: Number, default: 0, min: 0, required: true },
+    defaultAdminMarkupBp: { type: Number, min: 0 },
+    defaultArchitectMarkupBp: { type: Number, min: 0 },
     items: { type: [projectItemSchema], default: [] },
     reviewHistory: { type: [projectReviewHistorySchema], default: [] },
     submittedAt: { type: Date },
