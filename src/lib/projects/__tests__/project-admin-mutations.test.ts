@@ -59,6 +59,7 @@ describe("project-admin-mutations", () => {
           status: "approved",
           reviewedAt: expect.any(Date),
           reviewedByUserId: expect.anything(),
+          commercialDirty: false,
         }),
         $push: expect.objectContaining({
           reviewHistory: expect.objectContaining({
@@ -127,5 +128,26 @@ describe("project-admin-mutations", () => {
         }),
       }),
     );
+  });
+
+  it("blocks approval when submitted project is commercially dirty", async () => {
+    findOneMock.mockReturnValue({
+      select: vi.fn().mockResolvedValue({
+        _id: { toString: () => "507f1f77bcf86cd799439013" },
+        ownerUserId: { toString: () => "507f1f77bcf86cd799439012" },
+        name: "Villa Tel Aviv",
+        status: "submitted",
+        commercialDirty: true,
+      }),
+    });
+
+    const { approveProject } = await import("@/lib/projects/project-admin-mutations");
+    const { PROJECT_ERRORS } = await import("@/lib/projects/project-validation");
+
+    await expect(
+      approveProject("507f1f77bcf86cd799439011", "507f1f77bcf86cd799439013"),
+    ).rejects.toMatchObject({
+      message: PROJECT_ERRORS.NOT_SUBMITTABLE,
+    });
   });
 });

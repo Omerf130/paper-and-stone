@@ -168,4 +168,23 @@ describe("admin-project-attention", () => {
       }),
     ).toBe(true);
   });
+
+  it("does not include commercial dirty alone in admin attention reasons", () => {
+    expect(
+      getAdminProjectAttentionReasons({
+        onboardingStatus: "active",
+        status: "approved",
+        commercialDirty: true,
+        items: [
+          {
+            pricing: {
+              internalCostAgorot: 100_000,
+              architectPriceAgorot: 140_000,
+              clientPriceAgorot: 210_000,
+            },
+          },
+        ],
+      } as never),
+    ).toEqual([]);
+  });
 });

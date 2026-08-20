@@ -17,6 +17,7 @@ type ProjectStatusBannerProps = {
   onboardingRejectionReason?: string | null;
   reviewHistory: ProjectReviewHistoryEntry[];
   submittedAt?: string;
+  commercialDirty?: boolean;
 };
 
 function getCommercialBannerTone(
@@ -87,6 +88,7 @@ export default function ProjectStatusBanner({
   onboardingRejectionReason,
   reviewHistory,
   submittedAt,
+  commercialDirty = false,
 }: ProjectStatusBannerProps) {
   const latestFeedback = getLatestAdminFeedback(reviewHistory);
   const hasOnboarding = onboardingStatus != null;
@@ -117,6 +119,15 @@ export default function ProjectStatusBanner({
               {onboardingRejectionReason ?? latestFeedback?.message}
             </p>
           </div>
+        ) : null}
+
+        {onboardingStatus === "active" &&
+        status === "approved" &&
+        commercialDirty ? (
+          <p className={styles.dirtyNotice}>
+            הפרויקט השתנה מאז האישור האחרון. יש לשלוח מחדש לבדיקה לאחר השלמת
+            השינויים.
+          </p>
         ) : null}
       </FeedbackBanner>
     );

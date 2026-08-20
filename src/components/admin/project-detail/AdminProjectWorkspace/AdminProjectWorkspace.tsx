@@ -49,6 +49,9 @@ export default function AdminProjectWorkspace({
             <StatusBadge tone={commercialBadge.tone}>
               {PROJECT_STATUS_LABELS[project.status]}: {commercialBadge.label}
             </StatusBadge>
+            {project.status === "approved" && project.commercialDirty ? (
+              <StatusBadge tone="warning">אושר בעבר · השתנה מאז</StatusBadge>
+            ) : null}
           </div>
         </div>
         <dl className={styles.stats}>

@@ -94,6 +94,9 @@ export default function ArchitectProjectWorkspace({
             <StatusBadge tone={commercialBadge.tone}>
               {commercialBadge.label}
             </StatusBadge>
+            {project.status === "approved" && project.commercialDirty ? (
+              <StatusBadge tone="warning">יש שינויים שלא נבדקו</StatusBadge>
+            ) : null}
           </div>
         </div>
         <dl className={styles.stats}>

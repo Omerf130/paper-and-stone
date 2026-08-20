@@ -102,4 +102,62 @@ describe("project-submission", () => {
       message: PROJECT_ERRORS.EMPTY_PROJECT,
     });
   });
+
+  it("resubmits approved dirty project and clears commercialDirty", async () => {
+    findOneMock.mockResolvedValue({
+      onboardingStatus: "active",
+      status: "approved",
+      commercialDirty: true,
+      items: [
+        {
+          pricing: {
+            architectPriceAgorot: 100_000,
+            clientPriceAgorot: 150_000,
+            clientPriceStale: false,
+          },
+        },
+      ],
+    });
+
+    const { submitProject } = await import("@/lib/projects/project-submission");
+
+    await submitProject("507f1f77bcf86cd799439011", "507f1f77bcf86cd799439013");
+
+    expect(updateOneMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        status: "approved",
+        commercialDirty: true,
+      }),
+      expect.objectContaining({
+        $set: expect.objectContaining({
+          status: "submitted",
+          commercialDirty: false,
+        }),
+        $push: expect.objectContaining({
+          reviewHistory: expect.objectContaining({
+            action: "resubmitted",
+            message: "נשלח מחדש לבדיקה לאחר שינויים",
+          }),
+        }),
+      }),
+    );
+  });
+
+  it("blocks resubmit for approved clean project", async () => {
+    findOneMock.mockResolvedValue({
+      onboardingStatus: "active",
+      status: "approved",
+      commercialDirty: false,
+      items: [{ _id: "item-1" }],
+    });
+
+    const { submitProject } = await import("@/lib/projects/project-submission");
+    const { PROJECT_ERRORS } = await import("@/lib/projects/project-validation");
+
+    await expect(
+      submitProject("507f1f77bcf86cd799439011", "507f1f77bcf86cd799439013"),
+    ).rejects.toMatchObject({
+      message: PROJECT_ERRORS.ALREADY_APPROVED_CLEAN,
+    });
+  });
 });

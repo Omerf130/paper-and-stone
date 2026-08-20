@@ -86,6 +86,7 @@ export async function mapProjectToListItemView(
     assignedClientFullName,
     onboardingStatus: project.onboardingStatus ?? null,
     status: project.status,
+    commercialDirty: project.commercialDirty ?? false,
     itemCount: project.items.length,
     submittedAt: project.submittedAt?.toISOString(),
     updatedAt: project.updatedAt.toISOString(),
@@ -117,6 +118,8 @@ export async function mapProjectToDetailView(
     location: project.location,
     description: project.description,
     status: project.status,
+    commercialDirty: project.commercialDirty ?? false,
+    commercialDirtyAt: project.commercialDirtyAt?.toISOString(),
     items: project.items.map((item) => ({
       ...mapProjectItemToView(item, activeProductIds),
       ...(layeredPricing

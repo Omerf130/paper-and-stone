@@ -9,6 +9,8 @@ export type AdminProjectListItemView = {
   clientUserId?: string | null;
   onboardingStatus?: ProjectOnboardingStatus | null;
   status: ProjectStatus;
+  commercialDirty?: boolean;
+  commercialDirtyAt?: string;
   itemCount: number;
   roomCount: number;
   professionalEmail: string;
@@ -32,6 +34,8 @@ export type AdminProjectDetailView = {
   location?: string;
   description?: string;
   status: ProjectStatus;
+  commercialDirty?: boolean;
+  commercialDirtyAt?: string;
   items: import("@/types/project").ProjectItemView[];
   usesRoomBasedWorkspace: boolean;
   rooms: import("@/types/project-room").ProjectRoomView[];

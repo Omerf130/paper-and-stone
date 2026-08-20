@@ -35,6 +35,7 @@ import {
 } from "@/app/professional/projects/message-actions";
 import ProjectMessageReadMarker from "@/components/project-messages/ProjectMessageReadMarker/ProjectMessageReadMarker";
 import ProjectMessageThread from "@/components/project-messages/ProjectMessageThread/ProjectMessageThread";
+import { PRICING_ERRORS } from "@/lib/pricing/pricing-validation";
 import styles from "./page.module.scss";
 
 export async function generateMetadata({
@@ -86,6 +87,14 @@ export default async function ProjectDetailPage({
     project.isItemWorkspaceVisible && !project.usesRoomBasedWorkspace
       ? await getProfessionalQuoteSectionView(user.id, id)
       : null;
+  const pricingBlockedReason =
+    project.pricingSettings?.usesLayeredPricing && project.pricingTotals
+      ? project.pricingTotals.staleItemCount > 0
+        ? PRICING_ERRORS.STALE_PRICING_SUBMIT
+        : project.pricingTotals.unpricedItemCount > 0
+          ? PRICING_ERRORS.INCOMPLETE_PRICING
+          : null
+      : null;
   const statusBadge = mapProjectStatusToBadge(project.status);
   const onboardingBadge = project.onboardingStatus
     ? mapOnboardingStatusToBadge(project.onboardingStatus)
@@ -129,6 +138,7 @@ export default async function ProjectDetailPage({
         onboardingRejectionReason={project.onboardingRejectionReason}
         reviewHistory={project.reviewHistory}
         submittedAt={project.submittedAt}
+        commercialDirty={project.commercialDirty}
       />
 
       {project.canResubmitOnboarding ? (
@@ -140,6 +150,9 @@ export default async function ProjectDetailPage({
           projectId={project.id}
           status={project.status}
           itemCount={project.items.length}
+          commercialDirty={project.commercialDirty}
+          pricingComplete={pricingBlockedReason == null}
+          pricingBlockedReason={pricingBlockedReason}
         />
       ) : null}
 

@@ -15,6 +15,7 @@ export const PROJECT_ERRORS = {
   NOT_EDITABLE: "לא ניתן לערוך פרויקט זה.",
   NOT_DELETABLE: "לא ניתן למחוק פרויקט זה.",
   NOT_SUBMITTABLE: "לא ניתן לשלוח פרויקט זה.",
+  ALREADY_APPROVED_CLEAN: "הפרויקט כבר אושר ולא השתנה מאז",
   EMPTY_PROJECT: "יש להוסיף לפחות מוצר אחד לפני שליחה.",
   INVALID_TRANSITION: "מעבר סטטוס אינו מותר.",
   PROFILE_NOT_READY:

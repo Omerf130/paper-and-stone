@@ -107,7 +107,11 @@ describe("project-mutations", () => {
       expect.objectContaining({
         _id: expect.anything(),
         ownerUserId: expect.anything(),
-        status: { $in: ["draft", "changes_requested"] },
+        $or: expect.arrayContaining([
+          expect.objectContaining({
+            status: { $in: ["draft", "changes_requested"] },
+          }),
+        ]),
       }),
       { $inc: { "items.$.quantity": 2 } },
     );
@@ -166,7 +170,11 @@ describe("project-mutations", () => {
 
     expect(updateOneMock).toHaveBeenLastCalledWith(
       expect.objectContaining({
-        status: { $in: ["draft", "changes_requested"] },
+        $or: expect.arrayContaining([
+          expect.objectContaining({
+            status: { $in: ["draft", "changes_requested"] },
+          }),
+        ]),
       }),
       expect.objectContaining({
         $push: expect.objectContaining({

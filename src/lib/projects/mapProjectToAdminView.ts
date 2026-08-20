@@ -39,6 +39,8 @@ export async function mapLeanProjectToAdminListItem(
     clientUserId: project.clientUserId?.toString() ?? null,
     onboardingStatus: project.onboardingStatus ?? null,
     status: project.status,
+    commercialDirty: project.commercialDirty ?? false,
+    commercialDirtyAt: project.commercialDirtyAt?.toISOString(),
     itemCount: project.items.length,
     roomCount: 0,
     professionalEmail,
@@ -78,6 +80,8 @@ export async function mapLeanProjectToAdminDetailView(
     location: project.location,
     description: project.description,
     status: project.status,
+    commercialDirty: project.commercialDirty ?? false,
+    commercialDirtyAt: project.commercialDirtyAt?.toISOString(),
     items: project.items.map((item) => ({
       ...mapProjectItemToView(item, activeProductIds),
       ...(layeredPricing

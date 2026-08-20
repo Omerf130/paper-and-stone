@@ -22,6 +22,7 @@ import {
   isAdminProjectPricingEditable,
 } from "@/lib/pricing/pricing-gates";
 import { PRICING_ERRORS } from "@/lib/pricing/pricing-validation";
+import { appendCommercialDirtyToSet, applyCommercialDirtyToDocument } from "@/lib/projects/project-commercial-dirty";
 
 type SetProjectItemAdminPricingInput = {
   projectId: string;
@@ -232,6 +233,10 @@ export async function setProjectItemAdminPricing(
     }
   }
 
+  const dirtySet = (updateDoc.$set ?? {}) as Record<string, unknown>;
+  appendCommercialDirtyToSet(project, dirtySet);
+  updateDoc.$set = dirtySet;
+
   const arrayFilter: Record<string, unknown> = {
     "item._id": new Types.ObjectId(input.itemId),
   };
@@ -313,5 +318,6 @@ export async function setProjectDefaultAdminMarkup(
   }
 
   project.defaultAdminMarkupBp = input.defaultAdminMarkupBp;
+  applyCommercialDirtyToDocument(project);
   await project.save();
 }

@@ -36,10 +36,14 @@ async function applyAdminReviewTransition(
   const project = await Project.findOne({
     _id: new Types.ObjectId(projectId),
     status: "submitted",
-  }).select("_id ownerUserId name status");
+  }).select("_id ownerUserId name status commercialDirty");
 
   if (!project) {
     throw new ProjectMutationError(PROJECT_ERRORS.NOT_FOUND);
+  }
+
+  if (project.commercialDirty) {
+    throw new ProjectMutationError(PROJECT_ERRORS.NOT_SUBMITTABLE);
   }
 
   const fromStatus: ProjectStatus = "submitted";
@@ -67,6 +71,7 @@ async function applyAdminReviewTransition(
         status: transition.toStatus,
         reviewedAt: now,
         reviewedByUserId: new Types.ObjectId(adminUserId),
+        commercialDirty: false,
       },
       $push: {
         reviewHistory: historyEntry,

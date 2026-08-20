@@ -34,6 +34,10 @@ export default function ProfessionalProjectRow({
             : getArchitectProjectActionHint({
                 onboardingStatus: project.onboardingStatus ?? null,
                 status: project.status,
+                commercialDirty:
+                  "commercialDirty" in project
+                    ? project.commercialDirty
+                    : false,
                 items: [],
               })
         : getProjectRequiredActionHint(project.status);
@@ -58,6 +62,11 @@ export default function ProfessionalProjectRow({
         ) : null}
         <div className={styles.meta}>
           <StatusBadge tone={statusBadge.tone}>{statusBadge.label}</StatusBadge>
+          {"commercialDirty" in project &&
+          project.commercialDirty &&
+          project.status === "approved" ? (
+            <StatusBadge tone="warning">השתנה מאז האישור</StatusBadge>
+          ) : null}
           {actionHint ? (
             <p className={styles.actionHint}>{actionHint}</p>
           ) : null}

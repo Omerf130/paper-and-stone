@@ -13,26 +13,40 @@ type ProjectSubmitButtonProps = {
   projectId: string;
   status: ProjectStatus;
   itemCount: number;
+  commercialDirty?: boolean;
+  pricingComplete?: boolean;
+  pricingBlockedReason?: string | null;
 };
 
 export default function ProjectSubmitButton({
   projectId,
   status,
   itemCount,
+  commercialDirty = false,
+  pricingComplete = true,
+  pricingBlockedReason = null,
 }: ProjectSubmitButtonProps) {
   const router = useRouter();
   const { toast } = useToast();
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
 
+  const isInitialSubmit =
+    status === "draft" || status === "changes_requested";
+  const isDirtyResubmit = status === "approved" && commercialDirty;
   const canSubmit =
-    (status === "draft" || status === "changes_requested") && itemCount > 0;
+    (isInitialSubmit || isDirtyResubmit) && itemCount > 0 && pricingComplete;
 
-  if (!canSubmit) {
+  if (!isInitialSubmit && !isDirtyResubmit) {
     return null;
   }
 
-  const isResubmit = status === "changes_requested";
+  const isResubmit = status === "changes_requested" || isDirtyResubmit;
+  const submitLabel = isDirtyResubmit
+    ? "שליחה מחדש לבדיקה"
+    : isResubmit
+      ? "שליחה מחדש לבדיקה"
+      : "שליחה לבדיקה";
 
   const handleConfirm = () => {
     startTransition(async () => {
@@ -56,17 +70,29 @@ export default function ProjectSubmitButton({
 
   return (
     <div className={styles.wrap}>
-      <Button onClick={() => setConfirmOpen(true)} loading={isPending} loadingLabel="שולח...">
-        {isResubmit ? "שליחה מחדש לבדיקה" : "שליחה לבדיקה"}
+      {pricingBlockedReason && isDirtyResubmit ? (
+        <p className={styles.hint} role="status">
+          {pricingBlockedReason}
+        </p>
+      ) : null}
+      <Button
+        onClick={() => setConfirmOpen(true)}
+        loading={isPending}
+        loadingLabel="שולח..."
+        disabled={!canSubmit}
+      >
+        {submitLabel}
       </Button>
 
       <ConfirmDialog
         open={confirmOpen}
-        title={isResubmit ? "שליחה מחדש לבדיקה" : "שליחה לבדיקה"}
+        title={submitLabel}
         description={
-          isResubmit
-            ? "לשלוח את הפרויקט מחדש לבדיקה?"
-            : "לשלוח את הפרויקט לבדיקה? לאחר השליחה לא ניתן יהיה לערוך עד לקבלת תשובה."
+          isDirtyResubmit
+            ? "לשלוח את השינויים לבדיקה מסחרית מחדש?"
+            : isResubmit
+              ? "לשלוח את הפרויקט מחדש לבדיקה?"
+              : "לשלוח את הפרויקט לבדיקה? לאחר השליחה לא ניתן יהיה לערוך עד לקבלת תשובה."
         }
         confirmLabel={isResubmit ? "שליחה מחדש" : "שליחה לבדיקה"}
         loading={isPending}

@@ -24,7 +24,15 @@ const DASHBOARD_LIMIT = PROFESSIONAL_DASHBOARD_PROJECT_LIMIT;
 
 type LeanProject = Pick<
   IProject,
-  "_id" | "name" | "clientName" | "status" | "updatedAt" | "items" | "onboardingStatus" | "clientUserId"
+  | "_id"
+  | "name"
+  | "clientName"
+  | "status"
+  | "updatedAt"
+  | "items"
+  | "onboardingStatus"
+  | "clientUserId"
+  | "commercialDirty"
 >;
 
 function mapLeanProjectToDashboardProject(
@@ -38,6 +46,7 @@ function mapLeanProjectToDashboardProject(
     name: project.name,
     clientName: project.clientName,
     status: project.status,
+    commercialDirty: project.commercialDirty ?? false,
     itemCount: project.items.length,
     roomCount,
     actionHint,
@@ -61,6 +70,7 @@ function buildArchitectAttentionItems(items: IProjectItem[]) {
 export function mergePriorityDashboardProjects(
   groups: {
     stalePricing: LeanProject[];
+    commercialDirty: LeanProject[];
     changesRequested: LeanProject[];
     rejectedOnboarding: LeanProject[];
     pendingOnboarding: LeanProject[];
@@ -74,6 +84,7 @@ export function mergePriorityDashboardProjects(
 ): ProfessionalDashboardProject[] {
   const orderedGroups = [
     groups.stalePricing,
+    groups.commercialDirty,
     groups.changesRequested,
     groups.rejectedOnboarding,
     groups.pendingOnboarding,
@@ -101,6 +112,7 @@ export function mergePriorityDashboardProjects(
           getArchitectProjectActionHint({
             onboardingStatus: project.onboardingStatus ?? null,
             status: project.status,
+            commercialDirty: project.commercialDirty ?? false,
             items: buildArchitectAttentionItems(project.items),
           }),
         ),
@@ -123,7 +135,7 @@ export async function getProfessionalDashboardData(
 
   const ownerObjectId = new Types.ObjectId(ownerUserId);
   const projectSelect =
-    "_id name clientName status updatedAt items onboardingStatus clientUserId";
+    "_id name clientName status updatedAt items onboardingStatus clientUserId commercialDirty";
 
   const [
     profile,
@@ -131,10 +143,12 @@ export async function getProfessionalDashboardData(
     unreadMessageCount,
     changesRequestedCount,
     stalePricingProjectCount,
+    commercialDirtyProjectCount,
     pendingOnboardingCount,
     activeProjectCount,
     submittedProjectCount,
     stalePricingProjects,
+    commercialDirtyProjects,
     changesRequestedProjects,
     rejectedOnboardingProjects,
     pendingOnboardingProjects,
@@ -156,6 +170,12 @@ export async function getProfessionalDashboardData(
     }),
     Project.countDocuments({
       ownerUserId: ownerObjectId,
+      onboardingStatus: "active",
+      status: "approved",
+      commercialDirty: true,
+    }),
+    Project.countDocuments({
+      ownerUserId: ownerObjectId,
       onboardingStatus: "pending_approval",
     }),
     Project.countDocuments({
@@ -170,6 +190,16 @@ export async function getProfessionalDashboardData(
       ownerUserId: ownerObjectId,
       onboardingStatus: "active",
       items: { $elemMatch: { "pricing.clientPriceStale": true } },
+    })
+      .select(projectSelect)
+      .sort({ updatedAt: -1 })
+      .limit(DASHBOARD_LIMIT)
+      .lean(),
+    Project.find({
+      ownerUserId: ownerObjectId,
+      onboardingStatus: "active",
+      status: "approved",
+      commercialDirty: true,
     })
       .select(projectSelect)
       .sort({ updatedAt: -1 })
@@ -217,6 +247,7 @@ export async function getProfessionalDashboardData(
 
   const attentionProjectCount =
     stalePricingProjectCount +
+    commercialDirtyProjectCount +
     changesRequestedCount +
     pendingOnboardingCount +
     (await Project.countDocuments({
@@ -226,6 +257,7 @@ export async function getProfessionalDashboardData(
 
   const allCandidates = [
     ...stalePricingProjects,
+    ...commercialDirtyProjects,
     ...changesRequestedProjects,
     ...rejectedOnboardingProjects,
     ...pendingOnboardingProjects,
@@ -244,6 +276,7 @@ export async function getProfessionalDashboardData(
   const mergedProjects = mergePriorityDashboardProjects(
     {
       stalePricing: stalePricingProjects as LeanProject[],
+      commercialDirty: commercialDirtyProjects as LeanProject[],
       changesRequested: changesRequestedProjects as LeanProject[],
       rejectedOnboarding: rejectedOnboardingProjects as LeanProject[],
       pendingOnboarding: pendingOnboardingProjects as LeanProject[],

@@ -234,6 +234,14 @@ Prefer CSS logical properties (`margin-inline`, `padding-inline`, `text-align: s
 - Fixes discoverability of active new-workflow projects after onboarding approval
 - See [`docs/phase-17d2-admin-project-operations-workspace.md`](phase-17d2-admin-project-operations-workspace.md)
 
+**Phase 17D.3 — Commercial Dirty + Re-Review:**
+- `commercialDirty` / `commercialDirtyAt` on approved layered-pricing projects when commercially meaningful mutations occur
+- Architect re-submit: `approved + dirty → submitted`; clears dirty, increments `submissionRevision`, history `"resubmitted"`
+- Admin review (approve/changes/reject) clears dirty; dirty alone does not enter admin attention queue
+- Architect attention, dashboard counts, status banners, and resubmit CTA surface dirty state
+- Legacy ProjectQuote unchanged; client visibility deferred to 17E
+- See [`docs/phase-17d3-commercial-dirty-rereview.md`](phase-17d3-commercial-dirty-rereview.md)
+
 **Demo 10E.1 — Notification Foundation:**
 - Separate `Notification` collection for Professional inbox
 - Workflow hooks on admin approve / reject / request changes

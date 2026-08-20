@@ -14,6 +14,7 @@ export type ProfessionalDashboardProject = {
   assignedClientFullName?: string | null;
   onboardingStatus?: ProjectOnboardingStatus | null;
   status: ProjectStatus;
+  commercialDirty?: boolean;
   itemCount: number;
   roomCount?: number;
   actionHint?: string | null;

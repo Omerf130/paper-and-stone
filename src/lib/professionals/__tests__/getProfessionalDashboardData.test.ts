@@ -36,6 +36,7 @@ function makeProject(
 
 const emptyGroups = {
   stalePricing: [],
+  commercialDirty: [],
   rejectedOnboarding: [],
   pendingOnboarding: [],
 };
@@ -118,6 +119,7 @@ describe("mergePriorityDashboardProjects", () => {
     const result = mergePriorityDashboardProjects(
       {
         stalePricing: [staleProject],
+        commercialDirty: [],
         changesRequested: [changesRequested],
         rejectedOnboarding: [],
         pendingOnboarding: [],

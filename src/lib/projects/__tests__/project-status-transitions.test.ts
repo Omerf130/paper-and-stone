@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
   assertAllowedTransition,
+  canSubmitProject,
   getSubmitAction,
+  isApprovedDirtyResubmittable,
+  isInitialSubmittableStatus,
   isSubmittableStatus,
 } from "@/lib/projects/project-status-transitions";
 import { PROJECT_ERRORS } from "@/lib/projects/project-validation";
@@ -16,6 +19,12 @@ describe("project-status-transitions", () => {
   it("allows professional changes_requested to submitted", () => {
     expect(() =>
       assertAllowedTransition("changes_requested", "submitted", "professional"),
+    ).not.toThrow();
+  });
+
+  it("allows professional approved to submitted", () => {
+    expect(() =>
+      assertAllowedTransition("approved", "submitted", "professional"),
     ).not.toThrow();
   });
 
@@ -40,11 +49,34 @@ describe("project-status-transitions", () => {
   it("maps submit actions by source status", () => {
     expect(getSubmitAction("draft")).toBe("submitted");
     expect(getSubmitAction("changes_requested")).toBe("resubmitted");
+    expect(getSubmitAction("approved")).toBe("resubmitted");
   });
 
-  it("identifies submittable statuses", () => {
+  it("identifies initial submittable statuses", () => {
+    expect(isInitialSubmittableStatus("draft")).toBe(true);
+    expect(isInitialSubmittableStatus("changes_requested")).toBe(true);
+    expect(isInitialSubmittableStatus("approved")).toBe(false);
     expect(isSubmittableStatus("draft")).toBe(true);
-    expect(isSubmittableStatus("changes_requested")).toBe(true);
-    expect(isSubmittableStatus("submitted")).toBe(false);
+  });
+
+  it("identifies approved dirty resubmit eligibility", () => {
+    expect(
+      isApprovedDirtyResubmittable({
+        status: "approved",
+        commercialDirty: true,
+      }),
+    ).toBe(true);
+    expect(
+      canSubmitProject({
+        status: "approved",
+        commercialDirty: true,
+      }),
+    ).toBe(true);
+    expect(
+      canSubmitProject({
+        status: "approved",
+        commercialDirty: false,
+      }),
+    ).toBe(false);
   });
 });

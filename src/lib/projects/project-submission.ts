@@ -5,8 +5,9 @@ import { ProjectMutationError } from "@/lib/projects/project-errors";
 import { PROJECT_ERRORS } from "@/lib/projects/project-validation";
 import {
   assertAllowedTransition,
+  canSubmitProject,
   getSubmitAction,
-  isSubmittableStatus,
+  isApprovedDirtyResubmittable,
 } from "@/lib/projects/project-status-transitions";
 import { buildReviewHistoryEntry } from "@/lib/projects/project-review-history";
 import { isLegacyProject, isProjectOnboardingActive } from "@/lib/projects/project-workspace-gates";
@@ -47,7 +48,15 @@ export async function submitProject(
     throw new ProjectMutationError(PROJECT_ERRORS.NOT_SUBMITTABLE);
   }
 
-  if (!isSubmittableStatus(project.status)) {
+  if (project.status === "approved" && !project.commercialDirty) {
+    throw new ProjectMutationError(PROJECT_ERRORS.ALREADY_APPROVED_CLEAN);
+  }
+
+  if (project.status === "submitted" && project.commercialDirty) {
+    throw new ProjectMutationError(PROJECT_ERRORS.NOT_SUBMITTABLE);
+  }
+
+  if (!canSubmitProject(project)) {
     throw new ProjectMutationError(PROJECT_ERRORS.NOT_SUBMITTABLE);
   }
 
@@ -63,33 +72,39 @@ export async function submitProject(
 
   const action = getSubmitAction(fromStatus);
   const now = new Date();
+  const isDirtyResubmit = isApprovedDirtyResubmittable(project);
   const historyEntry = buildReviewHistoryEntry({
     action,
     fromStatus,
     toStatus,
     actorUserId: ownerUserId,
     actorRole: "professional",
+    message: isDirtyResubmit ? "נשלח מחדש לבדיקה לאחר שינויים" : undefined,
   });
 
-  const result = await Project.updateOne(
-    {
-      _id: new Types.ObjectId(projectId),
-      ownerUserId: new Types.ObjectId(ownerUserId),
-      status: fromStatus,
+  const matchFilter: Record<string, unknown> = {
+    _id: new Types.ObjectId(projectId),
+    ownerUserId: new Types.ObjectId(ownerUserId),
+    status: fromStatus,
+  };
+
+  if (isDirtyResubmit) {
+    matchFilter.commercialDirty = true;
+  }
+
+  const result = await Project.updateOne(matchFilter, {
+    $set: {
+      status: toStatus,
+      submittedAt: now,
+      commercialDirty: false,
     },
-    {
-      $set: {
-        status: toStatus,
-        submittedAt: now,
-      },
-      $inc: {
-        submissionRevision: 1,
-      },
-      $push: {
-        reviewHistory: historyEntry,
-      },
+    $inc: {
+      submissionRevision: 1,
     },
-  );
+    $push: {
+      reviewHistory: historyEntry,
+    },
+  });
 
   if (result.matchedCount === 0) {
     throw new ProjectMutationError(PROJECT_ERRORS.NOT_SUBMITTABLE);

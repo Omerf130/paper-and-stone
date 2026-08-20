@@ -19,6 +19,7 @@ import {
 } from "@/lib/pricing/pricing-inheritance";
 import { isArchitectProjectPricingEditable } from "@/lib/pricing/pricing-gates";
 import { PRICING_ERRORS } from "@/lib/pricing/pricing-validation";
+import { appendCommercialDirtyToSet, applyCommercialDirtyToDocument } from "@/lib/projects/project-commercial-dirty";
 
 type SetProjectItemArchitectPricingInput = {
   projectId: string;
@@ -259,6 +260,8 @@ export async function setProjectItemArchitectPricing(
     updateDoc.$unset = $unset;
   }
 
+  appendCommercialDirtyToSet(project, $set);
+
   const arrayFilter: Record<string, unknown> = {
     "item._id": new Types.ObjectId(input.itemId),
     ...buildPriceVersionArrayFilter(input.expectedPriceVersion),
@@ -325,5 +328,6 @@ export async function setProjectDefaultArchitectMarkup(
   }
 
   project.defaultArchitectMarkupBp = input.defaultArchitectMarkupBp;
+  applyCommercialDirtyToDocument(project);
   await project.save();
 }

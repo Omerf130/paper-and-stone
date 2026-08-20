@@ -21,6 +21,7 @@ export type ArchitectProjectAttentionReason =
   | "onboarding_rejected"
   | "changes_requested"
   | "submitted_review"
+  | "commercial_dirty"
   | "stale_client_prices"
   | "incomplete_client_pricing";
 
@@ -32,6 +33,7 @@ export const ARCHITECT_PROJECT_ATTENTION_LABELS: Record<
   onboarding_rejected: "פרויקט נדחה באישור פתיחה",
   changes_requested: "האדמין ביקש שינויים",
   submitted_review: "ממתין לבדיקה מסחרית",
+  commercial_dirty: "יש שינויים שטרם נשלחו לבדיקה",
   stale_client_prices: "מחיר לקוח דורש בדיקה",
   incomplete_client_pricing: "יש להשלים תמחור ללקוח",
 };
@@ -39,6 +41,7 @@ export const ARCHITECT_PROJECT_ATTENTION_LABELS: Record<
 type ArchitectAttentionProject = {
   onboardingStatus?: ProjectOnboardingStatus | null;
   status: ProjectStatus;
+  commercialDirty?: boolean;
   items: Array<{
     architectPricing?: {
       architectPriceAgorot?: number;
@@ -67,6 +70,14 @@ export function getArchitectProjectAttentionReasons(
 
   if (project.status === "submitted") {
     reasons.push("submitted_review");
+  }
+
+  if (
+    project.status === "approved" &&
+    usesArchitectLayeredPricing(project) &&
+    project.commercialDirty === true
+  ) {
+    reasons.push("commercial_dirty");
   }
 
   if (usesArchitectLayeredPricing(project)) {
@@ -99,6 +110,7 @@ export function getArchitectProjectActionHint(
   const priority: ArchitectProjectAttentionReason[] = [
     "stale_client_prices",
     "changes_requested",
+    "commercial_dirty",
     "onboarding_rejected",
     "incomplete_client_pricing",
     "pending_onboarding",

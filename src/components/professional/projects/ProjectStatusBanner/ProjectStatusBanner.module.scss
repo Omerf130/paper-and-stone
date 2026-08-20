@@ -53,3 +53,9 @@
   font-size: $font-size-sm;
   white-space: pre-wrap;
 }
+
+.dirtyNotice {
+  margin: $spacing-xs 0 0;
+  font-size: $font-size-sm;
+  color: #8b5a00;
+}

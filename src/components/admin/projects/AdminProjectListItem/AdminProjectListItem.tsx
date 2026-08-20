@@ -28,6 +28,10 @@ export default function AdminProjectListItem({
     ? mapOnboardingStatusToBadge(project.onboardingStatus)
     : null;
   const commercialBadge = mapProjectStatusToBadge(project.status);
+  const dirtyBadge =
+    project.status === "approved" && project.commercialDirty ? (
+      <StatusBadge tone="warning">השתנה מאז האישור</StatusBadge>
+    ) : null;
 
   const attentionBadges =
     project.attentionReasons.length > 0 ? (
@@ -59,6 +63,7 @@ export default function AdminProjectListItem({
           <StatusBadge tone={commercialBadge.tone}>
             {PROJECT_STATUS_LABELS[project.status]}: {commercialBadge.label}
           </StatusBadge>
+          {dirtyBadge}
         </div>
 
         {attentionBadges}
@@ -131,6 +136,7 @@ export default function AdminProjectListItem({
           <StatusBadge tone={commercialBadge.tone}>
             {PROJECT_STATUS_LABELS[project.status]}: {commercialBadge.label}
           </StatusBadge>
+          {dirtyBadge}
         </div>
       </td>
       <td>

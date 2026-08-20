@@ -19,6 +19,7 @@ import {
 } from "@/lib/projects/project-workspace-gates";
 import { projectHasItemsInRoom } from "@/lib/projects/project-room-helpers";
 import { PROJECT_ROOM_ERRORS } from "@/types/project-room";
+import { markProjectCommercialDirtyIfNeeded, appendCommercialDirtyToSet } from "@/lib/projects/project-commercial-dirty";
 
 async function getOwnedEditableProject(
   ownerUserId: string,
@@ -71,6 +72,8 @@ export async function createProjectRoom(
     createdByUserId: new Types.ObjectId(ownerUserId),
   });
 
+  await markProjectCommercialDirtyIfNeeded(projectId);
+
   return room._id.toString();
 }
 
@@ -98,6 +101,8 @@ export async function renameProjectRoom(
   if (result.matchedCount === 0) {
     throw new ProjectMutationError(PROJECT_ROOM_ERRORS.NOT_FOUND);
   }
+
+  await markProjectCommercialDirtyIfNeeded(projectId);
 }
 
 export async function reorderProjectRooms(
@@ -134,6 +139,8 @@ export async function reorderProjectRooms(
       ),
     ),
   );
+
+  await markProjectCommercialDirtyIfNeeded(projectId);
 }
 
 export async function deleteProjectRoom(
@@ -155,6 +162,8 @@ export async function deleteProjectRoom(
   if (result.deletedCount === 0) {
     throw new ProjectMutationError(PROJECT_ROOM_ERRORS.NOT_FOUND);
   }
+
+  await markProjectCommercialDirtyIfNeeded(projectId);
 }
 
 export async function verifyRoomBelongsToProject(
@@ -174,8 +183,13 @@ export async function moveProjectItemToRoom(
   itemId: string,
   targetRoomId: string,
 ): Promise<void> {
-  await getOwnedEditableProject(ownerUserId, projectId);
+  const project = await getOwnedEditableProject(ownerUserId, projectId);
   await verifyRoomBelongsToProject(projectId, targetRoomId);
+
+  const $set: Record<string, unknown> = {
+    "items.$.roomId": new Types.ObjectId(targetRoomId),
+  };
+  appendCommercialDirtyToSet(project, $set);
 
   const result = await Project.updateOne(
     {
@@ -183,11 +197,7 @@ export async function moveProjectItemToRoom(
       ownerUserId: new Types.ObjectId(ownerUserId),
       "items._id": new Types.ObjectId(itemId),
     },
-    {
-      $set: {
-        "items.$.roomId": new Types.ObjectId(targetRoomId),
-      },
-    },
+    { $set },
   );
 
   if (result.matchedCount === 0) {

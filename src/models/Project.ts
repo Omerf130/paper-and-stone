@@ -70,6 +70,8 @@ export interface IProject extends Document {
   onboardingApprovedAt?: Date;
   onboardingApprovedByUserId?: Types.ObjectId;
   submissionRevision: number;
+  commercialDirty?: boolean;
+  commercialDirtyAt?: Date;
   defaultAdminMarkupBp?: number;
   defaultArchitectMarkupBp?: number;
   items: IProjectItem[];
@@ -205,6 +207,8 @@ const projectSchema = new Schema<IProject>(
       ref: "User",
     },
     submissionRevision: { type: Number, default: 0, min: 0, required: true },
+    commercialDirty: { type: Boolean, default: false },
+    commercialDirtyAt: { type: Date },
     defaultAdminMarkupBp: { type: Number, min: 0 },
     defaultArchitectMarkupBp: { type: Number, min: 0 },
     items: { type: [projectItemSchema], default: [] },

@@ -7,6 +7,7 @@ export type ProjectActorRole = "professional" | "admin";
 const PROFESSIONAL_TRANSITIONS: Array<[ProjectStatus, ProjectStatus]> = [
   ["draft", "submitted"],
   ["changes_requested", "submitted"],
+  ["approved", "submitted"],
 ];
 
 const ADMIN_TRANSITIONS: Array<[ProjectStatus, ProjectStatus]> = [
@@ -41,13 +42,35 @@ export function getSubmitAction(
     return "submitted";
   }
 
-  if (fromStatus === "changes_requested") {
+  if (fromStatus === "changes_requested" || fromStatus === "approved") {
     return "resubmitted";
   }
 
   throw new ProjectMutationError(PROJECT_ERRORS.INVALID_TRANSITION);
 }
 
-export function isSubmittableStatus(status: ProjectStatus): boolean {
+export function isInitialSubmittableStatus(status: ProjectStatus): boolean {
   return status === "draft" || status === "changes_requested";
+}
+
+/** @deprecated Use isInitialSubmittableStatus */
+export function isSubmittableStatus(status: ProjectStatus): boolean {
+  return isInitialSubmittableStatus(status);
+}
+
+export function isApprovedDirtyResubmittable(project: {
+  status: ProjectStatus;
+  commercialDirty?: boolean;
+}): boolean {
+  return project.status === "approved" && project.commercialDirty === true;
+}
+
+export function canSubmitProject(project: {
+  status: ProjectStatus;
+  commercialDirty?: boolean;
+}): boolean {
+  return (
+    isInitialSubmittableStatus(project.status) ||
+    isApprovedDirtyResubmittable(project)
+  );
 }

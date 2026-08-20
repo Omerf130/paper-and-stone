@@ -84,6 +84,7 @@ export type ProjectListItemView = {
   assignedClientFullName?: string | null;
   onboardingStatus?: ProjectOnboardingStatus | null;
   status: ProjectStatus;
+  commercialDirty?: boolean;
   itemCount: number;
   submittedAt?: string;
   updatedAt: string;
@@ -100,6 +101,8 @@ export type ProjectDetailView = {
   location?: string;
   description?: string;
   status: ProjectStatus;
+  commercialDirty?: boolean;
+  commercialDirtyAt?: string;
   items: ProjectItemView[];
   reviewHistory: ProjectReviewHistoryEntry[];
   submittedAt?: string;

@@ -31,9 +31,11 @@ import {
   isProjectOnboardingDeletable,
   usesRoomBasedWorkspace,
   usesLayeredPricing,
+  ARCHITECT_WORKSPACE_EDITABLE_STATUS_FILTER,
 } from "@/lib/projects/project-workspace-gates";
 import { verifyRoomBelongsToProject } from "@/lib/projects/project-room-mutations";
 import { PROJECT_ROOM_ERRORS } from "@/types/project-room";
+import { appendCommercialDirtyToSet } from "@/lib/projects/project-commercial-dirty";
 
 async function assertProfileReadyForProjects(userId: string): Promise<void> {
   const profile = await getMyProfessionalProfileView(userId);
@@ -79,12 +81,41 @@ function buildItemEditableFilter(projectId: string, ownerUserId: string) {
   return {
     _id: new Types.ObjectId(projectId),
     ownerUserId: new Types.ObjectId(ownerUserId),
-    status: EDITABLE_STATUS_FILTER,
     $or: [
-      { onboardingStatus: null },
-      { onboardingStatus: { $exists: false } },
-      { onboardingStatus: "active" as const },
+      {
+        onboardingStatus: null,
+        status: EDITABLE_STATUS_FILTER,
+      },
+      {
+        onboardingStatus: { $exists: false },
+        status: EDITABLE_STATUS_FILTER,
+      },
+      {
+        onboardingStatus: "active" as const,
+        status: ARCHITECT_WORKSPACE_EDITABLE_STATUS_FILTER,
+      },
     ],
+  };
+}
+
+function withCommercialDirtySet(
+  project: Pick<IProject, "onboardingStatus" | "status" | "commercialDirty">,
+  update: Record<string, unknown>,
+): Record<string, unknown> {
+  const $set: Record<string, unknown> = {
+    ...(typeof update.$set === "object" && update.$set != null
+      ? (update.$set as Record<string, unknown>)
+      : {}),
+  };
+  appendCommercialDirtyToSet(project, $set);
+
+  if (Object.keys($set).length === 0) {
+    return update;
+  }
+
+  return {
+    ...update,
+    $set,
   };
 }
 
@@ -134,6 +165,8 @@ export async function updateProject(
   if (isLegacyProject(project) && "clientName" in fields) {
     updateFields.clientName = fields.clientName ?? null;
   }
+
+  appendCommercialDirtyToSet(project, updateFields);
 
   const result = await Project.updateOne(
     {
@@ -274,9 +307,9 @@ export async function addProductToProject(
         },
       },
     },
-    {
+    withCommercialDirtySet(project, {
       $inc: { "items.$.quantity": quantity },
-    },
+    }),
   );
 
   if (incrementResult.modifiedCount > 0) {
@@ -308,9 +341,9 @@ export async function addProductToProject(
           },
         },
       },
-      {
+      withCommercialDirtySet(project, {
         $inc: { "items.$.quantity": quantity },
-      },
+      }),
     );
 
     if (retryResult.modifiedCount > 0) {
@@ -322,9 +355,12 @@ export async function addProductToProject(
 
   const newItem = buildNewProjectItem(verified, quantity, roomObjectId, project);
 
-  const pushResult = await Project.updateOne(editableFilter, {
-    $push: { items: newItem },
-  });
+  const pushResult = await Project.updateOne(
+    editableFilter,
+    withCommercialDirtySet(project, {
+      $push: { items: newItem },
+    }),
+  );
 
   if (pushResult.matchedCount === 0) {
     throw new ProjectMutationError(PROJECT_ERRORS.NOT_FOUND);
@@ -366,17 +402,21 @@ export async function updateProjectItem(
 
   const snapshot = buildProjectItemSnapshot(verified.productView, verified);
 
-  const result = await Project.updateOne(editableFilter, {
-    $set: {
-      "items.$[item].selectedMaterialId": verified.selectedMaterialId,
-      "items.$[item].selectedColorId": verified.selectedColorId,
-      "items.$[item].selectedSizeKey": verified.selectedSizeKey,
-      "items.$[item].quantity": quantity,
-      "items.$[item].snapshot": snapshot,
+  const result = await Project.updateOne(
+    editableFilter,
+    withCommercialDirtySet(project, {
+      $set: {
+        "items.$[item].selectedMaterialId": verified.selectedMaterialId,
+        "items.$[item].selectedColorId": verified.selectedColorId,
+        "items.$[item].selectedSizeKey": verified.selectedSizeKey,
+        "items.$[item].quantity": quantity,
+        "items.$[item].snapshot": snapshot,
+      },
+    }),
+    {
+      arrayFilters: [{ "item._id": new Types.ObjectId(itemId) }],
     },
-  }, {
-    arrayFilters: [{ "item._id": new Types.ObjectId(itemId) }],
-  });
+  );
 
   if (result.matchedCount === 0) {
     throw new ProjectMutationError(PROJECT_ERRORS.NOT_FOUND);
@@ -388,13 +428,13 @@ export async function removeProjectItem(
   projectId: string,
   itemId: string,
 ): Promise<void> {
-  await getItemEditableOwnedProject(ownerUserId, projectId);
+  const project = await getItemEditableOwnedProject(ownerUserId, projectId);
 
   const result = await Project.updateOne(
     buildItemEditableFilter(projectId, ownerUserId),
-    {
+    withCommercialDirtySet(project, {
       $pull: { items: { _id: new Types.ObjectId(itemId) } },
-    },
+    }),
   );
 
   if (result.matchedCount === 0) {
