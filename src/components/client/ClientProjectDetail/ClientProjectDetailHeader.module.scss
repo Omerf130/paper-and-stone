@@ -1,0 +1,95 @@
+@use "../../../styles/tokens" as *;
+@use "../../../styles/mixins" as *;
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  margin-block-end: $spacing-xl;
+}
+
+.titleRow {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.title {
+  margin: 0;
+  font-size: $font-size-2xl;
+  font-weight: $font-weight-semibold;
+  line-height: $line-height-tight;
+}
+
+.architect {
+  margin: 0;
+  font-size: $font-size-base;
+  color: $color-text-secondary;
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-md $spacing-xl;
+  margin: 0;
+}
+
+.metaRow {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+  font-size: $font-size-sm;
+
+  dt {
+    margin: 0;
+    color: $color-text-secondary;
+  }
+
+  dd {
+    margin: 0;
+    font-weight: $font-weight-medium;
+  }
+}
+
+.total {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+  margin: 0;
+  padding: $spacing-md;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  background-color: $color-background-subtle;
+}
+
+.totalLabel {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.totalValue {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-semibold;
+}
+
+.emptyState {
+  padding: $spacing-xl;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  background-color: $color-background-subtle;
+}
+
+.emptyMessage {
+  margin: 0;
+  font-size: $font-size-base;
+  color: $color-text-secondary;
+  line-height: $line-height-relaxed;
+}
+
+@include tablet-up {
+  .titleRow {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+}

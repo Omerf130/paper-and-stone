@@ -1,0 +1,28 @@
+@use "../../../styles/tokens" as *;
+@use "../../../styles/mixins" as *;
+
+.brand {
+  display: inline-flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+  color: inherit;
+  text-decoration: none;
+
+  @include focus-visible;
+}
+
+.compact {
+  .descriptor {
+    display: none;
+  }
+}
+
+.wordmark {
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+}
+
+.descriptor {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}

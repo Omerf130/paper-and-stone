@@ -18,6 +18,25 @@ type ProjectSubmitButtonProps = {
   pricingBlockedReason?: string | null;
 };
 
+function getSubmitBlockerReason(input: {
+  itemCount: number;
+  pricingComplete: boolean;
+  pricingBlockedReason?: string | null;
+}): string | null {
+  if (input.itemCount === 0) {
+    return "יש להוסיף לפחות מוצר אחד לפרויקט לפני שליחה.";
+  }
+
+  if (!input.pricingComplete) {
+    return (
+      input.pricingBlockedReason ??
+      "יש מוצרים שעדיין לא תומחרו לפני שליחה."
+    );
+  }
+
+  return null;
+}
+
 export default function ProjectSubmitButton({
   projectId,
   status,
@@ -34,8 +53,13 @@ export default function ProjectSubmitButton({
   const isInitialSubmit =
     status === "draft" || status === "changes_requested";
   const isDirtyResubmit = status === "approved" && commercialDirty;
+  const blockerReason = getSubmitBlockerReason({
+    itemCount,
+    pricingComplete,
+    pricingBlockedReason,
+  });
   const canSubmit =
-    (isInitialSubmit || isDirtyResubmit) && itemCount > 0 && pricingComplete;
+    (isInitialSubmit || isDirtyResubmit) && blockerReason == null;
 
   if (!isInitialSubmit && !isDirtyResubmit) {
     return null;
@@ -70,9 +94,9 @@ export default function ProjectSubmitButton({
 
   return (
     <div className={styles.wrap}>
-      {pricingBlockedReason && isDirtyResubmit ? (
+      {blockerReason ? (
         <p className={styles.hint} role="status">
-          {pricingBlockedReason}
+          {blockerReason}
         </p>
       ) : null}
       <Button

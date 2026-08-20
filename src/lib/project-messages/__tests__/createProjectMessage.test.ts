@@ -63,6 +63,7 @@ describe("createProjectMessage", () => {
         senderUserId: new Types.ObjectId(ownerId),
         senderRole: "professional",
         audience: "admin",
+        conversationType: "admin_architect",
         body: "שלום",
         readByUserIds: [new Types.ObjectId(ownerId)],
       }),

@@ -12,6 +12,7 @@ import { createWorkflowNotification } from "@/lib/notifications/createWorkflowNo
 import { assertQuoteApprovalGate } from "@/lib/quotes/quote-mutations";
 import { QuoteMutationError } from "@/lib/quotes/quote-errors";
 import { supersedeActiveQuotes } from "@/lib/quotes/supersedeActiveQuotes";
+import { approveLayeredProjectWithClientSnapshot } from "@/lib/client-snapshots/commercial-approval-with-snapshot";
 import type { NotificationType } from "@/types/notification";
 import type { ProjectStatus } from "@/types/project";
 
@@ -117,11 +118,13 @@ export async function approveProject(
     throw error;
   }
 
-  await applyAdminReviewTransition(adminUserId, projectId, {
-    toStatus: "approved",
-    action: "approved",
-    notificationType: "PROJECT_APPROVED",
-    message: note,
+  await approveLayeredProjectWithClientSnapshot(adminUserId, projectId, async () => {
+    await applyAdminReviewTransition(adminUserId, projectId, {
+      toStatus: "approved",
+      action: "approved",
+      notificationType: "PROJECT_APPROVED",
+      message: note,
+    });
   });
 }
 

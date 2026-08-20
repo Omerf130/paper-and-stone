@@ -4,6 +4,8 @@ import { redirect } from "next/navigation";
 import { AUTH_ERRORS } from "@/lib/auth/errors";
 import { createSession } from "@/lib/auth/session";
 import { authenticateUser } from "@/lib/auth/user-service";
+import { normalizeUserRole } from "@/lib/auth/user-role";
+import { resolvePostAuthRedirect } from "@/lib/auth/post-auth-redirect";
 import {
   type AuthFormState,
   formatZodErrors,
@@ -30,5 +32,5 @@ export async function loginAction(
   }
 
   await createSession(user._id.toString());
-  redirect("/");
+  redirect(resolvePostAuthRedirect(normalizeUserRole(user.role)));
 }

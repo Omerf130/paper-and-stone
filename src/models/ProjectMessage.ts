@@ -1,5 +1,6 @@
 import mongoose, { Schema, type Document, type Model, Types } from "mongoose";
 import type {
+  ProjectConversationType,
   ProjectMessageAudience,
   ProjectMessageSenderRole,
 } from "@/types/project-message";
@@ -9,6 +10,8 @@ export interface IProjectMessage extends Document {
   senderUserId: Types.ObjectId;
   senderRole: ProjectMessageSenderRole;
   audience: ProjectMessageAudience;
+  conversationType?: ProjectConversationType | null;
+  clientUserIdAtSend?: Types.ObjectId | null;
   body: string;
   readByUserIds: Types.ObjectId[];
   createdAt: Date;
@@ -29,13 +32,23 @@ const projectMessageSchema = new Schema<IProjectMessage>(
     },
     senderRole: {
       type: String,
-      enum: ["professional", "admin"],
+      enum: ["professional", "admin", "architect", "client"],
       required: true,
     },
     audience: {
       type: String,
-      enum: ["professional", "admin"],
+      enum: ["professional", "admin", "architect", "client"],
       required: true,
+    },
+    conversationType: {
+      type: String,
+      enum: ["admin_architect", "architect_client"],
+      default: null,
+    },
+    clientUserIdAtSend: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
     },
     body: { type: String, required: true, trim: true, maxlength: 4000 },
     readByUserIds: {
@@ -47,6 +60,12 @@ const projectMessageSchema = new Schema<IProjectMessage>(
 );
 
 projectMessageSchema.index({ projectId: 1, createdAt: -1 });
+projectMessageSchema.index({
+  projectId: 1,
+  conversationType: 1,
+  clientUserIdAtSend: 1,
+  createdAt: -1,
+});
 
 const ProjectMessage: Model<IProjectMessage> =
   mongoose.models.ProjectMessage ??

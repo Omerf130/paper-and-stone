@@ -16,7 +16,7 @@ import type {
   ProjectOptionView,
 } from "@/types/project";
 import type { ProductView } from "@/types/product";
-import { getUnreadMessageCountsForProjects } from "@/lib/project-messages/getUnreadMessageCountsForProjects";
+import { getUnreadMessageCountsForProjects, getUnreadArchitectClientMessageCountsForProjects } from "@/lib/project-messages/getUnreadMessageCountsForProjects";
 
 export async function getProfessionalProjects(
   ownerUserId: string,
@@ -28,11 +28,18 @@ export async function getProfessionalProjects(
     .lean();
 
   const projectIds = projects.map((project) => project._id.toString());
-  const unreadCounts = await getUnreadMessageCountsForProjects(
-    projectIds,
-    ownerUserId,
-    "professional",
-  );
+  const [unreadCounts, unreadClientCounts] = await Promise.all([
+    getUnreadMessageCountsForProjects(projectIds, ownerUserId, "professional"),
+    getUnreadArchitectClientMessageCountsForProjects(
+      projects
+        .filter((project) => project.clientUserId)
+        .map((project) => ({
+          projectId: project._id.toString(),
+          clientUserId: project.clientUserId!.toString(),
+        })),
+      ownerUserId,
+    ),
+  ]);
 
   const mapped = await Promise.all(
     projects.map((project) =>
@@ -43,6 +50,8 @@ export async function getProfessionalProjects(
   return mapped.map((project, index) => ({
     ...project,
     unreadMessageCount: unreadCounts.get(projectIds[index] ?? "") ?? 0,
+    unreadClientMessageCount:
+      unreadClientCounts.get(projectIds[index] ?? "") ?? 0,
   }));
 }
 

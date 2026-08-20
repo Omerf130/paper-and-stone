@@ -57,6 +57,7 @@ describe("mergePriorityDashboardProjects", () => {
       },
       new Map(),
       new Map(),
+      new Map(),
       PROFESSIONAL_DASHBOARD_PROJECT_LIMIT,
     );
 
@@ -81,6 +82,7 @@ describe("mergePriorityDashboardProjects", () => {
         submitted: [],
         finalized: [],
       },
+      new Map(),
       new Map(),
       new Map(),
       PROFESSIONAL_DASHBOARD_PROJECT_LIMIT,
@@ -127,6 +129,7 @@ describe("mergePriorityDashboardProjects", () => {
         submitted: [],
         finalized: [],
       },
+      new Map(),
       new Map(),
       new Map(),
       PROFESSIONAL_DASHBOARD_PROJECT_LIMIT,

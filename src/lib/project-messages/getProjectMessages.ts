@@ -1,6 +1,7 @@
 import { Types } from "mongoose";
 import { connectDB } from "@/lib/db/mongoose";
 import ProjectMessage, { type IProjectMessage } from "@/models/ProjectMessage";
+import { ADMIN_ARCHITECT_CONVERSATION_FILTER } from "@/lib/project-messages/conversation-filters";
 import {
   type MessagingViewerRole,
   verifyProjectMessagingAccess,
@@ -22,7 +23,10 @@ export async function getProjectMessages(
 
   await connectDB();
 
-  const filter = { projectId: new Types.ObjectId(context.projectId) };
+  const filter = {
+    projectId: new Types.ObjectId(context.projectId),
+    ...ADMIN_ARCHITECT_CONVERSATION_FILTER,
+  };
   const totalCount = await ProjectMessage.countDocuments(filter);
 
   const messages = (await ProjectMessage.find(filter)

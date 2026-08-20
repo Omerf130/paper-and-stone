@@ -6,11 +6,13 @@ import Button from "@/components/ui/Button/Button";
 import FormField, { formFieldStyles } from "@/components/ui/FormField/FormField";
 import { useToast } from "@/components/ui/Toast/ToastProvider";
 import type { ProjectMessageActionState } from "@/types/project-message";
+import { resolveProjectMessageSendId } from "@/lib/project-messages/resolveProjectMessageSendId";
 import { MESSAGE_BODY_MAX } from "@/lib/project-messages/message-validation";
 import styles from "./ProjectMessageForm.module.scss";
 
 type ProjectMessageFormProps = {
   projectId: string;
+  formControlId?: string;
   sendAction: (
     projectId: string,
     body: string,
@@ -21,23 +23,25 @@ type ProjectMessageFormProps = {
 
 export default function ProjectMessageForm({
   projectId,
+  formControlId,
   sendAction,
   disabled = false,
   variant = "default",
 }: ProjectMessageFormProps) {
+  const controlId = formControlId ?? projectId;
   const router = useRouter();
   const { toast } = useToast();
   const [body, setBody] = useState("");
   const [fieldError, setFieldError] = useState<string | undefined>();
   const [isPending, startTransition] = useTransition();
 
-  const fieldErrorId = `message-body-error-${projectId}`;
+  const fieldErrorId = `message-body-error-${controlId}`;
 
   const handleSubmit = () => {
     setFieldError(undefined);
 
     startTransition(async () => {
-      const result = await sendAction(projectId, body);
+      const result = await sendAction(resolveProjectMessageSendId(projectId), body);
 
       if (result.fieldErrors?.body) {
         setFieldError(result.fieldErrors.body);
@@ -63,12 +67,12 @@ export default function ProjectMessageForm({
     >
       <FormField
         label="הודעה"
-        htmlFor={`message-body-${projectId}`}
+        htmlFor={`message-body-${controlId}`}
         error={fieldError}
         errorId={fieldErrorId}
       >
         <textarea
-          id={`message-body-${projectId}`}
+          id={`message-body-${controlId}`}
           className={formFieldStyles.textarea}
           value={body}
           onChange={(event) => setBody(event.target.value)}

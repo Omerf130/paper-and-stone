@@ -1,0 +1,21 @@
+@use "../../../styles/tokens" as *;
+@use "../../../styles/mixins" as *;
+
+.sidebar {
+  display: none;
+  border-inline-start: 1px solid $color-border;
+  background-color: $color-background-subtle;
+
+  @include desktop-up {
+    display: block;
+  }
+}
+
+.brandBlock {
+  padding: $spacing-xl $spacing-lg $spacing-md;
+}
+
+.nav {
+  padding-inline: $spacing-lg;
+  padding-bottom: $spacing-xl;
+}

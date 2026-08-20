@@ -1,0 +1,107 @@
+@use "../../../styles/tokens" as *;
+@use "../../../styles/mixins" as *;
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  padding: $spacing-md;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  background-color: $color-background;
+}
+
+.mediaColumn {
+  flex-shrink: 0;
+}
+
+.image {
+  width: 5rem;
+  height: 5rem;
+  object-fit: cover;
+  border-radius: $radius-sm;
+}
+
+.placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 5rem;
+  height: 5rem;
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  background-color: $color-background-subtle;
+  border-radius: $radius-sm;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  min-width: 0;
+}
+
+.titleBlock {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+}
+
+.name {
+  margin: 0;
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+}
+
+.code {
+  margin: 0;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.configuration,
+.pricing {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+  margin: 0;
+  font-size: $font-size-sm;
+}
+
+.configRow,
+.pricingRow {
+  display: grid;
+  grid-template-columns: minmax(4.5rem, auto) 1fr;
+  gap: $spacing-sm;
+
+  dt {
+    margin: 0;
+    color: $color-text-secondary;
+  }
+
+  dd {
+    margin: 0;
+  }
+}
+
+.lineTotal {
+  font-weight: $font-weight-semibold;
+}
+
+@include tablet-up {
+  .card {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+
+  .content {
+    flex: 1;
+  }
+}
+
+@include desktop-up {
+  .card {
+    gap: $spacing-lg;
+    padding: $spacing-lg;
+  }
+}

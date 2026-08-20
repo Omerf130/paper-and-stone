@@ -1,15 +1,13 @@
 import Button from "@/components/ui/Button/Button";
 import StatusBadge from "@/components/ui/StatusBadge/StatusBadge";
+import { formatUnreadMessageLabel } from "@/types/project-message";
 import { formatDateTime } from "@/lib/ui/format-date-time";
 import {
   mapOnboardingStatusToBadge,
   mapProjectStatusToBadge,
 } from "@/lib/ui/map-status-badge";
-import {
-  ONBOARDING_STATUS_LABELS,
-  PROJECT_STATUS_LABELS,
-  type AdminProjectListItemView,
-} from "@/types/admin-project";
+import { getCommercialDirtyLabel } from "@/lib/projects/project-status-presentation";
+import type { AdminProjectListItemView } from "@/types/admin-project";
 import cardStyles from "@/components/admin/list/admin-list-card.module.scss";
 import tableStyles from "@/components/admin/list/admin-table.module.scss";
 import styles from "./AdminProjectListItem.module.scss";
@@ -30,19 +28,11 @@ export default function AdminProjectListItem({
   const commercialBadge = mapProjectStatusToBadge(project.status);
   const dirtyBadge =
     project.status === "approved" && project.commercialDirty ? (
-      <StatusBadge tone="warning">השתנה מאז האישור</StatusBadge>
+      <StatusBadge tone="warning">
+        {getCommercialDirtyLabel("listBadge")}
+      </StatusBadge>
     ) : null;
-
-  const attentionBadges =
-    project.attentionReasons.length > 0 ? (
-      <ul className={styles.attentionList}>
-        {project.attentionReasons.map((reason) => (
-          <li key={reason}>
-            <StatusBadge tone="warning">{reason}</StatusBadge>
-          </li>
-        ))}
-      </ul>
-    ) : null;
+  const primaryAttention = project.attentionReasons[0];
 
   if (variant === "card") {
     return (
@@ -56,17 +46,17 @@ export default function AdminProjectListItem({
 
         <div className={cardStyles.badges}>
           {workBadge ? (
-            <StatusBadge tone={workBadge.tone}>
-              {ONBOARDING_STATUS_LABELS[project.onboardingStatus!]}: {workBadge.label}
-            </StatusBadge>
+            <StatusBadge tone={workBadge.tone}>{workBadge.label}</StatusBadge>
           ) : null}
-          <StatusBadge tone={commercialBadge.tone}>
-            {PROJECT_STATUS_LABELS[project.status]}: {commercialBadge.label}
-          </StatusBadge>
+          <StatusBadge tone={commercialBadge.tone}>{commercialBadge.label}</StatusBadge>
           {dirtyBadge}
         </div>
 
-        {attentionBadges}
+        {primaryAttention ? (
+          <p className={styles.primaryAttention}>
+            <StatusBadge tone="warning">{primaryAttention}</StatusBadge>
+          </p>
+        ) : null}
 
         <div className={cardStyles.metaGrid}>
           <div className={cardStyles.metaRow}>
@@ -93,9 +83,9 @@ export default function AdminProjectListItem({
           </div>
         </div>
 
-        {(project.unreadMessageCount ?? 0) > 0 ? (
+        {formatUnreadMessageLabel(project.unreadMessageCount ?? 0) ? (
           <p className={cardStyles.unread} role="status">
-            {project.unreadMessageCount} הודעות שלא נקראו
+            {formatUnreadMessageLabel(project.unreadMessageCount ?? 0)}
           </p>
         ) : null}
 
@@ -113,10 +103,14 @@ export default function AdminProjectListItem({
       <td>
         <div className={tableStyles.primary}>{project.name}</div>
         {clientLabel ? <div className={tableStyles.subtle}>{clientLabel}</div> : null}
-        {attentionBadges}
-        {(project.unreadMessageCount ?? 0) > 0 ? (
+        {primaryAttention ? (
+          <div className={styles.primaryAttention}>
+            <StatusBadge tone="warning">{primaryAttention}</StatusBadge>
+          </div>
+        ) : null}
+        {formatUnreadMessageLabel(project.unreadMessageCount ?? 0) ? (
           <div className={cardStyles.unread} role="status">
-            {project.unreadMessageCount} הודעות שלא נקראו
+            {formatUnreadMessageLabel(project.unreadMessageCount ?? 0)}
           </div>
         ) : null}
       </td>
@@ -129,13 +123,9 @@ export default function AdminProjectListItem({
       <td>
         <div className={styles.statusStack}>
           {workBadge ? (
-            <StatusBadge tone={workBadge.tone}>
-              {ONBOARDING_STATUS_LABELS[project.onboardingStatus!]}: {workBadge.label}
-            </StatusBadge>
+            <StatusBadge tone={workBadge.tone}>{workBadge.label}</StatusBadge>
           ) : null}
-          <StatusBadge tone={commercialBadge.tone}>
-            {PROJECT_STATUS_LABELS[project.status]}: {commercialBadge.label}
-          </StatusBadge>
+          <StatusBadge tone={commercialBadge.tone}>{commercialBadge.label}</StatusBadge>
           {dirtyBadge}
         </div>
       </td>

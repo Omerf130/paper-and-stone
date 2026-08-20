@@ -1,0 +1,49 @@
+@use "../../styles/tokens" as *;
+
+.summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-md $spacing-xl;
+  margin-block-end: $spacing-xl;
+}
+
+.summaryItem {
+  margin: 0;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-md;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: $font-size-xl;
+  font-weight: $font-weight-semibold;
+}
+
+.sectionLink {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.projectList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}

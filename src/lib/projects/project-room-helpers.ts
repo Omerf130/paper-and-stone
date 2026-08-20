@@ -1,3 +1,4 @@
+import { Types } from "mongoose";
 import type { IProjectItem } from "@/models/Project";
 import type { IProjectRoom } from "@/models/ProjectRoom";
 import type { ProjectRoomView } from "@/types/project-room";
@@ -39,19 +40,20 @@ export function mapProjectRoomToView(
   };
 }
 
-export function groupItemsByRoomId<T extends { roomId?: string | null }>(
-  items: T[],
-): Map<string, T[]> {
+export function groupItemsByRoomId<
+  T extends { roomId?: string | Types.ObjectId | null },
+>(items: T[]): Map<string, T[]> {
   const grouped = new Map<string, T[]>();
 
   for (const item of items) {
-    if (!item.roomId) {
+    const roomId = item.roomId?.toString();
+    if (!roomId) {
       continue;
     }
 
-    const existing = grouped.get(item.roomId) ?? [];
+    const existing = grouped.get(roomId) ?? [];
     existing.push(item);
-    grouped.set(item.roomId, existing);
+    grouped.set(roomId, existing);
   }
 
   return grouped;

@@ -188,6 +188,10 @@ export default function RegisterForm() {
           <option value="client">{USER_TYPE_LABELS.client}</option>
           <option value="architect">{USER_TYPE_LABELS.architect}</option>
         </select>
+        <p className={styles.userTypeHint}>
+          בחירה ב&quot;אדריכל&quot; יוצרת חשבון לקוח עם גישה לאזור הלקוח. הרשאת
+          אדריכל תופעל לאחר אישור מנהל המערכת.
+        </p>
         {state.fieldErrors?.userType && (
           <p id="register-user-type-error" className={authFormStyles.fieldError}>
             {state.fieldErrors.userType}

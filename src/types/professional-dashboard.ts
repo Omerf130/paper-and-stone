@@ -20,6 +20,7 @@ export type ProfessionalDashboardProject = {
   actionHint?: string | null;
   updatedAt: string;
   unreadMessageCount: number;
+  unreadClientMessageCount: number;
 };
 
 export type ProfessionalDashboardData = {
@@ -30,6 +31,8 @@ export type ProfessionalDashboardData = {
   attentionProjectCount: number;
   stalePricingProjectCount: number;
   pendingOnboardingCount: number;
+  commercialDirtyProjectCount: number;
+  unreadClientMessageCount: number;
   activeProjectCount: number;
   submittedProjectCount: number;
   profileCompleteness: ProfileCompletenessSummary;

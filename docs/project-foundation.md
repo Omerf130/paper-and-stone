@@ -242,6 +242,36 @@ Prefer CSS logical properties (`margin-inline`, `padding-inline`, `text-align: s
 - Legacy ProjectQuote unchanged; client visibility deferred to 17E
 - See [`docs/phase-17d3-commercial-dirty-rereview.md`](phase-17d3-commercial-dirty-rereview.md)
 
+**Phase 17E-A — Approved Client Snapshot Foundation:**
+- Separate `ClientApprovedProjectSnapshot` collection — frozen client-safe view at commercial approval
+- Client never reads live `Project.items`; snapshot updates only on successful approval
+- Snapshot-first + restorative compensating rollback (re-approval failure restores previous revision)
+- Reassignment deletes snapshot; approved projects marked `commercialDirty`
+- Query foundation for future Client dashboard; no Client UI in 17E-A
+- See [`docs/phase-17e-a-approved-client-snapshot.md`](phase-17e-a-approved-client-snapshot.md)
+
+**Phase 17E-B — Client Workspace:**
+- Routes `/client`, `/client/projects`, `/client/projects/[id]` with dedicated `ClientShell`
+- Assignment visibility by `Project.clientUserId` only (not gated on `onboardingStatus`)
+- Approved commercial content from snapshot only; no live `Project.items` for Client detail
+- Client-safe presentation states; no-snapshot informational UX; updating banner when live project changed
+- Role-aware login/register redirects; public header client link
+- See [`docs/phase-17e-b-client-workspace.md`](phase-17e-b-client-workspace.md)
+
+**Phase 17F — Architect ↔ Client Project Messaging:**
+- Separate `architect_client` conversation domain on `ProjectMessage` (alongside existing `admin_architect`)
+- Architect ↔ assigned Client threads on project detail; Admin read-only view of architect–client conversation
+- Batched unread counts on architect and client project cards; mark-read on open via `readByUserIds`
+- Reassignment privacy via `clientUserIdAtSend`; legacy messages without `conversationType` normalize to `admin_architect`
+- See [`docs/phase-17f-architect-client-project-messaging.md`](phase-17f-architect-client-project-messaging.md)
+
+**Phase 17G — Final Workflow, UX & Mobile Polish:**
+- Product picker integrated into active Architect workspace; messaging projectId bug fixed
+- Status/copy consistency, submit blocker explanations, dashboard attention polish
+- Client approved-content-unavailable presentation; mobile and navigation polish
+- E2E-ready for manual three-role scenario; no new product features
+- See [`docs/phase-17g-final-workflow-mobile-polish.md`](phase-17g-final-workflow-mobile-polish.md)
+
 **Demo 10E.1 — Notification Foundation:**
 - Separate `Notification` collection for Professional inbox
 - Workflow hooks on admin approve / reject / request changes

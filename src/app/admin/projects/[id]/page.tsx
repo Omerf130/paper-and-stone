@@ -18,6 +18,8 @@ import {
 } from "@/app/admin/projects/message-actions";
 import { requireAdmin } from "@/lib/auth/authorization";
 import { getProjectMessages } from "@/lib/project-messages/getProjectMessages";
+import { getAdminArchitectClientProjectMessages } from "@/lib/project-messages/architect-client-messages";
+import ProjectConversationThread from "@/components/project-messages/ProjectConversationThread/ProjectConversationThread";
 import {
   getAdminProjectDetailViewWithThumbnails,
 } from "@/lib/projects/getAdminProjects";
@@ -61,6 +63,7 @@ export default async function AdminProjectDetailPage({
     reviewHistory: projectWithThumbnails.reviewHistory,
   });
   const messageThread = await getProjectMessages(user.id, "admin", id);
+  const architectClientThread = await getAdminArchitectClientProjectMessages(id);
 
   if (isActiveWorkspace) {
     return (
@@ -82,7 +85,7 @@ export default async function AdminProjectDetailPage({
 
         <AdminProjectWorkspace project={projectWithThumbnails} />
 
-        <AdminDetailSection id="project-messages" title="שיחה על הפרויקט">
+        <AdminDetailSection id="project-messages" title="שיחה עם האדריכל">
           <ProjectMessageThread
             projectId={projectWithThumbnails.id}
             messages={messageThread.messages}
@@ -90,6 +93,21 @@ export default async function AdminProjectDetailPage({
             truncated={messageThread.truncated}
             sendAction={sendAdminProjectMessageAction}
             variant="admin"
+            hideTitle
+          />
+        </AdminDetailSection>
+
+        <AdminDetailSection id="architect-client-messages" title="שיחת אדריכל ולקוח">
+          <ProjectConversationThread
+            projectId={projectWithThumbnails.id}
+            sectionId="architect-client-messages"
+            title="שיחת אדריכל ולקוח"
+            messages={architectClientThread.messages}
+            messagingAvailable
+            unavailableMessage="אין שיחת אדריכל ולקוח לפרויקט זה."
+            truncated={architectClientThread.truncated}
+            readOnly
+            readOnlyNotice="תצוגה בלבד — הודעות אלה אינן נספרות כנקראות עבורך."
             hideTitle
           />
         </AdminDetailSection>
@@ -168,7 +186,7 @@ export default async function AdminProjectDetailPage({
         markReadAction={markAdminProjectMessagesReadAction}
       />
 
-      <AdminDetailSection id="project-messages" title="שיחה על הפרויקט">
+      <AdminDetailSection id="project-messages" title="שיחה עם האדריכל">
         <ProjectMessageThread
           projectId={projectWithThumbnails.id}
           messages={messageThread.messages}
@@ -176,6 +194,21 @@ export default async function AdminProjectDetailPage({
           truncated={messageThread.truncated}
           sendAction={sendAdminProjectMessageAction}
           variant="admin"
+          hideTitle
+        />
+      </AdminDetailSection>
+
+      <AdminDetailSection id="architect-client-messages" title="שיחת אדריכל ולקוח">
+        <ProjectConversationThread
+          projectId={projectWithThumbnails.id}
+          sectionId="architect-client-messages"
+          title="שיחת אדריכל ולקוח"
+          messages={architectClientThread.messages}
+          messagingAvailable
+          unavailableMessage="אין שיחת אדריכל ולקוח לפרויקט זה."
+          truncated={architectClientThread.truncated}
+          readOnly
+          readOnlyNotice="תצוגה בלבד — הודעות אלה אינן נספרות כנקראות עבורך."
           hideTitle
         />
       </AdminDetailSection>

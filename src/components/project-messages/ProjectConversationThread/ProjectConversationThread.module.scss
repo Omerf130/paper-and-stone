@@ -1,0 +1,88 @@
+@use "../../../styles/tokens" as *;
+@use "../../../styles/mixins" as *;
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  scroll-margin-top: $spacing-xl;
+}
+
+.title {
+  margin: 0;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+}
+
+.readOnlyNotice,
+.unavailable,
+.empty,
+.notice,
+.composerDisabled {
+  margin: 0;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+  padding: $spacing-md;
+  border: 1px solid $color-border;
+  background: $color-surface;
+}
+
+.architectMessage {
+  border-inline-start: 3px solid $color-text-primary;
+}
+
+.clientMessage {
+  border-inline-start: 3px solid $color-border;
+}
+
+.clientContext {
+  margin: 0;
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: $spacing-sm;
+}
+
+.sender {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+}
+
+.time {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.readState {
+  margin: 0;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.body {
+  margin: 0;
+  font-size: $font-size-sm;
+  line-height: $line-height-relaxed;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}

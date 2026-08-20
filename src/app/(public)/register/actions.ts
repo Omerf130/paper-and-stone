@@ -7,6 +7,7 @@ import {
   createRegisteredUser,
   emailExists,
 } from "@/lib/auth/user-service";
+import { resolvePostAuthRedirect } from "@/lib/auth/post-auth-redirect";
 import {
   type AuthFormState,
   formatZodErrors,
@@ -39,8 +40,8 @@ export async function registerAction(
   await createSession(user._id.toString());
 
   if (parsed.data.userType === "architect") {
-    redirect("/?registered=architect-request");
+    redirect("/client?registered=architect-request");
   }
 
-  redirect("/");
+  redirect(resolvePostAuthRedirect("client"));
 }

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { Types } from "mongoose";
 import {
   computeRoomItemCounts,
+  groupItemsByRoomId,
   resolveSelectedRoomId,
 } from "@/lib/projects/project-room-helpers";
 
@@ -22,6 +23,15 @@ describe("project-room-helpers", () => {
 
     expect(counts.get(roomA)).toBe(2);
     expect(counts.get(roomB)).toBe(1);
+  });
+
+  it("groups items by ObjectId roomId using string map keys", () => {
+    const roomId = new Types.ObjectId();
+    const item = { roomId, label: "sofa" };
+
+    const grouped = groupItemsByRoomId([item]);
+
+    expect(grouped.get(roomId.toString())).toEqual([item]);
   });
 
   it("falls back to first room by order when selected id is invalid", () => {

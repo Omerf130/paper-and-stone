@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { formatUnreadMessageLabel } from "@/types/project-message";
 import Button from "@/components/ui/Button/Button";
 import StatusBadge from "@/components/ui/StatusBadge/StatusBadge";
 import { formatDateTime } from "@/lib/ui/format-date-time";
@@ -44,9 +45,18 @@ export default function ProfessionalProjectRow({
   const roomCount = "roomCount" in project ? project.roomCount : undefined;
   const unreadCount =
     "unreadMessageCount" in project ? (project.unreadMessageCount ?? 0) : 0;
+  const unreadClientCount =
+    "unreadClientMessageCount" in project
+      ? (project.unreadClientMessageCount ?? 0)
+      : 0;
   const clientLabel = hasOnboarding
     ? project.assignedClientFullName
     : project.clientName;
+  const primaryActionLabel = actionHint
+    ? "המשך עבודה"
+    : unreadClientCount > 0
+      ? "פתיחת שיחה"
+      : "פתיחת פרויקט";
 
   return (
     <article className={styles.row}>
@@ -77,7 +87,12 @@ export default function ProfessionalProjectRow({
         </p>
         {unreadCount > 0 ? (
           <p className={styles.unread} role="status">
-            הודעות חדשות: {unreadCount}
+            הודעות חדשות מאדמין: {unreadCount}
+          </p>
+        ) : null}
+        {formatUnreadMessageLabel(unreadClientCount) ? (
+          <p className={styles.unreadClient} role="status">
+            {formatUnreadMessageLabel(unreadClientCount)}
           </p>
         ) : null}
       </div>
@@ -88,7 +103,7 @@ export default function ProfessionalProjectRow({
           variant="secondary"
           size="sm"
         >
-          פתיחת פרויקט
+          {primaryActionLabel}
         </Button>
       </div>
     </article>

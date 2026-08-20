@@ -5,6 +5,7 @@ const findOneMock = vi.fn();
 const updateOneMock = vi.fn();
 const verifyClientMock = vi.fn();
 const notifyMock = vi.fn();
+const deleteSnapshotMock = vi.fn();
 
 vi.mock("@/lib/db/mongoose", () => ({
   connectDB: vi.fn(),
@@ -15,6 +16,10 @@ vi.mock("@/models/Project", () => ({
     findOne: findOneMock,
     updateOne: updateOneMock,
   },
+}));
+
+vi.mock("@/lib/client-snapshots/client-approved-project-snapshot-repository", () => ({
+  deleteClientApprovedProjectSnapshot: deleteSnapshotMock,
 }));
 
 vi.mock("@/lib/admin/clients/verifyClientEligibleForAssignment", () => ({
@@ -47,8 +52,10 @@ describe("project-onboarding-mutations", () => {
     updateOneMock.mockReset();
     verifyClientMock.mockReset();
     notifyMock.mockReset();
+    deleteSnapshotMock.mockReset();
     verifyClientMock.mockResolvedValue(undefined);
     updateOneMock.mockResolvedValue({ matchedCount: 1 });
+    deleteSnapshotMock.mockResolvedValue(undefined);
   });
 
   it("approves pending onboarding with client assignment", async () => {
@@ -149,6 +156,35 @@ describe("project-onboarding-mutations", () => {
           clientUserId: expect.anything(),
         }),
       }),
+    );
+    expect(deleteSnapshotMock).toHaveBeenCalledWith(projectId);
+  });
+
+  it("invalidates snapshot and marks dirty when reassigning approved project", async () => {
+    findOneMock.mockResolvedValue({
+      ...pendingProject(),
+      onboardingStatus: "active",
+      status: "approved",
+      clientUserId: new Types.ObjectId(clientId),
+    });
+
+    const newClientId = "507f1f77bcf86cd799439015";
+    const { reassignProjectClient } = await import(
+      "@/lib/projects/project-onboarding-mutations"
+    );
+
+    await reassignProjectClient(adminId, projectId, newClientId);
+
+    expect(deleteSnapshotMock).toHaveBeenCalledWith(projectId);
+    expect(updateOneMock).toHaveBeenCalledTimes(2);
+    expect(updateOneMock).toHaveBeenLastCalledWith(
+      { _id: expect.anything() },
+      {
+        $set: {
+          commercialDirty: true,
+          commercialDirtyAt: expect.any(Date),
+        },
+      },
     );
   });
 });

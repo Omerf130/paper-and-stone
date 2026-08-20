@@ -8,6 +8,7 @@ import {
   buildReviewHistoryEntry,
   createReviewEventId,
 } from "@/lib/projects/project-review-history";
+import { deleteClientApprovedProjectSnapshot } from "@/lib/client-snapshots/client-approved-project-snapshot-repository";
 
 export const ONBOARDING_ERRORS = {
   NOT_FOUND: "הפרויקט לא נמצא.",
@@ -256,6 +257,20 @@ export async function reassignProjectClient(
 
   if (result.matchedCount === 0) {
     throw new ProjectMutationError(ONBOARDING_ERRORS.NOT_ACTIVE);
+  }
+
+  await deleteClientApprovedProjectSnapshot(projectId);
+
+  if (project.status === "approved") {
+    await Project.updateOne(
+      { _id: project._id },
+      {
+        $set: {
+          commercialDirty: true,
+          commercialDirtyAt: now,
+        },
+      },
+    );
   }
 }
 

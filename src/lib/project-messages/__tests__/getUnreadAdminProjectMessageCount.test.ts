@@ -1,4 +1,5 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
+import { ADMIN_ARCHITECT_CONVERSATION_FILTER } from "@/lib/project-messages/conversation-filters";
 
 const countDocumentsMock = vi.fn();
 
@@ -40,6 +41,7 @@ describe("getUnreadAdminProjectMessageCount", () => {
 
     expect(count).toBe(2);
     expect(countDocumentsMock).toHaveBeenCalledWith({
+      ...ADMIN_ARCHITECT_CONVERSATION_FILTER,
       audience: "admin",
       readByUserIds: { $ne: expect.anything() },
     });

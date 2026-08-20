@@ -1,0 +1,100 @@
+@use "../../../styles/tokens" as *;
+@use "../../../styles/mixins" as *;
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  padding: $spacing-lg;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  background-color: $color-background;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.title {
+  margin: 0;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+}
+
+.titleLink {
+  color: inherit;
+  text-decoration: none;
+
+  @include focus-visible;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.meta {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  margin: 0;
+}
+
+.metaRow {
+  display: grid;
+  grid-template-columns: minmax(5rem, auto) 1fr;
+  gap: $spacing-sm;
+  font-size: $font-size-sm;
+
+  dt {
+    margin: 0;
+    color: $color-text-secondary;
+  }
+
+  dd {
+    margin: 0;
+    color: $color-text-primary;
+  }
+}
+
+.total {
+  font-weight: $font-weight-semibold;
+}
+
+.supportingText {
+  margin: 0;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.unread {
+  margin: 0;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+}
+
+.unreadLink {
+  color: inherit;
+  text-decoration: underline;
+
+  @include focus-visible;
+}
+
+.actions {
+  margin-block-start: $spacing-xs;
+}
+
+.actions a,
+.actions button {
+  min-height: 2.75rem;
+}
+
+@include tablet-up {
+  .header {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+}

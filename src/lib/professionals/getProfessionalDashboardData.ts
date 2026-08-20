@@ -14,7 +14,7 @@ import {
 import { getMyProfessionalProfileView } from "@/lib/professionals/ensureProfessionalProfile";
 import { getUnreadNotificationCount } from "@/lib/notifications/notification-queries";
 import { getUnreadProfessionalProjectMessageCount } from "@/lib/project-messages/getUnreadProfessionalProjectMessageCount";
-import { getUnreadMessageCountsForProjects } from "@/lib/project-messages/getUnreadMessageCountsForProjects";
+import { getUnreadMessageCountsForProjects, getUnreadArchitectClientMessageCountsForProjects } from "@/lib/project-messages/getUnreadMessageCountsForProjects";
 import { mapProjectToListItemView } from "@/lib/projects/mapProjectToView";
 import { getProjectRoomCountsByProjectIds } from "@/lib/projects/project-room-queries";
 import { getArchitectProjectActionHint } from "@/lib/projects/architect-project-attention";
@@ -38,6 +38,7 @@ type LeanProject = Pick<
 function mapLeanProjectToDashboardProject(
   project: LeanProject,
   unreadMessageCount: number,
+  unreadClientMessageCount: number,
   roomCount?: number,
   actionHint?: string | null,
 ): ProfessionalDashboardProject {
@@ -52,6 +53,7 @@ function mapLeanProjectToDashboardProject(
     actionHint,
     updatedAt: project.updatedAt.toISOString(),
     unreadMessageCount,
+    unreadClientMessageCount,
   };
 }
 
@@ -79,6 +81,7 @@ export function mergePriorityDashboardProjects(
     finalized: LeanProject[];
   },
   unreadCounts: Map<string, number>,
+  unreadClientCounts: Map<string, number>,
   roomCounts: Map<string, number>,
   limit = DASHBOARD_LIMIT,
 ): ProfessionalDashboardProject[] {
@@ -108,6 +111,7 @@ export function mergePriorityDashboardProjects(
         mapLeanProjectToDashboardProject(
           project,
           unreadCounts.get(id) ?? 0,
+          unreadClientCounts.get(id) ?? 0,
           roomCounts.get(id),
           getArchitectProjectActionHint({
             onboardingStatus: project.onboardingStatus ?? null,
@@ -268,8 +272,17 @@ export async function getProfessionalDashboardData(
 
   const candidateIds = [...new Set(allCandidates.map((project) => project._id.toString()))];
 
-  const [unreadCounts, roomCounts] = await Promise.all([
+  const [unreadCounts, unreadClientCounts, roomCounts] = await Promise.all([
     getUnreadMessageCountsForProjects(candidateIds, ownerUserId, "professional"),
+    getUnreadArchitectClientMessageCountsForProjects(
+      allCandidates
+        .filter((project) => project.clientUserId)
+        .map((project) => ({
+          projectId: project._id.toString(),
+          clientUserId: project.clientUserId!.toString(),
+        })),
+      ownerUserId,
+    ),
     getProjectRoomCountsByProjectIds(candidateIds),
   ]);
 
@@ -285,6 +298,7 @@ export async function getProfessionalDashboardData(
       finalized: finalizedProjects as LeanProject[],
     },
     unreadCounts,
+    unreadClientCounts,
     roomCounts,
   );
 
@@ -317,6 +331,11 @@ export async function getProfessionalDashboardData(
     attentionProjectCount,
     stalePricingProjectCount,
     pendingOnboardingCount,
+    commercialDirtyProjectCount,
+    unreadClientMessageCount: [...unreadClientCounts.values()].reduce(
+      (total, count) => total + count,
+      0,
+    ),
     activeProjectCount,
     submittedProjectCount,
     profileCompleteness: getProfileCompletenessSummary(profile),

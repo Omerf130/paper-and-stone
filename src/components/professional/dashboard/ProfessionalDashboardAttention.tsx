@@ -1,25 +1,32 @@
 import Link from "next/link";
+import { formatUnreadMessageLabel } from "@/types/project-message";
 import styles from "./ProfessionalDashboardAttention.module.scss";
 
 type ProfessionalDashboardAttentionProps = {
   attentionProjectCount: number;
   stalePricingProjectCount: number;
+  commercialDirtyProjectCount: number;
   changesRequestedCount: number;
   pendingOnboardingCount: number;
   unreadNotificationCount: number;
   unreadMessageCount: number;
+  unreadClientMessageCount: number;
   profileIncomplete: boolean;
 };
 
 export default function ProfessionalDashboardAttention({
   attentionProjectCount,
   stalePricingProjectCount,
+  commercialDirtyProjectCount,
   changesRequestedCount,
   pendingOnboardingCount,
   unreadNotificationCount,
   unreadMessageCount,
+  unreadClientMessageCount,
   profileIncomplete,
 }: ProfessionalDashboardAttentionProps) {
+  const unreadClientLabel = formatUnreadMessageLabel(unreadClientMessageCount);
+
   return (
     <section className={styles.section} aria-labelledby="pro-attention-title">
       <h2 id="pro-attention-title" className={styles.title}>
@@ -38,9 +45,19 @@ export default function ProfessionalDashboardAttention({
         </li>
 
         <li className={styles.item}>
+          {commercialDirtyProjectCount > 0 ? (
+            <Link href="/professional/projects" className={styles.link}>
+              {commercialDirtyProjectCount} פרויקטים — יש שינויים שטרם נשלחו לבדיקה
+            </Link>
+          ) : (
+            <span className={styles.empty}>אין פרויקטים עם שינויים שלא נשלחו</span>
+          )}
+        </li>
+
+        <li className={styles.item}>
           {changesRequestedCount > 0 ? (
             <Link href="/professional/projects" className={styles.link}>
-              {changesRequestedCount} פרויקטים — האדמין ביקש שינויים
+              {changesRequestedCount} פרויקטים — נדרשים שינויים
             </Link>
           ) : (
             <span className={styles.empty}>אין פרויקטים שדורשים שינויים</span>
@@ -58,6 +75,16 @@ export default function ProfessionalDashboardAttention({
         </li>
 
         <li className={styles.item}>
+          {unreadClientLabel ? (
+            <Link href="/professional/projects" className={styles.link}>
+              {unreadClientLabel} מלקוחות
+            </Link>
+          ) : (
+            <span className={styles.empty}>אין הודעות חדשות מלקוחות</span>
+          )}
+        </li>
+
+        <li className={styles.item}>
           {unreadNotificationCount > 0 ? (
             <Link href="/professional/notifications" className={styles.link}>
               {unreadNotificationCount} התראות שלא נקראו
@@ -70,10 +97,10 @@ export default function ProfessionalDashboardAttention({
         <li className={styles.item}>
           {unreadMessageCount > 0 ? (
             <Link href="/professional/projects" className={styles.link}>
-              {unreadMessageCount} הודעות חדשות בפרויקטים
+              {unreadMessageCount} הודעות חדשות ממנהל המערכת
             </Link>
           ) : (
-            <span className={styles.empty}>אין הודעות חדשות</span>
+            <span className={styles.empty}>אין הודעות חדשות ממנהל המערכת</span>
           )}
         </li>
 

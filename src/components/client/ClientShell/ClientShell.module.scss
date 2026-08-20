@@ -1,0 +1,78 @@
+@use "../../../styles/tokens" as *;
+@use "../../../styles/mixins" as *;
+
+.shell {
+  display: grid;
+  min-height: 100vh;
+  background-color: $color-background;
+
+  @include desktop-up {
+    grid-template-columns: $admin-sidebar-width 1fr;
+  }
+}
+
+.mainColumn {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.topBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-md;
+  min-height: $header-height-mobile;
+  padding-inline: $container-padding-inline;
+  border-bottom: 1px solid $color-border;
+  background-color: $color-background;
+
+  @include desktop-up {
+    min-height: $header-height-desktop;
+  }
+}
+
+.topBarStart {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  min-width: 0;
+}
+
+.mobileBrand {
+  @include desktop-up {
+    display: none;
+  }
+}
+
+.topBarActions {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+}
+
+.publicLink,
+.logoutButton {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  text-decoration: none;
+  white-space: nowrap;
+
+  @include focus-visible;
+}
+
+.logoutButton {
+  min-height: 2.75rem;
+  padding: 0;
+  font: inherit;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.content {
+  flex: 1;
+  padding: $spacing-xl $container-padding-inline $spacing-3xl;
+}

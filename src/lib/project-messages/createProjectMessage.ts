@@ -50,6 +50,7 @@ export async function createProjectMessage(
     senderUserId: senderObjectId,
     senderRole,
     audience,
+    conversationType: "admin_architect",
     body: parsed.data,
     readByUserIds: [senderObjectId],
   });

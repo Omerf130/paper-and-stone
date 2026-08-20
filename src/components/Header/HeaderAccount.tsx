@@ -34,6 +34,11 @@ export default function HeaderAccount({ user }: HeaderAccountProps) {
           אזור אדריכל
         </Link>
       )}
+      {user.role === "client" && (
+        <Link href="/client" className={styles.clientLink}>
+          אזור לקוח
+        </Link>
+      )}
       <form action={logoutAction}>
         <button type="submit" className={styles.logoutButton}>
           התנתקות

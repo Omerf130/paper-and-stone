@@ -5,6 +5,10 @@ import { requireProfessional } from "@/lib/auth/authorization";
 import { isProjectReadOnly } from "@/lib/projects/assertProjectEditable";
 import { getProjectMessages } from "@/lib/project-messages/getProjectMessages";
 import {
+  getArchitectClientProjectMessages,
+} from "@/lib/project-messages/architect-client-messages";
+import { verifyArchitectClientMessagingAccess } from "@/lib/project-messages/verifyArchitectClientMessagingAccess";
+import {
   getOwnedProjectDetailView,
   loadProductViewsByIds,
 } from "@/lib/projects/project-queries";
@@ -30,11 +34,16 @@ import ProjectStatusBanner from "@/components/professional/projects/ProjectStatu
 import ProjectSubmitButton from "@/components/professional/projects/ProjectSubmitButton/ProjectSubmitButton";
 import ProfessionalQuoteSection from "@/components/professional/projects/ProfessionalQuoteSection/ProfessionalQuoteSection";
 import {
+  markArchitectClientProjectMessagesReadAction,
+  sendArchitectClientProjectMessageAction,
+} from "@/app/professional/projects/architect-client-message-actions";
+import {
   markProfessionalProjectMessagesReadAction,
   sendProfessionalProjectMessageAction,
 } from "@/app/professional/projects/message-actions";
 import ProjectMessageReadMarker from "@/components/project-messages/ProjectMessageReadMarker/ProjectMessageReadMarker";
 import ProjectMessageThread from "@/components/project-messages/ProjectMessageThread/ProjectMessageThread";
+import ProjectConversationThread from "@/components/project-messages/ProjectConversationThread/ProjectConversationThread";
 import { PRICING_ERRORS } from "@/lib/pricing/pricing-validation";
 import styles from "./page.module.scss";
 
@@ -83,6 +92,14 @@ export default async function ProjectDetailPage({
     reviewHistory: project.reviewHistory,
   });
   const messageThread = await getProjectMessages(user.id, "professional", id);
+  const architectClientContext = await verifyArchitectClientMessagingAccess(
+    id,
+    user.id,
+  );
+  const architectClientThread = await getArchitectClientProjectMessages(
+    user.id,
+    id,
+  );
   const quoteSection =
     project.isItemWorkspaceVisible && !project.usesRoomBasedWorkspace
       ? await getProfessionalQuoteSectionView(user.id, id)
@@ -146,33 +163,6 @@ export default async function ProjectDetailPage({
       ) : null}
 
       {project.isItemWorkspaceVisible ? (
-        <ProjectSubmitButton
-          projectId={project.id}
-          status={project.status}
-          itemCount={project.items.length}
-          commercialDirty={project.commercialDirty}
-          pricingComplete={pricingBlockedReason == null}
-          pricingBlockedReason={pricingBlockedReason}
-        />
-      ) : null}
-
-      <InternalDetailSection id="project-overview" title="פרטי פרויקט">
-        <ProjectForm
-          mode="edit"
-          projectId={project.id}
-          initialProject={{
-            name: project.name,
-            clientName: project.clientName ?? "",
-            location: project.location ?? "",
-            description: project.description ?? "",
-          }}
-          showDelete={project.isOnboardingDeletable}
-          readOnly={!project.isMetadataEditable}
-          showClientName={isLegacyProject}
-        />
-      </InternalDetailSection>
-
-      {project.isItemWorkspaceVisible ? (
         useArchitectWorkspace ? (
           <InternalDetailSection id="project-workspace" title="מרחב העבודה">
             <ArchitectProjectWorkspace
@@ -204,6 +194,33 @@ export default async function ProjectDetailPage({
         )
       ) : null}
 
+      {project.isItemWorkspaceVisible ? (
+        <ProjectSubmitButton
+          projectId={project.id}
+          status={project.status}
+          itemCount={project.items.length}
+          commercialDirty={project.commercialDirty}
+          pricingComplete={pricingBlockedReason == null}
+          pricingBlockedReason={pricingBlockedReason}
+        />
+      ) : null}
+
+      <InternalDetailSection id="project-overview" title="פרטי פרויקט">
+        <ProjectForm
+          mode="edit"
+          projectId={project.id}
+          initialProject={{
+            name: project.name,
+            clientName: project.clientName ?? "",
+            location: project.location ?? "",
+            description: project.description ?? "",
+          }}
+          showDelete={project.isOnboardingDeletable}
+          readOnly={!project.isMetadataEditable}
+          showClientName={isLegacyProject}
+        />
+      </InternalDetailSection>
+
       {quoteSection ? (
         <InternalDetailSection id="project-quote" title="הצעת מחיר">
           <ProfessionalQuoteSection section={quoteSection} />
@@ -225,13 +242,34 @@ export default async function ProjectDetailPage({
         markReadAction={markProfessionalProjectMessagesReadAction}
       />
 
-      <InternalDetailSection id="messages" title="שיחה על הפרויקט">
+      <InternalDetailSection id="admin-messages" title="שיחה עם מנהל המערכת">
         <ProjectMessageThread
           projectId={project.id}
           messages={messageThread.messages}
           messagingAvailable={messagingAvailable}
           truncated={messageThread.truncated}
           sendAction={sendProfessionalProjectMessageAction}
+          hideTitle
+        />
+      </InternalDetailSection>
+
+      <ProjectMessageReadMarker
+        projectId={project.id}
+        messagingAvailable={architectClientContext.messagingAvailable}
+        markReadAction={markArchitectClientProjectMessagesReadAction}
+      />
+
+      <InternalDetailSection id="client-messages" title="שיחה עם הלקוח">
+        <ProjectConversationThread
+          projectId={project.id}
+          sectionId="client-messages"
+          title="שיחה עם הלקוח"
+          messages={architectClientThread.messages}
+          messagingAvailable={architectClientContext.messagingAvailable}
+          truncated={architectClientThread.truncated}
+          sendAction={sendArchitectClientProjectMessageAction}
+          composerDisabled={!architectClientContext.assignedClientActive}
+          composerDisabledMessage="לא ניתן לשלוח הודעות ללקוח שאינו פעיל."
           hideTitle
         />
       </InternalDetailSection>

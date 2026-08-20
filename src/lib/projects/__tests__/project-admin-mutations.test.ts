@@ -2,6 +2,7 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 
 const updateOneMock = vi.fn();
 const findOneMock = vi.fn();
+const findByIdMock = vi.fn();
 const createWorkflowNotificationMock = vi.fn();
 
 vi.mock("@/lib/db/mongoose", () => ({
@@ -12,7 +13,16 @@ vi.mock("@/models/Project", () => ({
   default: {
     updateOne: updateOneMock,
     findOne: findOneMock,
+    findById: findByIdMock,
   },
+}));
+
+vi.mock("@/lib/client-snapshots/commercial-approval-with-snapshot", () => ({
+  approveLayeredProjectWithClientSnapshot: vi.fn(
+    async (_adminUserId: string, _projectId: string, applyApproval: () => Promise<void>) => {
+      await applyApproval();
+    },
+  ),
 }));
 
 vi.mock("@/lib/notifications/createWorkflowNotification", () => ({
@@ -31,8 +41,12 @@ describe("project-admin-mutations", () => {
   beforeEach(() => {
     updateOneMock.mockReset();
     findOneMock.mockReset();
+    findByIdMock.mockReset();
     createWorkflowNotificationMock.mockReset();
     updateOneMock.mockResolvedValue({ matchedCount: 1 });
+    findByIdMock.mockResolvedValue({
+      onboardingStatus: null,
+    });
     findOneMock.mockReturnValue({
       select: vi.fn().mockResolvedValue({
         _id: { toString: () => "507f1f77bcf86cd799439013" },

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useState } from "react";
+import Button from "@/components/ui/Button/Button";
 import ArchitectProjectItemCard from "@/components/professional/projects/ArchitectProjectItemCard/ArchitectProjectItemCard";
 import LayeredPricingTotalsSummary, {
   getRoomArchitectTotalFormattedFromArchitectItems,
@@ -21,6 +22,7 @@ type ArchitectProjectRoomAccordionProps = {
   productThumbnailsById: Record<string, ProductThumbnailView>;
   productViewsById: Record<string, ProductView>;
   isEditable: boolean;
+  onAddProduct?: (roomId: string) => void;
   onMoveItem: (itemId: string) => void;
   onRemoveItem: (itemId: string) => void;
   defaultOpenRoomId?: string | null;
@@ -34,6 +36,7 @@ export default function ArchitectProjectRoomAccordion({
   productThumbnailsById,
   productViewsById,
   isEditable,
+  onAddProduct,
   onMoveItem,
   onRemoveItem,
   defaultOpenRoomId,
@@ -120,6 +123,18 @@ export default function ArchitectProjectRoomAccordion({
 
             {isOpen ? (
               <div id={panelId} className={styles.roomPanel}>
+                {isEditable && onAddProduct ? (
+                  <div className={styles.roomActions}>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => onAddProduct(room.id)}
+                    >
+                      + הוספת מוצר
+                    </Button>
+                  </div>
+                ) : null}
+
                 {roomItems.length > 0 ? (
                   <ul className={styles.itemList}>
                     {roomItems.map((item) => (
@@ -142,7 +157,18 @@ export default function ArchitectProjectRoomAccordion({
                     ))}
                   </ul>
                 ) : (
-                  <p className={styles.emptyRoom}>אין מוצרים בחדר זה.</p>
+                  <div className={styles.emptyRoom}>
+                    <p>אין מוצרים בחדר זה.</p>
+                    {isEditable && onAddProduct ? (
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => onAddProduct(room.id)}
+                      >
+                        + הוספת מוצר
+                      </Button>
+                    ) : null}
+                  </div>
                 )}
 
                 {showPricing && roomItems.length > 0 ? (

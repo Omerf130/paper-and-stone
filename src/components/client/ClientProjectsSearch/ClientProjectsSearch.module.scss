@@ -1,0 +1,41 @@
+@use "../../../styles/tokens" as *;
+@use "../../../styles/mixins" as *;
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  margin-block-end: $spacing-xl;
+}
+
+.label {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+
+  @include tablet-up {
+    flex-direction: row;
+    align-items: stretch;
+  }
+}
+
+.input {
+  flex: 1;
+  min-height: 2.75rem;
+  padding: $spacing-sm $spacing-md;
+  font: inherit;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  background-color: $color-background;
+
+  @include focus-visible;
+}
+
+.controls button {
+  min-height: 2.75rem;
+}

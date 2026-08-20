@@ -1,0 +1,5 @@
+@use "../../../styles/tokens" as *;
+
+.banner {
+  margin-block-end: $spacing-lg;
+}

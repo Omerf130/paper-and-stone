@@ -1,5 +1,6 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { Types } from "mongoose";
+import { ADMIN_ARCHITECT_CONVERSATION_FILTER } from "@/lib/project-messages/conversation-filters";
 
 const updateManyMock = vi.fn();
 const findByIdMock = vi.fn();
@@ -50,6 +51,7 @@ describe("markProjectMessagesRead", () => {
     expect(updateManyMock).toHaveBeenCalledWith(
       {
         projectId: new Types.ObjectId(projectId),
+        ...ADMIN_ARCHITECT_CONVERSATION_FILTER,
         audience: "admin",
         readByUserIds: { $ne: new Types.ObjectId(adminId) },
       },

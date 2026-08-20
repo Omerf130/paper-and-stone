@@ -1,0 +1,39 @@
+@use "../../../styles/tokens" as *;
+@use "../../../styles/mixins" as *;
+
+.root,
+.mobileRoot {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding: $spacing-sm $spacing-md;
+  border-radius: $radius-md;
+  color: $color-text-secondary;
+  text-decoration: none;
+
+  @include focus-visible;
+
+  &:hover {
+    color: $color-text-primary;
+    background-color: $color-background;
+  }
+}
+
+.active {
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+  background-color: $color-background;
+}
+
+.mobileRoot {
+  gap: $spacing-sm;
+}

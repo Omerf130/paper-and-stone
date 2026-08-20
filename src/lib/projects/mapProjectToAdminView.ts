@@ -3,7 +3,7 @@ import {
   mapProjectItemToView,
   resolveActiveProductIds,
 } from "@/lib/projects/mapProjectToView";
-import { getProjectRoomViews } from "@/lib/projects/project-room-queries";
+import { getProjectRoomViews, getProjectRoomsForProject } from "@/lib/projects/project-room-queries";
 import { mapReviewHistoryEntryToView } from "@/lib/projects/project-review-history";
 import { usesLayeredPricing, usesRoomBasedWorkspace } from "@/lib/projects/project-workspace-gates";
 import { resolveAssignedClientFullName } from "@/lib/admin/clients/client-lookup-queries";
@@ -12,7 +12,7 @@ import {
   mapAdminProjectItemPricingView,
   mapProjectPricingSettingsView,
 } from "@/lib/pricing/pricing-view-mappers";
-import { getLayeredPricingApprovalBlockedReason } from "@/lib/pricing/pricing-gates";
+import { getCommercialApprovalBlockedReason } from "@/lib/client-snapshots/client-snapshot-gates";
 import {
   getAdminProjectAttentionLabels,
   getProjectPricingAttention,
@@ -65,6 +65,9 @@ export async function mapLeanProjectToAdminDetailView(
     ? await resolveAssignedClientFullName(project.clientUserId)
     : null;
   const roomBased = usesRoomBasedWorkspace(project);
+  const projectRooms = roomBased
+    ? await getProjectRoomsForProject(project._id.toString())
+    : [];
   const rooms = roomBased
     ? await getProjectRoomViews(project._id.toString(), project.items)
     : [];
@@ -106,8 +109,9 @@ export async function mapLeanProjectToAdminDetailView(
       ? {
           pricingSettings: mapProjectPricingSettingsView(project),
           pricingTotals: mapAdminPricingTotalsView(project.items),
-          pricingApprovalBlockedReason: getLayeredPricingApprovalBlockedReason(
+          pricingApprovalBlockedReason: getCommercialApprovalBlockedReason(
             project,
+            projectRooms,
           ),
         }
       : {}),

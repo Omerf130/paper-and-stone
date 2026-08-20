@@ -12,21 +12,10 @@ export {
   isPricingIncomplete,
 } from "@/lib/pricing/pricing-attention-utils";
 
-export type AdminProjectAttentionReason =
-  | "pending_onboarding"
-  | "commercial_review"
-  | "unpriced_items"
-  | "stale_client_prices";
-
-export const ADMIN_PROJECT_ATTENTION_LABELS: Record<
-  AdminProjectAttentionReason,
-  string
-> = {
-  pending_onboarding: "ממתין לאישור פתיחה",
-  commercial_review: "ממתין לבדיקה מסחרית",
-  unpriced_items: "מוצרים שטרם תומחרו",
-  stale_client_prices: "מחירי לקוח דורשים בדיקה",
-};
+export type { AdminProjectAttentionReason } from "@/lib/projects/admin-project-attention-labels";
+export { ADMIN_PROJECT_ATTENTION_LABELS } from "@/lib/projects/admin-project-attention-labels";
+import type { AdminProjectAttentionReason } from "@/lib/projects/admin-project-attention-labels";
+import { ADMIN_PROJECT_ATTENTION_LABELS } from "@/lib/projects/admin-project-attention-labels";
 
 export function getProjectPricingAttention(
   items: IProjectItem[],

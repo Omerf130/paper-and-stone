@@ -1,0 +1,52 @@
+@use "../../../styles/tokens" as *;
+@use "../../../styles/mixins" as *;
+
+.mobileNav {
+  display: block;
+
+  @include desktop-up {
+    display: none;
+  }
+}
+
+.toggle,
+.closeButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  min-width: 2.75rem;
+  height: 2.75rem;
+  min-height: 2.75rem;
+  padding: 0;
+  color: $color-text-primary;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+
+  @include focus-visible;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: $z-index-mobile-menu;
+  background-color: $color-background;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding-block: $spacing-lg;
+  padding-inline: $container-padding-inline;
+}
+
+.panelHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-block-end: $spacing-xl;
+  padding-block-end: $spacing-md;
+  border-bottom: 1px solid $color-border;
+}

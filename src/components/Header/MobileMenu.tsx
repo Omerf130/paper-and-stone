@@ -113,6 +113,11 @@ export default function MobileMenu({
                       אזור אדריכל
                     </Link>
                   )}
+                  {user.role === "client" && (
+                    <Link href="/client" className={styles.authLink}>
+                      אזור לקוח
+                    </Link>
+                  )}
                   <form action={logoutAction}>
                     <button type="submit" className={styles.logoutButton}>
                       התנתקות

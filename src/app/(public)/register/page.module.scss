@@ -12,3 +12,10 @@
   text-decoration: underline;
   text-underline-offset: 0.15em;
 }
+
+.userTypeHint {
+  margin: $spacing-xs 0 0;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  line-height: 1.5;
+}

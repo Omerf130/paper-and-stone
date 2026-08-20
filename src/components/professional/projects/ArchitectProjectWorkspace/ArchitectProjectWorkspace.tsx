@@ -13,8 +13,10 @@ import EmptyState from "@/components/ui/EmptyState/EmptyState";
 import StatusBadge from "@/components/ui/StatusBadge/StatusBadge";
 import { useToast } from "@/components/ui/Toast/ToastProvider";
 import ProjectMoveItemDialog from "@/components/professional/projects/ProjectMoveItemDialog/ProjectMoveItemDialog";
+import ProjectProductPicker from "@/components/professional/projects/ProjectProductPicker/ProjectProductPicker";
 import ProjectRoomCreateDialog from "@/components/professional/projects/ProjectRoomCreateDialog/ProjectRoomCreateDialog";
 import { getArchitectPricingAttentionFromItems } from "@/lib/pricing/architect-pricing-attention";
+import { getCommercialDirtyLabel } from "@/lib/projects/project-status-presentation";
 import { getArchitectProjectAttentionLabels } from "@/lib/projects/architect-project-attention";
 import {
   mapOnboardingStatusToBadge,
@@ -45,6 +47,7 @@ export default function ArchitectProjectWorkspace({
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [removeItemId, setRemoveItemId] = useState<string | null>(null);
   const [moveItemId, setMoveItemId] = useState<string | null>(null);
+  const [pickerRoomId, setPickerRoomId] = useState<string | null>(null);
 
   const rooms = project.rooms;
   const isEditable = project.isRoomEditable && !readOnly;
@@ -95,7 +98,9 @@ export default function ArchitectProjectWorkspace({
               {commercialBadge.label}
             </StatusBadge>
             {project.status === "approved" && project.commercialDirty ? (
-              <StatusBadge tone="warning">יש שינויים שלא נבדקו</StatusBadge>
+              <StatusBadge tone="warning">
+                {getCommercialDirtyLabel("architectWorkspace")}
+              </StatusBadge>
             ) : null}
           </div>
         </div>
@@ -183,6 +188,7 @@ export default function ArchitectProjectWorkspace({
             productThumbnailsById={productThumbnailsById}
             productViewsById={productViewsById}
             isEditable={isEditable}
+            onAddProduct={isEditable ? setPickerRoomId : undefined}
             onMoveItem={setMoveItemId}
             onRemoveItem={setRemoveItemId}
           />
@@ -260,6 +266,15 @@ export default function ArchitectProjectWorkspace({
           rooms={rooms}
           open={moveItemId !== null}
           onClose={() => setMoveItemId(null)}
+        />
+      ) : null}
+
+      {pickerRoomId ? (
+        <ProjectProductPicker
+          projectId={project.id}
+          roomId={pickerRoomId}
+          open={pickerRoomId !== null}
+          onClose={() => setPickerRoomId(null)}
         />
       ) : null}
     </div>
