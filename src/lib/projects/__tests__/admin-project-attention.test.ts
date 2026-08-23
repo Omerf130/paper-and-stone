@@ -187,4 +187,36 @@ describe("admin-project-attention", () => {
       } as never),
     ).toEqual([]);
   });
+
+  it("flags pending admin pricing rounds in attention reasons", () => {
+    expect(
+      getAdminProjectAttentionReasons({
+        onboardingStatus: "active",
+        status: "approved",
+        adminPricingRevision: 2,
+        adminPricingDeliveredRevision: 1,
+        items: [
+          {
+            pricing: {
+              internalCostAgorot: 100_000,
+              architectPriceAgorot: 140_000,
+              clientPriceAgorot: 210_000,
+            },
+          },
+        ],
+      } as never),
+    ).toEqual(["pricing_ready_to_deliver"]);
+  });
+
+  it("flags incomplete admin layer pricing during pending delivery", () => {
+    expect(
+      getAdminProjectAttentionReasons({
+        onboardingStatus: "active",
+        status: "approved",
+        adminPricingRevision: 2,
+        adminPricingDeliveredRevision: 1,
+        items: [{ pricing: { internalCostAgorot: 100_000 } }],
+      } as never),
+    ).toEqual(["admin_pricing_incomplete"]);
+  });
 });

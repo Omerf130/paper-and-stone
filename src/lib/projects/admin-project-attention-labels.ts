@@ -1,8 +1,11 @@
 export type AdminProjectAttentionReason =
   | "pending_onboarding"
   | "commercial_review"
-  | "unpriced_items"
-  | "stale_client_prices";
+  | "admin_pricing_incomplete"
+  | "pricing_ready_to_deliver"
+  | "stale_client_prices"
+  /** @deprecated retained for migration reads only */
+  | "unpriced_items";
 
 export const ADMIN_PROJECT_ATTENTION_LABELS: Record<
   AdminProjectAttentionReason,
@@ -10,6 +13,8 @@ export const ADMIN_PROJECT_ATTENTION_LABELS: Record<
 > = {
   pending_onboarding: "ממתין לאישור פתיחה",
   commercial_review: "ממתין לבדיקה מסחרית",
-  unpriced_items: "מוצרים שטרם תומחרו",
+  admin_pricing_incomplete: "מוצרים ממתינים לתמחור",
+  pricing_ready_to_deliver: "תמחור מוכן לשליחה",
   stale_client_prices: "מחירי לקוח דורשים בדיקה",
+  unpriced_items: "מוצרים שטרם תומחרו",
 };

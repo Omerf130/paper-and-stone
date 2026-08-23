@@ -18,6 +18,7 @@ export type AdminProjectListItemView = {
   submittedAt?: string;
   updatedAt: string;
   attentionReasons: string[];
+  pricingStateLabel?: string | null;
   pricingAttention: ProjectPricingAttention;
   unreadMessageCount?: number;
   quoteStatusLabel?: string;
@@ -52,6 +53,7 @@ export type AdminProjectDetailView = {
   pricingSettings?: import("@/types/project-pricing").ProjectPricingSettingsView;
   pricingTotals?: import("@/types/project-pricing").AdminPricingTotalsView;
   pricingApprovalBlockedReason?: string | null;
+  adminPricingRound?: import("@/lib/pricing/admin-pricing-round-presentation").AdminPricingRoundPresentation | null;
 };
 
 export type AdminProjectsPageResult = {
@@ -88,6 +90,7 @@ export const PROJECT_REVIEW_ACTION_LABELS: Record<
   approved: "אושר",
   rejected: "נדחה",
   changes_requested: "נדרשו שינויים",
+  admin_pricing_delivered: "התמחור נשלח לאדריכל",
   onboarding_created: "נוצר וממתין לאישור",
   onboarding_approved: "אושר לפתיחה",
   onboarding_rejected: "נדחה בפתיחה",

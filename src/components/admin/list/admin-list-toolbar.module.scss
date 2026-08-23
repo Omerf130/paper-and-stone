@@ -82,8 +82,18 @@
 
 .queueTabs {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: $spacing-sm;
+  padding-block-end: $spacing-xs;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+
+  @include tablet-up {
+    flex-wrap: wrap;
+    overflow-x: visible;
+    padding-block-end: 0;
+  }
 }
 
 .queueTab,

@@ -3,7 +3,7 @@ import {
   calculateLineTotalAgorot,
   sumLineTotalsAgorot,
 } from "@/lib/pricing/pricing-calculations";
-import { isPricingIncomplete } from "@/lib/pricing/pricing-attention-utils";
+import { isAdminLayerPricingIncomplete } from "@/lib/pricing/pricing-attention-utils";
 import type {
   AdminPricingTotalsView,
   ArchitectPricingTotalsView,
@@ -49,7 +49,7 @@ function buildAdminBaseTotals(items: IProjectItem[]): PricingTotalsView {
   for (const item of items) {
     const pricing = item.pricing;
 
-    if (!isPricingIncomplete(pricing)) {
+    if (!isAdminLayerPricingIncomplete(pricing)) {
       pricedItemCount += 1;
     } else {
       unpricedItemCount += 1;

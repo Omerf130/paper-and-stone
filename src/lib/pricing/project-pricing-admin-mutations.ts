@@ -23,6 +23,10 @@ import {
 } from "@/lib/pricing/pricing-gates";
 import { PRICING_ERRORS } from "@/lib/pricing/pricing-validation";
 import { appendCommercialDirtyToSet, applyCommercialDirtyToDocument } from "@/lib/projects/project-commercial-dirty";
+import {
+  appendOpenAdminPricingRoundToUpdate,
+  shouldOpenAdminPricingRound,
+} from "@/lib/pricing/admin-pricing-round";
 
 type SetProjectItemAdminPricingInput = {
   projectId: string;
@@ -235,6 +239,7 @@ export async function setProjectItemAdminPricing(
 
   const dirtySet = (updateDoc.$set ?? {}) as Record<string, unknown>;
   appendCommercialDirtyToSet(project, dirtySet);
+  appendOpenAdminPricingRoundToUpdate(project, updateDoc);
   updateDoc.$set = dirtySet;
 
   const arrayFilter: Record<string, unknown> = {
@@ -287,6 +292,11 @@ export async function setProjectDefaultAdminMarkup(
   assertValidMarkupBp(input.defaultAdminMarkupBp);
 
   const project = await getPricingEditableProject(input.projectId);
+
+  if (shouldOpenAdminPricingRound(project)) {
+    project.adminPricingRevision = (project.adminPricingRevision ?? 0) + 1;
+  }
+
   const now = new Date();
   const adminObjectId = new Types.ObjectId(adminUserId);
 

@@ -228,11 +228,17 @@ Prefer CSS logical properties (`margin-inline`, `padding-inline`, `text-align: s
 - See [`docs/phase-17d-layered-pricing-markup.md`](phase-17d-layered-pricing-markup.md)
 
 **Phase 17D.2 — Admin Project Operations Workspace:**
-- Operational project list views: attention (default), active, commercial review, onboarding
+- Operational project list views: all, attention (default), active, commercial review, onboarding
 - Admin project workspace with room accordion and inline item pricing rows
 - Search by project/architect/client; nav badge = attention count
 - Fixes discoverability of active new-workflow projects after onboarding approval
 - See [`docs/phase-17d2-admin-project-operations-workspace.md`](phase-17d2-admin-project-operations-workspace.md)
+
+**Admin pricing round delivery (corrective):**
+- Revision-tracked admin pricing rounds with project-level delivery to architect
+- Delivery button appears for every new round (including post-approval product adds)
+- Architect submit and admin commercial approval blocked while delivery pending
+- See [`docs/admin-project-pricing-round-workflow.md`](admin-project-pricing-round-workflow.md)
 
 **Phase 17D.3 — Commercial Dirty + Re-Review:**
 - `commercialDirty` / `commercialDirtyAt` on approved layered-pricing projects when commercially meaningful mutations occur

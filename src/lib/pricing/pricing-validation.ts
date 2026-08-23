@@ -12,6 +12,10 @@ export const PRICING_ERRORS = {
   STALE_CLIENT_PRICE: "מחיר הלקוח דורש בדיקה מחדש",
   INCOMPLETE_PRICING: "יש להשלים תמחור לכל המוצרים לפני שליחה",
   STALE_PRICING_SUBMIT: "יש מוצרים שדורשים עדכון מחיר לקוח לפני שליחה",
+  ADMIN_PRICING_INCOMPLETE: "יש מוצרים שעדיין לא תומחרו.",
+  ADMIN_PRICING_NOT_DELIVERED: "התמחור עוד לא נשלח מהמנהל.",
+  ADMIN_PRICING_DELIVERY_CONFLICT:
+    "הפרויקט השתנה מאז פתיחת העמוד. יש לרענן ולנסות שוב.",
   VERSION_CONFLICT: "התמחור עודכן במקביל. יש לרענן ולנסות שוב.",
   ITEM_NOT_FOUND: "המוצר לא נמצא בפרויקט",
   PROJECT_NOT_FOUND: "הפרויקט לא נמצא",

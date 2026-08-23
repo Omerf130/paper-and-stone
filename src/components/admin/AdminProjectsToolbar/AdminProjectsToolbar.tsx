@@ -23,6 +23,7 @@ const COMMERCIAL_STATUS_OPTIONS: Array<{ value: ProjectStatus; label: string }> 
 ];
 
 const QUEUE_TABS = [
+  "all",
   "attention",
   "active",
   "commercial",

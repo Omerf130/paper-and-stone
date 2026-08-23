@@ -2,6 +2,10 @@ import type { IProject, IProjectItem } from "@/models/Project";
 import { PRICING_ERRORS } from "@/lib/pricing/pricing-validation";
 import { ProjectMutationError } from "@/lib/projects/project-errors";
 import {
+  hasPendingAdminPricingDelivery,
+  isAdminLayerPricingIncomplete,
+} from "@/lib/pricing/admin-pricing-round";
+import {
   isArchitectWorkspaceEditable,
   isOnboardingPending,
   usesLayeredPricing,
@@ -85,9 +89,14 @@ export function getLayeredPricingCompleteness(
   let unpricedArchitectCount = 0;
   let unpricedClientCount = 0;
   let staleClientCount = 0;
+  let unpricedAdminLayerCount = 0;
 
   for (const item of items) {
     const pricing = item.pricing;
+
+    if (isAdminLayerPricingIncomplete(pricing)) {
+      unpricedAdminLayerCount += 1;
+    }
 
     if (pricing?.architectPriceAgorot == null) {
       unpricedArchitectCount += 1;
@@ -104,7 +113,7 @@ export function getLayeredPricingCompleteness(
 
   return {
     isComplete:
-      unpricedArchitectCount === 0 &&
+      unpricedAdminLayerCount === 0 &&
       unpricedClientCount === 0 &&
       staleClientCount === 0,
     unpricedArchitectCount,
@@ -113,12 +122,46 @@ export function getLayeredPricingCompleteness(
   };
 }
 
-export function assertLayeredPricingCompleteForSubmit(
-  project: Pick<IProject, "onboardingStatus" | "items">,
+export function assertAdminPricingDeliveredForSubmit(
+  project: Pick<
+    IProject,
+    | "onboardingStatus"
+    | "adminPricingRevision"
+    | "adminPricingDeliveredRevision"
+    | "items"
+  >,
 ): void {
   if (!usesLayeredPricing(project)) {
     return;
   }
+
+  if (hasPendingAdminPricingDelivery(project)) {
+    const adminIncomplete = project.items.some((item) =>
+      isAdminLayerPricingIncomplete(item.pricing),
+    );
+
+    throw new ProjectMutationError(
+      adminIncomplete
+        ? PRICING_ERRORS.ADMIN_PRICING_INCOMPLETE
+        : PRICING_ERRORS.ADMIN_PRICING_NOT_DELIVERED,
+    );
+  }
+}
+
+export function assertLayeredPricingCompleteForSubmit(
+  project: Pick<
+    IProject,
+    | "onboardingStatus"
+    | "adminPricingRevision"
+    | "adminPricingDeliveredRevision"
+    | "items"
+  >,
+): void {
+  if (!usesLayeredPricing(project)) {
+    return;
+  }
+
+  assertAdminPricingDeliveredForSubmit(project);
 
   const completeness = getLayeredPricingCompleteness(project.items);
 
@@ -141,10 +184,66 @@ export function assertLayeredPricingApprovalGate(
 }
 
 export function getLayeredPricingApprovalBlockedReason(
-  project: Pick<IProject, "onboardingStatus" | "items">,
+  project: Pick<
+    IProject,
+    | "onboardingStatus"
+    | "adminPricingRevision"
+    | "adminPricingDeliveredRevision"
+    | "items"
+    | "clientUserId"
+  >,
 ): string | null {
   if (!usesLayeredPricing(project)) {
     return null;
+  }
+
+  if (hasPendingAdminPricingDelivery(project)) {
+    const adminIncomplete = project.items.some((item) =>
+      isAdminLayerPricingIncomplete(item.pricing),
+    );
+
+    return adminIncomplete
+      ? PRICING_ERRORS.ADMIN_PRICING_INCOMPLETE
+      : PRICING_ERRORS.ADMIN_PRICING_NOT_DELIVERED;
+  }
+
+  const completeness = getLayeredPricingCompleteness(project.items);
+
+  if (
+    completeness.unpricedArchitectCount > 0 ||
+    completeness.unpricedClientCount > 0
+  ) {
+    return PRICING_ERRORS.INCOMPLETE_PRICING;
+  }
+
+  if (completeness.staleClientCount > 0) {
+    return PRICING_ERRORS.STALE_PRICING_SUBMIT;
+  }
+
+  return null;
+}
+
+export function getArchitectSubmitPricingBlockedReason(
+  project: Pick<
+    IProject,
+    | "onboardingStatus"
+    | "adminPricingRevision"
+    | "adminPricingDeliveredRevision"
+    | "items"
+  >,
+): string | null {
+  if (!usesLayeredPricing(project)) {
+    return null;
+  }
+
+  if (hasPendingAdminPricingDelivery(project)) {
+    const adminIncomplete = project.items.some((item) =>
+      isAdminLayerPricingIncomplete(item.pricing),
+    );
+
+    return adminIncomplete
+      ? PRICING_ERRORS.ADMIN_PRICING_INCOMPLETE
+      : PRICING_ERRORS.ADMIN_PRICING_NOT_DELIVERED;
   }
 
   const completeness = getLayeredPricingCompleteness(project.items);

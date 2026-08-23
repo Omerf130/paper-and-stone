@@ -44,7 +44,8 @@ import {
 import ProjectMessageReadMarker from "@/components/project-messages/ProjectMessageReadMarker/ProjectMessageReadMarker";
 import ProjectMessageThread from "@/components/project-messages/ProjectMessageThread/ProjectMessageThread";
 import ProjectConversationThread from "@/components/project-messages/ProjectConversationThread/ProjectConversationThread";
-import { PRICING_ERRORS } from "@/lib/pricing/pricing-validation";
+import { acknowledgeArchitectAdminPricingSeen } from "@/lib/pricing/acknowledge-architect-admin-pricing-seen";
+import ArchitectAdminPricingBanner from "@/components/professional/projects/ArchitectAdminPricingBanner/ArchitectAdminPricingBanner";
 import styles from "./page.module.scss";
 
 export async function generateMetadata({
@@ -75,6 +76,11 @@ export default async function ProjectDetailPage({
     notFound();
   }
 
+  const showAdminPricingBanner =
+    project.adminPricingDelivery?.hasUnseenDelivery ?? false;
+
+  await acknowledgeArchitectAdminPricingSeen(user.id, id);
+
   const productIds = [...new Set(project.items.map((item) => item.productId))];
   const productViewsById = await loadProductViewsByIds(productIds);
   const productThumbnailsById = await loadProductThumbnailMap(productIds);
@@ -104,14 +110,7 @@ export default async function ProjectDetailPage({
     project.isItemWorkspaceVisible && !project.usesRoomBasedWorkspace
       ? await getProfessionalQuoteSectionView(user.id, id)
       : null;
-  const pricingBlockedReason =
-    project.pricingSettings?.usesLayeredPricing && project.pricingTotals
-      ? project.pricingTotals.staleItemCount > 0
-        ? PRICING_ERRORS.STALE_PRICING_SUBMIT
-        : project.pricingTotals.unpricedItemCount > 0
-          ? PRICING_ERRORS.INCOMPLETE_PRICING
-          : null
-      : null;
+  const pricingBlockedReason = project.pricingSubmitBlockedReason ?? null;
   const statusBadge = mapProjectStatusToBadge(project.status);
   const onboardingBadge = project.onboardingStatus
     ? mapOnboardingStatusToBadge(project.onboardingStatus)
@@ -157,6 +156,8 @@ export default async function ProjectDetailPage({
         submittedAt={project.submittedAt}
         commercialDirty={project.commercialDirty}
       />
+
+      {showAdminPricingBanner ? <ArchitectAdminPricingBanner /> : null}
 
       {project.canResubmitOnboarding ? (
         <ProjectResubmitOnboardingButton projectId={project.id} />

@@ -3,6 +3,7 @@ import type { ProjectStatus } from "@/types/project";
 export const PROJECTS_PAGE_SIZE = 20;
 
 export type AdminProjectsQueue =
+  | "all"
   | "attention"
   | "active"
   | "commercial"
@@ -33,6 +34,7 @@ const PROJECT_STATUSES: ProjectStatus[] = [
 ];
 
 const PROJECT_QUEUES: AdminProjectsQueue[] = [
+  "all",
   "attention",
   "active",
   "commercial",
@@ -124,6 +126,7 @@ export function buildAdminProjectsHref(input: AdminProjectsHrefInput = {}): stri
 }
 
 export const ADMIN_PROJECTS_QUEUE_LABELS: Record<AdminProjectsQueue, string> = {
+  all: "כל הפרויקטים",
   attention: "דורש טיפול",
   active: "פעילים",
   commercial: "ממתינים לבדיקה",

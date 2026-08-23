@@ -36,6 +36,7 @@ import {
 import { verifyRoomBelongsToProject } from "@/lib/projects/project-room-mutations";
 import { PROJECT_ROOM_ERRORS } from "@/types/project-room";
 import { appendCommercialDirtyToSet } from "@/lib/projects/project-commercial-dirty";
+import { appendOpenAdminPricingRoundToUpdate } from "@/lib/pricing/admin-pricing-round";
 
 async function assertProfileReadyForProjects(userId: string): Promise<void> {
   const profile = await getMyProfessionalProfileView(userId);
@@ -117,6 +118,35 @@ function withCommercialDirtySet(
     ...update,
     $set,
   };
+}
+
+function withAdminPricingRoundUpdate(
+  project: Pick<
+    IProject,
+    "onboardingStatus" | "adminPricingRevision" | "adminPricingDeliveredRevision"
+  >,
+  update: Record<string, unknown>,
+): Record<string, unknown> {
+  const nextUpdate = { ...update };
+  appendOpenAdminPricingRoundToUpdate(project, nextUpdate);
+  return nextUpdate;
+}
+
+function withLayeredProjectItemUpdate(
+  project: Pick<
+    IProject,
+    | "onboardingStatus"
+    | "status"
+    | "commercialDirty"
+    | "adminPricingRevision"
+    | "adminPricingDeliveredRevision"
+  >,
+  update: Record<string, unknown>,
+): Record<string, unknown> {
+  return withCommercialDirtySet(
+    project,
+    withAdminPricingRoundUpdate(project, update),
+  );
 }
 
 export async function createProject(
@@ -307,7 +337,7 @@ export async function addProductToProject(
         },
       },
     },
-    withCommercialDirtySet(project, {
+    withLayeredProjectItemUpdate(project, {
       $inc: { "items.$.quantity": quantity },
     }),
   );
@@ -341,7 +371,7 @@ export async function addProductToProject(
           },
         },
       },
-      withCommercialDirtySet(project, {
+      withLayeredProjectItemUpdate(project, {
         $inc: { "items.$.quantity": quantity },
       }),
     );
@@ -357,7 +387,7 @@ export async function addProductToProject(
 
   const pushResult = await Project.updateOne(
     editableFilter,
-    withCommercialDirtySet(project, {
+    withLayeredProjectItemUpdate(project, {
       $push: { items: newItem },
     }),
   );
@@ -402,17 +432,36 @@ export async function updateProjectItem(
 
   const snapshot = buildProjectItemSnapshot(verified.productView, verified);
 
+  const configurationChanged =
+    existingItem.selectedMaterialId !== verified.selectedMaterialId ||
+    existingItem.selectedColorId !== verified.selectedColorId ||
+    existingItem.selectedSizeKey !== verified.selectedSizeKey;
+  const quantityChanged = existingItem.quantity !== quantity;
+
+  const itemUpdate =
+    configurationChanged || quantityChanged
+      ? withLayeredProjectItemUpdate(project, {
+          $set: {
+            "items.$[item].selectedMaterialId": verified.selectedMaterialId,
+            "items.$[item].selectedColorId": verified.selectedColorId,
+            "items.$[item].selectedSizeKey": verified.selectedSizeKey,
+            "items.$[item].quantity": quantity,
+            "items.$[item].snapshot": snapshot,
+          },
+        })
+      : withCommercialDirtySet(project, {
+          $set: {
+            "items.$[item].selectedMaterialId": verified.selectedMaterialId,
+            "items.$[item].selectedColorId": verified.selectedColorId,
+            "items.$[item].selectedSizeKey": verified.selectedSizeKey,
+            "items.$[item].quantity": quantity,
+            "items.$[item].snapshot": snapshot,
+          },
+        });
+
   const result = await Project.updateOne(
     editableFilter,
-    withCommercialDirtySet(project, {
-      $set: {
-        "items.$[item].selectedMaterialId": verified.selectedMaterialId,
-        "items.$[item].selectedColorId": verified.selectedColorId,
-        "items.$[item].selectedSizeKey": verified.selectedSizeKey,
-        "items.$[item].quantity": quantity,
-        "items.$[item].snapshot": snapshot,
-      },
-    }),
+    itemUpdate,
     {
       arrayFilters: [{ "item._id": new Types.ObjectId(itemId) }],
     },

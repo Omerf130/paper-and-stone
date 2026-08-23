@@ -15,6 +15,7 @@ import {
 import { getCommercialApprovalBlockedReason } from "@/lib/client-snapshots/client-snapshot-gates";
 import {
   getAdminProjectAttentionLabels,
+  getAdminPricingRoundPresentationForProject,
   getProjectPricingAttention,
 } from "@/lib/projects/admin-project-attention";
 import type {
@@ -49,6 +50,8 @@ export async function mapLeanProjectToAdminListItem(
     updatedAt: project.updatedAt.toISOString(),
     attentionReasons: getAdminProjectAttentionLabels(project),
     pricingAttention: getProjectPricingAttention(project.items),
+    pricingStateLabel:
+      getAdminPricingRoundPresentationForProject(project)?.listBadgeLabel ?? null,
   };
 }
 
@@ -113,6 +116,7 @@ export async function mapLeanProjectToAdminDetailView(
             project,
             projectRooms,
           ),
+          adminPricingRound: getAdminPricingRoundPresentationForProject(project),
         }
       : {}),
   };

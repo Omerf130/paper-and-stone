@@ -345,7 +345,7 @@ export async function assertQuoteApprovalGate(projectId: string): Promise<void> 
   await connectDB();
 
   const project = await Project.findById(projectId).select(
-    "submissionRevision onboardingStatus items",
+    "submissionRevision onboardingStatus items adminPricingRevision adminPricingDeliveredRevision",
   );
 
   if (!project) {

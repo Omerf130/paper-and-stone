@@ -15,6 +15,7 @@ export const PROJECT_REVIEW_ACTIONS = [
   "approved",
   "rejected",
   "changes_requested",
+  "admin_pricing_delivered",
   ...ONBOARDING_REVIEW_ACTIONS,
 ] as const;
 
@@ -121,6 +122,11 @@ export type ProjectDetailView = {
   selectedRoomId?: string | null;
   pricingSettings?: import("@/types/project-pricing").ArchitectProjectPricingSettingsView;
   pricingTotals?: import("@/types/project-pricing").ArchitectPricingTotalsView;
+  adminPricingDelivery?: {
+    hasUnseenDelivery: boolean;
+    deliveredRevision: number;
+  };
+  pricingSubmitBlockedReason?: string | null;
 };
 
 export type ProjectOptionView = {

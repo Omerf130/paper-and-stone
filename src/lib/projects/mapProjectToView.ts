@@ -20,6 +20,11 @@ import {
   usesLayeredPricing,
   usesRoomBasedWorkspace,
 } from "@/lib/projects/project-workspace-gates";
+import {
+  getAdminPricingDeliveredRevision,
+  hasUnseenAdminPricingDelivery,
+} from "@/lib/pricing/admin-pricing-round";
+import { getArchitectSubmitPricingBlockedReason } from "@/lib/pricing/pricing-gates";
 import { getProjectRoomViews } from "@/lib/projects/project-room-queries";
 import { resolveAssignedClientFullName } from "@/lib/admin/clients/client-lookup-queries";
 import {
@@ -146,6 +151,11 @@ export async function mapProjectToDetailView(
       ? {
           pricingSettings: mapArchitectProjectPricingSettingsView(project),
           pricingTotals: mapArchitectPricingTotalsView(project.items),
+          adminPricingDelivery: {
+            hasUnseenDelivery: hasUnseenAdminPricingDelivery(project),
+            deliveredRevision: getAdminPricingDeliveredRevision(project),
+          },
+          pricingSubmitBlockedReason: getArchitectSubmitPricingBlockedReason(project),
         }
       : {}),
   };

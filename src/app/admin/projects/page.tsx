@@ -33,6 +33,7 @@ const EMPTY_COPY: Record<
   ReturnType<typeof parseAdminProjectsParams>["queue"],
   string
 > = {
+  all: "אין פרויקטים",
   attention: "אין פרויקטים שדורשים טיפול כרגע",
   active: "אין פרויקטים פעילים",
   commercial: "אין פרויקטים שממתינים לבדיקה מסחרית",

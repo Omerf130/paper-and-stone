@@ -57,6 +57,11 @@ export default function AdminProjectListItem({
             <StatusBadge tone="warning">{primaryAttention}</StatusBadge>
           </p>
         ) : null}
+        {project.pricingStateLabel ? (
+          <p className={styles.pricingState}>
+            <StatusBadge tone="info">{project.pricingStateLabel}</StatusBadge>
+          </p>
+        ) : null}
 
         <div className={cardStyles.metaGrid}>
           <div className={cardStyles.metaRow}>
@@ -106,6 +111,11 @@ export default function AdminProjectListItem({
         {primaryAttention ? (
           <div className={styles.primaryAttention}>
             <StatusBadge tone="warning">{primaryAttention}</StatusBadge>
+          </div>
+        ) : null}
+        {project.pricingStateLabel ? (
+          <div className={styles.pricingState}>
+            <StatusBadge tone="info">{project.pricingStateLabel}</StatusBadge>
           </div>
         ) : null}
         {formatUnreadMessageLabel(project.unreadMessageCount ?? 0) ? (

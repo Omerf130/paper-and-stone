@@ -32,4 +32,10 @@ describe("buildAdminProjectsFilter", () => {
       buildAdminProjectsFilter({ queue: "attention", status: "submitted" }),
     ).toEqual(buildAdminProjectAttentionFilter());
   });
+
+  it("returns empty filter for all projects queue", () => {
+    expect(
+      buildAdminProjectsFilter({ queue: "all", status: "submitted" }),
+    ).toEqual({});
+  });
 });

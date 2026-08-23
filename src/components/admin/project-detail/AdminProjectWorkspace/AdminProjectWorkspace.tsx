@@ -1,4 +1,5 @@
 import Link from "next/link";
+import AdminPricingDeliveryPanel from "@/components/admin/project-detail/AdminPricingDeliveryPanel/AdminPricingDeliveryPanel";
 import AdminProjectRoomAccordion from "@/components/admin/project-detail/AdminProjectRoomAccordion/AdminProjectRoomAccordion";
 import AdminProjectItemPricingRow from "@/components/admin/project-detail/AdminProjectItemPricingRow/AdminProjectItemPricingRow";
 import LayeredPricingTotalsSummary from "@/components/admin/project-detail/LayeredPricingTotalsSummary/LayeredPricingTotalsSummary";
@@ -171,7 +172,14 @@ export default function AdminProjectWorkspace({
         ) : null}
 
         {project.pricingTotals ? (
-          <LayeredPricingTotalsSummary
+          <>
+            {project.adminPricingRound ? (
+              <AdminPricingDeliveryPanel
+                projectId={project.id}
+                pricingRound={project.adminPricingRound}
+              />
+            ) : null}
+            <LayeredPricingTotalsSummary
             label="סיכום פרויקט"
             variant="project"
             idPrefix="project"
@@ -183,6 +191,7 @@ export default function AdminProjectWorkspace({
             unpricedItemCount={project.pricingTotals.unpricedItemCount}
             staleItemCount={project.pricingTotals.staleItemCount}
           />
+          </>
         ) : null}
       </AdminDetailSection>
 

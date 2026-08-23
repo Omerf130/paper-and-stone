@@ -10,7 +10,8 @@ export const COMMERCIAL_DIRTY_PRESENTATION = {
 const ADMIN_ATTENTION_PRIORITY: AdminProjectAttentionReason[] = [
   "pending_onboarding",
   "commercial_review",
-  "unpriced_items",
+  "admin_pricing_incomplete",
+  "pricing_ready_to_deliver",
   "stale_client_prices",
 ];
 

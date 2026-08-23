@@ -70,6 +70,9 @@ export interface IProject extends Document {
   onboardingApprovedAt?: Date;
   onboardingApprovedByUserId?: Types.ObjectId;
   submissionRevision: number;
+  adminPricingRevision?: number;
+  adminPricingDeliveredRevision?: number;
+  architectAdminPricingSeenRevision?: number;
   commercialDirty?: boolean;
   commercialDirtyAt?: Date;
   defaultAdminMarkupBp?: number;
@@ -207,6 +210,9 @@ const projectSchema = new Schema<IProject>(
       ref: "User",
     },
     submissionRevision: { type: Number, default: 0, min: 0, required: true },
+    adminPricingRevision: { type: Number, default: 0, min: 0 },
+    adminPricingDeliveredRevision: { type: Number, default: 0, min: 0 },
+    architectAdminPricingSeenRevision: { type: Number, default: 0, min: 0 },
     commercialDirty: { type: Boolean, default: false },
     commercialDirtyAt: { type: Date },
     defaultAdminMarkupBp: { type: Number, min: 0 },

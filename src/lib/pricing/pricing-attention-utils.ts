@@ -6,6 +6,12 @@ export type ProjectPricingAttention = {
   staleClientPriceCount: number;
 };
 
+export type AdminLayerPricingAttention = {
+  incompleteItemCount: number;
+  missingInternalCostCount: number;
+  missingArchitectPriceCount: number;
+};
+
 type PricingFields = {
   internalCostAgorot?: number | null;
   architectPriceAgorot?: number | null;
@@ -13,12 +19,49 @@ type PricingFields = {
   clientPriceStale?: boolean;
 };
 
+export function isAdminLayerPricingIncomplete(
+  pricing?: PricingFields | null,
+): boolean {
+  return (
+    pricing?.internalCostAgorot == null || pricing?.architectPriceAgorot == null
+  );
+}
+
 export function isPricingIncomplete(pricing?: PricingFields | null): boolean {
   return (
-    pricing?.internalCostAgorot == null ||
-    pricing?.architectPriceAgorot == null ||
-    pricing?.clientPriceAgorot == null
+    isAdminLayerPricingIncomplete(pricing) || pricing?.clientPriceAgorot == null
   );
+}
+
+function countAdminLayerPricingAttentionFromFields<T>(
+  items: T[],
+  getPricing: (item: T) => PricingFields | null | undefined,
+): AdminLayerPricingAttention {
+  let incompleteItemCount = 0;
+  let missingInternalCostCount = 0;
+  let missingArchitectPriceCount = 0;
+
+  for (const item of items) {
+    const pricing = getPricing(item);
+
+    if (pricing?.internalCostAgorot == null) {
+      missingInternalCostCount += 1;
+    }
+
+    if (pricing?.architectPriceAgorot == null) {
+      missingArchitectPriceCount += 1;
+    }
+
+    if (isAdminLayerPricingIncomplete(pricing)) {
+      incompleteItemCount += 1;
+    }
+  }
+
+  return {
+    incompleteItemCount,
+    missingInternalCostCount,
+    missingArchitectPriceCount,
+  };
 }
 
 function countPricingAttentionFromFields<T>(
@@ -62,6 +105,12 @@ function countPricingAttentionFromFields<T>(
     missingClientPriceCount,
     staleClientPriceCount,
   };
+}
+
+export function getAdminLayerPricingAttentionFromItemPricing(
+  items: Array<{ pricing?: PricingFields | null }>,
+): AdminLayerPricingAttention {
+  return countAdminLayerPricingAttentionFromFields(items, (item) => item.pricing);
 }
 
 export function getPricingAttentionFromAdminItems(

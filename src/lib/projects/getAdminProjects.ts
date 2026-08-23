@@ -7,6 +7,7 @@ import ProfessionalProfile from "@/models/ProfessionalProfile";
 import type { IProject } from "@/models/Project";
 import {
   buildAdminProjectAttentionFilter,
+  getAdminPricingRoundPresentationForProject,
   getAdminProjectAttentionLabels,
   getProjectPricingAttention,
 } from "@/lib/projects/admin-project-attention";
@@ -38,6 +39,8 @@ export function buildAdminProjectsFilter(
   params: Pick<AdminProjectsParams, "queue" | "status">,
 ): AdminProjectsFilter {
   switch (params.queue) {
+    case "all":
+      return {};
     case "onboarding":
       return { onboardingStatus: "pending_approval" };
     case "active":
@@ -201,6 +204,9 @@ async function mapProjectsToAdminListItems(
         roomCount,
         attentionReasons: getAdminProjectAttentionLabels(project),
         pricingAttention: getProjectPricingAttention(project.items),
+        pricingStateLabel:
+          getAdminPricingRoundPresentationForProject(project)?.listBadgeLabel ??
+          null,
         unreadMessageCount: unreadCounts.get(projectId) ?? 0,
         quoteStatusLabel: quoteSummary?.quoteStatusLabel,
         quoteAttention: quoteSummary?.quoteAttention,

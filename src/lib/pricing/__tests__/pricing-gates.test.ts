@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   assertLayeredPricingCompleteForSubmit,
+  getArchitectSubmitPricingBlockedReason,
   getLayeredPricingCompleteness,
   getPricingUnavailableReason,
   isAdminProjectPricingEditable,
@@ -36,6 +37,7 @@ const layeredComplete = {
     {
       pricing: {
         priceVersion: 1,
+        internalCostAgorot: 80_000,
         architectPriceAgorot: 100_000,
         clientPriceAgorot: 150_000,
         clientPriceStale: false,
@@ -184,6 +186,28 @@ describe("pricing-gates submit completeness", () => {
       unpricedClientCount: 0,
       staleClientCount: 0,
     });
+  });
+
+  it("blocks architect submit when admin pricing was not delivered", () => {
+    expect(
+      getArchitectSubmitPricingBlockedReason({
+        onboardingStatus: "active",
+        adminPricingRevision: 2,
+        adminPricingDeliveredRevision: 1,
+        items: layeredComplete.items,
+      } as never),
+    ).toBe(PRICING_ERRORS.ADMIN_PRICING_NOT_DELIVERED);
+  });
+
+  it("blocks architect submit when admin layer is incomplete during pending delivery", () => {
+    expect(
+      getArchitectSubmitPricingBlockedReason({
+        onboardingStatus: "active",
+        adminPricingRevision: 2,
+        adminPricingDeliveredRevision: 1,
+        items: layeredIncomplete.items,
+      } as never),
+    ).toBe(PRICING_ERRORS.ADMIN_PRICING_INCOMPLETE);
   });
 });
 
