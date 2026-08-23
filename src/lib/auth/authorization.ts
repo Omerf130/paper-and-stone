@@ -1,6 +1,10 @@
 import { redirect } from "next/navigation";
 import type { SafeUser } from "@/types/user";
 import { getCurrentUser } from "./current-user";
+import {
+  canAccessArchitectWorkspace,
+  canAccessClientWorkspace,
+} from "./account-access";
 
 export function isAdminUser(
   user: SafeUser | null,
@@ -50,8 +54,8 @@ export async function requireAdmin(): Promise<SafeUser & { role: "admin" }> {
 export async function requireClient(): Promise<SafeUser & { role: "client" }> {
   const user = await requireUser();
 
-  if (!isClientUser(user)) {
-    redirect("/");
+  if (!canAccessClientWorkspace(user) || !isClientUser(user)) {
+    redirect("/account/status");
   }
 
   return user;
@@ -62,8 +66,8 @@ export async function requireArchitect(): Promise<
 > {
   const user = await requireUser();
 
-  if (!isArchitectUser(user)) {
-    redirect("/");
+  if (!canAccessArchitectWorkspace(user) || !isArchitectUser(user)) {
+    redirect("/account/status");
   }
 
   return user;

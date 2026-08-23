@@ -16,6 +16,8 @@ import { calculateClientPriceAgorot } from "@/lib/pricing/pricing-calculations";
 import { getProjectItemConfigurationRows } from "@/lib/projects/project-display-helpers";
 import StaleClientPriceWarning from "@/components/professional/projects/StaleClientPriceWarning/StaleClientPriceWarning";
 import ArchitectProjectItemStatusControl from "@/components/professional/projects/ArchitectProjectItemStatusControl/ArchitectProjectItemStatusControl";
+import ProjectItemStatusHistoryPanel from "@/components/shared/ProjectItemStatusHistory/ProjectItemStatusHistoryPanel";
+import { getProjectItemStatusWorkflowContext } from "@/lib/project-items/project-item-status-presentation";
 import ProjectItemEditor from "@/components/professional/projects/ProjectItemEditor/ProjectItemEditor";
 import type { ProductThumbnailView } from "@/lib/products/loadProductThumbnailMap";
 import type { ProjectItemView } from "@/types/project";
@@ -133,7 +135,8 @@ export default function ArchitectProjectItemCard({
 
   return (
     <article className={styles.card} aria-labelledby={`arch-item-${item.id}-name`}>
-      <div className={styles.identity}>
+      <header className={styles.cardHeader} data-layer="header">
+        <div className={styles.identity} data-section="product">
         <div className={styles.imageWrap}>
           {thumbnail?.url ? (
             // eslint-disable-next-line @next/next/no-img-element -- product thumbnail from known media URLs
@@ -170,18 +173,40 @@ export default function ArchitectProjectItemCard({
             <StatusBadge tone="warning">המוצר אינו פעיל</StatusBadge>
           ) : null}
         </div>
-      </div>
+        </div>
 
-      {item.status ? (
-        <ArchitectProjectItemStatusControl
-          projectId={projectId}
-          projectItemId={item.id}
-          status={item.status}
-          allowedTargetStatuses={item.allowedTargetStatuses ?? []}
-          presentation={item.statusPresentation}
-          isEditable={isEditable}
-        />
-      ) : null}
+        {item.status ? (
+          <div className={styles.workflowState} data-section="workflow">
+            <ArchitectProjectItemStatusControl
+              projectId={projectId}
+              projectItemId={item.id}
+              status={item.status}
+              allowedTargetStatuses={item.allowedTargetStatuses ?? []}
+              presentation={item.statusPresentation}
+              isEditable={isEditable}
+            />
+            {getProjectItemStatusWorkflowContext(item.status, "architect") ? (
+              <p
+                className={
+                  item.status === "client_rejected"
+                    ? styles.workflowContextAttention
+                    : styles.workflowContext
+                }
+              >
+                {getProjectItemStatusWorkflowContext(item.status, "architect")}
+              </p>
+            ) : null}
+            {item.statusHistory && item.statusHistory.length > 0 ? (
+              <ProjectItemStatusHistoryPanel
+                history={item.statusHistory}
+                role="architect"
+              />
+            ) : null}
+          </div>
+        ) : null}
+      </header>
+
+      <hr className={styles.cardDivider} />
 
       {!pricing.hasArchitectPrice ? (
         <p className={styles.waiting}>{PRICING_ERRORS.ARCHITECT_PRICE_REQUIRED}</p>

@@ -2,6 +2,7 @@ import { Types } from "mongoose";
 import { connectDB } from "@/lib/db/mongoose";
 import { escapeRegex } from "@/lib/catalog/escape-regex";
 import { CLIENT_ROLE_FILTER } from "@/lib/auth/user-role";
+import { APPROVED_OR_LEGACY_ACCOUNT_STATUS_FILTER } from "@/lib/users/account-status";
 import User from "@/models/User";
 
 export type ClientLookupItem = {
@@ -15,6 +16,7 @@ const CLIENT_LOOKUP_LIMIT = 20;
 const ACTIVE_CLIENT_FILTER = {
   role: CLIENT_ROLE_FILTER,
   isActive: true,
+  ...APPROVED_OR_LEGACY_ACCOUNT_STATUS_FILTER,
 };
 
 export function buildClientSearchFilter(query: string | null | undefined) {

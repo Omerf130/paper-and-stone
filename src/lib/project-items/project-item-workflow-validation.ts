@@ -13,6 +13,7 @@ export const PROJECT_ITEM_STATUS_ERRORS = {
   ITEM_NOT_FOUND: "המוצר לא נמצא בפרויקט",
   PROJECT_NOT_FOUND: "הפרויקט לא נמצא",
   NOT_AUTHORIZED: "אין הרשאה לעדכן סטטוס מוצר",
+  NOT_IN_CLIENT_SNAPSHOT: "המוצר אינו זמין לפעולה במסגרת הגרסה המאושרת",
   INVALID_TRANSITION: "הגדרת מעבר סטטוס לא תקינה",
   DUPLICATE_TRANSITION: "מעבר סטטוס כפול",
   SETTINGS_NOT_EDITABLE: "אין הרשאה לעדכן הגדרות תהליך",

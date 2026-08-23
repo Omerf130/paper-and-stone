@@ -1,5 +1,8 @@
 import Link from "next/link";
-import { buildCatalogHref } from "@/lib/catalog/catalog-params";
+import {
+  buildCatalogHref,
+  type CatalogHrefInput,
+} from "@/lib/catalog/catalog-params";
 import { getVisiblePageNumbers } from "@/lib/catalog/catalog-pagination";
 import styles from "./CatalogPagination.module.scss";
 
@@ -8,6 +11,7 @@ type CatalogPaginationProps = {
   totalPages: number;
   query: string | null;
   categorySlug: string | null;
+  hrefInput?: CatalogHrefInput;
 };
 
 export default function CatalogPagination({
@@ -15,11 +19,18 @@ export default function CatalogPagination({
   totalPages,
   query,
   categorySlug,
+  hrefInput,
 }: CatalogPaginationProps) {
   if (totalPages <= 1) {
     return null;
   }
 
+  const baseInput: CatalogHrefInput = {
+    query,
+    categorySlug,
+    projectId: hrefInput?.projectId,
+    roomId: hrefInput?.roomId,
+  };
   const visiblePages = getVisiblePageNumbers(page, totalPages);
   const isFirstPage = page <= 1;
   const isLastPage = page >= totalPages;
@@ -32,7 +43,7 @@ export default function CatalogPagination({
         </span>
       ) : (
         <Link
-          href={buildCatalogHref({ query, categorySlug, page: page - 1 })}
+          href={buildCatalogHref({ ...baseInput, page: page - 1 })}
           className={styles.control}
         >
           הקודם
@@ -59,8 +70,7 @@ export default function CatalogPagination({
               ) : (
                 <Link
                   href={buildCatalogHref({
-                    query,
-                    categorySlug,
+                    ...baseInput,
                     page: pageNumber,
                   })}
                   className={styles.pageLink}
@@ -79,7 +89,7 @@ export default function CatalogPagination({
         </span>
       ) : (
         <Link
-          href={buildCatalogHref({ query, categorySlug, page: page + 1 })}
+          href={buildCatalogHref({ ...baseInput, page: page + 1 })}
           className={styles.control}
         >
           הבא

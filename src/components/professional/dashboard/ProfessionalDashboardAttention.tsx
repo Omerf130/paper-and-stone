@@ -12,6 +12,9 @@ type ProfessionalDashboardAttentionProps = {
   unreadMessageCount: number;
   unreadClientMessageCount: number;
   profileIncomplete: boolean;
+  workflowRejectedItemCount?: number;
+  workflowResubmitItemCount?: number;
+  workflowClientReviewItemCount?: number;
 };
 
 export default function ProfessionalDashboardAttention({
@@ -24,6 +27,9 @@ export default function ProfessionalDashboardAttention({
   unreadMessageCount,
   unreadClientMessageCount,
   profileIncomplete,
+  workflowRejectedItemCount = 0,
+  workflowResubmitItemCount = 0,
+  workflowClientReviewItemCount = 0,
 }: ProfessionalDashboardAttentionProps) {
   const unreadClientLabel = formatUnreadMessageLabel(unreadClientMessageCount);
 
@@ -71,6 +77,42 @@ export default function ProfessionalDashboardAttention({
             </Link>
           ) : (
             <span className={styles.empty}>אין פרויקטים ממתינים לאישור פתיחה</span>
+          )}
+        </li>
+
+        <li className={styles.item}>
+          {workflowRejectedItemCount > 0 ? (
+            <Link href="/professional/projects" className={styles.link}>
+              {workflowRejectedItemCount === 1
+                ? "לקוח דחה מוצר אחד"
+                : `${workflowRejectedItemCount} מוצרים נדחו על ידי לקוח`}
+            </Link>
+          ) : (
+            <span className={styles.empty}>אין מוצרים שנדחו על ידי לקוח</span>
+          )}
+        </li>
+
+        <li className={styles.item}>
+          {workflowResubmitItemCount > 0 ? (
+            <Link href="/professional/projects" className={styles.link}>
+              {workflowResubmitItemCount === 1
+                ? "מוצר אחד דורש טיפול"
+                : `${workflowResubmitItemCount} מוצרים דורשים טיפול`}
+            </Link>
+          ) : (
+            <span className={styles.empty}>אין מוצרים שדורשים טיפול מחדש</span>
+          )}
+        </li>
+
+        <li className={styles.item}>
+          {workflowClientReviewItemCount > 0 ? (
+            <span className={styles.info}>
+              {workflowClientReviewItemCount === 1
+                ? "מוצר אחד ממתין לאישור לקוח"
+                : `${workflowClientReviewItemCount} מוצרים ממתינים לאישור לקוח`}
+            </span>
+          ) : (
+            <span className={styles.empty}>אין מוצרים שממתינים לאישור לקוח</span>
           )}
         </li>
 

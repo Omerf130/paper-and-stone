@@ -29,6 +29,7 @@ import { getProjectRoomViews } from "@/lib/projects/project-room-queries";
 import { resolveAssignedClientFullName } from "@/lib/admin/clients/client-lookup-queries";
 import { buildProjectItemStatusViewsForItems } from "@/lib/project-items/build-project-item-status-view";
 import { getNormalizedProjectItemStatus } from "@/lib/project-items/project-item-status-normalize";
+import { mapProjectItemStatusHistoryEntry } from "@/lib/project-items/set-project-item-status";
 import {
   mapArchitectPricingTotalsView,
   mapArchitectProjectItemPricingView,
@@ -58,6 +59,7 @@ export function mapProjectItemToView(
     },
     isProductActive: activeProductIds.has(item.productId.toString()),
     status: getNormalizedProjectItemStatus(item),
+    statusHistory: (item.statusHistory ?? []).map(mapProjectItemStatusHistoryEntry),
   };
 }
 

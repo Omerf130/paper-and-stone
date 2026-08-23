@@ -1,5 +1,8 @@
 import Link from "next/link";
-import { buildCatalogHref } from "@/lib/catalog/catalog-params";
+import {
+  buildCatalogHref,
+  type CatalogHrefInput,
+} from "@/lib/catalog/catalog-params";
 import type { PublicCategoryView } from "@/types/catalog";
 import styles from "./CatalogCategoryFilter.module.scss";
 
@@ -7,14 +10,21 @@ type CatalogCategoryFilterProps = {
   categories: PublicCategoryView[];
   activeCategorySlug: string | null;
   query: string | null;
+  hrefInput?: CatalogHrefInput;
 };
 
 export default function CatalogCategoryFilter({
   categories,
   activeCategorySlug,
   query,
+  hrefInput,
 }: CatalogCategoryFilterProps) {
-  const allHref = buildCatalogHref({ query });
+  const baseInput: CatalogHrefInput = {
+    query,
+    projectId: hrefInput?.projectId,
+    roomId: hrefInput?.roomId,
+  };
+  const allHref = buildCatalogHref(baseInput);
 
   return (
     <nav aria-label="סינון לפי קטגוריה" className={styles.nav}>
@@ -35,7 +45,7 @@ export default function CatalogCategoryFilter({
             <li key={category.slug}>
               <Link
                 href={buildCatalogHref({
-                  query,
+                  ...baseInput,
                   categorySlug: category.slug,
                 })}
                 className={styles.link}

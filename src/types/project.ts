@@ -77,6 +77,7 @@ export type ProjectItemView = {
   status?: import("@/types/project-item-status").ProjectItemStatus;
   statusPresentation?: import("@/types/project-item-status").ProjectItemStatusPresentation;
   allowedTargetStatuses?: import("@/types/project-item-status").ProjectItemStatus[];
+  statusHistory?: import("@/types/project-item-status").ProjectItemStatusHistoryEntry[];
   adminPricing?: import("@/types/project-pricing").AdminProjectItemPricingView;
   architectPricing?: import("@/types/project-pricing").ArchitectProjectItemPricingView;
 };

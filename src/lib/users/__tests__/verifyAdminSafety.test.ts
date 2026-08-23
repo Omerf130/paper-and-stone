@@ -12,6 +12,8 @@ describe("verifyAdminSafety", () => {
     id: "admin-1",
     email: "admin@example.com",
     role: "admin" as const,
+    accountStatus: "approved" as const,
+    requestedRole: null,
   };
 
   it("rejects self-demotion from admin", () => {

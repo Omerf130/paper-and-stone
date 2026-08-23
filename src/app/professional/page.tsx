@@ -38,6 +38,9 @@ export default async function ProfessionalDashboardPage() {
         unreadMessageCount={dashboard.unreadMessageCount}
         unreadClientMessageCount={dashboard.unreadClientMessageCount}
         profileIncomplete={!dashboard.profileCompleteness.isComplete}
+        workflowRejectedItemCount={dashboard.workflowRejectedItemCount}
+        workflowResubmitItemCount={dashboard.workflowResubmitItemCount}
+        workflowClientReviewItemCount={dashboard.workflowClientReviewItemCount}
       />
 
       <ProfessionalDashboardProjects projects={dashboard.dashboardProjects} />

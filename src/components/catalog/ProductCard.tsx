@@ -1,4 +1,8 @@
 import Link from "next/link";
+import {
+  buildProductWithProjectContextHref,
+  type CatalogHrefInput,
+} from "@/lib/catalog/catalog-params";
 import CatalogProductImage from "@/components/catalog/CatalogProductImage";
 import VisualPlaceholder from "@/components/VisualPlaceholder/VisualPlaceholder";
 import type { CatalogProductView } from "@/types/catalog";
@@ -9,11 +13,13 @@ export type ProductCardVariant = "default" | "catalog" | "featured";
 type ProductCardProps = {
   product: CatalogProductView;
   variant?: ProductCardVariant;
+  hrefInput?: CatalogHrefInput;
 };
 
 export default function ProductCard({
   product,
   variant = "default",
+  hrefInput,
 }: ProductCardProps) {
   const isCatalog = variant === "catalog";
   const isFeatured = variant === "featured";
@@ -23,9 +29,12 @@ export default function ProductCard({
       ? styles.linkFeatured
       : styles.link;
   const imageVariant = isCatalog ? "catalog" : isFeatured ? "featured" : "default";
+  const href = hrefInput
+    ? buildProductWithProjectContextHref(product.slug, hrefInput)
+    : `/products/${product.slug}`;
 
   return (
-    <Link href={`/products/${product.slug}`} className={linkClass}>
+    <Link href={href} className={linkClass}>
       <div
         className={
           isCatalog

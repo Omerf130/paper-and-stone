@@ -51,13 +51,13 @@ describe("architect-request-mutations", () => {
     );
 
     await approveArchitectRequest(
-      { id: "admin-1", email: "admin@example.com", role: "admin" },
+      { id: "admin-1", email: "admin@example.com", role: "admin", accountStatus: "approved", requestedRole: null },
       "507f1f77bcf86cd799439011",
     );
 
     expect(updateOneMock).toHaveBeenCalledWith(
       { _id: "507f1f77bcf86cd799439011" },
-      { $set: { role: "architect", requestedRole: null } },
+      { $set: { role: "architect", requestedRole: null, accountStatus: "approved" } },
     );
     expect(ensureProfessionalProfileMock).toHaveBeenCalledWith(
       "507f1f77bcf86cd799439011",
@@ -77,13 +77,19 @@ describe("architect-request-mutations", () => {
     );
 
     await declineArchitectRequest(
-      { id: "admin-1", email: "admin@example.com", role: "admin" },
+      { id: "admin-1", email: "admin@example.com", role: "admin", accountStatus: "approved", requestedRole: null },
       "507f1f77bcf86cd799439011",
     );
 
     expect(updateOneMock).toHaveBeenCalledWith(
       { _id: "507f1f77bcf86cd799439011" },
-      { $set: { requestedRole: null, role: "client" } },
+      {
+        $set: {
+          requestedRole: null,
+          role: "client",
+          accountStatus: "rejected",
+        },
+      },
     );
   });
 
@@ -101,7 +107,7 @@ describe("architect-request-mutations", () => {
 
     await expect(
       approveArchitectRequest(
-        { id: "admin-1", email: "admin@example.com", role: "admin" },
+        { id: "admin-1", email: "admin@example.com", role: "admin", accountStatus: "approved", requestedRole: null },
         "507f1f77bcf86cd799439011",
       ),
     ).rejects.toThrow("המשתמש אינו ממתין לאישור הרשאת אדריכל.");

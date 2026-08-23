@@ -35,6 +35,9 @@ export type ProfessionalDashboardData = {
   unreadClientMessageCount: number;
   activeProjectCount: number;
   submittedProjectCount: number;
+  workflowRejectedItemCount: number;
+  workflowResubmitItemCount: number;
+  workflowClientReviewItemCount: number;
   profileCompleteness: ProfileCompletenessSummary;
   dashboardProjects: ProfessionalDashboardProject[];
 };

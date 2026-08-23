@@ -1,0 +1,121 @@
+@use "../../../styles/tokens" as *;
+@use "../../../styles/mixins" as *;
+
+.trigger {
+  padding: 0;
+  font: inherit;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+  cursor: pointer;
+  background: none;
+  border: 0;
+
+  @include focus-visible;
+
+  &:hover {
+    color: $color-text-primary;
+  }
+}
+
+.dialog {
+  width: min(22rem, calc(100vw - #{$spacing-lg * 2}));
+  max-height: min(24rem, 80vh);
+  padding: 0;
+  margin: auto;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  background: $color-background;
+  box-shadow: $shadow-md;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  max-height: min(24rem, 80vh);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-sm;
+  padding: $spacing-md;
+  border-bottom: 1px solid $color-border;
+}
+
+.title {
+  margin: 0;
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+}
+
+.closeButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  font-size: 1.25rem;
+  line-height: 1;
+  color: $color-text-secondary;
+  cursor: pointer;
+  background: none;
+  border: 0;
+  border-radius: $radius-sm;
+
+  @include focus-visible;
+
+  &:hover {
+    color: $color-text-primary;
+    background: $color-background-subtle;
+  }
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  margin: 0;
+  padding: $spacing-md;
+  overflow: auto;
+  list-style: none;
+}
+
+.item {
+  padding-bottom: $spacing-sm;
+  border-bottom: 1px solid $color-border;
+
+  &:last-child {
+    padding-bottom: 0;
+    border-bottom: 0;
+  }
+}
+
+.itemHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: $spacing-sm;
+}
+
+.role {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+}
+
+.time {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+}
+
+.transition {
+  margin: $spacing-xs 0 0;
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+}
+
+.dialog::backdrop {
+  background: rgb(0 0 0 / 35%);
+}

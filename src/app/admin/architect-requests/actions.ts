@@ -23,6 +23,7 @@ export async function approveArchitectRequestAction(
   try {
     await approveArchitectRequest(admin, parsedId.data);
     revalidatePath("/admin/architect-requests");
+    revalidatePath("/admin/client-requests");
     revalidatePath("/admin/users");
     revalidatePath("/admin");
     return { success: true };
@@ -48,6 +49,7 @@ export async function declineArchitectRequestAction(
   try {
     await declineArchitectRequest(admin, parsedId.data);
     revalidatePath("/admin/architect-requests");
+    revalidatePath("/admin/client-requests");
     revalidatePath("/admin/users");
     revalidatePath("/admin");
     return { success: true };

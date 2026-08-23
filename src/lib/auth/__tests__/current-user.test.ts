@@ -14,6 +14,8 @@ describe("toSafeUser", () => {
       id: "user-id",
       email: "user@example.com",
       role: "client",
+      accountStatus: "approved",
+      requestedRole: null,
     });
   });
 
@@ -28,15 +30,23 @@ describe("toSafeUser", () => {
     expect(user).toBeNull();
   });
 
-  it("does not expose identificationNumber in safe user", () => {
+  it("includes accountStatus and requestedRole in safe user", () => {
     const user = toSafeUser({
       _id: { toString: () => "user-id" },
       email: "user@example.com",
       role: "client",
       isActive: true,
+      accountStatus: "pending",
+      requestedRole: "architect",
     });
 
+    expect(user).toEqual({
+      id: "user-id",
+      email: "user@example.com",
+      role: "client",
+      accountStatus: "pending",
+      requestedRole: "architect",
+    });
     expect(user).not.toHaveProperty("identificationNumber");
-    expect(user).not.toHaveProperty("requestedRole");
   });
 });

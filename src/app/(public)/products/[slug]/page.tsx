@@ -6,11 +6,22 @@ import ProductConfigurator from "@/components/product/ProductConfigurator/Produc
 import ProductDescription from "@/components/product/ProductDescription/ProductDescription";
 import ProductInfo from "@/components/product/ProductInfo/ProductInfo";
 import TechnicalInfo from "@/components/product/TechnicalInfo/TechnicalInfo";
+import { canAccessArchitectWorkspace } from "@/lib/auth/account-access";
+import { isClientUser } from "@/lib/auth/authorization";
 import { getCurrentUser } from "@/lib/auth/current-user";
-import { isProfessionalUser } from "@/lib/auth/authorization";
+import {
+  buildLoginHref,
+  buildRegisterHref,
+} from "@/lib/auth/safe-next-url";
+import {
+  buildProductWithProjectContextHref,
+  catalogParamsToHrefInput,
+  parseCatalogParams,
+} from "@/lib/catalog/catalog-params";
 import { getMyProfessionalProfileView } from "@/lib/professionals/ensureProfessionalProfile";
 import { isProfileReadyForProjects } from "@/lib/professionals/profile-readiness";
-import { getProfessionalProjectOptions } from "@/lib/projects/project-queries";
+import { getArchitectEditableProjectOptions } from "@/lib/projects/project-queries";
+import { getArchitectCatalogProjectContext } from "@/lib/projects/get-architect-catalog-project-context";
 import { getProductBySlug } from "@/lib/products/getProductBySlug";
 import styles from "./page.module.scss";
 
@@ -36,8 +47,13 @@ export async function generateMetadata({
   };
 }
 
-export default async function ProductPage({ params }: ProductPageProps) {
+export default async function ProductPage({
+  params,
+  searchParams,
+}: ProductPageProps) {
   const { slug } = await params;
+  const resolvedSearchParams = await searchParams;
+  const catalogParams = parseCatalogParams(resolvedSearchParams);
   const product = await getProductBySlug(slug);
 
   if (!product) {
@@ -45,14 +61,28 @@ export default async function ProductPage({ params }: ProductPageProps) {
   }
 
   const user = await getCurrentUser();
-  const canAddToProject = isProfessionalUser(user);
+  const isApprovedArchitect = user !== null && canAccessArchitectWorkspace(user);
+  const isClient = isClientUser(user);
+  const productPath = buildProductWithProjectContextHref(
+    slug,
+    catalogParamsToHrefInput(catalogParams),
+  );
+
   let projectOptions: { id: string; name: string }[] = [];
   let profileReady = false;
+  let catalogContext = null;
 
-  if (canAddToProject && user) {
-    projectOptions = await getProfessionalProjectOptions(user.id);
+  if (isApprovedArchitect && user) {
+    projectOptions = await getArchitectEditableProjectOptions(user.id);
     const profile = await getMyProfessionalProfileView(user.id);
     profileReady = isProfileReadyForProjects(profile);
+
+    if (catalogParams.projectId && catalogParams.roomId) {
+      catalogContext = await getArchitectCatalogProjectContext(user.id, {
+        projectId: catalogParams.projectId,
+        roomId: catalogParams.roomId,
+      });
+    }
   }
 
   return (
@@ -62,9 +92,13 @@ export default async function ProductPage({ params }: ProductPageProps) {
           <ProductConfigurator
             product={product}
             identity={<ProductInfo product={product} />}
-            canAddToProject={canAddToProject}
+            catalogContext={catalogContext}
+            isApprovedArchitect={isApprovedArchitect}
+            isClient={isClient}
             projectOptions={projectOptions}
             profileReady={profileReady}
+            loginHref={buildLoginHref(productPath)}
+            registerHref={buildRegisterHref(productPath)}
           />
         </Container>
       </Section>

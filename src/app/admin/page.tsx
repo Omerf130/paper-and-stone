@@ -35,6 +35,7 @@ export default async function AdminDashboardPage() {
         quoteChangeRequestedCount={data.quoteChangeRequestedCount}
         quoteAwaitingArchitectCount={data.quoteAwaitingArchitectCount}
         pendingArchitectRequestCount={data.pendingArchitectRequestCount}
+        pendingClientRequestCount={data.pendingClientRequestCount}
       />
 
       <AdminDashboardMetrics metrics={data.metrics} />

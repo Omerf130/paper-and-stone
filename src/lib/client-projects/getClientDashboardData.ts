@@ -1,5 +1,6 @@
 import { CLIENT_DASHBOARD_PROJECT_LIMIT } from "@/lib/client-projects/client-project-params";
 import { getClientApprovedProjectSnapshotsByProjectIds } from "@/lib/client-snapshots/getClientApprovedProjectSnapshots";
+import { getClientProjectWorkflowReviewCounts } from "@/lib/client-projects/getClientProjectWorkflowReviewCounts";
 import { getClientAssignedProjectsMetadata } from "@/lib/client-projects/getClientAssignedProjectsMetadata";
 import { getClientWorkspaceContext } from "@/lib/client-projects/getClientWorkspaceContext";
 import { mapClientProjectListItemView } from "@/lib/client-projects/mapClientProjectListItemView";
@@ -42,6 +43,11 @@ export async function getClientDashboardData(
     clientUserId,
   );
 
+  const reviewCounts = await getClientProjectWorkflowReviewCounts(
+    clientUserId,
+    snapshotsByProjectId,
+  );
+
   const recentProjects = recentProjectsMetadata.map((project) => {
     const snapshot = snapshotsByProjectId.get(project.projectId) ?? null;
     const architectFullName =
@@ -54,6 +60,7 @@ export async function getClientDashboardData(
       snapshot,
       architectFullName,
       unreadMessageCount: unreadCounts.get(project.projectId) ?? 0,
+      pendingReviewCount: reviewCounts.get(project.projectId) ?? 0,
     });
   });
 

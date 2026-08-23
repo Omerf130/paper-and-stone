@@ -6,6 +6,7 @@ describe("applyAdminNavBadges", () => {
     const groups = applyAdminNavBadges(adminNavGroups, {
       attentionProjectCount: 6,
       pendingArchitectRequestCount: 2,
+      pendingClientRequestCount: 3,
     });
 
     const projectsItem = groups
@@ -14,8 +15,12 @@ describe("applyAdminNavBadges", () => {
     const architectRequestsItem = groups
       .flatMap((group) => group.items)
       .find((item) => item.href === "/admin/architect-requests");
+    const clientRequestsItem = groups
+      .flatMap((group) => group.items)
+      .find((item) => item.href === "/admin/client-requests");
 
     expect(projectsItem?.badgeCount).toBe(6);
     expect(architectRequestsItem?.badgeCount).toBe(2);
+    expect(clientRequestsItem?.badgeCount).toBe(3);
   });
 });

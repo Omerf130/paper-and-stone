@@ -37,6 +37,7 @@ describe("createRegisteredUser role assignment", () => {
         email: "user@example.com",
         role: "client",
         requestedRole: null,
+        accountStatus: "pending",
         fullName: "ישראל ישראלי",
         identificationNumber: "123456789",
         isActive: true,
@@ -77,6 +78,7 @@ describe("createRegisteredUser role assignment", () => {
       expect.objectContaining({
         role: "client",
         requestedRole: "architect",
+        accountStatus: "pending",
       }),
     );
   });

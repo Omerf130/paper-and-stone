@@ -1,6 +1,7 @@
 import { calculatePagination } from "@/lib/catalog/catalog-pagination";
 import { getUnreadClientArchitectMessageCountsForProjects } from "@/lib/project-messages/getUnreadMessageCountsForProjects";
 import { getClientApprovedProjectSnapshotsByProjectIds } from "@/lib/client-snapshots/getClientApprovedProjectSnapshots";
+import { getClientProjectWorkflowReviewCounts } from "@/lib/client-projects/getClientProjectWorkflowReviewCounts";
 import {
   CLIENT_PROJECTS_PAGE_SIZE,
   type ClientProjectsParams,
@@ -48,6 +49,11 @@ export async function getClientProjectsPage(
     clientUserId,
   );
 
+  const reviewCounts = await getClientProjectWorkflowReviewCounts(
+    clientUserId,
+    snapshotsByProjectId,
+  );
+
   const listItems = projects.map((project) => {
     const snapshot = snapshotsByProjectId.get(project.projectId) ?? null;
     const architectFullName =
@@ -60,6 +66,7 @@ export async function getClientProjectsPage(
       snapshot,
       architectFullName,
       unreadMessageCount: unreadCounts.get(project.projectId) ?? 0,
+      pendingReviewCount: reviewCounts.get(project.projectId) ?? 0,
     });
   });
 

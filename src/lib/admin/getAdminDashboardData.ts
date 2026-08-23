@@ -13,6 +13,7 @@ import {
   getAdminProjectAttentionCount,
 } from "@/lib/projects/getAdminProjects";
 import { countPendingArchitectRequests } from "@/lib/users/architect-request-queries";
+import { countPendingClientRequests } from "@/lib/users/client-request-queries";
 import type { AdminDashboardData } from "@/types/admin-dashboard";
 
 export async function getAdminDashboardData(
@@ -34,6 +35,7 @@ export async function getAdminDashboardData(
     activeColors,
     activeArchitects,
     pendingArchitectRequestCount,
+    pendingClientRequestCount,
     recentSubmittedProjects,
   ] = await Promise.all([
     getAdminProjectAttentionCount(),
@@ -49,6 +51,7 @@ export async function getAdminDashboardData(
     Color.countDocuments({ isActive: true }),
     User.countDocuments({ role: ARCHITECT_ROLE_FILTER, isActive: true }),
     countPendingArchitectRequests(),
+    countPendingClientRequests(),
     Project.find({ status: "submitted" })
       .sort({ submittedAt: -1 })
       .limit(5)
@@ -68,6 +71,7 @@ export async function getAdminDashboardData(
     quoteAwaitingArchitectCount:
       quoteAttention.quoteAwaitingProfessionalCount,
     pendingArchitectRequestCount,
+    pendingClientRequestCount,
     metrics: {
       activeProducts,
       featuredProducts,

@@ -13,6 +13,7 @@ import { getAdminUsers } from "@/lib/users/getAdminUsers";
 import { parseAdminUsersParams } from "@/lib/users/user-params";
 import { formatDateTime } from "@/lib/ui/format-date-time";
 import { mapEntityActiveToBadge } from "@/lib/ui/map-status-badge";
+import { mapAccountStatusToBadge } from "@/lib/ui/map-account-status-badge";
 import {
   REQUESTED_ROLE_LABEL,
   USER_ROLE_LABELS,
@@ -65,7 +66,8 @@ export default async function AdminUsersPage({
                     <th scope="col">שם מלא</th>
                     <th scope="col">אימייל</th>
                     <th scope="col">תפקיד</th>
-                    <th scope="col">סטטוס</th>
+                    <th scope="col">סטטוס חשבון</th>
+                    <th scope="col">פעילות</th>
                     <th scope="col">נרשם</th>
                     <th scope="col">עודכן</th>
                     <th scope="col">פעולות</th>
@@ -73,7 +75,8 @@ export default async function AdminUsersPage({
                 </thead>
                 <tbody>
                   {result.users.map((user) => {
-                    const status = mapEntityActiveToBadge(user.isActive);
+                    const activeStatus = mapEntityActiveToBadge(user.isActive);
+                    const accountStatus = mapAccountStatusToBadge(user.accountStatus);
 
                     return (
                       <tr key={user.id}>
@@ -93,7 +96,14 @@ export default async function AdminUsersPage({
                           ) : null}
                         </td>
                         <td>
-                          <StatusBadge tone={status.tone}>{status.label}</StatusBadge>
+                          <StatusBadge tone={accountStatus.tone}>
+                            {accountStatus.label}
+                          </StatusBadge>
+                        </td>
+                        <td>
+                          <StatusBadge tone={activeStatus.tone}>
+                            {activeStatus.label}
+                          </StatusBadge>
                         </td>
                         <td>{formatDateTime(user.createdAt)}</td>
                         <td>{formatDateTime(user.updatedAt)}</td>
@@ -110,7 +120,8 @@ export default async function AdminUsersPage({
 
           <ul className={`${layoutStyles.mobileOnlyDesktop} ${cardStyles.list}`}>
             {result.users.map((user) => {
-              const status = mapEntityActiveToBadge(user.isActive);
+              const activeStatus = mapEntityActiveToBadge(user.isActive);
+              const accountStatus = mapAccountStatusToBadge(user.accountStatus);
 
               return (
                 <li key={user.id} className={cardStyles.card}>
@@ -124,7 +135,12 @@ export default async function AdminUsersPage({
                   </div>
 
                   <div className={cardStyles.badges}>
-                    <StatusBadge tone={status.tone}>{status.label}</StatusBadge>
+                    <StatusBadge tone={accountStatus.tone}>
+                      {accountStatus.label}
+                    </StatusBadge>
+                    <StatusBadge tone={activeStatus.tone}>
+                      {activeStatus.label}
+                    </StatusBadge>
                     {user.requestedRole === "architect" ? (
                       <StatusBadge tone="warning">
                         {REQUESTED_ROLE_LABEL}

@@ -19,6 +19,7 @@ export type ClientProjectListItemView = {
   productCount?: number;
   clientProjectTotalAgorot?: number;
   unreadMessageCount?: number;
+  pendingReviewCount?: number;
 };
 
 export type ClientProjectNoSnapshotDetailView = {
@@ -36,6 +37,8 @@ export type ClientProjectApprovedDetailView = {
   snapshot: ClientApprovedProjectView;
   roomCount: number;
   productCount: number;
+  workflowByItemId: Record<string, ClientProjectItemWorkflowStatusView>;
+  pendingReviewCount: number;
 };
 
 export type ClientProjectSnapshotUnavailableDetailView = {

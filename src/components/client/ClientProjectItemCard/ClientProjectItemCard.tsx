@@ -1,10 +1,14 @@
 import Image from "next/image";
+import ClientProjectItemWorkflow from "@/components/client/ClientProjectItemWorkflow/ClientProjectItemWorkflow";
 import { formatIlsAgorot } from "@/lib/money/format-ils";
 import type { ClientApprovedProjectItemView } from "@/types/client-approved-project";
+import type { ClientProjectItemWorkflowStatusView } from "@/types/client-project";
 import styles from "./ClientProjectItemCard.module.scss";
 
 type ClientProjectItemCardProps = {
   item: ClientApprovedProjectItemView;
+  projectId: string;
+  workflow?: ClientProjectItemWorkflowStatusView;
 };
 
 function buildConfigurationLines(
@@ -29,6 +33,8 @@ function buildConfigurationLines(
 
 export default function ClientProjectItemCard({
   item,
+  projectId,
+  workflow,
 }: ClientProjectItemCardProps) {
   const configurationLines = buildConfigurationLines(item.configuration);
   const showLineTotal = item.quantity > 1;
@@ -90,6 +96,14 @@ export default function ClientProjectItemCard({
             </div>
           ) : null}
         </dl>
+
+        {workflow ? (
+          <ClientProjectItemWorkflow
+            projectId={projectId}
+            projectItemId={item.projectItemId}
+            workflow={workflow}
+          />
+        ) : null}
       </div>
     </article>
   );

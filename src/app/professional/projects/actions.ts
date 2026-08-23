@@ -29,6 +29,8 @@ import {
 } from "@/lib/projects/project-validation";
 import type { AddToProjectInput, UpdateProjectItemInput } from "@/types/project";
 import { redirect } from "next/navigation";
+import { buildProjectReturnHref } from "@/lib/catalog/catalog-params";
+import { getArchitectCatalogProjectContext } from "@/lib/projects/get-architect-catalog-project-context";
 
 export async function createProjectAction(
   input: ProjectCreateFormInput,
@@ -155,6 +157,59 @@ export async function addProductToProjectAction(
   } catch (error: unknown) {
     if (error instanceof ProjectMutationError) {
       return { error: error.message };
+    }
+
+    return { error: PROJECT_ERRORS.GENERIC };
+  }
+}
+
+export async function addProductFromCatalogContextAction(
+  input: AddToProjectInput,
+): Promise<{ error?: string }> {
+  const user = await requireProfessional();
+
+  const parsed = parseAddToProjectInput(input);
+  if (!parsed.success) {
+    return { error: Object.values(parsed.fieldErrors)[0] };
+  }
+
+  const roomId = parsed.data.roomId;
+  if (!roomId) {
+    return { error: "החדר שנבחר אינו זמין." };
+  }
+
+  const context = await getArchitectCatalogProjectContext(user.id, {
+    projectId: parsed.data.projectId,
+    roomId,
+  });
+
+  if (!context) {
+    return { error: "הפרויקט אינו זמין להוספת מוצרים." };
+  }
+
+  try {
+    await addProductToProject(
+      user.id,
+      parsed.data.projectId,
+      parsed.data.productSlug,
+      parsed.data.quantity,
+      parsed.data.selectedMaterialId,
+      parsed.data.selectedColorId,
+      parsed.data.selectedSizeKey,
+      roomId,
+    );
+    revalidatePath(`/professional/projects/${parsed.data.projectId}`);
+    revalidatePath("/professional/projects");
+    redirect(
+      buildProjectReturnHref(parsed.data.projectId, roomId, { added: true }),
+    );
+  } catch (error: unknown) {
+    if (error instanceof ProjectMutationError) {
+      return { error: error.message };
+    }
+
+    if (error instanceof Error && error.message === "NEXT_REDIRECT") {
+      throw error;
     }
 
     return { error: PROJECT_ERRORS.GENERIC };

@@ -1,5 +1,8 @@
 import { getClientApprovedProjectSnapshotByProjectId } from "@/lib/client-snapshots/getClientApprovedProjectSnapshots";
 import { getClientAssignedProjectMetadataById } from "@/lib/client-projects/getClientAssignedProjectsMetadata";
+import { collectSnapshotProjectItemIds } from "@/lib/client-projects/collectSnapshotProjectItemIds";
+import { getClientProjectItemWorkflowStatuses } from "@/lib/client-projects/getClientProjectItemWorkflowStatuses";
+import { getClientProjectWorkflowReviewCountForProject } from "@/lib/client-projects/getClientProjectWorkflowReviewCounts";
 import {
   countSnapshotProductsFromView,
   mapClientProjectListItemView,
@@ -75,6 +78,20 @@ export async function getClientProjectDetail(
     snapshot,
     roomCount: snapshot.rooms.length,
     productCount: countSnapshotProductsFromView(snapshot),
+    workflowByItemId: Object.fromEntries(
+      (
+        await getClientProjectItemWorkflowStatuses(
+          clientUserId,
+          projectId,
+          collectSnapshotProjectItemIds(snapshot),
+        )
+      ).map((entry) => [entry.projectItemId, entry]),
+    ),
+    pendingReviewCount: await getClientProjectWorkflowReviewCountForProject(
+      clientUserId,
+      projectId,
+      collectSnapshotProjectItemIds(snapshot),
+    ),
   };
 }
 

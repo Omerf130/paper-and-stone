@@ -286,6 +286,28 @@ Prefer CSS logical properties (`margin-inline`, `padding-inline`, `text-align: s
 - Admin inline status control in project workspace; minimal Architect badge/control foundation
 - See [`docs/phase-18a-project-item-status-workflow.md`](phase-18a-project-item-status-workflow.md)
 
+**Phase 18B — Product Item Workflow UX by Role:**
+- Client snapshot/live-status join with approve/reject task UX (no rejection reason field)
+- Admin workflow attention in **דורש טיפול** queue for `internal_review`, `client_rejected`, `resubmit`
+- Architect/Admin workflow summary chips, status history UI, centralized attention helpers
+- See [`docs/phase-18b-product-status-role-ux.md`](phase-18b-product-status-role-ux.md)
+
+**Phase 18C — Client Registration Approval:**
+- Explicit `accountStatus` on User (`pending` | `approved` | `rejected`); `isActive` remains suspend-only
+- New registrations start `pending`; login/register redirect to `/account/status` until approved
+- Admin `/admin/client-requests` queue for plain Client registrations; badges on nav + dashboard
+- Architect approve → `accountStatus=approved`; architect reject → `accountStatus=rejected` (not Client queue)
+- Client assignment/picker requires approved account status
+- See [`docs/phase-18c-client-registration-approval.md`](phase-18c-client-registration-approval.md)
+
+**Phase 18D — Catalog-Based Add Product Flow:**
+- Architect room **+ הוספת מוצר** navigates to contextual `/products?project=&room=` (modal picker removed)
+- Catalog banner + param preservation through search/filter/pagination/Product Detail
+- MongoDB aggregation SKU ranking when `q` set; browse without query unchanged
+- Contextual PDP **הוספה לחדר**; direct PDP uses `AddToProjectDialog` with editable project options (includes approved)
+- Guest login `next` param; reuses `addProductToProject` / `addProductFromCatalogContextAction`
+- See [`docs/phase-18d-catalog-project-product-flow.md`](phase-18d-catalog-project-product-flow.md)
+
 **Demo 10E.1 — Notification Foundation:**
 - Separate `Notification` collection for Professional inbox
 - Workflow hooks on admin approve / reject / request changes

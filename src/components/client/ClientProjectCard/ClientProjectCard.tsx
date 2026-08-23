@@ -75,6 +75,14 @@ export default function ClientProjectCard({ project }: ClientProjectCardProps) {
         ) : null}
       </dl>
 
+      {project.pendingReviewCount != null && project.pendingReviewCount > 0 ? (
+        <p className={styles.reviewAttention} role="status">
+          {project.pendingReviewCount === 1
+            ? "מוצר אחד ממתין לאישור שלך"
+            : `${project.pendingReviewCount} מוצרים ממתינים לאישור שלך`}
+        </p>
+      ) : null}
+
       {project.presentationState.supportingText ? (
         <p className={styles.supportingText}>
           {project.presentationState.supportingText}

@@ -9,6 +9,7 @@ import {
 import { buildProductCatalogFilter } from "@/lib/catalog/build-product-catalog-filter";
 import { calculatePagination } from "@/lib/catalog/catalog-pagination";
 import { resolveActiveCategorySlug } from "@/lib/catalog/resolve-active-category-slug";
+import { searchPublicCatalogProducts } from "@/lib/catalog/search-public-catalog-products";
 import { CATALOG_PRIMARY_IMAGE_SELECT } from "@/lib/media/product-media-select";
 import { mapProductToCatalogView } from "./mapProductToCatalogView";
 
@@ -24,6 +25,16 @@ export async function getPublicProducts(
 
   const categoryId = await resolveActiveCategorySlug(requestedCategorySlug);
   const appliedCategorySlug = categoryId ? requestedCategorySlug : null;
+
+  if (query) {
+    return searchPublicCatalogProducts({
+      query,
+      categoryId,
+      page: requestedPage,
+      pageSize,
+      categorySlug: appliedCategorySlug,
+    });
+  }
 
   const filter = buildProductCatalogFilter({
     query,

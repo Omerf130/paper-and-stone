@@ -13,6 +13,7 @@ import {
 import { ProjectMutationError } from "@/lib/projects/project-errors";
 import Project, { type IProject } from "@/models/Project";
 import type { ProjectItemStatusChangeRole } from "@/types/project-item-status";
+import { isProjectItemInClientApprovedSnapshot } from "@/lib/client-snapshots/isProjectItemInClientApprovedSnapshot";
 
 export type SetProjectItemStatusInput = {
   projectId: string;
@@ -179,6 +180,18 @@ export async function setProjectItemStatusAsClient(
   input: SetProjectItemStatusInput,
 ): Promise<void> {
   try {
+    const isInSnapshot = await isProjectItemInClientApprovedSnapshot(
+      clientUserId,
+      input.projectId,
+      input.projectItemId,
+    );
+
+    if (!isInSnapshot) {
+      throw new ProjectMutationError(
+        PROJECT_ITEM_STATUS_ERRORS.NOT_IN_CLIENT_SNAPSHOT,
+      );
+    }
+
     await setProjectItemStatus(
       {
         userId: clientUserId,

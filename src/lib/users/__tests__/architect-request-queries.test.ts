@@ -33,6 +33,7 @@ describe("architect-request-queries", () => {
     expect(countDocumentsMock).toHaveBeenCalledWith({
       role: { $in: ["client", "customer"] },
       requestedRole: "architect",
+      accountStatus: "pending",
       isActive: true,
     });
   });
@@ -67,6 +68,7 @@ describe("architect-request-queries", () => {
     expect(findMock).toHaveBeenCalledWith({
       role: { $in: ["client", "customer"] },
       requestedRole: "architect",
+      accountStatus: "pending",
       isActive: true,
     });
     expect(sortMock).toHaveBeenCalledWith({ createdAt: -1 });

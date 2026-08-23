@@ -13,6 +13,8 @@ describe("authorization", () => {
       id: "1",
       email: "admin@example.com",
       role: "admin",
+      accountStatus: "approved",
+      requestedRole: null,
     };
 
     expect(isAdminUser(user)).toBe(true);
@@ -23,6 +25,8 @@ describe("authorization", () => {
       id: "2",
       email: "client@example.com",
       role: "client",
+      accountStatus: "approved",
+      requestedRole: null,
     };
 
     expect(isClientUser(user)).toBe(true);
@@ -35,6 +39,8 @@ describe("authorization", () => {
       id: "3",
       email: "architect@example.com",
       role: "architect",
+      accountStatus: "approved",
+      requestedRole: null,
     };
 
     expect(isArchitectUser(user)).toBe(true);
@@ -55,6 +61,8 @@ describe("authorization", () => {
       id: "4",
       email: "applicant@example.com",
       role: "client",
+      accountStatus: "pending",
+      requestedRole: "architect",
     };
 
     expect(isArchitectUser(applicant)).toBe(false);

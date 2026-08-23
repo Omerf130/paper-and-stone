@@ -7,21 +7,30 @@ import ProductMedia from "@/components/product/ProductMedia/ProductMedia";
 import { useProductConfiguratorState } from "@/lib/products/useProductConfiguratorState";
 import type { ProductView } from "@/types/product";
 import type { ProjectOptionView } from "@/types/project";
+import type { ArchitectCatalogProjectContextView } from "@/types/architect-catalog-context";
 
 type ProductConfiguratorProps = {
   product: ProductView;
   identity: ReactNode;
-  canAddToProject?: boolean;
+  catalogContext?: ArchitectCatalogProjectContextView | null;
+  isApprovedArchitect?: boolean;
+  isClient?: boolean;
   projectOptions?: ProjectOptionView[];
   profileReady?: boolean;
+  loginHref?: string;
+  registerHref?: string;
 };
 
 export default function ProductConfigurator({
   product,
   identity,
-  canAddToProject = false,
+  catalogContext = null,
+  isApprovedArchitect = false,
+  isClient = false,
   projectOptions = [],
   profileReady = false,
+  loginHref,
+  registerHref,
 }: ProductConfiguratorProps) {
   const state = useProductConfiguratorState(product);
 
@@ -33,9 +42,13 @@ export default function ProductConfigurator({
         <ProductConfiguratorControls
           product={product}
           state={state}
-          canAddToProject={canAddToProject}
+          catalogContext={catalogContext}
+          isApprovedArchitect={isApprovedArchitect}
+          isClient={isClient}
           projectOptions={projectOptions}
           profileReady={profileReady}
+          loginHref={loginHref}
+          registerHref={registerHref}
         />
       }
     />

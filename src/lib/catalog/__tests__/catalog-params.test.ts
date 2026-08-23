@@ -17,6 +17,8 @@ describe("parseCatalogParams", () => {
       query: "milano",
       categorySlug: "sofas",
       page: 2,
+      projectId: null,
+      roomId: null,
     });
   });
 
@@ -43,13 +45,13 @@ describe("buildCatalogHref", () => {
 describe("hasCatalogFilters", () => {
   it("detects active filters", () => {
     expect(
-      hasCatalogFilters({ query: "sofa", categorySlug: null, page: 1 }),
+      hasCatalogFilters({ query: "sofa", categorySlug: null, page: 1, projectId: null, roomId: null }),
     ).toBe(true);
     expect(
-      hasCatalogFilters({ query: null, categorySlug: "sofas", page: 1 }),
+      hasCatalogFilters({ query: null, categorySlug: "sofas", page: 1, projectId: null, roomId: null }),
     ).toBe(true);
     expect(
-      hasCatalogFilters({ query: null, categorySlug: null, page: 1 }),
+      hasCatalogFilters({ query: null, categorySlug: null, page: 1, projectId: null, roomId: null }),
     ).toBe(false);
   });
 });

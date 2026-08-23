@@ -1,0 +1,47 @@
+@use "../../../styles/tokens" as *;
+@use "../../../styles/mixins" as *;
+
+.workflow {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  padding-top: $spacing-sm;
+  border-top: 1px solid $color-border;
+}
+
+.statusRow {
+  display: flex;
+  align-items: center;
+}
+
+.context {
+  margin: 0;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+
+  :global(button) {
+    min-height: 2.75rem;
+  }
+}
+
+.error {
+  margin: 0;
+  font-size: $font-size-sm;
+  color: $color-danger-text;
+}
+
+@media (max-width: ($breakpoint-tablet - 1px)) {
+  .actions {
+    flex-direction: column;
+
+    :global(button) {
+      width: 100%;
+    }
+  }
+}

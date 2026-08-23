@@ -55,7 +55,7 @@ describe("user-mutations", () => {
     const { updateUserRole } = await import("@/lib/users/user-mutations");
 
     await updateUserRole(
-      { id: "admin-1", email: "admin@example.com", role: "admin" },
+      { id: "admin-1", email: "admin@example.com", role: "admin", accountStatus: "approved", requestedRole: null },
       "507f1f77bcf86cd799439011",
       "architect",
     );
@@ -84,7 +84,7 @@ describe("user-mutations", () => {
 
     await expect(
       updateUserRole(
-        { id: "admin-1", email: "admin@example.com", role: "admin" },
+        { id: "admin-1", email: "admin@example.com", role: "admin", accountStatus: "approved", requestedRole: null },
         "507f1f77bcf86cd799439011",
         "client",
       ),
@@ -105,7 +105,7 @@ describe("user-mutations", () => {
     );
 
     await updateUserActiveStatus(
-      { id: "admin-1", email: "admin@example.com", role: "admin" },
+      { id: "admin-1", email: "admin@example.com", role: "admin", accountStatus: "approved", requestedRole: null },
       "507f1f77bcf86cd799439011",
       false,
     );
@@ -127,7 +127,7 @@ describe("user-mutations", () => {
     );
 
     await updateUserActiveStatus(
-      { id: "admin-1", email: "admin@example.com", role: "admin" },
+      { id: "admin-1", email: "admin@example.com", role: "admin", accountStatus: "approved", requestedRole: null },
       "507f1f77bcf86cd799439011",
       true,
     );

@@ -11,6 +11,7 @@ type AdminDashboardAttentionProps = {
   quoteChangeRequestedCount: number;
   quoteAwaitingArchitectCount: number;
   pendingArchitectRequestCount: number;
+  pendingClientRequestCount: number;
 };
 
 export default function AdminDashboardAttention({
@@ -23,6 +24,7 @@ export default function AdminDashboardAttention({
   quoteChangeRequestedCount,
   quoteAwaitingArchitectCount,
   pendingArchitectRequestCount,
+  pendingClientRequestCount,
 }: AdminDashboardAttentionProps) {
   return (
     <section className={styles.section} aria-labelledby="dashboard-attention-title">
@@ -48,6 +50,18 @@ export default function AdminDashboardAttention({
             </Link>
           ) : (
             <span className={styles.empty}>אין פרויקטים פעילים</span>
+          )}
+        </li>
+
+        <li className={styles.item}>
+          {pendingClientRequestCount > 0 ? (
+            <Link href="/admin/client-requests" className={styles.link}>
+              בקשות לקוח שממתינות לטיפול: {pendingClientRequestCount}
+            </Link>
+          ) : (
+            <span className={styles.empty}>
+              אין כרגע בקשות לקוח ממתינות
+            </span>
           )}
         </li>
 

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { logoutAction } from "@/lib/auth/logout-action";
+import { canAccessArchitectWorkspace, canAccessClientWorkspace } from "@/lib/auth/account-access";
 import type { SafeUser } from "@/types/user";
 import styles from "./HeaderAccount.module.scss";
 
@@ -21,6 +22,11 @@ export default function HeaderAccount({ user }: HeaderAccountProps) {
     );
   }
 
+  const showClientLink = canAccessClientWorkspace(user);
+  const showArchitectLink = canAccessArchitectWorkspace(user);
+  const showAccountStatusLink =
+    !showClientLink && !showArchitectLink && user.role !== "admin";
+
   return (
     <div className={styles.auth}>
       <span className={styles.accountLabel}>החשבון שלי</span>
@@ -29,14 +35,19 @@ export default function HeaderAccount({ user }: HeaderAccountProps) {
           ניהול
         </Link>
       )}
-      {user.role === "architect" && (
+      {showArchitectLink && (
         <Link href="/professional" className={styles.professionalLink}>
           אזור אדריכל
         </Link>
       )}
-      {user.role === "client" && (
+      {showClientLink && (
         <Link href="/client" className={styles.clientLink}>
           אזור לקוח
+        </Link>
+      )}
+      {showAccountStatusLink && (
+        <Link href="/account/status" className={styles.link}>
+          סטטוס חשבון
         </Link>
       )}
       <form action={logoutAction}>

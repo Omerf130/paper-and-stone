@@ -3,6 +3,10 @@
 import Link from "next/link";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import type { NavItem } from "@/config/navigation";
+import {
+  canAccessArchitectWorkspace,
+  canAccessClientWorkspace,
+} from "@/lib/auth/account-access";
 import type { SafeUser } from "@/types/user";
 import PublicNavItem from "./PublicNavItem";
 import { CloseIcon, MenuIcon } from "./icons";
@@ -53,6 +57,14 @@ export default function MobileMenu({
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, [isOpen, closeMenu]);
+
+  const showClientLink = user ? canAccessClientWorkspace(user) : false;
+  const showArchitectLink = user ? canAccessArchitectWorkspace(user) : false;
+  const showAccountStatusLink =
+    user !== null &&
+    !showClientLink &&
+    !showArchitectLink &&
+    user.role !== "admin";
 
   return (
     <div className={styles.mobileMenu}>
@@ -108,14 +120,19 @@ export default function MobileMenu({
                       ניהול
                     </Link>
                   )}
-                  {user.role === "architect" && (
+                  {showArchitectLink && (
                     <Link href="/professional" className={styles.authLink}>
                       אזור אדריכל
                     </Link>
                   )}
-                  {user.role === "client" && (
+                  {showClientLink && (
                     <Link href="/client" className={styles.authLink}>
                       אזור לקוח
+                    </Link>
+                  )}
+                  {showAccountStatusLink && (
+                    <Link href="/account/status" className={styles.authLink}>
+                      סטטוס חשבון
                     </Link>
                   )}
                   <form action={logoutAction}>

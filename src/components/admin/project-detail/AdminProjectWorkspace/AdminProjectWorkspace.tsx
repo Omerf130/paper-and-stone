@@ -93,6 +93,16 @@ export default function AdminProjectWorkspace({
               : ""}
           </p>
         ) : null}
+        {project.workflowAttentionSummary &&
+        project.workflowAttentionSummary.length > 0 ? (
+          <ul className={styles.attentionList} aria-label="טיפול תפעולי במוצרים">
+            {project.workflowAttentionSummary.map((line) => (
+              <li key={line.status}>
+                <StatusBadge tone="warning">{line.label}</StatusBadge>
+              </li>
+            ))}
+          </ul>
+        ) : null}
       </header>
 
       <section className={styles.people} aria-labelledby="project-people-title">

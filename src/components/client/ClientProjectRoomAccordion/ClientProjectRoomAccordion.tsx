@@ -4,15 +4,20 @@ import { useId, useState } from "react";
 import ClientProjectItemCard from "@/components/client/ClientProjectItemCard/ClientProjectItemCard";
 import { formatIlsAgorot } from "@/lib/money/format-ils";
 import type { ClientApprovedProjectRoomView } from "@/types/client-approved-project";
+import type { ClientProjectItemWorkflowStatusView } from "@/types/client-project";
 import styles from "./ClientProjectRoomAccordion.module.scss";
 
 type ClientProjectRoomAccordionProps = {
+  projectId: string;
   rooms: ClientApprovedProjectRoomView[];
+  workflowByItemId?: Record<string, ClientProjectItemWorkflowStatusView>;
   defaultOpenRoomId?: string | null;
 };
 
 export default function ClientProjectRoomAccordion({
+  projectId,
   rooms,
+  workflowByItemId = {},
   defaultOpenRoomId,
 }: ClientProjectRoomAccordionProps) {
   const baseId = useId();
@@ -56,7 +61,11 @@ export default function ClientProjectRoomAccordion({
                 <ul className={styles.itemList}>
                   {room.items.map((item) => (
                     <li key={item.projectItemId}>
-                      <ClientProjectItemCard item={item} />
+                      <ClientProjectItemCard
+                        item={item}
+                        projectId={projectId}
+                        workflow={workflowByItemId[item.projectItemId]}
+                      />
                     </li>
                   ))}
                 </ul>

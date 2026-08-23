@@ -6,6 +6,11 @@ import Product from "@/models/Product";
 import Category from "@/models/Category";
 import type { IProject } from "@/models/Project";
 import {
+  ARCHITECT_WORKSPACE_EDITABLE_STATUS_FILTER,
+  isProjectItemEditable,
+  usesRoomBasedWorkspace,
+} from "@/lib/projects/project-workspace-gates";
+import {
   mapProjectToDetailView,
   mapProjectToListItemView,
   mapProjectToOptionView,
@@ -76,6 +81,29 @@ export async function getProfessionalProjectOptions(
   return projects.map((project) =>
     mapProjectToOptionView(project as IProject),
   );
+}
+
+/** Architect-owned projects eligible for direct Product-page add (matches workspace gates). */
+export async function getArchitectEditableProjectOptions(
+  ownerUserId: string,
+): Promise<ProjectOptionView[]> {
+  await connectDB();
+
+  const projects = await Project.find({
+    ownerUserId: new Types.ObjectId(ownerUserId),
+    onboardingStatus: "active",
+    status: ARCHITECT_WORKSPACE_EDITABLE_STATUS_FILTER,
+  })
+    .select("_id name status onboardingStatus")
+    .sort({ updatedAt: -1 })
+    .lean();
+
+  return projects
+    .filter(
+      (project) =>
+        usesRoomBasedWorkspace(project) && isProjectItemEditable(project),
+    )
+    .map((project) => mapProjectToOptionView(project as IProject));
 }
 
 export async function getOwnedProjectById(

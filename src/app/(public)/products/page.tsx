@@ -4,16 +4,22 @@ import Section from "@/components/Section/Section";
 import CatalogEmptyState from "@/components/catalog/CatalogEmptyState/CatalogEmptyState";
 import CatalogHero from "@/components/catalog/CatalogHero/CatalogHero";
 import CatalogPagination from "@/components/catalog/CatalogPagination";
+import CatalogProjectContextBanner from "@/components/catalog/CatalogProjectContextBanner/CatalogProjectContextBanner";
 import CatalogResultSummary from "@/components/catalog/CatalogResultSummary";
 import CatalogToolbar from "@/components/catalog/CatalogToolbar/CatalogToolbar";
 import ProductCatalogGrid from "@/components/catalog/ProductCatalogGrid";
 import {
+  catalogParamsToHrefInput,
   hasCatalogFilters,
+  hasCatalogProjectContext,
   parseCatalogParams,
 } from "@/lib/catalog/catalog-params";
 import { getCatalogEmptyState } from "@/lib/catalog/get-catalog-empty-state";
 import { getPublicCategories } from "@/lib/catalog/getPublicCategories";
 import { getPublicCatalogPageContent } from "@/lib/cms/get-public-catalog-page-content";
+import { canAccessArchitectWorkspace } from "@/lib/auth/account-access";
+import { getCurrentUser } from "@/lib/auth/current-user";
+import { getArchitectCatalogProjectContext } from "@/lib/projects/get-architect-catalog-project-context";
 import { getPublicProducts } from "@/lib/products/getPublicProducts";
 
 export const metadata: Metadata = {
@@ -39,6 +45,18 @@ export default async function ProductsCatalogPage({
 }: ProductsCatalogPageProps) {
   const resolvedSearchParams = await searchParams;
   const catalogParams = parseCatalogParams(resolvedSearchParams);
+  const hrefInput = catalogParamsToHrefInput(catalogParams);
+  const user = await getCurrentUser();
+
+  const projectContext =
+    hasCatalogProjectContext(catalogParams) &&
+    user &&
+    canAccessArchitectWorkspace(user)
+      ? await getArchitectCatalogProjectContext(user.id, {
+          projectId: catalogParams.projectId,
+          roomId: catalogParams.roomId,
+        })
+      : null;
 
   const [categories, catalogResult, catalogContent] = await Promise.all([
     getPublicCategories(),
@@ -54,6 +72,8 @@ export default async function ProductsCatalogPage({
     query: catalogResult.appliedFilters.query,
     categorySlug: catalogResult.appliedFilters.categorySlug,
     page: catalogResult.page,
+    projectId: catalogParams.projectId,
+    roomId: catalogParams.roomId,
   });
 
   const categoryName = resolveCategoryName(
@@ -72,12 +92,17 @@ export default async function ProductsCatalogPage({
   return (
     <Section contained={false}>
       <Container variant="wide">
+        {projectContext ? (
+          <CatalogProjectContextBanner context={projectContext} />
+        ) : null}
+
         <CatalogHero content={catalogContent} />
 
         <CatalogToolbar
           query={catalogResult.appliedFilters.query}
           categorySlug={catalogResult.appliedFilters.categorySlug}
           categories={categories}
+          hrefInput={projectContext ? hrefInput : undefined}
         />
 
         {catalogResult.total > 0 ? (
@@ -93,12 +118,16 @@ export default async function ProductsCatalogPage({
 
         {catalogResult.products.length > 0 ? (
           <>
-            <ProductCatalogGrid products={catalogResult.products} />
+            <ProductCatalogGrid
+              products={catalogResult.products}
+              hrefInput={projectContext ? hrefInput : undefined}
+            />
             <CatalogPagination
               page={catalogResult.page}
               totalPages={catalogResult.totalPages}
               query={catalogResult.appliedFilters.query}
               categorySlug={catalogResult.appliedFilters.categorySlug}
+              hrefInput={projectContext ? hrefInput : undefined}
             />
           </>
         ) : null}

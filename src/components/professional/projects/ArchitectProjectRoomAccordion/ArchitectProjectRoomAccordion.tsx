@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useState } from "react";
 import Button from "@/components/ui/Button/Button";
+import { buildCatalogHref } from "@/lib/catalog/catalog-params";
 import ArchitectProjectItemCard from "@/components/professional/projects/ArchitectProjectItemCard/ArchitectProjectItemCard";
 import LayeredPricingTotalsSummary, {
   getRoomArchitectTotalFormattedFromArchitectItems,
@@ -22,7 +23,6 @@ type ArchitectProjectRoomAccordionProps = {
   productThumbnailsById: Record<string, ProductThumbnailView>;
   productViewsById: Record<string, ProductView>;
   isEditable: boolean;
-  onAddProduct?: (roomId: string) => void;
   onMoveItem: (itemId: string) => void;
   onRemoveItem: (itemId: string) => void;
   defaultOpenRoomId?: string | null;
@@ -36,7 +36,6 @@ export default function ArchitectProjectRoomAccordion({
   productThumbnailsById,
   productViewsById,
   isEditable,
-  onAddProduct,
   onMoveItem,
   onRemoveItem,
   defaultOpenRoomId,
@@ -87,6 +86,16 @@ export default function ArchitectProjectRoomAccordion({
     });
   };
 
+  const renderAddProductLink = (roomId: string) => (
+    <Button
+      variant="secondary"
+      size="sm"
+      href={buildCatalogHref({ projectId, roomId })}
+    >
+      + הוספת מוצר
+    </Button>
+  );
+
   return (
     <div className={styles.accordion}>
       {sortedRooms.map((room) => {
@@ -123,15 +132,9 @@ export default function ArchitectProjectRoomAccordion({
 
             {isOpen ? (
               <div id={panelId} className={styles.roomPanel}>
-                {isEditable && onAddProduct ? (
+                {isEditable ? (
                   <div className={styles.roomActions}>
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      onClick={() => onAddProduct(room.id)}
-                    >
-                      + הוספת מוצר
-                    </Button>
+                    {renderAddProductLink(room.id)}
                   </div>
                 ) : null}
 
@@ -159,15 +162,7 @@ export default function ArchitectProjectRoomAccordion({
                 ) : (
                   <div className={styles.emptyRoom}>
                     <p>אין מוצרים בחדר זה.</p>
-                    {isEditable && onAddProduct ? (
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        onClick={() => onAddProduct(room.id)}
-                      >
-                        + הוספת מוצר
-                      </Button>
-                    ) : null}
+                    {isEditable ? renderAddProductLink(room.id) : null}
                   </div>
                 )}
 
@@ -177,7 +172,7 @@ export default function ArchitectProjectRoomAccordion({
                     architectTotalFormatted={architectTotal}
                     unpricedItemCount={attention.incompleteItemCount}
                     staleItemCount={attention.staleClientPriceCount}
-                    idPrefix={`arch-room-${room.id}`}
+                    idPrefix={`room-${room.id}`}
                   />
                 ) : null}
               </div>

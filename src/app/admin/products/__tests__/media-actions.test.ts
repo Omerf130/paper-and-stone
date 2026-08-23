@@ -53,6 +53,8 @@ describe("media-actions", () => {
       id: "admin",
       email: "admin@test.com",
       role: "admin" as const,
+      accountStatus: "approved" as const,
+      requestedRole: null,
     }));
     const { deletePrimaryImage } = await import(
       "@/lib/media/product-media-mutations"

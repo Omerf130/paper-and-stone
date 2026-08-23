@@ -67,7 +67,7 @@ export async function approveArchitectRequest(
 
   const result = await User.updateOne(
     { _id: userId },
-    { $set: { role: "architect", requestedRole: null } },
+    { $set: { role: "architect", requestedRole: null, accountStatus: "approved" } },
   );
 
   if (result.matchedCount === 0) {
@@ -86,7 +86,13 @@ export async function declineArchitectRequest(
 
   const result = await User.updateOne(
     { _id: userId },
-    { $set: { requestedRole: null, role: normalizeUserRole(user.role) === "client" ? "client" : user.role } },
+    {
+      $set: {
+        requestedRole: null,
+        role: normalizeUserRole(user.role) === "client" ? "client" : user.role,
+        accountStatus: "rejected",
+      },
+    },
   );
 
   if (result.matchedCount === 0) {

@@ -13,10 +13,10 @@ import EmptyState from "@/components/ui/EmptyState/EmptyState";
 import StatusBadge from "@/components/ui/StatusBadge/StatusBadge";
 import { useToast } from "@/components/ui/Toast/ToastProvider";
 import ProjectMoveItemDialog from "@/components/professional/projects/ProjectMoveItemDialog/ProjectMoveItemDialog";
-import ProjectProductPicker from "@/components/professional/projects/ProjectProductPicker/ProjectProductPicker";
 import ProjectRoomCreateDialog from "@/components/professional/projects/ProjectRoomCreateDialog/ProjectRoomCreateDialog";
 import { getArchitectPricingAttentionFromItems } from "@/lib/pricing/architect-pricing-attention";
 import { getCommercialDirtyLabel } from "@/lib/projects/project-status-presentation";
+import { getArchitectWorkflowAttentionSummary } from "@/lib/project-items/project-item-workflow-attention";
 import { getArchitectProjectAttentionLabels } from "@/lib/projects/architect-project-attention";
 import {
   mapOnboardingStatusToBadge,
@@ -47,13 +47,13 @@ export default function ArchitectProjectWorkspace({
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [removeItemId, setRemoveItemId] = useState<string | null>(null);
   const [moveItemId, setMoveItemId] = useState<string | null>(null);
-  const [pickerRoomId, setPickerRoomId] = useState<string | null>(null);
 
   const rooms = project.rooms;
   const isEditable = project.isRoomEditable && !readOnly;
   const pricingSettings = project.pricingSettings!;
   const pricingTotals = project.pricingTotals;
   const attentionLabels = getArchitectProjectAttentionLabels(project);
+  const workflowAttention = getArchitectWorkflowAttentionSummary(project.items);
   const pricingAttention = getArchitectPricingAttentionFromItems(project.items);
   const clientLabel =
     project.assignedClientFullName ?? project.clientName ?? "—";
@@ -142,6 +142,24 @@ export default function ArchitectProjectWorkspace({
               : ""}
           </p>
         ) : null}
+        {workflowAttention.actionRequired.length > 0 ? (
+          <ul className={styles.attentionList} aria-label="טיפול תפעולי במוצרים">
+            {workflowAttention.actionRequired.map((line) => (
+              <li key={line.status}>
+                <StatusBadge tone="warning">{line.label}</StatusBadge>
+              </li>
+            ))}
+          </ul>
+        ) : null}
+        {workflowAttention.informational.length > 0 ? (
+          <ul className={styles.attentionList} aria-label="ממתין ללקוח">
+            {workflowAttention.informational.map((line) => (
+              <li key={line.status}>
+                <StatusBadge tone="info">{line.label}</StatusBadge>
+              </li>
+            ))}
+          </ul>
+        ) : null}
       </header>
 
       <ArchitectProjectPricingSettings
@@ -188,7 +206,6 @@ export default function ArchitectProjectWorkspace({
             productThumbnailsById={productThumbnailsById}
             productViewsById={productViewsById}
             isEditable={isEditable}
-            onAddProduct={isEditable ? setPickerRoomId : undefined}
             onMoveItem={setMoveItemId}
             onRemoveItem={setRemoveItemId}
           />
@@ -266,15 +283,6 @@ export default function ArchitectProjectWorkspace({
           rooms={rooms}
           open={moveItemId !== null}
           onClose={() => setMoveItemId(null)}
-        />
-      ) : null}
-
-      {pickerRoomId ? (
-        <ProjectProductPicker
-          projectId={project.id}
-          roomId={pickerRoomId}
-          open={pickerRoomId !== null}
-          onClose={() => setPickerRoomId(null)}
         />
       ) : null}
     </div>

@@ -48,6 +48,8 @@ describe("saveHomepageHeroAction", () => {
       id: "507f1f77bcf86cd799439011",
       email: "admin@example.com",
       role: "admin",
+      accountStatus: "approved",
+      requestedRole: null,
     });
 
     const { saveHomepageHeroAction } = await import(

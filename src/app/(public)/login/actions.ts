@@ -5,7 +5,9 @@ import { AUTH_ERRORS } from "@/lib/auth/errors";
 import { createSession } from "@/lib/auth/session";
 import { authenticateUser } from "@/lib/auth/user-service";
 import { normalizeUserRole } from "@/lib/auth/user-role";
-import { resolvePostAuthRedirect } from "@/lib/auth/post-auth-redirect";
+import { resolvePostAuthDestination } from "@/lib/auth/account-access";
+import { resolveSafeNextUrl } from "@/lib/auth/safe-next-url";
+import { normalizeAccountStatus, isUserAccountApproved } from "@/lib/users/account-status";
 import {
   type AuthFormState,
   formatZodErrors,
@@ -32,5 +34,14 @@ export async function loginAction(
   }
 
   await createSession(user._id.toString());
-  redirect(resolvePostAuthRedirect(normalizeUserRole(user.role)));
+
+  const next = resolveSafeNextUrl(formData.get("next")?.toString());
+  const accountStatus = normalizeAccountStatus(user.accountStatus);
+  const role = normalizeUserRole(user.role);
+
+  if (next && isUserAccountApproved({ accountStatus })) {
+    redirect(next);
+  }
+
+  redirect(resolvePostAuthDestination({ role, accountStatus }));
 }

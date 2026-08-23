@@ -68,6 +68,13 @@
   color: $color-text-secondary;
 }
 
+.reviewAttention {
+  margin: 0;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-warning-text;
+}
+
 .unread {
   margin: 0;
   font-size: $font-size-sm;

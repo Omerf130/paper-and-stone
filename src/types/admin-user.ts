@@ -1,4 +1,5 @@
 import type { RequestedRole, UserRole } from "@/types/user";
+import type { AccountStatus } from "@/lib/users/account-status";
 
 export type AdminUserListItem = {
   id: string;
@@ -7,6 +8,7 @@ export type AdminUserListItem = {
   identificationNumber?: string | null;
   role: UserRole;
   requestedRole?: RequestedRole;
+  accountStatus: AccountStatus;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -19,6 +21,18 @@ export type ArchitectRequestListItem = {
   identificationNumber?: string | null;
   role: UserRole;
   requestedRole: "architect";
+  isActive: boolean;
+  createdAt: string;
+};
+
+export type ClientRequestListItem = {
+  id: string;
+  email: string;
+  fullName?: string | null;
+  identificationNumber?: string | null;
+  role: UserRole;
+  requestedRole: RequestedRole;
+  accountStatus: AccountStatus;
   isActive: boolean;
   createdAt: string;
 };

@@ -25,6 +25,7 @@ export async function createRegisteredUser(
     identificationNumber: input.identificationNumber,
     role: "client",
     requestedRole,
+    accountStatus: "pending",
     isActive: true,
   });
 }

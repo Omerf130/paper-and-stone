@@ -123,6 +123,18 @@ function mockArchitectLookup() {
 }
 
 
+vi.mock("@/lib/project-items/get-project-item-workflow-settings", () => ({
+  getProjectItemWorkflowSettings: vi.fn().mockResolvedValue({
+    transitions: [
+      {
+        from: "client_review",
+        to: "client_approved",
+        allowedRoles: ["client"],
+      },
+    ],
+  }),
+}));
+
 describe("client project queries", () => {
   beforeEach(() => {
     projectFindMock.mockReset();
@@ -257,6 +269,36 @@ describe("client project queries", () => {
       lean: vi.fn().mockResolvedValue(buildSnapshot(1)),
     });
 
+    const snapshot = buildSnapshot(1);
+    const snapshotItemId = snapshot.rooms[0]?.items[0]?.projectItemId;
+
+    projectFindOneMock
+      .mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          lean: vi.fn().mockResolvedValue(project),
+        }),
+      })
+      .mockReturnValueOnce({
+        select: vi.fn().mockResolvedValue({
+          items: [
+            {
+              _id: snapshotItemId,
+              status: "client_approved",
+            },
+          ],
+        }),
+      })
+      .mockReturnValueOnce({
+        select: vi.fn().mockResolvedValue({
+          items: [
+            {
+              _id: snapshotItemId,
+              status: "client_approved",
+            },
+          ],
+        }),
+      });
+
     const { getClientProjectDetail } = await import(
       "@/lib/client-projects/getClientProjectDetail"
     );
@@ -270,6 +312,8 @@ describe("client project queries", () => {
       expect(detail.snapshot.rooms[0]?.items[0]?.productName).toBe("Chair");
       expect(detail.roomCount).toBe(1);
       expect(detail.productCount).toBe(1);
+      expect(detail.workflowByItemId).toBeDefined();
+      expect(detail.pendingReviewCount).toBe(0);
     }
   });
 

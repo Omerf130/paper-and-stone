@@ -23,6 +23,7 @@ export type AdminDashboardData = {
   quoteChangeRequestedCount: number;
   quoteAwaitingArchitectCount: number;
   pendingArchitectRequestCount: number;
+  pendingClientRequestCount: number;
   metrics: AdminDashboardMetrics;
   recentSubmittedProjects: AdminDashboardRecentProject[];
 };

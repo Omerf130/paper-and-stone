@@ -132,7 +132,11 @@ export default function AddToProjectDialog({
       }
 
       setSuccessMessage("המוצר נוסף לפרויקט.");
-      router.refresh();
+      const destination = requiresRoom
+        ? `/professional/projects/${selectedProjectId}?room=${selectedRoomId}`
+        : `/professional/projects/${selectedProjectId}`;
+      router.push(destination);
+      onClose();
     });
   };
 

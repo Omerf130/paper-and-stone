@@ -1,5 +1,7 @@
 import mongoose, { Schema, type Document, type Model } from "mongoose";
 import type { RequestedRole, StoredUserRole } from "@/types/user";
+import type { AccountStatus } from "@/lib/users/account-status";
+import { ACCOUNT_STATUSES } from "@/lib/users/account-status";
 
 export interface IUser extends Document {
   email: string;
@@ -8,6 +10,7 @@ export interface IUser extends Document {
   fullName?: string;
   identificationNumber?: string;
   requestedRole?: RequestedRole;
+  accountStatus?: AccountStatus;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -37,12 +40,17 @@ const userSchema = new Schema<IUser>(
       enum: ["architect", null],
       default: null,
     },
+    accountStatus: {
+      type: String,
+      enum: ACCOUNT_STATUSES,
+    },
     isActive: { type: Boolean, default: true },
   },
   { timestamps: true },
 );
 
 userSchema.index({ role: 1, requestedRole: 1, isActive: 1 });
+userSchema.index({ role: 1, accountStatus: 1, requestedRole: 1, createdAt: -1 });
 
 const User: Model<IUser> =
   mongoose.models.User ?? mongoose.model<IUser>("User", userSchema);

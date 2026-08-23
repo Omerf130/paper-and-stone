@@ -15,8 +15,8 @@ import ProjectItemEditor from "@/components/professional/projects/ProjectItemEdi
 import ProfessionalProjectItemRow from "@/components/professional/projects/ProfessionalProjectItemRow/ProfessionalProjectItemRow";
 import ArchitectProjectPricingSettings from "@/components/professional/projects/ArchitectProjectPricingSettings/ArchitectProjectPricingSettings";
 import ArchitectProjectItemPricing from "@/components/professional/projects/ArchitectProjectItemPricing/ArchitectProjectItemPricing";
+import { buildCatalogHref } from "@/lib/catalog/catalog-params";
 import ProjectMoveItemDialog from "@/components/professional/projects/ProjectMoveItemDialog/ProjectMoveItemDialog";
-import ProjectProductPicker from "@/components/professional/projects/ProjectProductPicker/ProjectProductPicker";
 import ProjectRoomCreateDialog from "@/components/professional/projects/ProjectRoomCreateDialog/ProjectRoomCreateDialog";
 import ProjectRoomNav from "@/components/professional/projects/ProjectRoomNav/ProjectRoomNav";
 import ProjectRoomRenameDialog from "@/components/professional/projects/ProjectRoomRenameDialog/ProjectRoomRenameDialog";
@@ -45,7 +45,6 @@ export default function ProjectRoomWorkspace({
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [renameRoom, setRenameRoom] = useState<ProjectRoomView | null>(null);
   const [deleteRoom, setDeleteRoom] = useState<ProjectRoomView | null>(null);
-  const [pickerOpen, setPickerOpen] = useState(false);
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
   const [removeItemId, setRemoveItemId] = useState<string | null>(null);
   const [moveItemId, setMoveItemId] = useState<string | null>(null);
@@ -239,12 +238,15 @@ export default function ProjectRoomWorkspace({
           {selectedRoom ? (
             <header className={styles.roomHeader}>
               <h3 className={styles.roomTitle}>{selectedRoom.name}</h3>
-              {isEditable ? (
+              {isEditable && selectedRoomId ? (
                 <Button
                   variant="secondary"
                   size="sm"
-                  onClick={() => setPickerOpen(true)}
-                  disabled={isPending || !selectedRoomId}
+                  href={buildCatalogHref({
+                    projectId: project.id,
+                    roomId: selectedRoomId,
+                  })}
+                  disabled={isPending}
                 >
                   + הוספת מוצר
                 </Button>
@@ -261,7 +263,10 @@ export default function ProjectRoomWorkspace({
                   <Button
                     variant="secondary"
                     size="sm"
-                    onClick={() => setPickerOpen(true)}
+                    href={buildCatalogHref({
+                      projectId: project.id,
+                      roomId: selectedRoomId,
+                    })}
                   >
                     + הוספת מוצר
                   </Button>
@@ -391,15 +396,6 @@ export default function ProjectRoomWorkspace({
           rooms={rooms}
           open={moveItemId !== null}
           onClose={() => setMoveItemId(null)}
-        />
-      ) : null}
-
-      {selectedRoomId && isEditable ? (
-        <ProjectProductPicker
-          projectId={project.id}
-          roomId={selectedRoomId}
-          open={pickerOpen}
-          onClose={() => setPickerOpen(false)}
         />
       ) : null}
     </>

@@ -17,6 +17,7 @@ export function mapClientProjectListItemView(input: {
   snapshot?: ClientApprovedProjectView | null;
   architectFullName: string;
   unreadMessageCount?: number;
+  pendingReviewCount?: number;
 }): ClientProjectListItemView {
   const hasApprovedSnapshot = input.snapshot != null;
   const isApprovedContentUnavailable =
@@ -37,6 +38,7 @@ export function mapClientProjectListItemView(input: {
     architectFullName: input.architectFullName,
     hasApprovedSnapshot,
     unreadMessageCount: input.unreadMessageCount,
+    pendingReviewCount: input.pendingReviewCount,
   };
 
   if (!input.snapshot) {

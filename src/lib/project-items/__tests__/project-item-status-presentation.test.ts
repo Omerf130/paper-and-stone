@@ -18,9 +18,13 @@ describe("project-item-status-presentation", () => {
     expect(getProjectItemStatusPresentation("hidden", "client").label).toBe("בתהליך");
   });
 
-  it("documents hidden as operational-only, not client visibility", () => {
-    expect(getProjectItemStatusPresentation("hidden", "admin").description).toContain(
-      "נראות הלקוח",
+  it("uses updated client-facing labels", () => {
+    expect(getProjectItemStatusPresentation("client_approved", "client").label).toBe(
+      "אושר על ידך",
     );
+    expect(getProjectItemStatusPresentation("client_rejected", "client").label).toBe(
+      "נדחה על ידך",
+    );
+    expect(getProjectItemStatusPresentation("resubmit", "client").label).toBe("בטיפול");
   });
 });

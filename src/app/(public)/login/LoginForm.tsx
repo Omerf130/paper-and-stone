@@ -10,6 +10,10 @@ import styles from "./page.module.scss";
 
 const initialState: AuthFormState = {};
 
+type LoginFormProps = {
+  next?: string | null;
+};
+
 function SubmitButton() {
   const { pending } = useFormStatus();
 
@@ -24,11 +28,16 @@ function SubmitButton() {
   );
 }
 
-export default function LoginForm() {
+export default function LoginForm({ next }: LoginFormProps) {
   const [state, formAction] = useActionState(loginAction, initialState);
+  const registerHref = next
+    ? `/register?next=${encodeURIComponent(next)}`
+    : "/register";
 
   return (
     <form action={formAction} className={authFormStyles.form} noValidate>
+      {next ? <input type="hidden" name="next" value={next} /> : null}
+
       {state.error && (
         <p className={authFormStyles.formError} role="alert">
           {state.error}
@@ -85,7 +94,7 @@ export default function LoginForm() {
 
       <p className={styles.switch}>
         אין לכם חשבון?{" "}
-        <Link href="/register" className={styles.switchLink}>
+        <Link href={registerHref} className={styles.switchLink}>
           הרשמה
         </Link>
       </p>

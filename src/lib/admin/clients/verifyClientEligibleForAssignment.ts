@@ -2,6 +2,7 @@ import { Types } from "mongoose";
 import { connectDB } from "@/lib/db/mongoose";
 import User from "@/models/User";
 import { isClientRole, normalizeUserRole } from "@/lib/auth/user-role";
+import { isUserAccountApproved } from "@/lib/users/account-status";
 import { ProjectMutationError } from "@/lib/projects/project-errors";
 
 export const CLIENT_ASSIGNMENT_ERRORS = {
@@ -20,7 +21,12 @@ export async function verifyClientEligibleForAssignment(
 
   const user = await User.findById(clientUserId);
 
-  if (!user || !user.isActive || !isClientRole(user.role)) {
+  if (
+    !user ||
+    !user.isActive ||
+    !isClientRole(user.role) ||
+    !isUserAccountApproved(user)
+  ) {
     throw new ProjectMutationError(CLIENT_ASSIGNMENT_ERRORS.NOT_ELIGIBLE);
   }
 

@@ -69,7 +69,18 @@
 }
 
 .workflowState {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: $spacing-xs;
   flex-shrink: 0;
+}
+
+.workflowContext {
+  margin: 0;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  text-align: end;
 }
 
 .cardDivider {

@@ -7,6 +7,7 @@ import type { ArchitectRequestListItem } from "@/types/admin-user";
 const PENDING_ARCHITECT_REQUEST_FILTER = {
   role: CLIENT_ROLE_FILTER,
   requestedRole: "architect" as const,
+  accountStatus: "pending" as const,
   isActive: true,
 };
 

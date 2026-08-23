@@ -1,13 +1,16 @@
 import styles from "./CatalogSearchForm.module.scss";
+import type { CatalogHrefInput } from "@/lib/catalog/catalog-params";
 
 type CatalogSearchFormProps = {
   query: string | null;
   categorySlug: string | null;
+  hrefInput?: CatalogHrefInput;
 };
 
 export default function CatalogSearchForm({
   query,
   categorySlug,
+  hrefInput,
 }: CatalogSearchFormProps) {
   return (
     <form method="get" action="/products" className={styles.form}>
@@ -25,6 +28,12 @@ export default function CatalogSearchForm({
         />
         {categorySlug ? (
           <input type="hidden" name="category" value={categorySlug} />
+        ) : null}
+        {hrefInput?.projectId ? (
+          <input type="hidden" name="project" value={hrefInput.projectId} />
+        ) : null}
+        {hrefInput?.roomId ? (
+          <input type="hidden" name="room" value={hrefInput.roomId} />
         ) : null}
         <button type="submit" className={styles.button}>
           חיפוש

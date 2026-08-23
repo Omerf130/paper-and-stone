@@ -26,8 +26,17 @@ export {
 
 export type { AdminProjectAttentionReason } from "@/lib/projects/admin-project-attention-labels";
 export { ADMIN_PROJECT_ATTENTION_LABELS } from "@/lib/projects/admin-project-attention-labels";
+import {
+  ADMIN_WORKFLOW_ATTENTION_STATUSES,
+  getAdminWorkflowAttentionSummary,
+  projectHasAdminWorkflowAttention,
+  type WorkflowAttentionSummaryLine,
+} from "@/lib/project-items/project-item-workflow-attention";
 import type { AdminProjectAttentionReason } from "@/lib/projects/admin-project-attention-labels";
 import { ADMIN_PROJECT_ATTENTION_LABELS } from "@/lib/projects/admin-project-attention-labels";
+
+export type { WorkflowAttentionSummaryLine };
+export { getAdminWorkflowAttentionSummary };
 
 export function getProjectPricingAttention(
   items: IProjectItem[],
@@ -73,6 +82,10 @@ export function getAdminProjectAttentionReasons(
     if (attention.staleClientPriceCount > 0) {
       reasons.push("stale_client_prices");
     }
+  }
+
+  if (projectHasAdminWorkflowAttention(project.items)) {
+    reasons.push("product_workflow_attention");
   }
 
   return reasons;
@@ -129,6 +142,13 @@ export function buildAdminProjectAttentionFilter(): Record<string, unknown> {
       {
         onboardingStatus: "active",
         items: { $elemMatch: { "pricing.clientPriceStale": true } },
+      },
+      {
+        items: {
+          $elemMatch: {
+            status: { $in: [...ADMIN_WORKFLOW_ATTENTION_STATUSES] },
+          },
+        },
       },
     ],
   };

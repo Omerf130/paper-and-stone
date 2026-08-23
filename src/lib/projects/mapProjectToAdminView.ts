@@ -15,6 +15,9 @@ import {
 } from "@/lib/pricing/pricing-view-mappers";
 import { getCommercialApprovalBlockedReason } from "@/lib/client-snapshots/client-snapshot-gates";
 import {
+  getAdminWorkflowAttentionSummary,
+} from "@/lib/project-items/project-item-workflow-attention";
+import {
   getAdminProjectAttentionLabels,
   getAdminPricingRoundPresentationForProject,
   getProjectPricingAttention,
@@ -53,6 +56,7 @@ export async function mapLeanProjectToAdminListItem(
     pricingAttention: getProjectPricingAttention(project.items),
     pricingStateLabel:
       getAdminPricingRoundPresentationForProject(project)?.listBadgeLabel ?? null,
+    workflowAttentionSummary: getAdminWorkflowAttentionSummary(project.items),
   };
 }
 
@@ -120,6 +124,7 @@ export async function mapLeanProjectToAdminDetailView(
     updatedAt: project.updatedAt.toISOString(),
     attentionReasons: getAdminProjectAttentionLabels(project),
     pricingAttention: getProjectPricingAttention(project.items),
+    workflowAttentionSummary: getAdminWorkflowAttentionSummary(project.items),
     ...(layeredPricing
       ? {
           pricingSettings: mapProjectPricingSettingsView(project),

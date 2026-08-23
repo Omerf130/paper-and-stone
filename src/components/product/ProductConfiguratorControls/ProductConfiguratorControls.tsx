@@ -1,8 +1,11 @@
 "use client";
 
+import Link from "next/link";
+import { useState, useTransition } from "react";
 import Button from "@/components/Button/Button";
 import AddToProjectDialog from "@/components/product/AddToProjectDialog/AddToProjectDialog";
 import ProductOptionGroup from "@/components/product/ProductOptionGroup/ProductOptionGroup";
+import { addProductFromCatalogContextAction } from "@/app/professional/projects/actions";
 import { formatProductSelectionSummary } from "@/lib/products/format-product-selection-summary";
 import {
   MAX_PRODUCT_QUANTITY,
@@ -10,23 +13,35 @@ import {
 } from "@/lib/products/useProductConfiguratorState";
 import type { ProductView } from "@/types/product";
 import type { ProjectOptionView } from "@/types/project";
+import type { ArchitectCatalogProjectContextView } from "@/types/architect-catalog-context";
 import styles from "./ProductConfiguratorControls.module.scss";
 
 type ProductConfiguratorControlsProps = {
   product: ProductView;
   state: ProductConfiguratorState;
-  canAddToProject?: boolean;
+  catalogContext?: ArchitectCatalogProjectContextView | null;
+  isApprovedArchitect?: boolean;
+  isClient?: boolean;
   projectOptions?: ProjectOptionView[];
   profileReady?: boolean;
+  loginHref?: string;
+  registerHref?: string;
 };
 
 export default function ProductConfiguratorControls({
   product,
   state,
-  canAddToProject = false,
+  catalogContext = null,
+  isApprovedArchitect = false,
+  isClient = false,
   projectOptions = [],
   profileReady = false,
+  loginHref,
+  registerHref,
 }: ProductConfiguratorControlsProps) {
+  const [isContextPending, startContextTransition] = useTransition();
+  const [contextError, setContextError] = useState<string | undefined>();
+
   const {
     initialState,
     showSizeSelector,
@@ -46,7 +61,6 @@ export default function ProductConfiguratorControls({
     increaseQuantity,
   } = state;
 
-  const showAddToProject = canAddToProject;
   const summaryRows = formatProductSelectionSummary({
     material: currentMaterial,
     color: currentColor,
@@ -54,6 +68,147 @@ export default function ProductConfiguratorControls({
     showSize: showSizeSelector,
     quantity,
   });
+
+  const selection = {
+    productSlug: product.slug,
+    selectedMaterialId: materialId ?? undefined,
+    selectedColorId: colorId ?? undefined,
+    selectedSizeKey: sizeId ?? undefined,
+    quantity,
+  };
+
+  const handleContextualAdd = () => {
+    if (!catalogContext || !profileReady) {
+      return;
+    }
+
+    setContextError(undefined);
+    startContextTransition(async () => {
+      const result = await addProductFromCatalogContextAction({
+        projectId: catalogContext.projectId,
+        roomId: catalogContext.roomId,
+        ...selection,
+      });
+
+      if (result?.error) {
+        setContextError(result.error);
+      }
+    });
+  };
+
+  const renderSecondaryActions = () => (
+    <div className={styles.secondaryActions}>
+      <Button preview variant="secondary">
+        שמירה למועדפים
+      </Button>
+      <Button preview variant="text">
+        הורדת מפרט טכני
+      </Button>
+    </div>
+  );
+
+  const renderAddActions = () => {
+    if (isClient) {
+      return (
+        <>
+          <p className={styles.clientNote}>
+            הוספה לפרויקט זמינה לאדריכלים.
+          </p>
+          {renderSecondaryActions()}
+        </>
+      );
+    }
+
+    if (!isApprovedArchitect) {
+      if (!loginHref) {
+        return renderSecondaryActions();
+      }
+
+      return (
+        <>
+          <div className={styles.actions}>
+            <Link href={loginHref} className={styles.primaryAction}>
+              הוספה לפרויקט
+            </Link>
+            <div className={styles.guestAuthLinks}>
+              <Link href={loginHref}>התחברות</Link>
+              {registerHref ? (
+                <>
+                  <span aria-hidden="true"> · </span>
+                  <Link href={registerHref}>הרשמה</Link>
+                </>
+              ) : null}
+            </div>
+          </div>
+          {renderSecondaryActions()}
+        </>
+      );
+    }
+
+    if (catalogContext) {
+      return (
+        <>
+          <div className={styles.contextSummary} aria-label="יעד הוספה">
+            <p className={styles.contextLine}>
+              <span className={styles.contextLabel}>פרויקט:</span>{" "}
+              {catalogContext.projectName}
+            </p>
+            <p className={styles.contextLine}>
+              <span className={styles.contextLabel}>חדר:</span>{" "}
+              {catalogContext.roomName}
+            </p>
+          </div>
+          {!profileReady ? (
+            <p className={styles.profileNote}>
+              יש להשלים פרופיל לפני הוספת מוצרים.{" "}
+              <Link href="/professional/profile">השלמת פרופיל</Link>
+            </p>
+          ) : (
+            <>
+              <div className={styles.actions}>
+                <button
+                  type="button"
+                  className={styles.primaryAction}
+                  onClick={handleContextualAdd}
+                  disabled={isContextPending}
+                >
+                  {isContextPending ? "מוסיף..." : "הוספה לחדר"}
+                </button>
+              </div>
+              {contextError ? (
+                <p className={styles.error} role="alert">
+                  {contextError}
+                </p>
+              ) : null}
+            </>
+          )}
+          {renderSecondaryActions()}
+        </>
+      );
+    }
+
+    return (
+      <>
+        <div className={styles.actions}>
+          <button
+            type="button"
+            className={styles.primaryAction}
+            onClick={() => setIsAddDialogOpen(true)}
+          >
+            הוספה לפרויקט
+          </button>
+          {renderSecondaryActions()}
+        </div>
+        <AddToProjectDialog
+          projectOptions={projectOptions}
+          profileReady={profileReady}
+          isOpen={isAddDialogOpen}
+          onClose={() => setIsAddDialogOpen(false)}
+          selection={selection}
+        />
+      </>
+    );
+  };
 
   const renderQuantityField = () => (
     <fieldset className={styles.fieldset}>
@@ -84,65 +239,18 @@ export default function ProductConfiguratorControls({
     </fieldset>
   );
 
-  const renderAddToProjectActions = () => {
-    if (!showAddToProject) {
-      return (
-        <div className={styles.secondaryActions}>
-          <Button preview variant="secondary">
-            שמירה למועדפים
-          </Button>
-          <Button preview variant="text">
-            הורדת מפרט טכני
-          </Button>
-        </div>
-      );
-    }
-
-    return (
-      <>
-        <div className={styles.actions}>
-          <button
-            type="button"
-            className={styles.primaryAction}
-            onClick={() => setIsAddDialogOpen(true)}
-          >
-            הוספה לפרויקט
-          </button>
-          <div className={styles.secondaryActions}>
-            <Button preview variant="secondary">
-              שמירה למועדפים
-            </Button>
-            <Button preview variant="text">
-              הורדת מפרט טכני
-            </Button>
-          </div>
-        </div>
-        <AddToProjectDialog
-          projectOptions={projectOptions}
-          profileReady={profileReady}
-          isOpen={isAddDialogOpen}
-          onClose={() => setIsAddDialogOpen(false)}
-          selection={{
-            productSlug: product.slug,
-            selectedMaterialId: materialId ?? undefined,
-            selectedColorId: colorId ?? undefined,
-            selectedSizeKey: sizeId ?? undefined,
-            quantity,
-          }}
-        />
-      </>
-    );
-  };
+  const showAddSection =
+    isApprovedArchitect || isClient || Boolean(loginHref);
 
   if (!initialState.hasConfiguratorOptions) {
-    if (!showAddToProject) {
+    if (!showAddSection) {
       return null;
     }
 
     return (
       <div className={styles.controls}>
         {renderQuantityField()}
-        {renderAddToProjectActions()}
+        {renderAddActions()}
       </div>
     );
   }
@@ -213,7 +321,7 @@ export default function ProductConfiguratorControls({
         </dl>
       </div>
 
-      {renderAddToProjectActions()}
+      {showAddSection ? renderAddActions() : renderSecondaryActions()}
     </div>
   );
 }

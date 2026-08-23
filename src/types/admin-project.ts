@@ -1,3 +1,4 @@
+import type { WorkflowAttentionSummaryLine } from "@/lib/project-items/project-item-workflow-attention";
 import type { ProjectOnboardingStatus, ProjectStatus } from "@/types/project";
 import type { ProjectPricingAttention } from "@/lib/projects/admin-project-attention";
 
@@ -23,6 +24,7 @@ export type AdminProjectListItemView = {
   unreadMessageCount?: number;
   quoteStatusLabel?: string;
   quoteAttention?: "accepted" | "change_requested" | "awaiting_professional";
+  workflowAttentionSummary?: WorkflowAttentionSummaryLine[];
 };
 
 export type AdminProjectDetailView = {
@@ -54,6 +56,7 @@ export type AdminProjectDetailView = {
   pricingTotals?: import("@/types/project-pricing").AdminPricingTotalsView;
   pricingApprovalBlockedReason?: string | null;
   adminPricingRound?: import("@/lib/pricing/admin-pricing-round-presentation").AdminPricingRoundPresentation | null;
+  workflowAttentionSummary?: WorkflowAttentionSummaryLine[];
 };
 
 export type AdminProjectsPageResult = {

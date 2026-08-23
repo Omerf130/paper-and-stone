@@ -22,6 +22,7 @@ describe("mapUserToAdminListItem", () => {
       identificationNumber: "123456789",
       role: "client",
       requestedRole: "architect",
+      accountStatus: "approved",
       isActive: true,
       createdAt: "2026-01-01T00:00:00.000Z",
       updatedAt: "2026-01-02T00:00:00.000Z",

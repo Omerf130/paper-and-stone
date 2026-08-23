@@ -62,6 +62,11 @@ export default function AdminProjectListItem({
             <StatusBadge tone="info">{project.pricingStateLabel}</StatusBadge>
           </p>
         ) : null}
+        {project.workflowAttentionSummary?.map((line) => (
+          <p key={line.status} className={styles.workflowAttention}>
+            <StatusBadge tone="warning">{line.label}</StatusBadge>
+          </p>
+        ))}
 
         <div className={cardStyles.metaGrid}>
           <div className={cardStyles.metaRow}>
@@ -118,6 +123,11 @@ export default function AdminProjectListItem({
             <StatusBadge tone="info">{project.pricingStateLabel}</StatusBadge>
           </div>
         ) : null}
+        {project.workflowAttentionSummary?.map((line) => (
+          <div key={line.status} className={styles.workflowAttention}>
+            <StatusBadge tone="warning">{line.label}</StatusBadge>
+          </div>
+        ))}
         {formatUnreadMessageLabel(project.unreadMessageCount ?? 0) ? (
           <div className={cardStyles.unread} role="status">
             {formatUnreadMessageLabel(project.unreadMessageCount ?? 0)}

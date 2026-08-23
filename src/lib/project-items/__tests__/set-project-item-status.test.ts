@@ -5,6 +5,7 @@ import { PROJECT_ITEM_STATUS_ERRORS } from "@/lib/project-items/project-item-wor
 const updateOneMock = vi.fn();
 const findByIdMock = vi.fn();
 const findOneMock = vi.fn();
+const snapshotFindOneMock = vi.fn();
 const workflowSettingsMock = vi.fn();
 
 const projectId = "507f1f77bcf86cd799439011";
@@ -54,6 +55,12 @@ vi.mock("@/models/Project", () => ({
   },
 }));
 
+vi.mock("@/models/ClientApprovedProjectSnapshot", () => ({
+  default: {
+    findOne: snapshotFindOneMock,
+  },
+}));
+
 vi.mock("@/lib/project-items/get-project-item-workflow-settings", () => ({
   getProjectItemWorkflowSettings: workflowSettingsMock,
 }));
@@ -63,6 +70,7 @@ describe("set-project-item-status", () => {
     updateOneMock.mockReset();
     findByIdMock.mockReset();
     findOneMock.mockReset();
+    snapshotFindOneMock.mockReset();
     workflowSettingsMock.mockReset();
     updateOneMock.mockResolvedValue({ matchedCount: 1, modifiedCount: 1 });
     workflowSettingsMock.mockResolvedValue({
@@ -76,6 +84,22 @@ describe("set-project-item-status", () => {
       ],
     });
   });
+
+  function mockClientSnapshotAccess(project = createProject({ status: "client_review" })) {
+    findOneMock
+      .mockReturnValueOnce({
+        select: vi.fn().mockReturnValue({
+          lean: vi.fn().mockResolvedValue({ _id: project._id }),
+        }),
+      })
+      .mockResolvedValueOnce(project);
+
+    snapshotFindOneMock.mockReturnValue({
+      select: vi.fn().mockReturnValue({
+        lean: vi.fn().mockResolvedValue({ _id: new Types.ObjectId() }),
+      }),
+    });
+  }
 
   it("allows admin override to any status", async () => {
     findByIdMock.mockResolvedValue(createProject());
@@ -160,9 +184,7 @@ describe("set-project-item-status", () => {
   });
 
   it("allows client allowed transition", async () => {
-    findOneMock.mockResolvedValue(
-      createProject({ status: "client_review" }),
-    );
+    mockClientSnapshotAccess(createProject({ status: "client_review" }));
 
     const { setProjectItemStatusAsClient } = await import(
       "@/lib/project-items/set-project-item-status"
@@ -178,7 +200,11 @@ describe("set-project-item-status", () => {
   });
 
   it("blocks unrelated client", async () => {
-    findOneMock.mockResolvedValue(null);
+    findOneMock.mockReturnValue({
+      select: vi.fn().mockReturnValue({
+        lean: vi.fn().mockResolvedValue(null),
+      }),
+    });
 
     const { setProjectItemStatusAsClient } = await import(
       "@/lib/project-items/set-project-item-status"
@@ -191,13 +217,13 @@ describe("set-project-item-status", () => {
         targetStatus: "client_approved",
       }),
     ).rejects.toMatchObject({
-      message: PROJECT_ITEM_STATUS_ERRORS.PROJECT_NOT_FOUND,
+      message: PROJECT_ITEM_STATUS_ERRORS.NOT_IN_CLIENT_SNAPSHOT,
     });
   });
 
   it("does not mutate pricing on status change", async () => {
     const project = createProject({ status: "client_review" });
-    findOneMock.mockResolvedValue(project);
+    mockClientSnapshotAccess(project);
 
     const { setProjectItemStatusAsClient } = await import(
       "@/lib/project-items/set-project-item-status"

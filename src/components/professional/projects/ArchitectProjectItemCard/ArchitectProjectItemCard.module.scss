@@ -10,6 +10,50 @@
   background: $color-surface;
 }
 
+.cardHeader {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+@media (min-width: $breakpoint-tablet) {
+  .cardHeader {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+}
+
+.cardDivider {
+  height: 1px;
+  margin: 0;
+  border: 0;
+  background: $color-border;
+}
+
+.workflowState {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: $spacing-xs;
+  flex-shrink: 0;
+}
+
+.workflowContext {
+  margin: 0;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  text-align: end;
+}
+
+.workflowContextAttention {
+  margin: 0;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-danger-text;
+  text-align: end;
+}
+
 .identity {
   display: flex;
   gap: $spacing-md;
@@ -86,8 +130,6 @@
   display: flex;
   flex-direction: column;
   gap: $spacing-md;
-  padding-top: $spacing-sm;
-  border-top: 1px solid $color-border;
 }
 
 .priceRow {

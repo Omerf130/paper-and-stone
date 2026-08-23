@@ -10,6 +10,8 @@ import Button from "@/components/ui/Button/Button";
 import FormField, { formFieldStyles } from "@/components/ui/FormField/FormField";
 import StatusBadge from "@/components/ui/StatusBadge/StatusBadge";
 import AdminProjectItemStatusControl from "@/components/admin/project-detail/AdminProjectItemStatusControl/AdminProjectItemStatusControl";
+import ProjectItemStatusHistoryPanel from "@/components/shared/ProjectItemStatusHistory/ProjectItemStatusHistoryPanel";
+import { getProjectItemStatusWorkflowContext } from "@/lib/project-items/project-item-status-presentation";
 import styles from "./AdminProjectItemPricingRow.module.scss";
 
 type AdminProjectItemPricingRowProps = {
@@ -35,6 +37,10 @@ export default function AdminProjectItemPricingRow({
   const configRows = getProjectItemConfigurationRows(item);
   const sku = item.snapshot.sku ?? "—";
   const hasStatus = item.status != null;
+  const workflowContext =
+    item.status != null
+      ? getProjectItemStatusWorkflowContext(item.status, "admin")
+      : undefined;
 
   const form = useAdminItemPricingForm({
     projectId,
@@ -107,6 +113,15 @@ export default function AdminProjectItemPricingRow({
               status={item.status!}
               presentation={item.statusPresentation}
             />
+            {workflowContext ? (
+              <p className={styles.workflowContext}>{workflowContext}</p>
+            ) : null}
+            {item.statusHistory && item.statusHistory.length > 0 ? (
+              <ProjectItemStatusHistoryPanel
+                history={item.statusHistory}
+                role="admin"
+              />
+            ) : null}
           </div>
         ) : null}
       </header>

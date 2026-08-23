@@ -65,7 +65,7 @@ export default function ArchitectProjectItemStatusControl({
       onSelect={handleSelect}
       isPending={isPending}
       interactive={isInteractive}
-      size="default"
+      size="prominent"
       error={error}
     />
   );

@@ -16,6 +16,8 @@ type StatusPresentationConfig = {
   clientLabel: string | null;
   tone: StatusBadgeTone;
   description?: string;
+  adminWorkflowContext?: string;
+  architectWorkflowContext?: string;
 };
 
 const STATUS_PRESENTATION: Record<ProjectItemStatus, StatusPresentationConfig> =
@@ -57,23 +59,27 @@ const STATUS_PRESENTATION: Record<ProjectItemStatus, StatusPresentationConfig> =
       architectLabel: "ממתין לאישור לקוח",
       clientLabel: "ממתין לאישור שלך",
       tone: "warning",
+      adminWorkflowContext: "ממתין לפעולת הלקוח",
     },
     client_approved: {
       adminLabel: "אושר על ידי הלקוח",
       architectLabel: "אושר על ידי הלקוח",
-      clientLabel: "אושר",
+      clientLabel: "אושר על ידך",
       tone: "positive",
+      adminWorkflowContext: "הלקוח אישר את המוצר",
     },
     client_rejected: {
       adminLabel: "נדחה על ידי הלקוח",
       architectLabel: "נדחה על ידי הלקוח",
-      clientLabel: "נדחה",
+      clientLabel: "נדחה על ידך",
       tone: "negative",
+      adminWorkflowContext: "הלקוח דחה את המוצר",
+      architectWorkflowContext: "דורש טיפול — הלקוח דחה את המוצר",
     },
     resubmit: {
       adminLabel: "נדרש להגשה מחדש",
       architectLabel: "נדרש להגשה מחדש",
-      clientLabel: null,
+      clientLabel: "בטיפול",
       tone: "warning",
     },
   };
@@ -122,4 +128,15 @@ export function getAllProjectItemStatusOptions(
     value: status,
     presentation: getProjectItemStatusPresentation(status, role),
   }));
+}
+
+export function getProjectItemStatusWorkflowContext(
+  status: ProjectItemStatus,
+  role: "admin" | "architect",
+): string | undefined {
+  const config = STATUS_PRESENTATION[status];
+
+  return role === "admin"
+    ? config.adminWorkflowContext
+    : config.architectWorkflowContext;
 }

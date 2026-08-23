@@ -3,7 +3,8 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 
 const countDocumentsMock = vi.fn();
 const findMock = vi.fn();
-const findOneMock = vi.fn();
+const aggregateMock = vi.fn();
+const categoryFindMock = vi.fn();
 
 vi.mock("@/lib/db/mongoose", () => ({
   connectDB: vi.fn(),
@@ -23,12 +24,14 @@ vi.mock("@/models/Product", () => ({
   default: {
     countDocuments: countDocumentsMock,
     find: findMock,
+    aggregate: aggregateMock,
   },
 }));
 
 vi.mock("@/models/Category", () => ({
   default: {
-    findOne: findOneMock,
+    find: categoryFindMock,
+    findOne: vi.fn(),
   },
 }));
 
@@ -36,7 +39,15 @@ describe("getPublicProducts", () => {
   beforeEach(() => {
     countDocumentsMock.mockReset();
     findMock.mockReset();
+    aggregateMock.mockReset();
+    categoryFindMock.mockReset();
     countDocumentsMock.mockResolvedValue(0);
+    aggregateMock.mockResolvedValue([]);
+    categoryFindMock.mockReturnValue({
+      select: vi.fn().mockReturnValue({
+        lean: vi.fn().mockResolvedValue([]),
+      }),
+    });
     findMock.mockReturnValue({
       populate: vi.fn().mockReturnValue({
         select: vi.fn().mockReturnValue({

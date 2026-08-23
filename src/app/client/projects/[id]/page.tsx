@@ -62,6 +62,16 @@ export default async function ClientProjectDetailPage({
   return (
     <InternalPage width="default">
       {backLink}
+      {detail.pendingReviewCount > 0 ? (
+        <FeedbackBanner tone="warning" className={styles.updateBanner}>
+          <strong>
+            {detail.pendingReviewCount === 1
+              ? "מוצר אחד ממתין לאישור שלך"
+              : `${detail.pendingReviewCount} מוצרים ממתינים לאישור שלך`}
+          </strong>
+        </FeedbackBanner>
+      ) : null}
+
       {detail.presentationState.isUpdating ? (
         <FeedbackBanner tone="info" className={styles.updateBanner}>
           <strong>הפרויקט נמצא בתהליך עדכון</strong>
@@ -85,7 +95,11 @@ export default async function ClientProjectDetailPage({
         <h2 id="client-rooms-title" className={styles.roomsTitle}>
           חדרים
         </h2>
-        <ClientProjectRoomAccordion rooms={detail.snapshot.rooms} />
+        <ClientProjectRoomAccordion
+          projectId={detail.projectId}
+          rooms={detail.snapshot.rooms}
+          workflowByItemId={detail.workflowByItemId}
+        />
       </section>
 
       <ClientProjectConversationSection

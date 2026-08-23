@@ -18,6 +18,7 @@ import { getUnreadMessageCountsForProjects, getUnreadArchitectClientMessageCount
 import { mapProjectToListItemView } from "@/lib/projects/mapProjectToView";
 import { getProjectRoomCountsByProjectIds } from "@/lib/projects/project-room-queries";
 import { getArchitectProjectActionHint } from "@/lib/projects/architect-project-attention";
+import { countProjectItemsByStatus } from "@/lib/project-items/project-item-workflow-attention";
 import type { ProjectStatus } from "@/types/project";
 
 const DASHBOARD_LIMIT = PROFESSIONAL_DASHBOARD_PROJECT_LIMIT;
@@ -323,6 +324,24 @@ export async function getProfessionalDashboardData(
     }),
   );
 
+  const workflowStatusProjects = await Project.find({
+    ownerUserId: ownerObjectId,
+    onboardingStatus: "active",
+  })
+    .select("items.status")
+    .lean();
+
+  let workflowRejectedItemCount = 0;
+  let workflowResubmitItemCount = 0;
+  let workflowClientReviewItemCount = 0;
+
+  for (const project of workflowStatusProjects) {
+    const counts = countProjectItemsByStatus(project.items);
+    workflowRejectedItemCount += counts.client_rejected ?? 0;
+    workflowResubmitItemCount += counts.resubmit ?? 0;
+    workflowClientReviewItemCount += counts.client_review ?? 0;
+  }
+
   return {
     displayName: getDisplayName(profile, userEmail),
     unreadNotificationCount,
@@ -338,6 +357,9 @@ export async function getProfessionalDashboardData(
     ),
     activeProjectCount,
     submittedProjectCount,
+    workflowRejectedItemCount,
+    workflowResubmitItemCount,
+    workflowClientReviewItemCount,
     profileCompleteness: getProfileCompletenessSummary(profile),
     dashboardProjects,
   };
