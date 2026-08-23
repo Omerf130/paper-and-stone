@@ -76,6 +76,13 @@ export type ClientAssignedProjectMetadata = {
   updatedAt: string;
 };
 
+export type ClientProjectItemWorkflowStatusView = {
+  projectItemId: string;
+  status: import("@/types/project-item-status").ProjectItemStatus;
+  allowedTargetStatuses: import("@/types/project-item-status").ProjectItemStatus[];
+  presentation: import("@/types/project-item-status").ProjectItemStatusPresentation;
+};
+
 export type ClientWorkspaceContext = {
   displayName: string;
   hasArchitectRequest: boolean;

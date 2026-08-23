@@ -1,13 +1,26 @@
 @use "../../../../styles/tokens" as *;
+@use "../../../../styles/mixins" as *;
 
-.row {
+.card {
   display: flex;
   flex-direction: column;
-  gap: $spacing-md;
+  gap: 0;
   padding: $spacing-md;
   border: 1px solid $color-border;
   border-radius: $radius-md;
-  background: $color-surface;
+  background: $color-background;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 4%);
+}
+
+.cardHeader {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  padding-block-end: $spacing-md;
+}
+
+.productIdentity {
+  min-width: 0;
 }
 
 .identity {
@@ -43,7 +56,7 @@
 .productName {
   margin: 0;
   font-size: $font-size-base;
-  font-weight: $font-weight-medium;
+  font-weight: $font-weight-semibold;
   color: $color-text-primary;
 }
 
@@ -55,33 +68,78 @@
   color: $color-text-secondary;
 }
 
+.workflowState {
+  flex-shrink: 0;
+}
+
+.cardDivider {
+  height: 1px;
+  margin: 0;
+  border: 0;
+  background: $color-border;
+}
+
+.pricingSection {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  padding-block-start: $spacing-md;
+}
+
+.pricingHeading {
+  margin: 0;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  letter-spacing: 0.01em;
+}
+
 .pricingGrid {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: $spacing-md;
 }
 
-.previewBlock,
-.clientBlock {
+.pricingField {
   display: flex;
   flex-direction: column;
   gap: $spacing-xs;
+  min-width: 0;
 }
 
-.previewLabel {
+.fieldLabel {
+  margin: 0;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+}
+
+.summaryBlock {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+  padding-block: $spacing-xs;
+}
+
+.summaryValue {
+  margin: 0;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  line-height: 1.3;
+}
+
+.summaryMissing {
   margin: 0;
   font-size: $font-size-sm;
   color: $color-text-secondary;
 }
 
-.previewValue {
-  margin: 0;
-  font-size: $font-size-base;
-  font-weight: $font-weight-medium;
-  color: $color-text-primary;
-}
-
 .readOnlyValue {
   margin: 0;
+  min-height: 2.75rem;
+  display: flex;
+  align-items: center;
   font-size: $font-size-base;
   color: $color-text-primary;
 }
@@ -92,17 +150,29 @@
   gap: $spacing-sm;
 }
 
+.markupModeSelect {
+  min-height: 2.75rem;
+  font-size: $font-size-sm;
+}
+
+.markupOverrideInput {
+  min-height: 2.75rem;
+}
+
 .staleWarning {
   margin: 0;
   font-size: $font-size-sm;
   color: $color-warning-text;
 }
 
-.actions {
+.pricingFooter {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  justify-content: flex-start;
   gap: $spacing-sm;
+  padding-block-start: $spacing-xs;
+  border-top: 1px solid $color-border;
 }
 
 .dirtyHint {
@@ -110,25 +180,45 @@
   color: $color-text-secondary;
 }
 
-@media (min-width: 768px) {
-  .pricingGrid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (min-width: 1024px) {
-  .row {
-    display: grid;
-    grid-template-columns: minmax(12rem, 1.2fr) minmax(0, 2fr) auto;
-    align-items: start;
+@include tablet-up {
+  .cardHeader {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
     gap: $spacing-lg;
   }
 
+  .workflowState {
+    max-width: 14rem;
+  }
+
+  .pricingGrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: $spacing-md $spacing-lg;
+  }
+
+  .pricingFooter {
+    justify-content: flex-end;
+  }
+}
+
+@include desktop-up {
   .pricingGrid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
+}
 
-  .actions {
-    align-self: end;
+@media (min-width: $breakpoint-wide) {
+  .card {
+    padding: $spacing-lg;
+  }
+
+  .cardHeader {
+    padding-block-end: $spacing-lg;
+  }
+
+  .pricingSection {
+    padding-block-start: $spacing-lg;
   }
 }

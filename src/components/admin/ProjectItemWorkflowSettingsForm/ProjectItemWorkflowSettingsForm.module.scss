@@ -1,0 +1,64 @@
+@use "../../../styles/tokens" as *;
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+}
+
+.banner {
+  margin: 0;
+  padding: $spacing-md;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  background-color: $color-background-subtle;
+  border: 1px solid $color-border;
+  border-radius: $radius-sm;
+}
+
+.tableWrap {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: $font-size-sm;
+}
+
+.table th,
+.table td {
+  padding: $spacing-sm $spacing-md;
+  text-align: start;
+  border-bottom: 1px solid $color-border;
+  vertical-align: middle;
+}
+
+.table th {
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+  background-color: $color-background-subtle;
+}
+
+.checkboxCell {
+  text-align: center;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+  align-items: center;
+}
+
+.error {
+  margin: 0;
+  font-size: $font-size-sm;
+  color: $color-danger-text;
+}
+
+.note {
+  margin: 0;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}

@@ -15,6 +15,7 @@ import {
 import { calculateClientPriceAgorot } from "@/lib/pricing/pricing-calculations";
 import { getProjectItemConfigurationRows } from "@/lib/projects/project-display-helpers";
 import StaleClientPriceWarning from "@/components/professional/projects/StaleClientPriceWarning/StaleClientPriceWarning";
+import ArchitectProjectItemStatusControl from "@/components/professional/projects/ArchitectProjectItemStatusControl/ArchitectProjectItemStatusControl";
 import ProjectItemEditor from "@/components/professional/projects/ProjectItemEditor/ProjectItemEditor";
 import type { ProductThumbnailView } from "@/lib/products/loadProductThumbnailMap";
 import type { ProjectItemView } from "@/types/project";
@@ -170,6 +171,17 @@ export default function ArchitectProjectItemCard({
           ) : null}
         </div>
       </div>
+
+      {item.status ? (
+        <ArchitectProjectItemStatusControl
+          projectId={projectId}
+          projectItemId={item.id}
+          status={item.status}
+          allowedTargetStatuses={item.allowedTargetStatuses ?? []}
+          presentation={item.statusPresentation}
+          isEditable={isEditable}
+        />
+      ) : null}
 
       {!pricing.hasArchitectPrice ? (
         <p className={styles.waiting}>{PRICING_ERRORS.ARCHITECT_PRICE_REQUIRED}</p>

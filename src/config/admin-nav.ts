@@ -41,6 +41,10 @@ export const adminNavGroups: AdminNavGroup[] = [
     items: [
       { label: "בקשות אדריכל", href: "/admin/architect-requests" },
       { label: "משתמשים", href: "/admin/users" },
+      {
+        label: "תהליך סטטוס מוצר",
+        href: "/admin/settings/project-item-workflow",
+      },
     ],
   },
 ];

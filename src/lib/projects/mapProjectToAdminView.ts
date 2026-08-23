@@ -1,4 +1,5 @@
 import type { IProject } from "@/models/Project";
+import { buildProjectItemStatusViewsForItems } from "@/lib/project-items/build-project-item-status-view";
 import {
   mapProjectItemToView,
   resolveActiveProductIds,
@@ -75,6 +76,10 @@ export async function mapLeanProjectToAdminDetailView(
     ? await getProjectRoomViews(project._id.toString(), project.items)
     : [];
   const layeredPricing = usesLayeredPricing(project);
+  const statusViews = await buildProjectItemStatusViewsForItems(
+    project.items,
+    "admin",
+  );
 
   return {
     id: project._id.toString(),
@@ -88,14 +93,21 @@ export async function mapLeanProjectToAdminDetailView(
     status: project.status,
     commercialDirty: project.commercialDirty ?? false,
     commercialDirtyAt: project.commercialDirtyAt?.toISOString(),
-    items: project.items.map((item) => ({
-      ...mapProjectItemToView(item, activeProductIds),
-      ...(layeredPricing
-        ? {
-            adminPricing: mapAdminProjectItemPricingView(item, project),
-          }
-        : {}),
-    })),
+    items: project.items.map((item) => {
+      const statusView = statusViews.get(item._id.toString());
+
+      return {
+        ...mapProjectItemToView(item, activeProductIds),
+        status: statusView?.status,
+        statusPresentation: statusView?.presentation,
+        allowedTargetStatuses: statusView?.allowedTargetStatuses,
+        ...(layeredPricing
+          ? {
+              adminPricing: mapAdminProjectItemPricingView(item, project),
+            }
+          : {}),
+      };
+    }),
     usesRoomBasedWorkspace: roomBased,
     rooms,
     reviewHistory: (project.reviewHistory ?? []).map(mapReviewHistoryEntryToView),

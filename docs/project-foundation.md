@@ -278,6 +278,14 @@ Prefer CSS logical properties (`margin-inline`, `padding-inline`, `text-align: s
 - E2E-ready for manual three-role scenario; no new product features
 - See [`docs/phase-17g-final-workflow-mobile-polish.md`](phase-17g-final-workflow-mobile-polish.md)
 
+**Phase 18A — Project Item Status Workflow Foundation:**
+- Per-Product Item workflow status on `Project.items[]`, independent of Project commercial/onboarding/pricing state
+- Global `ProjectItemWorkflowSettings` singleton for Architect/Client transition permissions; Admin override any status
+- Embedded `statusHistory` on each item; snapshot-safe Client status query by `projectItemId`
+- **Client commercial visibility remains snapshot-based** — `hidden` status is operational only, not a Client visibility gate
+- Admin inline status control in project workspace; minimal Architect badge/control foundation
+- See [`docs/phase-18a-project-item-status-workflow.md`](phase-18a-project-item-status-workflow.md)
+
 **Demo 10E.1 — Notification Foundation:**
 - Separate `Notification` collection for Professional inbox
 - Workflow hooks on admin approve / reject / request changes

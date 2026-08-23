@@ -27,6 +27,8 @@ import {
 import { getArchitectSubmitPricingBlockedReason } from "@/lib/pricing/pricing-gates";
 import { getProjectRoomViews } from "@/lib/projects/project-room-queries";
 import { resolveAssignedClientFullName } from "@/lib/admin/clients/client-lookup-queries";
+import { buildProjectItemStatusViewsForItems } from "@/lib/project-items/build-project-item-status-view";
+import { getNormalizedProjectItemStatus } from "@/lib/project-items/project-item-status-normalize";
 import {
   mapArchitectPricingTotalsView,
   mapArchitectProjectItemPricingView,
@@ -55,6 +57,7 @@ export function mapProjectItemToView(
       sizeLabel: item.snapshot.sizeLabel,
     },
     isProductActive: activeProductIds.has(item.productId.toString()),
+    status: getNormalizedProjectItemStatus(item),
   };
 }
 
@@ -112,6 +115,10 @@ export async function mapProjectToDetailView(
     ? await getProjectRoomViews(project._id.toString(), project.items)
     : [];
   const layeredPricing = usesLayeredPricing(project);
+  const statusViews = await buildProjectItemStatusViewsForItems(
+    project.items,
+    "architect",
+  );
 
   return {
     id: project._id.toString(),
@@ -125,14 +132,21 @@ export async function mapProjectToDetailView(
     status: project.status,
     commercialDirty: project.commercialDirty ?? false,
     commercialDirtyAt: project.commercialDirtyAt?.toISOString(),
-    items: project.items.map((item) => ({
-      ...mapProjectItemToView(item, activeProductIds),
-      ...(layeredPricing
-        ? {
-            architectPricing: mapArchitectProjectItemPricingView(item, project),
-          }
-        : {}),
-    })),
+    items: project.items.map((item) => {
+      const statusView = statusViews.get(item._id.toString());
+
+      return {
+        ...mapProjectItemToView(item, activeProductIds),
+        status: statusView?.status,
+        statusPresentation: statusView?.presentation,
+        allowedTargetStatuses: statusView?.allowedTargetStatuses,
+        ...(layeredPricing
+          ? {
+              architectPricing: mapArchitectProjectItemPricingView(item, project),
+            }
+          : {}),
+      };
+    }),
     reviewHistory,
     submittedAt: project.submittedAt?.toISOString(),
     reviewedAt: project.reviewedAt?.toISOString(),

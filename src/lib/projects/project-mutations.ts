@@ -278,6 +278,7 @@ function buildNewProjectItem(
     selectedSizeKey: verified.selectedSizeKey,
     quantity,
     snapshot,
+    ...(project && usesLayeredPricing(project) ? { status: "draft" as const } : {}),
     ...(pricing ? { pricing } : {}),
   };
 }

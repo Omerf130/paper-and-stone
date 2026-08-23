@@ -8,6 +8,19 @@ import {
   type ProjectReviewActorRole,
   type ProjectStatus,
 } from "@/types/project";
+import {
+  PROJECT_ITEM_STATUSES,
+  type ProjectItemStatus,
+  type ProjectItemStatusChangeRole,
+} from "@/types/project-item-status";
+
+export interface IProjectItemStatusHistoryEntry {
+  from: ProjectItemStatus;
+  to: ProjectItemStatus;
+  changedByUserId: Types.ObjectId;
+  changedByRole: ProjectItemStatusChangeRole;
+  changedAt: Date;
+}
 
 export interface IProjectItemSnapshot {
   productName: string;
@@ -43,6 +56,8 @@ export interface IProjectItem {
   quantity: number;
   snapshot: IProjectItemSnapshot;
   pricing?: IProjectItemPricing;
+  status?: ProjectItemStatus;
+  statusHistory?: IProjectItemStatusHistoryEntry[];
 }
 
 export interface IProjectReviewHistoryEntry {
@@ -116,6 +131,33 @@ const projectItemPricingSchema = new Schema<IProjectItemPricing>(
   { _id: false },
 );
 
+const projectItemStatusHistorySchema = new Schema<IProjectItemStatusHistoryEntry>(
+  {
+    from: {
+      type: String,
+      enum: PROJECT_ITEM_STATUSES,
+      required: true,
+    },
+    to: {
+      type: String,
+      enum: PROJECT_ITEM_STATUSES,
+      required: true,
+    },
+    changedByUserId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    changedByRole: {
+      type: String,
+      enum: ["admin", "architect", "client"],
+      required: true,
+    },
+    changedAt: { type: Date, default: Date.now, required: true },
+  },
+  { _id: false },
+);
+
 const projectItemSchema = new Schema<IProjectItem>(
   {
     productId: {
@@ -134,6 +176,15 @@ const projectItemSchema = new Schema<IProjectItem>(
     quantity: { type: Number, required: true, min: 1, max: 999 },
     snapshot: { type: projectItemSnapshotSchema, required: true },
     pricing: { type: projectItemPricingSchema },
+    status: {
+      type: String,
+      enum: PROJECT_ITEM_STATUSES,
+      default: "draft",
+    },
+    statusHistory: {
+      type: [projectItemStatusHistorySchema],
+      default: [],
+    },
   },
   { _id: true },
 );
