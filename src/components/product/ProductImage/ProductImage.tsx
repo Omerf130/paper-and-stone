@@ -7,6 +7,7 @@ type ProductImageProps = {
   priority?: boolean;
   className?: string;
   sizes?: string;
+  variant?: "default" | "hero";
 };
 
 export default function ProductImage({
@@ -14,13 +15,15 @@ export default function ProductImage({
   priority = false,
   className,
   sizes = "100vw",
+  variant = "default",
 }: ProductImageProps) {
   const width = image.width ?? 1200;
   const height = image.height ?? 900;
 
-  const classes = className
-    ? `${styles.imageWrap} ${className}`
-    : styles.imageWrap;
+  const wrapClass =
+    variant === "hero" ? styles.imageWrapHero : styles.imageWrap;
+  const imageClass = variant === "hero" ? styles.imageHero : styles.image;
+  const classes = className ? `${wrapClass} ${className}` : wrapClass;
 
   return (
     <div className={classes}>
@@ -31,7 +34,7 @@ export default function ProductImage({
         height={height}
         sizes={sizes}
         priority={priority}
-        className={styles.image}
+        className={imageClass}
       />
     </div>
   );

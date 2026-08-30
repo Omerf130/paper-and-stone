@@ -1,0 +1,58 @@
+@use "../../../styles/tokens" as *;
+@use "../../../styles/mixins" as *;
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.primaryAction {
+  @include primary-button-base;
+  width: 100%;
+  color: $color-background;
+  background-color: $color-text-primary;
+  border-color: $color-text-primary;
+  text-align: center;
+  text-decoration: none;
+
+  &:hover {
+    background-color: $color-text-secondary;
+    border-color: $color-text-secondary;
+  }
+}
+
+.note {
+  margin: 0;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.guestAuthLinks {
+  font-size: $font-size-sm;
+  text-align: center;
+}
+
+.contextSummary {
+  display: grid;
+  gap: $spacing-xs;
+  padding: $spacing-sm;
+  border: 1px solid $color-border;
+  border-radius: $radius-sm;
+  background: $color-background-subtle;
+}
+
+.contextLine {
+  margin: 0;
+  font-size: $font-size-sm;
+}
+
+.contextLabel {
+  color: $color-text-secondary;
+}
+
+.error {
+  margin: 0;
+  color: $color-danger-text;
+  font-size: $font-size-sm;
+}

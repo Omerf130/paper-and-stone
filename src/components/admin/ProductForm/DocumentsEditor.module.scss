@@ -1,0 +1,51 @@
+@use "../../../styles/tokens" as *;
+
+.editor {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.hint {
+  margin: 0;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.empty {
+  margin: 0;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  padding: $spacing-md;
+  border: 1px solid $color-border;
+}
+
+.fields {
+  display: grid;
+  gap: $spacing-md;
+
+  @media (min-width: $breakpoint-tablet) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.fields > :first-child {
+  @media (min-width: $breakpoint-tablet) {
+    grid-column: 1 / -1;
+  }
+}

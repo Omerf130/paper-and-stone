@@ -1,0 +1,40 @@
+@use "../../../styles/tokens" as *;
+@use "../../../styles/mixins" as *;
+
+.layout {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xl;
+  min-width: 0;
+}
+
+@include desktop-up {
+  .hero {
+    display: grid;
+    grid-template-columns: minmax(0, 0.58fr) minmax(0, 0.42fr);
+    grid-template-areas:
+      "media aside-top"
+      "media aside-bottom";
+    column-gap: $spacing-2xl;
+    row-gap: $spacing-lg;
+    align-items: start;
+  }
+
+  .hero > :nth-child(1) {
+    grid-area: aside-top;
+  }
+
+  .hero > :nth-child(2) {
+    grid-area: media;
+  }
+
+  .hero > :nth-child(3) {
+    grid-area: aside-bottom;
+  }
+}

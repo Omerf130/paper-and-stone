@@ -74,30 +74,32 @@ export default function ProductMedia({ product, state }: ProductMediaProps) {
       ) : null}
 
       <div className={styles.stage}>
-        {view === "drawing" && canShowDrawing ? (
-          product.technicalDrawing ? (
-            <ProductImage
-              image={product.technicalDrawing}
-              className={styles.uploadedDrawing}
-            />
+        <div className={styles.stageInner}>
+          {view === "drawing" && canShowDrawing ? (
+            product.technicalDrawing ? (
+              <ProductImage
+                image={product.technicalDrawing}
+                className={styles.uploadedDrawing}
+              />
+            ) : (
+              <TechnicalDrawing dimensions={product.dimensions} />
+            )
           ) : (
-            <TechnicalDrawing dimensions={product.dimensions} />
-          )
-        ) : (
-          <>
-            {renderProductVisual()}
-            {showRecolor && currentColor ? (
-              <p className={styles.recolorHint}>
-                <span
-                  className={styles.recolorSwatch}
-                  style={{ backgroundColor: currentColor.hex }}
-                  aria-hidden="true"
-                />
-                <span>{currentColor.name}</span>
-              </p>
-            ) : null}
-          </>
-        )}
+            <>
+              {renderProductVisual()}
+              {showRecolor && currentColor ? (
+                <p className={styles.recolorHint}>
+                  <span
+                    className={styles.recolorSwatch}
+                    style={{ backgroundColor: currentColor.hex }}
+                    aria-hidden="true"
+                  />
+                  <span>{currentColor.name}</span>
+                </p>
+              ) : null}
+            </>
+          )}
+        </div>
       </div>
 
       {view === "product" && productImages.length > 1 ? (

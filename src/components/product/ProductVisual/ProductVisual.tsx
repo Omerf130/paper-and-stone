@@ -3,20 +3,31 @@ import styles from "./ProductVisual.module.scss";
 
 type ProductVisualProps = {
   tone: VisualTone;
+  variant?: "default" | "hero";
+  className?: string;
 };
 
 /**
  * Demo product visualization — NOT the final 2D variant rendering strategy.
  * Will be replaced by actual variant imagery or the chosen production approach.
  */
-export default function ProductVisual({ tone }: ProductVisualProps) {
+export default function ProductVisual({
+  tone,
+  variant = "default",
+  className,
+}: ProductVisualProps) {
   const toneClass =
     styles[`tone${tone.charAt(0).toUpperCase()}${tone.slice(1)}` as keyof typeof styles];
+  const frameClass = variant === "hero" ? styles.frameHero : styles.frame;
+  const sofaClass = variant === "hero" ? styles.sofaHero : styles.sofa;
+  const classes = className
+    ? `${frameClass} ${toneClass} ${className}`
+    : `${frameClass} ${toneClass}`;
 
   return (
-    <div className={`${styles.frame} ${toneClass}`} aria-hidden="true">
+    <div className={classes} aria-hidden="true">
       <svg
-        className={styles.sofa}
+        className={sofaClass}
         viewBox="0 0 400 240"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"

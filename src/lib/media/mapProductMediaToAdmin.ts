@@ -21,6 +21,7 @@ export function mapMediaItemToAdmin(
     createdAt: item.createdAt.toISOString(),
     width: item.width,
     height: item.height,
+    normalized: item.normalized,
   };
 }
 

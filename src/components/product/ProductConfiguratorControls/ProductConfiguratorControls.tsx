@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useState, useTransition } from "react";
-import Button from "@/components/Button/Button";
 import AddToProjectDialog from "@/components/product/AddToProjectDialog/AddToProjectDialog";
 import ProductOptionGroup from "@/components/product/ProductOptionGroup/ProductOptionGroup";
 import { addProductFromCatalogContextAction } from "@/app/professional/projects/actions";
@@ -96,52 +95,35 @@ export default function ProductConfiguratorControls({
     });
   };
 
-  const renderSecondaryActions = () => (
-    <div className={styles.secondaryActions}>
-      <Button preview variant="secondary">
-        שמירה למועדפים
-      </Button>
-      <Button preview variant="text">
-        הורדת מפרט טכני
-      </Button>
-    </div>
-  );
-
   const renderAddActions = () => {
     if (isClient) {
       return (
-        <>
-          <p className={styles.clientNote}>
-            הוספה לפרויקט זמינה לאדריכלים.
-          </p>
-          {renderSecondaryActions()}
-        </>
+        <p className={styles.clientNote}>
+          הוספה לפרויקט זמינה לאדריכלים.
+        </p>
       );
     }
 
     if (!isApprovedArchitect) {
       if (!loginHref) {
-        return renderSecondaryActions();
+        return null;
       }
 
       return (
-        <>
-          <div className={styles.actions}>
-            <Link href={loginHref} className={styles.primaryAction}>
-              הוספה לפרויקט
-            </Link>
-            <div className={styles.guestAuthLinks}>
-              <Link href={loginHref}>התחברות</Link>
-              {registerHref ? (
-                <>
-                  <span aria-hidden="true"> · </span>
-                  <Link href={registerHref}>הרשמה</Link>
-                </>
-              ) : null}
-            </div>
+        <div className={styles.actions}>
+          <Link href={loginHref} className={styles.primaryAction}>
+            הוספה לפרויקט
+          </Link>
+          <div className={styles.guestAuthLinks}>
+            <Link href={loginHref}>התחברות</Link>
+            {registerHref ? (
+              <>
+                <span aria-hidden="true"> · </span>
+                <Link href={registerHref}>הרשמה</Link>
+              </>
+            ) : null}
           </div>
-          {renderSecondaryActions()}
-        </>
+        </div>
       );
     }
 
@@ -182,7 +164,6 @@ export default function ProductConfiguratorControls({
               ) : null}
             </>
           )}
-          {renderSecondaryActions()}
         </>
       );
     }
@@ -197,7 +178,6 @@ export default function ProductConfiguratorControls({
           >
             הוספה לפרויקט
           </button>
-          {renderSecondaryActions()}
         </div>
         <AddToProjectDialog
           projectOptions={projectOptions}
@@ -321,7 +301,7 @@ export default function ProductConfiguratorControls({
         </dl>
       </div>
 
-      {showAddSection ? renderAddActions() : renderSecondaryActions()}
+      {showAddSection ? renderAddActions() : null}
     </div>
   );
 }

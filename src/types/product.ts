@@ -1,4 +1,5 @@
 import type { ProductRecolorView, PublicImageView } from "@/types/product-media";
+import type { PublicProductDocumentView } from "@/types/product-document";
 import type { MaterialType } from "@/types/material";
 
 export type VisualTone =
@@ -64,6 +65,7 @@ export type ProductView = {
   gallery: PublicImageView[];
   technicalDrawing: PublicImageView | null;
   recolor: ProductRecolorView | null;
+  documents: PublicProductDocumentView[];
 };
 
 export function isVisualTone(value: string | undefined): value is VisualTone {

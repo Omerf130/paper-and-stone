@@ -36,6 +36,19 @@ const productSizeSchema = z.object({
   label: z.string().min(1, "נא להזין תווית מידה").max(100),
 });
 
+const productDocumentSchema = z.object({
+  label: z.string().min(1, "נא להזין שם מסמך").max(120),
+  url: z
+    .string()
+    .min(1, "נא להזין כתובת")
+    .max(2048)
+    .refine(
+      (value) => value.startsWith("https://") || value.startsWith("http://"),
+      "כתובת המסמך חייבת להתחיל ב-http:// או https://",
+    ),
+  fileType: optionalString(32),
+});
+
 export const productInputSchema = z
   .object({
     nameHe: z.string().min(1, "נא להזין שם בעברית").max(200),
@@ -66,6 +79,7 @@ export const productInputSchema = z
     countryOfOrigin: optionalString(120),
     materialOptions: z.array(productMaterialOptionSchema),
     sizes: z.array(productSizeSchema),
+    documents: z.array(productDocumentSchema),
     defaultInternalCostShekels: z.string().optional().or(z.literal("")),
   })
   .superRefine((value, context) => {
@@ -122,6 +136,12 @@ export type ProductWriteFields = {
   countryOfOrigin?: string;
   materialOptions: ProductInput["materialOptions"];
   sizes: ProductInput["sizes"];
+  documents: Array<{
+    label: string;
+    url: string;
+    fileType?: string;
+    sortOrder: number;
+  }>;
   defaultInternalCostAgorot?: number;
 };
 
@@ -165,6 +185,12 @@ export function mapProductInputToWriteFields(
     countryOfOrigin: emptyToUndefined(input.countryOfOrigin),
     materialOptions: input.materialOptions,
     sizes: input.sizes,
+    documents: input.documents.map((document, index) => ({
+      label: document.label.trim(),
+      url: document.url.trim(),
+      fileType: emptyToUndefined(document.fileType),
+      sortOrder: index,
+    })),
     defaultInternalCostAgorot: input.defaultInternalCostShekels
       ? parseInternalCostInput(input.defaultInternalCostShekels) ?? undefined
       : undefined,

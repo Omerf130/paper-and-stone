@@ -1,0 +1,7 @@
+@use "../../../styles/tokens" as *;
+
+.column {
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+}

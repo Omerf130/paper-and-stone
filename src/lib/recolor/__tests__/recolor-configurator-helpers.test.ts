@@ -40,6 +40,7 @@ const baseProduct: ProductView = {
       url: "https://example.com/mask.png",
     },
   },
+  documents: [],
 };
 
 describe("shouldShowRecolorForImage", () => {

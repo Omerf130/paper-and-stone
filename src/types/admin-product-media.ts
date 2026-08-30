@@ -23,6 +23,7 @@ export type AdminMediaItemView = {
   createdAt: string;
   width?: number;
   height?: number;
+  normalized?: boolean;
 };
 
 export type AdminProductMediaView = {
@@ -38,6 +39,10 @@ export type AdminProductMediaView = {
 export type MediaUploadClientPayload = {
   slot: MediaSlot;
   altText?: string;
+  width?: number;
+  height?: number;
+  normalized?: boolean;
+  byteSize?: number;
 };
 
 export type MediaUploadTokenPayload = MediaUploadClientPayload & {

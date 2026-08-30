@@ -11,7 +11,8 @@
     "seed": "tsx --env-file=.env.local scripts/seed.ts",
     "migrate:17a-roles": "tsx --env-file=.env.local scripts/migrate-user-roles-17a.ts",
     "migrate:18c-account-status": "tsx --env-file=.env.local scripts/migrate-account-status-approved.ts",
-    "backfill:17c-sku-normalized": "tsx --env-file=.env.local scripts/backfill-sku-normalized-17c.ts"
+    "backfill:17c-sku-normalized": "tsx --env-file=.env.local scripts/backfill-sku-normalized-17c.ts",
+    "normalize:product-media": "tsx --env-file=.env.local scripts/normalize-product-media.ts"
   },
   "dependencies": {
     "@vercel/blob": "^2.8.0",
@@ -20,6 +21,7 @@
     "next": "16.3.0",
     "react": "19.2.8",
     "react-dom": "19.2.8",
+    "sharp": "^0.34.5",
     "zod": "^4.4.3"
   },
   "devDependencies": {
@@ -29,6 +31,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.3.0",
+    "playwright": "^1.51.0",
     "sass": "^1.102.0",
     "tsx": "^4.23.12",
     "typescript": "^5",

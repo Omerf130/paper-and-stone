@@ -4,7 +4,7 @@
 .hero {
   display: flex;
   flex-direction: column;
-  gap: $spacing-2xl;
+  gap: $spacing-xl;
 }
 
 .media {
@@ -35,7 +35,7 @@
     display: grid;
     grid-template-columns: minmax(0, 0.62fr) minmax(0, 0.38fr);
     grid-template-areas: "media aside";
-    gap: $spacing-xl $spacing-3xl;
+    gap: $spacing-lg $spacing-2xl;
     align-items: start;
   }
 
@@ -53,7 +53,7 @@
   .asideInner {
     display: flex;
     flex-direction: column;
-    gap: $spacing-2xl;
+    gap: $spacing-lg;
   }
 
   .asideSticky {

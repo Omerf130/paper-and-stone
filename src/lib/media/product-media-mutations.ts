@@ -29,6 +29,9 @@ export type PersistUploadInput = {
   blob: UploadedBlobMetadata;
   originalFilename: string;
   byteSize: number;
+  width?: number;
+  height?: number;
+  normalized?: boolean;
 };
 
 export class ProductMediaMutationError extends Error {
@@ -55,6 +58,11 @@ function buildMediaItem(
   sortOrder: number,
   originalFilename: string,
   byteSize: number,
+  dimensions?: {
+    width?: number;
+    height?: number;
+    normalized?: boolean;
+  },
 ): Omit<IProductMediaItem, "_id"> {
   return {
     storageKey: blob.pathname,
@@ -66,6 +74,9 @@ function buildMediaItem(
     altText: altText?.trim() || undefined,
     sortOrder,
     createdAt: new Date(),
+    width: dimensions?.width,
+    height: dimensions?.height,
+    normalized: dimensions?.normalized,
   };
 }
 
@@ -95,7 +106,8 @@ function ensureRecolorConfig(product: NonNullable<Awaited<ReturnType<typeof find
 export async function persistUploadedMedia(
   input: PersistUploadInput,
 ): Promise<{ oldStorageKey: string | null }> {
-  const { productId, slot, altText, blob, originalFilename, byteSize } = input;
+  const { productId, slot, altText, blob, originalFilename, byteSize, width, height, normalized } =
+    input;
   const mediaType = getMediaTypeForSlot(slot);
 
   const product = await findProductMedia(productId);
@@ -124,6 +136,7 @@ export async function persistUploadedMedia(
     slot === "gallery" ? (product.media.gallery?.length ?? 0) : 0,
     originalFilename,
     byteSize,
+    { width, height, normalized },
   );
 
   let oldStorageKey: string | null = null;

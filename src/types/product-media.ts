@@ -22,6 +22,7 @@ export type ProductMediaItem = {
   byteSize: number;
   width?: number;
   height?: number;
+  normalized?: boolean;
   altText?: string;
   sortOrder: number;
   createdAt: Date;

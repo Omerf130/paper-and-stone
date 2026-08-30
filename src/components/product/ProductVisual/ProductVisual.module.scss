@@ -5,23 +5,43 @@
   align-items: center;
   justify-content: center;
   width: 100%;
-  min-height: 16rem;
-  padding: $spacing-xl;
+  min-height: 12rem;
+  max-height: 100%;
+  padding: $spacing-lg;
   background-color: $color-placeholder-subtle;
   border: 1px solid $color-border;
 
   @media (min-width: $breakpoint-tablet) {
-    min-height: 20rem;
+    min-height: 14rem;
   }
 
   @media (min-width: $breakpoint-desktop) {
-    min-height: 24rem;
+    min-height: 16rem;
   }
 }
 
 .sofa {
   width: 100%;
   max-width: 28rem;
+  height: auto;
+}
+
+.frameHero {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+  max-height: 100%;
+  padding: $spacing-xs;
+  background-color: $color-placeholder-subtle;
+  border: 1px solid $color-border;
+}
+
+.sofaHero {
+  width: 98%;
+  max-width: 98%;
   height: auto;
 }
 

@@ -1,0 +1,28 @@
+@use "../../../styles/tokens" as *;
+@use "../../../styles/mixins" as *;
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  height: 100%;
+}
+
+.removeButton {
+  align-self: start;
+  padding: 0;
+  font-family: inherit;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  text-decoration: underline;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+
+  @include focus-visible;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: wait;
+  }
+}

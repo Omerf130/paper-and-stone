@@ -31,6 +31,7 @@ const validInput = {
     },
   ],
   sizes: [{ key: "220", label: '220 ס"מ' }],
+  documents: [],
 };
 
 describe("product validation", () => {
@@ -95,6 +96,7 @@ describe("mapProductInputToWriteFields", () => {
       countryOfOrigin: "איטליה",
       materialOptions: validInput.materialOptions,
       sizes: validInput.sizes,
+      documents: [],
     });
 
     expect(fields).not.toHaveProperty("_id");

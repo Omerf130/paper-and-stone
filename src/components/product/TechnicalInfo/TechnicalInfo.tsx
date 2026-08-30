@@ -5,34 +5,52 @@ import styles from "./TechnicalInfo.module.scss";
 
 type TechnicalInfoProps = {
   product: ProductView;
+  variant?: "section" | "embedded" | "workspace";
+  hideDimensions?: boolean;
 };
 
-export default function TechnicalInfo({ product }: TechnicalInfoProps) {
+export default function TechnicalInfo({
+  product,
+  variant = "section",
+  hideDimensions = false,
+}: TechnicalInfoProps) {
   const { dimensions } = product;
-  const showDimensions = hasProductDimensions(dimensions);
+  const showDimensions = !hideDimensions && hasProductDimensions(dimensions);
   const hasMaterials = product.materials.length > 0;
   const hasMaintenance = product.maintenance.trim().length > 0;
   const hasWarranty = product.warranty.trim().length > 0;
   const hasCountry = product.countryOfOrigin.trim().length > 0;
 
-  if (
+  const isEmpty =
     !showDimensions &&
     !hasMaterials &&
     !hasMaintenance &&
     !hasWarranty &&
-    !hasCountry
-  ) {
+    !hasCountry;
+
+  if (isEmpty && variant !== "workspace") {
     return null;
   }
 
-  return (
-    <section className={styles.section} aria-labelledby="technical-info-heading">
-      <Container variant="wide" className={styles.inner}>
-        <h2 id="technical-info-heading" className={styles.heading}>
-          מידע טכני
-        </h2>
+  if (isEmpty && variant === "workspace") {
+    return (
+      <p className={styles.workspaceEmpty}>אין מידע טכני זמין.</p>
+    );
+  }
 
-        <div className={styles.grid}>
+  const gridClass =
+    variant === "workspace"
+      ? styles.gridWorkspace
+      : variant === "embedded"
+        ? styles.gridEmbedded
+        : styles.grid;
+
+  const content = (
+    <>
+      {variant === "workspace" ? (
+        <h3 className={styles.workspaceHeading}>מידע טכני</h3>
+      ) : null}
+      <div className={gridClass}>
           {showDimensions ? (
             <div className={styles.block}>
               <h3 className={styles.blockTitle}>מידות</h3>
@@ -97,6 +115,20 @@ export default function TechnicalInfo({ product }: TechnicalInfoProps) {
             </div>
           ) : null}
         </div>
+    </>
+  );
+
+  if (variant === "embedded" || variant === "workspace") {
+    return <div className={styles.embedded}>{content}</div>;
+  }
+
+  return (
+    <section className={styles.section} aria-labelledby="technical-info-heading">
+      <Container variant="wide" className={styles.inner}>
+        <h2 id="technical-info-heading" className={styles.heading}>
+          מידע טכני
+        </h2>
+        {content}
       </Container>
     </section>
   );

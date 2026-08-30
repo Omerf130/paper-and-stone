@@ -77,7 +77,10 @@ export async function POST(request: Request, context: RouteContext) {
             contentType: blob.contentType,
           },
           originalFilename,
-          byteSize: 0,
+          byteSize: payload.byteSize ?? 0,
+          width: payload.width,
+          height: payload.height,
+          normalized: payload.normalized,
         });
 
         const slug = await getProductSlug(productId);

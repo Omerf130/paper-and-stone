@@ -1,0 +1,228 @@
+@use "../../../styles/tokens" as *;
+@use "../../../styles/mixins" as *;
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  min-width: 0;
+}
+
+.stage {
+  display: flex;
+  flex-direction: column;
+  min-height: clamp(16rem, 36vh, 20rem);
+  max-height: clamp(18rem, 45vh, 32.5rem);
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.stageInner {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: clamp(16rem, 36vh, 32.5rem);
+  max-height: clamp(18rem, 45vh, 32.5rem);
+  padding: $spacing-xs;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.heroRecolor {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  max-width: 100%;
+  max-height: 100%;
+  overflow: hidden;
+
+  canvas {
+    display: block;
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    object-position: center;
+  }
+}
+
+.uploadedDrawing {
+  border: 1px solid $color-border;
+}
+
+.infoWorkspace {
+  min-height: clamp(16rem, 36vh, 20rem);
+  max-height: clamp(18rem, 45vh, 32.5rem);
+  overflow-y: auto;
+  padding: $spacing-lg $spacing-xl;
+  background-color: $color-background-subtle;
+  border: 1px solid $color-border;
+}
+
+.emptyState {
+  margin: 0;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.infoHeading {
+  margin: 0 0 $spacing-md;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+}
+
+.infoSubheading {
+  margin: 0 0 $spacing-md;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  letter-spacing: $letter-spacing-wide;
+  text-transform: uppercase;
+  color: $color-text-secondary;
+}
+
+.detailsLayout {
+  display: grid;
+  gap: $spacing-xl;
+  min-width: 0;
+
+  @include tablet-up {
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    gap: $spacing-2xl;
+    align-items: start;
+  }
+}
+
+.detailsPrimary {
+  min-width: 0;
+}
+
+.detailsDescription {
+  margin: 0;
+  font-size: $font-size-base;
+  line-height: $line-height-relaxed;
+  color: $color-text-secondary;
+  white-space: pre-line;
+}
+
+.detailsAside {
+  min-width: 0;
+  padding: $spacing-lg;
+  background-color: $color-background;
+  border: 1px solid $color-border;
+}
+
+.attributeList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  margin: 0;
+}
+
+.attributeRow {
+  display: flex;
+  justify-content: space-between;
+  gap: $spacing-md;
+  font-size: $font-size-sm;
+
+  dt {
+    color: $color-text-secondary;
+  }
+
+  dd {
+    margin: 0;
+    color: $color-text-primary;
+    font-weight: $font-weight-medium;
+    text-align: end;
+  }
+}
+
+.recolorHint {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-sm;
+  margin: 0;
+  font-size: $font-size-xs;
+  letter-spacing: $letter-spacing-wide;
+  text-transform: uppercase;
+  color: $color-text-secondary;
+}
+
+.recolorSwatch {
+  width: 0.875rem;
+  height: 0.875rem;
+  border: 1px solid $color-border;
+  border-radius: $radius-sm;
+}
+
+.thumbnailRow {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: $spacing-sm;
+  overflow-x: auto;
+  padding-block-end: $spacing-xs;
+  scrollbar-width: thin;
+
+  @include desktop-up {
+    flex-wrap: wrap;
+    overflow-x: visible;
+  }
+}
+
+.thumbnailButton,
+.thumbnailActive {
+  flex: 0 0 auto;
+  width: 4rem;
+  padding: 0;
+  background: transparent;
+  border: 1px solid $color-border;
+  cursor: pointer;
+
+  @include focus-visible;
+}
+
+.thumbnailActive {
+  border-color: $color-text-primary;
+}
+
+.thumbnailImage {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+}
+
+.about {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.aboutTitle {
+  margin: 0;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  letter-spacing: $letter-spacing-wide;
+  text-transform: uppercase;
+  color: $color-text-secondary;
+}
+
+.aboutText {
+  margin: 0;
+  font-size: $font-size-sm;
+  line-height: $line-height-relaxed;
+  color: $color-text-secondary;
+  white-space: pre-line;
+}
+
+.detailsPanel {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+  min-width: 0;
+}

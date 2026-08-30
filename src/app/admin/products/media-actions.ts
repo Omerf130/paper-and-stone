@@ -13,6 +13,8 @@ import {
   MEDIA_ERRORS,
   mediaSlotSchema,
 } from "@/lib/media/media-validation";
+import { normalizeProductImageBuffer } from "@/lib/media/normalize-product-image";
+import { shouldNormalizeMediaSlot } from "@/lib/media/normalization-policy";
 import {
   applyUploadIdempotent,
   deleteGalleryImage,
@@ -35,6 +37,33 @@ export type MediaActionState = {
   error?: string;
   success?: boolean;
 };
+
+export type ProductImageNormalizationPreview = {
+  previewBase64: string;
+  mimeType: string;
+  width: number;
+  height: number;
+  normalized: boolean;
+  skipped: boolean;
+  reason: string;
+  suggestedFilename: string;
+};
+
+function suggestedFilenameFromMime(
+  originalFilename: string,
+  mimeType: string,
+): string {
+  const baseName = originalFilename.replace(/\.[^.]+$/, "");
+  if (mimeType === "image/png") {
+    return `${baseName}.png`;
+  }
+
+  if (mimeType === "image/webp") {
+    return `${baseName}.webp`;
+  }
+
+  return `${baseName}.jpg`;
+}
 
 async function revalidateForProduct(productId: string): Promise<void> {
   const slug = await getProductSlug(productId);
@@ -93,6 +122,55 @@ export async function prepareMediaUploadAction(
   return { pathname, clientPayload };
 }
 
+export async function previewProductImageNormalizationAction(
+  formData: FormData,
+): Promise<{ error: string } | ProductImageNormalizationPreview> {
+  await requireAdmin();
+
+  const file = formData.get("file");
+  const slotRaw = formData.get("slot");
+
+  if (!(file instanceof File)) {
+    return { error: "קובץ לא תקין." };
+  }
+
+  const parsedSlot = mediaSlotSchema.safeParse(slotRaw);
+  if (!parsedSlot.success) {
+    return { error: MEDIA_ERRORS.INVALID_SLOT };
+  }
+
+  const slot = parsedSlot.data;
+
+  if (!shouldNormalizeMediaSlot(slot)) {
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const mimeType = file.type || "application/octet-stream";
+    return {
+      previewBase64: buffer.toString("base64"),
+      mimeType,
+      width: 0,
+      height: 0,
+      normalized: false,
+      skipped: true,
+      reason: "policy_excluded",
+      suggestedFilename: file.name,
+    };
+  }
+
+  const buffer = Buffer.from(await file.arrayBuffer());
+  const result = await normalizeProductImageBuffer(buffer);
+
+  return {
+    previewBase64: result.buffer.toString("base64"),
+    mimeType: result.mimeType,
+    width: result.width,
+    height: result.height,
+    normalized: result.normalized,
+    skipped: result.skipped,
+    reason: result.reason,
+    suggestedFilename: suggestedFilenameFromMime(file.name, result.mimeType),
+  };
+}
+
 export async function finalizeMediaUploadAction(input: {
   productId: string;
   slot: MediaSlot;
@@ -102,6 +180,9 @@ export async function finalizeMediaUploadAction(input: {
   originalFilename: string;
   byteSize: number;
   altText?: string;
+  width?: number;
+  height?: number;
+  normalized?: boolean;
 }): Promise<MediaActionState> {
   await requireAdmin();
 
@@ -141,6 +222,9 @@ export async function finalizeMediaUploadAction(input: {
       },
       originalFilename: input.originalFilename,
       byteSize: input.byteSize,
+      width: input.width,
+      height: input.height,
+      normalized: input.normalized,
     });
 
     await revalidateForProduct(input.productId);

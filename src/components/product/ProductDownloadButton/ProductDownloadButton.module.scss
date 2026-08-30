@@ -1,0 +1,74 @@
+@use "../../../styles/tokens" as *;
+@use "../../../styles/mixins" as *;
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  color: $color-text-primary;
+  text-decoration: none;
+  background: transparent;
+  border: 1px solid $color-border;
+  border-radius: $radius-sm;
+  cursor: pointer;
+
+  @include focus-visible;
+}
+
+.icon {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+.menuRoot {
+  position: relative;
+}
+
+.menu {
+  position: absolute;
+  inset-block-start: calc(100% + $spacing-xs);
+  inset-inline-end: 0;
+  z-index: 2;
+  min-width: 12rem;
+  padding: $spacing-sm;
+  background: $color-background;
+  border: 1px solid $color-border;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 8%);
+}
+
+.menuTitle {
+  margin: 0 0 $spacing-xs;
+  padding-inline: $spacing-sm;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  letter-spacing: $letter-spacing-wide;
+  text-transform: uppercase;
+  color: $color-text-secondary;
+}
+
+.menuList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.menuLink {
+  display: block;
+  padding: $spacing-sm;
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  text-decoration: none;
+  border-radius: $radius-sm;
+
+  @include focus-visible;
+
+  &:hover {
+    background: $color-background-subtle;
+  }
+}

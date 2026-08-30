@@ -40,6 +40,7 @@ export interface IProductMediaItem {
   byteSize: number;
   width?: number;
   height?: number;
+  normalized?: boolean;
   altText?: string;
   sortOrder: number;
   createdAt: Date;
@@ -49,6 +50,15 @@ export interface IProductRecolorConfig {
   enabled: boolean;
   sourceImageMediaId?: Types.ObjectId;
   status: RecolorStatus;
+}
+
+export interface IProductDocument {
+  _id: Types.ObjectId;
+  label: string;
+  url: string;
+  fileType?: string;
+  sortOrder: number;
+  createdAt: Date;
 }
 
 export interface IProductMedia {
@@ -83,6 +93,7 @@ export interface IProduct extends Document {
   materialOptions: IProductMaterialOption[];
   sizes: IProductSize[];
   media: IProductMedia;
+  documents: IProductDocument[];
   recolorConfig: IProductRecolorConfig;
   defaultInternalCostAgorot?: number;
   createdAt: Date;
@@ -144,6 +155,7 @@ const productMediaItemSchema = new Schema<IProductMediaItem>(
     byteSize: { type: Number, required: true, min: 0 },
     width: { type: Number },
     height: { type: Number },
+    normalized: { type: Boolean },
     altText: { type: String },
     sortOrder: { type: Number, default: 0 },
     createdAt: { type: Date, default: Date.now },
@@ -159,6 +171,17 @@ const productMediaSchema = new Schema<IProductMedia>(
     recolorMask: { type: productMediaItemSchema },
   },
   { _id: false },
+);
+
+const productDocumentSchema = new Schema<IProductDocument>(
+  {
+    label: { type: String, required: true, trim: true },
+    url: { type: String, required: true, trim: true },
+    fileType: { type: String, trim: true },
+    sortOrder: { type: Number, default: 0 },
+    createdAt: { type: Date, default: Date.now },
+  },
+  { _id: true },
 );
 
 const productRecolorConfigSchema = new Schema<IProductRecolorConfig>(
@@ -208,6 +231,7 @@ const productSchema = new Schema<IProduct>(
       type: productMediaSchema,
       default: () => ({ gallery: [] }),
     },
+    documents: { type: [productDocumentSchema], default: [] },
     recolorConfig: {
       type: productRecolorConfigSchema,
       default: () => ({ enabled: false, status: "missing_primary" }),

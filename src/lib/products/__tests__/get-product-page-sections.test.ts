@@ -27,6 +27,7 @@ function createMinimalProduct(overrides: Partial<ProductView> = {}): ProductView
     gallery: [],
     technicalDrawing: null,
     recolor: null,
+    documents: [],
     ...overrides,
   };
 }

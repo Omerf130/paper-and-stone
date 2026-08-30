@@ -35,6 +35,7 @@ describe("mapProductToView", () => {
     expect(view.gallery).toEqual([]);
     expect(view.technicalDrawing).toBeNull();
     expect(view.recolor).toBeNull();
+    expect(view.documents).toEqual([]);
   });
 
   it("prefers materialOptions over legacy fabrics", async () => {

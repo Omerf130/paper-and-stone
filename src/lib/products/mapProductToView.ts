@@ -1,6 +1,7 @@
 import type { ICategory } from "@/models/Category";
 import type { IProduct } from "@/models/Product";
 import { mapProductRecolorToPublic } from "@/lib/media/mapProductRecolorToPublic";
+import { mapProductDocumentsToPublic } from "@/lib/products/mapProductDocumentsToPublic";
 import {
   mapGalleryToPublic,
   mapPrimaryImageToPublic,
@@ -98,5 +99,6 @@ export async function mapProductToView(
       `${fallbackAlt} — שרטוט טכני`,
     ),
     recolor: mapProductRecolorToPublic(product),
+    documents: mapProductDocumentsToPublic(product.documents),
   };
 }

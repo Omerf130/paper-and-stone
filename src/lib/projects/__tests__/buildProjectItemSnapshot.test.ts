@@ -36,6 +36,7 @@ const productView: ProductView = {
   gallery: [],
   technicalDrawing: null,
   recolor: null,
+  documents: [],
 };
 
 describe("buildProjectItemSnapshot", () => {

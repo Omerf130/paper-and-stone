@@ -1,0 +1,61 @@
+@use "../../../styles/tokens" as *;
+@use "../../../styles/mixins" as *;
+@use "../../../styles/typography" as *;
+
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+  min-width: 0;
+}
+
+.identity {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.category {
+  @include eyebrow;
+  margin: 0;
+}
+
+.name {
+  margin: 0;
+  font-size: clamp($font-size-2xl, 3.5vw, $font-size-3xl);
+  font-weight: $font-weight-semibold;
+  line-height: $line-height-tight;
+  color: $color-text-primary;
+}
+
+.sku {
+  margin: 0;
+  font-size: $font-size-xs;
+  letter-spacing: $letter-spacing-wide;
+  color: $color-text-secondary;
+}
+
+.shortDescription {
+  margin: 0;
+  font-size: $font-size-sm;
+  line-height: $line-height-relaxed;
+  color: $color-text-secondary;
+}
+
+.divider {
+  height: 1px;
+  margin-block: $spacing-sm;
+  background: $color-border;
+}
+
+.purchase {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+  min-width: 0;
+}
+
+.identity,
+.purchase {
+  min-width: 0;
+}

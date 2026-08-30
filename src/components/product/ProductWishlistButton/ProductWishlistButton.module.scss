@@ -1,0 +1,34 @@
+@use "../../../styles/tokens" as *;
+@use "../../../styles/mixins" as *;
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  color: $color-text-primary;
+  text-decoration: none;
+  background: transparent;
+  border: 1px solid $color-border;
+  border-radius: $radius-sm;
+  cursor: pointer;
+
+  @include focus-visible;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: wait;
+  }
+}
+
+.icon,
+.iconActive {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+.iconActive {
+  color: $color-danger-text;
+}

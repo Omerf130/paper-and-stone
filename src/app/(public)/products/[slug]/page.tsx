@@ -1,11 +1,9 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import Container from "@/components/Container/Container";
 import Section from "@/components/Section/Section";
 import ProductConfigurator from "@/components/product/ProductConfigurator/ProductConfigurator";
-import ProductDescription from "@/components/product/ProductDescription/ProductDescription";
-import ProductInfo from "@/components/product/ProductInfo/ProductInfo";
-import TechnicalInfo from "@/components/product/TechnicalInfo/TechnicalInfo";
 import { canAccessArchitectWorkspace } from "@/lib/auth/account-access";
 import { isClientUser } from "@/lib/auth/authorization";
 import { getCurrentUser } from "@/lib/auth/current-user";
@@ -23,6 +21,7 @@ import { isProfileReadyForProjects } from "@/lib/professionals/profile-readiness
 import { getArchitectEditableProjectOptions } from "@/lib/projects/project-queries";
 import { getArchitectCatalogProjectContext } from "@/lib/projects/get-architect-catalog-project-context";
 import { getProductBySlug } from "@/lib/products/getProductBySlug";
+import { isProductWishlisted } from "@/lib/wishlist/wishlist-queries";
 import styles from "./page.module.scss";
 
 export const dynamic = "force-dynamic";
@@ -63,6 +62,9 @@ export default async function ProductPage({
   const user = await getCurrentUser();
   const isApprovedArchitect = user !== null && canAccessArchitectWorkspace(user);
   const isClient = isClientUser(user);
+  const isAuthenticated = user !== null;
+  const isWishlisted =
+    user !== null ? await isProductWishlisted(user.id, slug) : false;
   const productPath = buildProductWithProjectContextHref(
     slug,
     catalogParamsToHrefInput(catalogParams),
@@ -89,21 +91,22 @@ export default async function ProductPage({
     <>
       <Section contained={false} className={styles.heroSection}>
         <Container variant="wide">
-          <ProductConfigurator
-            product={product}
-            identity={<ProductInfo product={product} />}
-            catalogContext={catalogContext}
-            isApprovedArchitect={isApprovedArchitect}
-            isClient={isClient}
-            projectOptions={projectOptions}
-            profileReady={profileReady}
-            loginHref={buildLoginHref(productPath)}
-            registerHref={buildRegisterHref(productPath)}
-          />
+          <Suspense fallback={null}>
+            <ProductConfigurator
+              product={product}
+              catalogContext={catalogContext}
+              isApprovedArchitect={isApprovedArchitect}
+              isClient={isClient}
+              projectOptions={projectOptions}
+              profileReady={profileReady}
+              loginHref={buildLoginHref(productPath)}
+              registerHref={buildRegisterHref(productPath)}
+              isWishlisted={isWishlisted}
+              isAuthenticated={isAuthenticated}
+            />
+          </Suspense>
         </Container>
       </Section>
-      <TechnicalInfo product={product} />
-      <ProductDescription product={product} />
     </>
   );
 }

@@ -49,6 +49,11 @@ export async function getAdminProductById(
       key: size.key,
       label: size.label,
     })),
+    documents: (product.documents ?? []).map((document) => ({
+      label: document.label,
+      url: document.url,
+      fileType: document.fileType ?? "",
+    })),
     defaultInternalCostShekels:
       product.defaultInternalCostAgorot != null
         ? formatAgorotToShekelsInput(product.defaultInternalCostAgorot)

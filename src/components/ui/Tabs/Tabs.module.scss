@@ -1,0 +1,64 @@
+@use "../../../styles/tokens" as *;
+@use "../../../styles/mixins" as *;
+
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+  min-width: 0;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-md;
+  min-width: 0;
+}
+
+.tablist {
+  display: flex;
+  flex: 1 1 auto;
+  gap: $spacing-sm;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.tab,
+.tabActive {
+  flex: 0 0 auto;
+  padding-block: $spacing-sm;
+  padding-inline: $spacing-md;
+  font-family: inherit;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text-secondary;
+  white-space: nowrap;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid transparent;
+  cursor: pointer;
+
+  @include focus-visible;
+}
+
+.tabActive {
+  color: $color-text-primary;
+  border-bottom-color: $color-text-primary;
+}
+
+.actions {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: $spacing-xs;
+}
+
+.panel {
+  min-width: 0;
+}
+
+.panel[hidden] {
+  display: none;
+}

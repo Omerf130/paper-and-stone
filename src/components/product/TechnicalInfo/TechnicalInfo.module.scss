@@ -33,6 +33,42 @@
   }
 }
 
+.gridEmbedded {
+  display: grid;
+  gap: $spacing-lg;
+}
+
+.gridWorkspace {
+  display: grid;
+  gap: $spacing-lg;
+
+  @include tablet-up {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: $spacing-xl $spacing-2xl;
+  }
+
+  @include desktop-up {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.workspaceHeading {
+  margin: 0 0 $spacing-lg;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+}
+
+.workspaceEmpty {
+  margin: 0;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.embedded {
+  min-width: 0;
+}
+
 .block {
   display: flex;
   flex-direction: column;

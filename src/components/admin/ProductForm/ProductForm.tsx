@@ -18,6 +18,7 @@ import type {
 } from "@/types/admin-product";
 import MaterialOptionsEditor from "./MaterialOptionsEditor";
 import MaterialsEditor from "./MaterialsEditor";
+import DocumentsEditor from "./DocumentsEditor";
 import ProductEditStickySave from "./ProductEditStickySave";
 import { ProductFormActionsContext } from "./ProductFormActionsContext";
 import ProductFormSection from "./ProductFormSection";
@@ -389,6 +390,12 @@ export default function ProductForm({
               />
             </FormField>
           </div>
+
+          <DocumentsEditor
+            documents={product.documents}
+            onChange={(documents) => updateField("documents", documents)}
+            fieldErrors={fieldErrors}
+          />
         </ProductFormSection>
 
         {children}

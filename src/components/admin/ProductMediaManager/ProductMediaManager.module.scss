@@ -43,8 +43,19 @@
 }
 
 .previewImage {
-  object-fit: cover;
+  object-fit: contain;
+  object-position: center;
 }
+
+.normalizationPreview {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  padding: $spacing-md;
+  border: 1px solid $color-border;
+  background-color: $color-background-subtle;
+}
+
 
 .field {
   display: flex;

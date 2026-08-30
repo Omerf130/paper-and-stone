@@ -1,0 +1,28 @@
+@use "../../../styles/tokens" as *;
+@use "../../../styles/mixins" as *;
+
+.section {
+  padding-block-start: $spacing-2xl;
+  margin-block-start: $spacing-xl;
+  border-block-start: 1px solid $color-border;
+}
+
+.detailsPanel {
+  min-width: 0;
+}
+
+.detailsText {
+  margin: 0;
+  max-width: 48rem;
+  font-size: $font-size-base;
+  line-height: $line-height-relaxed;
+  color: $color-text-secondary;
+  white-space: pre-line;
+}
+
+@include tablet-up {
+  .section {
+    padding-block-start: $spacing-3xl;
+    margin-block-start: $spacing-2xl;
+  }
+}

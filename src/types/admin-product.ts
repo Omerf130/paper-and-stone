@@ -1,4 +1,5 @@
 import type { ProductMaterialOptionInput } from "@/lib/products/material-options/product-material-option-input";
+import type { ProductDocumentInput } from "@/types/product-document";
 
 export type CategoryOption = {
   id: string;
@@ -43,6 +44,7 @@ export type AdminProductFormInput = {
   countryOfOrigin: string;
   materialOptions: ProductMaterialOptionInput[];
   sizes: ProductSizeInput[];
+  documents: ProductDocumentInput[];
   defaultInternalCostShekels: string;
 };
 
@@ -74,6 +76,7 @@ export const EMPTY_PRODUCT_FORM: AdminProductFormInput = {
   countryOfOrigin: "",
   materialOptions: [],
   sizes: [],
+  documents: [],
   defaultInternalCostShekels: "",
 };
 

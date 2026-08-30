@@ -30,6 +30,9 @@ export default function HeaderAccount({ user }: HeaderAccountProps) {
   return (
     <div className={styles.auth}>
       <span className={styles.accountLabel}>החשבון שלי</span>
+      <Link href="/wishlist" className={styles.link}>
+        מועדפים
+      </Link>
       {user.role === "admin" && (
         <Link href="/admin" className={styles.adminLink}>
           ניהול

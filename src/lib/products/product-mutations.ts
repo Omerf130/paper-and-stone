@@ -60,6 +60,18 @@ async function assertValidMaterialOptions(
   }
 }
 
+function toStoredDocuments(
+  documents: ProductWriteFields["documents"],
+) {
+  return documents.map((document) => ({
+    label: document.label,
+    url: document.url,
+    fileType: document.fileType,
+    sortOrder: document.sortOrder,
+    createdAt: new Date(),
+  }));
+}
+
 export async function createProduct(
   fields: ProductWriteFields,
 ): Promise<string> {
@@ -91,6 +103,7 @@ export async function createProduct(
       countryOfOrigin: fields.countryOfOrigin,
       materialOptions: toStoredMaterialOptions(fields.materialOptions),
       sizes: fields.sizes,
+      documents: toStoredDocuments(fields.documents),
     });
 
     return product._id.toString();
@@ -145,6 +158,7 @@ export async function updateProduct(
           countryOfOrigin: fields.countryOfOrigin,
           materialOptions: toStoredMaterialOptions(fields.materialOptions),
           sizes: fields.sizes,
+          documents: toStoredDocuments(fields.documents),
         },
       },
     );

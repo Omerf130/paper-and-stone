@@ -5,18 +5,19 @@
   align-items: center;
   justify-content: center;
   width: 100%;
-  min-height: 16rem;
-  padding: $spacing-xl;
+  min-height: 12rem;
+  max-height: 100%;
+  padding: $spacing-lg;
   background-color: $color-background;
   border: 1px solid $color-border;
   color: $color-text-secondary;
 
   @media (min-width: $breakpoint-tablet) {
-    min-height: 20rem;
+    min-height: 14rem;
   }
 
   @media (min-width: $breakpoint-desktop) {
-    min-height: 24rem;
+    min-height: 16rem;
   }
 }
 
