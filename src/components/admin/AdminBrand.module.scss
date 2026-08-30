@@ -26,7 +26,21 @@
 }
 
 .compact {
+  align-items: center;
+  text-align: center;
+
   .wordmark {
     font-size: $font-size-sm;
+    line-height: $line-height-tight;
+  }
+}
+
+.sidebarCompact {
+  max-width: 100%;
+
+  .wordmark {
+    font-size: $font-size-meta;
+    line-height: 1.25;
+    text-wrap: balance;
   }
 }

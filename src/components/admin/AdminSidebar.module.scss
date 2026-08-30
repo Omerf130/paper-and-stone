@@ -12,13 +12,64 @@
   }
 }
 
-.brandBlock {
-  padding: $spacing-xl $spacing-lg $spacing-lg;
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  padding: $spacing-lg $spacing-lg $spacing-md;
   border-bottom: 1px solid $color-border;
+}
+
+.headerControls {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+}
+
+.collapsed .headerControls {
+  justify-content: center;
+}
+
+.brandBlock {
+  min-width: 0;
+}
+
+.collapsed .brandBlock {
+  display: flex;
+  justify-content: center;
 }
 
 .nav {
   flex: 1;
   padding: $spacing-lg;
   overflow-y: auto;
+}
+
+.collapsed .nav {
+  padding-inline: $spacing-sm;
+}
+
+.toggleButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  padding: $spacing-xs;
+  color: $color-text-secondary;
+  background: transparent;
+  border: 1px solid $color-border;
+  border-radius: $radius-sm;
+  cursor: pointer;
+
+  @include focus-visible;
+
+  &:hover {
+    color: $color-text-primary;
+    border-color: $color-text-secondary;
+  }
+}
+
+.collapsed .toggleButton {
+  width: 100%;
 }

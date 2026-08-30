@@ -7,7 +7,20 @@
   background-color: $color-background;
 
   @include desktop-up {
-    grid-template-columns: $admin-sidebar-width 1fr;
+    --admin-sidebar-width: #{$admin-sidebar-width};
+    grid-template-columns: var(--admin-sidebar-width) 1fr;
+
+    &[data-sidebar-collapsed="true"] {
+      --admin-sidebar-width: #{$admin-sidebar-width-collapsed};
+    }
+
+    &[data-sidebar-transitions="true"] {
+      transition: grid-template-columns $transition-fast;
+
+      @include reduced-motion {
+        transition: none;
+      }
+    }
   }
 }
 
