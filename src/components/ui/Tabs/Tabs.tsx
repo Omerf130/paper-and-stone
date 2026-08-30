@@ -14,12 +14,14 @@ export type TabItem = {
   id: string;
   label: string;
   panel: ReactNode;
+  hasError?: boolean;
 };
 
 type TabsProps = {
   items: TabItem[];
   defaultTabId?: string;
   initialTabId?: string;
+  activeTabId?: string;
   onTabChange?: (tabId: string) => void;
   actions?: ReactNode;
   ariaLabel?: string;
@@ -37,23 +39,30 @@ export default function Tabs({
   items,
   defaultTabId,
   initialTabId,
+  activeTabId: controlledActiveTabId,
   onTabChange,
   actions,
   ariaLabel = "מידע מוצר",
 }: TabsProps) {
   const fallbackId = useId();
   const tablistId = `${fallbackId}-tablist`;
-  const [activeTabId, setActiveTabId] = useState(
+  const [internalActiveTabId, setInternalActiveTabId] = useState(
     initialTabId ?? defaultTabId ?? items[0]?.id ?? "",
   );
+  const isControlled = controlledActiveTabId !== undefined;
+  const activeTabId = isControlled
+    ? controlledActiveTabId
+    : internalActiveTabId;
   const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
 
   const selectTab = useCallback(
     (tabId: string) => {
-      setActiveTabId(tabId);
+      if (!isControlled) {
+        setInternalActiveTabId(tabId);
+      }
       onTabChange?.(tabId);
     },
-    [onTabChange],
+    [isControlled, onTabChange],
   );
 
   const handleTabKeyDown = (
@@ -121,12 +130,28 @@ export default function Tabs({
                 id={`${fallbackId}-tab-${item.id}`}
                 aria-selected={isSelected}
                 aria-controls={`${fallbackId}-panel-${item.id}`}
+                aria-label={
+                  item.hasError ? `${item.label} — יש שגיאות בשדות` : undefined
+                }
                 tabIndex={isSelected ? 0 : -1}
-                className={isSelected ? styles.tabActive : styles.tab}
+                className={
+                  isSelected
+                    ? item.hasError
+                      ? styles.tabActiveError
+                      : styles.tabActive
+                    : item.hasError
+                      ? styles.tabError
+                      : styles.tab
+                }
                 onClick={() => selectTab(item.id)}
                 onKeyDown={(event) => handleTabKeyDown(event, index)}
               >
                 {item.label}
+                {item.hasError ? (
+                  <span className={styles.errorIndicator} aria-hidden="true">
+                    *
+                  </span>
+                ) : null}
               </button>
             );
           })}

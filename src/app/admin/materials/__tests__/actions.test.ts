@@ -12,10 +12,6 @@ vi.mock("@/lib/materials/material-mutations", () => ({
   getMaterialColorIds: vi.fn(),
 }));
 
-vi.mock("@/lib/materials/verifyColorIds", () => ({
-  verifyMaterialColorIds: vi.fn(),
-}));
-
 describe("admin material actions", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -29,13 +25,11 @@ describe("admin material actions", () => {
 
     await expect(
       createMaterialAction({
-        nameHe: "קטיפה",
-        nameEn: "",
+        nameEn: "Velvet",
         code: "",
         type: "FABRIC",
-        sortOrder: "0",
         isActive: true,
-        colorIds: [],
+        variants: [],
       }),
     ).rejects.toThrow("redirect");
 

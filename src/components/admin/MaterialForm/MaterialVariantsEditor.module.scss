@@ -1,0 +1,141 @@
+@use "../../../styles/tokens" as *;
+@use "../../../styles/mixins" as *;
+
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-sm;
+}
+
+.title {
+  margin: 0;
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.helperText {
+  margin: 0;
+  font-size: $font-size-sm;
+  line-height: $line-height-base;
+  color: $color-text-secondary;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.variantRow {
+  display: grid;
+  gap: $spacing-xs $spacing-sm;
+  align-items: center;
+  padding: $spacing-sm;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  background: $color-background-subtle;
+
+  @include tablet-up {
+    grid-template-columns:
+      minmax(4.5rem, auto)
+      minmax(8rem, 1.2fr)
+      minmax(7rem, 1fr)
+      auto
+      auto;
+  }
+}
+
+.variantIndex {
+  margin: 0;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text-secondary;
+  white-space: nowrap;
+}
+
+.fieldCompact {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.fieldLabel {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+}
+
+.input {
+  width: 100%;
+  padding: $spacing-xs $spacing-sm;
+  font: inherit;
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  background: $color-background;
+  border: 1px solid $color-border;
+  border-radius: $radius-sm;
+
+  @include focus-visible;
+}
+
+.hexRow {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  min-width: 0;
+}
+
+.hexRow .input {
+  flex: 1;
+  min-width: 0;
+}
+
+.activeToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  white-space: nowrap;
+}
+
+.swatchNote {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: #{$breakpoint-tablet - 1px}) {
+  .variantRow {
+    grid-template-columns: 1fr auto;
+  }
+
+  .variantIndex {
+    grid-column: 1 / -1;
+  }
+
+  .fieldCompact:nth-of-type(1),
+  .fieldCompact:nth-of-type(2) {
+    grid-column: 1 / -1;
+  }
+
+  .activeToggle {
+    grid-column: 1;
+  }
+}

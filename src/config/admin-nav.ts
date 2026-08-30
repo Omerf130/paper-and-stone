@@ -20,9 +20,8 @@ export const adminNavGroups: AdminNavGroup[] = [
     label: "קטלוג",
     items: [
       { label: "מוצרים", href: "/admin/products" },
-      { label: "קטגוריות", href: "/admin/categories" },
+      { label: "ספקים", href: "/admin/suppliers" },
       { label: "חומרים", href: "/admin/materials" },
-      { label: "צבעים", href: "/admin/colors" },
     ],
   },
   {

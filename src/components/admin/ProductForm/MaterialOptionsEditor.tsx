@@ -66,7 +66,7 @@ export default function MaterialOptionsEditor({
     );
   };
 
-  const updateColors = (materialId: string, allowedColorIds: string[]) => {
+  const updateVariants = (materialId: string, allowedColorIds: string[]) => {
     onChange(
       materialOptions.map((option) =>
         option.materialId === materialId
@@ -79,10 +79,8 @@ export default function MaterialOptionsEditor({
   return (
     <div className={styles.stack}>
       <p className={styles.helperText}>
-        בחרו חומרים וצבעים מהספרייה המרכזית.{" "}
+        בחרו חומרים ו-variants מהספרייה.{" "}
         <Link href="/admin/materials">ניהול חומרים</Link>
-        {" · "}
-        <Link href="/admin/colors">ניהול צבעים</Link>
       </p>
 
       {fieldErrors.materialOptions ? (
@@ -107,13 +105,13 @@ export default function MaterialOptionsEditor({
             <div className={styles.materialHeader}>
               <div>
                 <p className={styles.materialTitle}>
-                  {material.nameHe}
+                  {material.nameEn}
                   {!material.isActive ? (
                     <span className={styles.inactiveNote}> (לא פעיל)</span>
                   ) : null}
                 </p>
                 <p className={styles.materialMeta}>
-                  {selectedCount} צבעים נבחרו
+                  {selectedCount} variants נבחרו
                 </p>
               </div>
               <Button
@@ -127,7 +125,7 @@ export default function MaterialOptionsEditor({
             </div>
 
             <div className={styles.subsection}>
-              <p className={styles.subheading}>צבעים זמינים למוצר</p>
+              <p className={styles.subheading}>Variants זמינים למוצר</p>
               <ul className={styles.colorGrid}>
                 {material.colors
                   .filter(
@@ -150,14 +148,14 @@ export default function MaterialOptionsEditor({
                             disabled={isInactive && isSelected}
                             onChange={(event) => {
                               if (event.target.checked) {
-                                updateColors(option.materialId, [
+                                updateVariants(option.materialId, [
                                   ...option.allowedColorIds,
                                   color.id,
                                 ]);
                                 return;
                               }
 
-                              updateColors(
+                              updateVariants(
                                 option.materialId,
                                 option.allowedColorIds.filter(
                                   (id) => id !== color.id,
@@ -165,9 +163,11 @@ export default function MaterialOptionsEditor({
                               );
                             }}
                           />
-                          <HexPreview hex={color.hex} size="sm" />
+                          {color.hex ? (
+                            <HexPreview hex={color.hex} size="sm" />
+                          ) : null}
                           <span>
-                            {color.nameHe}
+                            {color.name}
                             {isInactive ? (
                               <span className={styles.inactiveNote}>
                                 {" "}
@@ -211,7 +211,7 @@ export default function MaterialOptionsEditor({
             <option value="">בחרו חומר מהספרייה</option>
             {availableMaterials.map((material) => (
               <option key={material.id} value={material.id}>
-                {material.nameHe}
+                {material.nameEn}
               </option>
             ))}
           </select>

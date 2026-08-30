@@ -41,9 +41,9 @@ export default function ColorAssignmentEditor({
           {linkedInactiveColors.map((color) => (
             <li key={color.id} className={styles.checkboxLabel}>
               <input type="checkbox" checked disabled readOnly />
-              <HexPreview hex={color.hex} size="sm" />
+              {color.hex ? <HexPreview hex={color.hex} size="sm" /> : null}
               <span>
-                {color.nameHe} (לא פעיל)
+                {color.name} (לא פעיל)
               </span>
             </li>
           ))}
@@ -62,8 +62,8 @@ export default function ColorAssignmentEditor({
                     toggleColor(color.id, event.target.checked)
                   }
                 />
-                <HexPreview hex={color.hex} size="sm" />
-                <span>{color.nameHe}</span>
+                {color.hex ? <HexPreview hex={color.hex} size="sm" /> : null}
+                <span>{color.name}</span>
               </label>
             </li>
           ))}
@@ -71,7 +71,7 @@ export default function ColorAssignmentEditor({
       ) : (
         <p style={{ margin: 0, fontSize: "0.875rem", color: "inherit" }}>
           אין צבעים פעילים בספרייה.{" "}
-          <Link href="/admin/colors/new">יצירת צבע חדש</Link>
+          <Link href="/admin/materials">ניהול חומרים</Link>
         </p>
       )}
 

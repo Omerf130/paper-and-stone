@@ -1,11 +1,21 @@
 import mongoose, { Schema, type Document, type Model, Types } from "mongoose";
-import { MATERIAL_TYPES, type MaterialType } from "@/types/material";
+import type { MaterialSwatchImage } from "@/types/material-variant";
+
+export interface IMaterialVariant {
+  _id: Types.ObjectId;
+  name: string;
+  hex?: string;
+  swatchImage?: MaterialSwatchImage;
+  isActive: boolean;
+}
 
 export interface IMaterial extends Document {
-  nameHe: string;
-  nameEn?: string;
+  nameHe?: string;
+  nameEn: string;
   code?: string;
-  type: MaterialType;
+  type: string;
+  variants: IMaterialVariant[];
+  /** @deprecated Synced from variant IDs for backward compatibility */
   colorIds: Types.ObjectId[];
   isActive: boolean;
   sortOrder: number;
@@ -13,16 +23,34 @@ export interface IMaterial extends Document {
   updatedAt: Date;
 }
 
+const materialSwatchImageSchema = new Schema<MaterialSwatchImage>(
+  {
+    storageKey: { type: String, required: true },
+    url: { type: String, required: true },
+    alt: { type: String },
+    width: { type: Number },
+    height: { type: Number },
+  },
+  { _id: false },
+);
+
+const materialVariantSchema = new Schema<IMaterialVariant>(
+  {
+    name: { type: String, required: true, trim: true },
+    hex: { type: String },
+    swatchImage: { type: materialSwatchImageSchema },
+    isActive: { type: Boolean, default: true },
+  },
+  { _id: true },
+);
+
 const materialSchema = new Schema<IMaterial>(
   {
-    nameHe: { type: String, required: true },
-    nameEn: { type: String },
+    nameHe: { type: String },
+    nameEn: { type: String, required: true },
     code: { type: String, unique: true, sparse: true },
-    type: {
-      type: String,
-      enum: MATERIAL_TYPES,
-      required: true,
-    },
+    type: { type: String, required: true, index: true },
+    variants: { type: [materialVariantSchema], default: [] },
     colorIds: {
       type: [{ type: Schema.Types.ObjectId, ref: "Color" }],
       default: [],

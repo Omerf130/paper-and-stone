@@ -5,6 +5,7 @@ import AdminPageHeader from "@/components/admin/AdminPageHeader/AdminPageHeader"
 import Button from "@/components/ui/Button/Button";
 import { getActiveCategories } from "@/lib/products/getActiveCategories";
 import { getActiveMaterialsWithColors } from "@/lib/products/material-options/getActiveMaterialsWithColors";
+import { getSupplierFormOptions } from "@/lib/suppliers/getAdminSuppliers";
 import { EMPTY_PRODUCT_FORM } from "@/types/admin-product";
 
 export const metadata: Metadata = {
@@ -12,9 +13,10 @@ export const metadata: Metadata = {
 };
 
 export default async function AdminNewProductPage() {
-  const [categories, activeMaterials] = await Promise.all([
+  const [categories, activeMaterials, supplierOptions] = await Promise.all([
     getActiveCategories(),
     getActiveMaterialsWithColors(),
+    getSupplierFormOptions(),
   ]);
 
   return (
@@ -32,6 +34,7 @@ export default async function AdminNewProductPage() {
       <ProductForm
         mode="create"
         categories={categories}
+        supplierOptions={supplierOptions}
         initialProduct={EMPTY_PRODUCT_FORM}
         activeMaterials={activeMaterials}
       />

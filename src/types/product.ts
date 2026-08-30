@@ -1,6 +1,5 @@
 import type { ProductRecolorView, PublicImageView } from "@/types/product-media";
 import type { PublicProductDocumentView } from "@/types/product-document";
-import type { MaterialType } from "@/types/material";
 
 export type VisualTone =
   | "blue"
@@ -28,7 +27,7 @@ export type ProductMaterialColorView = {
 export type ProductMaterialOptionView = {
   materialId: string;
   materialName: string;
-  materialType: MaterialType;
+  materialType: string;
   colors: ProductMaterialColorView[];
 };
 

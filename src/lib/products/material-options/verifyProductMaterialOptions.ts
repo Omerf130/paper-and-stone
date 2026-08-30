@@ -2,6 +2,10 @@ import { Types } from "mongoose";
 import { connectDB } from "@/lib/db/mongoose";
 import Color from "@/models/Color";
 import Material from "@/models/Material";
+import {
+  findVariantById,
+  getVariantIdsFromMaterial,
+} from "@/lib/materials/material-variant-helpers";
 import { PRODUCT_MATERIAL_OPTION_ERRORS } from "./material-option-errors";
 import {
   normalizeProductMaterialOptionInput,
@@ -25,6 +29,38 @@ function buildPreviousMaps(previous: ProductMaterialOptionInput[]) {
   }
 
   return { materialIds, colorsByMaterial };
+}
+
+function isVariantInMaterialPalette(
+  material: {
+    variants?: Array<{ _id: Types.ObjectId; isActive: boolean }>;
+    colorIds?: Types.ObjectId[];
+  },
+  variantId: string,
+): boolean {
+  if (material.variants?.length) {
+    return material.variants.some(
+      (variant) => variant._id.toString() === variantId,
+    );
+  }
+
+  return (material.colorIds ?? []).some((id) => id.toString() === variantId);
+}
+
+function isVariantActive(
+  material: {
+    variants?: Array<{ _id: Types.ObjectId; isActive: boolean }>;
+  },
+  variantId: string,
+  colorById: Map<string, { isActive: boolean }>,
+): boolean {
+  const variant = findVariantById(material, variantId);
+  if (variant) {
+    return variant.isActive ?? true;
+  }
+
+  const color = colorById.get(variantId);
+  return color?.isActive ?? false;
 }
 
 export async function verifyProductMaterialOptions(
@@ -99,7 +135,7 @@ export async function verifyProductMaterialOptions(
 
   const [materials, colors] = await Promise.all([
     Material.find({ _id: { $in: materialIdList } })
-      .select("_id isActive colorIds")
+      .select("_id isActive variants colorIds")
       .lean(),
     Color.find({ _id: { $in: allColorIds } })
       .select("_id isActive")
@@ -135,32 +171,35 @@ export async function verifyProductMaterialOptions(
       };
     }
 
-    const materialColorSet = new Set(
-      (material.colorIds ?? []).map((id) => id.toString()),
-    );
     const previousColorsForMaterial =
       colorsByMaterial.get(option.materialId) ?? new Set<string>();
 
-    for (const colorId of option.allowedColorIds) {
-      const color = colorById.get(colorId);
-      if (!color) {
-        return {
-          ok: false,
-          message: PRODUCT_MATERIAL_OPTION_ERRORS.COLOR_NOT_FOUND,
-          field: "materialOptions",
-        };
+    for (const variantId of option.allowedColorIds) {
+      if (!isVariantInMaterialPalette(material, variantId)) {
+        const color = colorById.get(variantId);
+        if (!color) {
+          return {
+            ok: false,
+            message: PRODUCT_MATERIAL_OPTION_ERRORS.COLOR_NOT_FOUND,
+            field: "materialOptions",
+          };
+        }
+
+        const paletteIds = getVariantIdsFromMaterial(material);
+        if (!paletteIds.includes(variantId)) {
+          return {
+            ok: false,
+            message: PRODUCT_MATERIAL_OPTION_ERRORS.COLOR_NOT_IN_MATERIAL,
+            field: "materialOptions",
+          };
+        }
       }
 
-      if (!materialColorSet.has(colorId)) {
-        return {
-          ok: false,
-          message: PRODUCT_MATERIAL_OPTION_ERRORS.COLOR_NOT_IN_MATERIAL,
-          field: "materialOptions",
-        };
-      }
-
-      const isPreviouslyAssignedColor = previousColorsForMaterial.has(colorId);
-      if (!isPreviouslyAssignedColor && !color.isActive) {
+      const isPreviouslyAssignedColor = previousColorsForMaterial.has(variantId);
+      if (
+        !isPreviouslyAssignedColor &&
+        !isVariantActive(material, variantId, colorById)
+      ) {
         return {
           ok: false,
           message: PRODUCT_MATERIAL_OPTION_ERRORS.INACTIVE_COLOR,

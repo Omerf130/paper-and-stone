@@ -6,6 +6,11 @@ import {
   MATERIAL_ERRORS,
   type MaterialWriteFields,
 } from "./material-validation";
+import {
+  buildMaterialSetFields,
+  buildMaterialUnsetFields,
+} from "./material-variant-helpers";
+import { verifyMaterialTypeKey } from "./material-type-mutations";
 
 export class MaterialMutationError extends Error {
   fieldErrors?: Record<string, string>;
@@ -16,43 +21,27 @@ export class MaterialMutationError extends Error {
   }
 }
 
-function buildMaterialSetFields(fields: MaterialWriteFields) {
-  return {
-    nameHe: fields.nameHe,
-    nameEn: fields.nameEn,
-    type: fields.type,
-    sortOrder: fields.sortOrder,
-    isActive: fields.isActive,
-    colorIds: fields.colorIds.map((id) => new Types.ObjectId(id)),
-    ...(fields.code !== undefined ? { code: fields.code } : {}),
-  };
-}
-
-function buildUnsetFields(fields: MaterialWriteFields) {
-  const unset: Record<string, 1> = {};
-  if (fields.code === undefined) {
-    unset.code = 1;
+async function assertValidMaterialType(typeKey: string): Promise<void> {
+  const isValid = await verifyMaterialTypeKey(typeKey);
+  if (!isValid) {
+    throw new MaterialMutationError(MATERIAL_ERRORS.INVALID_TYPE, {
+      type: MATERIAL_ERRORS.INVALID_TYPE,
+    });
   }
-  if (fields.nameEn === undefined) {
-    unset.nameEn = 1;
-  }
-  return unset;
 }
 
 export async function getMaterialColorIds(id: string): Promise<string[]> {
-  if (!Types.ObjectId.isValid(id)) {
-    return [];
-  }
-
-  await connectDB();
-  const material = await Material.findById(id).select("colorIds").lean();
-  return (material?.colorIds ?? []).map((colorId) => colorId.toString());
+  const { getMaterialVariantIds } = await import(
+    "./material-variant-helpers"
+  );
+  return getMaterialVariantIds(id);
 }
 
 export async function createMaterial(
   fields: MaterialWriteFields,
 ): Promise<string> {
   await connectDB();
+  await assertValidMaterialType(fields.type);
 
   try {
     const material = await Material.create(buildMaterialSetFields(fields));
@@ -73,8 +62,9 @@ export async function updateMaterial(
   fields: MaterialWriteFields,
 ): Promise<void> {
   await connectDB();
+  await assertValidMaterialType(fields.type);
 
-  const unset = buildUnsetFields(fields);
+  const unset = buildMaterialUnsetFields(fields);
 
   try {
     const result = await Material.updateOne(
@@ -101,4 +91,14 @@ export async function updateMaterial(
 
     throw error;
   }
+}
+
+export async function materialExists(id: string): Promise<boolean> {
+  if (!Types.ObjectId.isValid(id)) {
+    return false;
+  }
+
+  await connectDB();
+  const material = await Material.findById(id).select("_id").lean();
+  return Boolean(material);
 }

@@ -2,6 +2,7 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 
 const createMock = vi.fn();
 const updateOneMock = vi.fn();
+const deleteMock = vi.fn();
 
 vi.mock("@/lib/auth/authorization", () => ({
   requireAdmin: vi.fn(),
@@ -10,8 +11,12 @@ vi.mock("@/lib/auth/authorization", () => ({
 vi.mock("@/lib/products/product-mutations", () => ({
   createProduct: createMock,
   updateProduct: updateOneMock,
+  deleteProduct: deleteMock,
   mapProductInputToWriteFields: vi.fn((input) => input),
   ProductMutationError: class ProductMutationError extends Error {},
+  PRODUCT_DELETE_ERRORS: {
+    GENERIC: "delete-generic",
+  },
 }));
 
 vi.mock("@/lib/products/product-validation", () => ({
@@ -30,11 +35,17 @@ vi.mock("next/navigation", () => ({
   }),
 }));
 
+vi.mock("next/cache", () => ({
+  revalidatePath: vi.fn(),
+}));
+
 describe("admin product actions", () => {
   beforeEach(() => {
     createMock.mockReset();
     updateOneMock.mockReset();
+    deleteMock.mockReset();
     createMock.mockResolvedValue("product-id");
+    deleteMock.mockResolvedValue(undefined);
   });
 
   it("requires admin before create", async () => {
@@ -60,5 +71,15 @@ describe("admin product actions", () => {
 
     expect(requireAdmin).toHaveBeenCalled();
     expect(updateOneMock).toHaveBeenCalled();
+  });
+
+  it("requires admin before delete", async () => {
+    const { requireAdmin } = await import("@/lib/auth/authorization");
+    const { deleteProductAction } = await import("@/app/admin/products/actions");
+
+    await deleteProductAction("product-id");
+
+    expect(requireAdmin).toHaveBeenCalled();
+    expect(deleteMock).toHaveBeenCalledWith("product-id");
   });
 });

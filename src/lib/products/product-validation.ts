@@ -7,6 +7,8 @@ export const PRODUCT_ERRORS = {
   DUPLICATE_SLUG: "כבר קיים מוצר עם כתובת זו",
   DUPLICATE_SKU: "קוד המוצר כבר קיים במערכת",
   INVALID_CATEGORY: "הקטגוריה שנבחרה אינה תקינה",
+  INVALID_SUPPLIER: "הספק שנבחר אינו תקין",
+  SUPPLIER_REQUIRED: "נא לבחור ספק",
   GENERIC: "אירעה שגיאה בשמירת המוצר. נסו שוב.",
 } as const;
 
@@ -63,6 +65,9 @@ export const productInputSchema = z
       ),
     sku: z.string().min(1, "נא להזין קוד מוצר").max(50),
     categoryId: z.string().min(1, "נא לבחור קטגוריה"),
+    supplierId: z.string().min(1, PRODUCT_ERRORS.SUPPLIER_REQUIRED),
+    internalCatalogName: optionalString(200),
+    catalogCode: optionalString(100),
     brand: optionalString(120),
     designer: optionalString(120),
     shortDescription: optionalString(500),
@@ -120,6 +125,9 @@ export type ProductWriteFields = {
   sku: string;
   skuNormalized: string;
   categoryId: string;
+  supplierId: string;
+  internalCatalogName?: string;
+  catalogCode?: string;
   brand?: string;
   designer?: string;
   shortDescription?: string;
@@ -169,6 +177,9 @@ export function mapProductInputToWriteFields(
     sku: input.sku.trim(),
     skuNormalized: normalizeProductSku(input.sku),
     categoryId: input.categoryId,
+    supplierId: input.supplierId,
+    internalCatalogName: emptyToUndefined(input.internalCatalogName),
+    catalogCode: emptyToUndefined(input.catalogCode),
     brand: emptyToUndefined(input.brand),
     designer: emptyToUndefined(input.designer),
     shortDescription: emptyToUndefined(input.shortDescription),

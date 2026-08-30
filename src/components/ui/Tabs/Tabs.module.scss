@@ -48,6 +48,20 @@
   border-bottom-color: $color-text-primary;
 }
 
+.tabError {
+  color: $color-danger-text;
+}
+
+.tabActiveError {
+  color: $color-danger-text;
+  border-bottom-color: $color-danger-text;
+}
+
+.errorIndicator {
+  margin-inline-start: $spacing-xs;
+  color: $color-danger-text;
+}
+
 .actions {
   display: inline-flex;
   flex: 0 0 auto;

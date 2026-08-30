@@ -1,29 +1,33 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState, useTransition } from "react";
 import {
   createMaterialAction,
   updateMaterialAction,
 } from "@/app/admin/materials/actions";
+import { createMaterialTypeAction } from "@/app/admin/materials/material-type-actions";
 import Button from "@/components/ui/Button/Button";
 import FormField, { formFieldStyles } from "@/components/ui/FormField/FormField";
 import { useToast } from "@/components/ui/Toast/ToastProvider";
 import type {
-  AdminColorOption,
   AdminMaterialFormInput,
+  AdminMaterialProductLink,
   MaterialFormState,
+  MaterialTypeOption,
 } from "@/types/admin-material";
-import { MATERIAL_TYPE_LABELS, MATERIAL_TYPES } from "@/types/material";
-import ColorAssignmentEditor from "./ColorAssignmentEditor";
+import { slugifyMaterialTypeKey } from "@/lib/materials/material-type-validation";
+import MaterialProductLinksEditor from "./MaterialProductLinksEditor";
+import MaterialVariantsEditor from "./MaterialVariantsEditor";
 import styles from "../ProductForm/form-section.module.scss";
 
 type MaterialFormProps = {
   mode: "create" | "edit";
   initialMaterial: AdminMaterialFormInput;
-  activeColors: AdminColorOption[];
-  linkedColorDetails: AdminColorOption[];
+  materialTypeOptions: MaterialTypeOption[];
   materialId?: string;
+  initialProductLinks?: AdminMaterialProductLink[];
 };
 
 const initialState: MaterialFormState = {};
@@ -31,23 +35,19 @@ const initialState: MaterialFormState = {};
 export default function MaterialForm({
   mode,
   initialMaterial,
-  activeColors,
-  linkedColorDetails,
+  materialTypeOptions,
   materialId,
+  initialProductLinks = [],
 }: MaterialFormProps) {
   const router = useRouter();
   const { toast } = useToast();
   const [formState, setFormState] = useState(initialState);
   const [material, setMaterial] = useState(initialMaterial);
+  const [typeOptions, setTypeOptions] = useState(materialTypeOptions);
   const [isPending, startTransition] = useTransition();
-
-  const linkedInactiveColors = useMemo(
-    () =>
-      linkedColorDetails.filter(
-        (color) => !color.isActive && material.colorIds.includes(color.id),
-      ),
-    [linkedColorDetails, material.colorIds],
-  );
+  const [showAddType, setShowAddType] = useState(false);
+  const [newTypeLabel, setNewTypeLabel] = useState("");
+  const [newTypeKey, setNewTypeKey] = useState("");
 
   const updateField = <K extends keyof AdminMaterialFormInput>(
     key: K,
@@ -81,7 +81,41 @@ export default function MaterialForm({
     });
   };
 
+  const handleAddType = () => {
+    startTransition(async () => {
+      const result = await createMaterialTypeAction({
+        key: newTypeKey || slugifyMaterialTypeKey(newTypeLabel),
+        labelEn: newTypeLabel,
+      });
+
+      if (result.fieldErrors || result.error) {
+        toast({
+          type: "error",
+          message: result.error ?? "לא ניתן להוסיף סוג חומר",
+        });
+        return;
+      }
+
+      if (result.createdKey) {
+        setTypeOptions((current) => [
+          ...current,
+          { key: result.createdKey!, labelEn: newTypeLabel.trim() },
+        ]);
+        updateField("type", result.createdKey);
+        setShowAddType(false);
+        setNewTypeLabel("");
+        setNewTypeKey("");
+        toast({ type: "success", message: "סוג החומר נוסף" });
+      }
+    });
+  };
+
   const fieldErrors = formState.fieldErrors ?? {};
+
+  const sortedTypeOptions = useMemo(
+    () => [...typeOptions].sort((a, b) => a.labelEn.localeCompare(b.labelEn)),
+    [typeOptions],
+  );
 
   return (
     <div className={styles.stack}>
@@ -90,25 +124,7 @@ export default function MaterialForm({
 
         <div className={styles.fieldGrid}>
           <FormField
-            label="שם בעברית"
-            htmlFor="material-nameHe"
-            error={fieldErrors.nameHe}
-            errorId="material-nameHe-error"
-          >
-            <input
-              id="material-nameHe"
-              className={formFieldStyles.input}
-              value={material.nameHe}
-              onChange={(event) => updateField("nameHe", event.target.value)}
-              aria-invalid={Boolean(fieldErrors.nameHe)}
-              aria-describedby={
-                fieldErrors.nameHe ? "material-nameHe-error" : undefined
-              }
-            />
-          </FormField>
-
-          <FormField
-            label="שם באנגלית"
+            label="שם (English)"
             htmlFor="material-nameEn"
             error={fieldErrors.nameEn}
             errorId="material-nameEn-error"
@@ -116,12 +132,10 @@ export default function MaterialForm({
             <input
               id="material-nameEn"
               className={formFieldStyles.input}
+              dir="ltr"
               value={material.nameEn}
               onChange={(event) => updateField("nameEn", event.target.value)}
               aria-invalid={Boolean(fieldErrors.nameEn)}
-              aria-describedby={
-                fieldErrors.nameEn ? "material-nameEn-error" : undefined
-              }
             />
           </FormField>
 
@@ -129,7 +143,6 @@ export default function MaterialForm({
             label="קוד (אופציונלי)"
             htmlFor="material-code"
             error={fieldErrors.code}
-            errorId="material-code-error"
           >
             <input
               id="material-code"
@@ -137,10 +150,6 @@ export default function MaterialForm({
               dir="ltr"
               value={material.code}
               onChange={(event) => updateField("code", event.target.value)}
-              aria-invalid={Boolean(fieldErrors.code)}
-              aria-describedby={
-                fieldErrors.code ? "material-code-error" : undefined
-              }
             />
           </FormField>
 
@@ -148,51 +157,65 @@ export default function MaterialForm({
             label="סוג חומר"
             htmlFor="material-type"
             error={fieldErrors.type}
-            errorId="material-type-error"
           >
             <select
               id="material-type"
               className={formFieldStyles.input}
               value={material.type}
-              onChange={(event) =>
-                updateField(
-                  "type",
-                  event.target.value as AdminMaterialFormInput["type"],
-                )
-              }
-              aria-invalid={Boolean(fieldErrors.type)}
-              aria-describedby={
-                fieldErrors.type ? "material-type-error" : undefined
-              }
+              onChange={(event) => updateField("type", event.target.value)}
             >
-              {MATERIAL_TYPES.map((type) => (
-                <option key={type} value={type}>
-                  {MATERIAL_TYPE_LABELS[type]}
+              {sortedTypeOptions.map((type) => (
+                <option key={type.key} value={type.key}>
+                  {type.labelEn}
                 </option>
               ))}
             </select>
           </FormField>
-
-          <FormField
-            label="סדר מיון"
-            htmlFor="material-sortOrder"
-            error={fieldErrors.sortOrder}
-            errorId="material-sortOrder-error"
-          >
-            <input
-              id="material-sortOrder"
-              type="number"
-              min={0}
-              className={formFieldStyles.input}
-              value={material.sortOrder}
-              onChange={(event) => updateField("sortOrder", event.target.value)}
-              aria-invalid={Boolean(fieldErrors.sortOrder)}
-              aria-describedby={
-                fieldErrors.sortOrder ? "material-sortOrder-error" : undefined
-              }
-            />
-          </FormField>
         </div>
+
+        <div className={styles.inlineActionRow}>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowAddType((current) => !current)}
+          >
+            {showAddType ? "ביטול" : "הוספת סוג"}
+          </Button>
+        </div>
+
+        {showAddType ? (
+          <div className={styles.fieldGrid}>
+            <FormField label="שם סוג (English)" htmlFor="new-type-label">
+              <input
+                id="new-type-label"
+                className={formFieldStyles.input}
+                dir="ltr"
+                value={newTypeLabel}
+                onChange={(event) => {
+                  setNewTypeLabel(event.target.value);
+                  setNewTypeKey(slugifyMaterialTypeKey(event.target.value));
+                }}
+              />
+            </FormField>
+            <FormField label="Key" htmlFor="new-type-key">
+              <input
+                id="new-type-key"
+                className={formFieldStyles.input}
+                dir="ltr"
+                value={newTypeKey}
+                onChange={(event) =>
+                  setNewTypeKey(event.target.value.toUpperCase())
+                }
+              />
+            </FormField>
+            <div className={styles.actions}>
+              <Button type="button" size="sm" onClick={handleAddType}>
+                שמירת סוג
+              </Button>
+            </div>
+          </div>
+        ) : null}
 
         <div className={styles.checkboxRow}>
           <label className={styles.checkboxLabel}>
@@ -207,14 +230,22 @@ export default function MaterialForm({
       </section>
 
       <section className={styles.section}>
-        <ColorAssignmentEditor
-          activeColors={activeColors}
-          linkedInactiveColors={linkedInactiveColors}
-          selectedColorIds={material.colorIds}
-          onChange={(colorIds) => updateField("colorIds", colorIds)}
-          fieldError={fieldErrors.colorIds}
+        <MaterialVariantsEditor
+          variants={material.variants}
+          onChange={(variants) => updateField("variants", variants)}
+          fieldErrors={fieldErrors}
         />
       </section>
+
+      {mode === "edit" && materialId ? (
+        <section className={styles.section}>
+          <MaterialProductLinksEditor
+            materialId={materialId}
+            variants={material.variants}
+            initialLinks={initialProductLinks}
+          />
+        </section>
+      ) : null}
 
       <div className={styles.actions}>
         <Button onClick={handleSubmit} loading={isPending} loadingLabel="שמירה...">
@@ -223,6 +254,11 @@ export default function MaterialForm({
         <Button href="/admin/materials" variant="ghost">
           ביטול
         </Button>
+        {mode === "edit" ? (
+          <Link href="/admin/products" className={styles.helperText}>
+            ניהול מוצרים
+          </Link>
+        ) : null}
       </div>
     </div>
   );

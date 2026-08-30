@@ -9,22 +9,26 @@ import Button from "@/components/ui/Button/Button";
 import StatusBadge from "@/components/ui/StatusBadge/StatusBadge";
 import EmptyState from "@/components/ui/EmptyState/EmptyState";
 import { getAdminMaterials } from "@/lib/materials/getAdminMaterials";
+import { getMaterialTypeLabelMap } from "@/lib/materials/getMaterialTypeOptions";
 import { formatDateTime } from "@/lib/ui/format-date-time";
 import { mapEntityActiveToBadge } from "@/lib/ui/map-status-badge";
-import { MATERIAL_TYPE_LABELS } from "@/types/material";
+import { resolveMaterialTypeLabel } from "@/types/material";
 
 export const metadata: Metadata = {
   title: "חומרים | Paper & Stone",
 };
 
 export default async function AdminMaterialsPage() {
-  const materials = await getAdminMaterials();
+  const [materials, typeLabels] = await Promise.all([
+    getAdminMaterials(),
+    getMaterialTypeLabelMap(),
+  ]);
 
   return (
     <AdminPage width="wide">
       <AdminPageHeader
         title="חומרים"
-        description="ניהול ספריית החומרים"
+        description="ניהול ספריית החומרים וגרסאות הצבע/ויזואל"
         actions={
           <Button href="/admin/materials/new" size="sm">
             יצירת חומר
@@ -50,11 +54,9 @@ export default async function AdminMaterialsPage() {
                 <thead>
                   <tr>
                     <th scope="col">שם</th>
-                    <th scope="col">שם באנגלית</th>
                     <th scope="col">קוד</th>
                     <th scope="col">סוג</th>
-                    <th scope="col">צבעים</th>
-                    <th scope="col">סדר</th>
+                    <th scope="col">Variants</th>
                     <th scope="col">סטטוס</th>
                     <th scope="col">עודכן</th>
                     <th scope="col">פעולות</th>
@@ -66,12 +68,14 @@ export default async function AdminMaterialsPage() {
 
                     return (
                       <tr key={material.id}>
-                        <td className={tableStyles.primary}>{material.nameHe}</td>
-                        <td>{material.nameEn ?? "—"}</td>
+                        <td className={tableStyles.primary} dir="ltr">
+                          {material.nameEn}
+                        </td>
                         <td dir="ltr">{material.code ?? "—"}</td>
-                        <td>{MATERIAL_TYPE_LABELS[material.type]}</td>
-                        <td>{material.colorCount}</td>
-                        <td>{material.sortOrder}</td>
+                        <td>
+                          {resolveMaterialTypeLabel(material.type, typeLabels)}
+                        </td>
+                        <td>{material.variantCount}</td>
                         <td>
                           <StatusBadge tone={status.tone}>{status.label}</StatusBadge>
                         </td>
@@ -99,9 +103,11 @@ export default async function AdminMaterialsPage() {
               return (
                 <li key={material.id} className={cardStyles.card}>
                   <div className={cardStyles.header}>
-                    <p className={cardStyles.title}>{material.nameHe}</p>
+                    <p className={cardStyles.title} dir="ltr">
+                      {material.nameEn}
+                    </p>
                     <p className={cardStyles.subtitle}>
-                      {MATERIAL_TYPE_LABELS[material.type]}
+                      {resolveMaterialTypeLabel(material.type, typeLabels)}
                     </p>
                   </div>
 
@@ -111,17 +117,9 @@ export default async function AdminMaterialsPage() {
 
                   <div className={cardStyles.metaGrid}>
                     <div className={cardStyles.metaRow}>
-                      <span className={cardStyles.metaLabel}>צבעים:</span>
-                      <span className={cardStyles.metaValue}>{material.colorCount}</span>
-                    </div>
-                    <div className={cardStyles.metaRow}>
-                      <span className={cardStyles.metaLabel}>סדר:</span>
-                      <span className={cardStyles.metaValue}>{material.sortOrder}</span>
-                    </div>
-                    <div className={cardStyles.metaRow}>
-                      <span className={cardStyles.metaLabel}>עודכן:</span>
+                      <span className={cardStyles.metaLabel}>Variants:</span>
                       <span className={cardStyles.metaValue}>
-                        {formatDateTime(material.updatedAt)}
+                        {material.variantCount}
                       </span>
                     </div>
                   </div>

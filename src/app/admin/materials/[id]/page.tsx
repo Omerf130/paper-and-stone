@@ -4,11 +4,9 @@ import MaterialForm from "@/components/admin/MaterialForm/MaterialForm";
 import AdminPage from "@/components/admin/AdminPage/AdminPage";
 import AdminPageHeader from "@/components/admin/AdminPageHeader/AdminPageHeader";
 import Button from "@/components/ui/Button/Button";
-import {
-  getActiveColorsForPicker,
-  getColorsByIds,
-} from "@/lib/materials/getActiveColorsForPicker";
 import { getAdminMaterialById } from "@/lib/materials/getAdminMaterialById";
+import { getMaterialTypeOptions } from "@/lib/materials/getMaterialTypeOptions";
+import { getProductsUsingMaterial } from "@/lib/materials/material-product-links";
 
 type AdminEditMaterialPageProps = PageProps<"/admin/materials/[id]">;
 
@@ -20,7 +18,7 @@ export async function generateMetadata({
 
   return {
     title: material
-      ? `עריכת ${material.nameHe} | Paper & Stone`
+      ? `עריכת ${material.nameEn} | Paper & Stone`
       : "עריכת חומר | Paper & Stone",
   };
 }
@@ -35,16 +33,16 @@ export default async function AdminEditMaterialPage({
     notFound();
   }
 
-  const [activeColors, linkedColorDetails] = await Promise.all([
-    getActiveColorsForPicker(),
-    getColorsByIds(material.colorIds),
+  const [materialTypeOptions, productLinks] = await Promise.all([
+    getMaterialTypeOptions(),
+    getProductsUsingMaterial(id),
   ]);
 
   return (
     <AdminPage width="form">
       <AdminPageHeader
         title="עריכת חומר"
-        description={material.nameHe}
+        description={material.nameEn}
         actions={
           <Button href="/admin/materials" variant="ghost" size="sm">
             חזרה לחומרים
@@ -55,9 +53,9 @@ export default async function AdminEditMaterialPage({
       <MaterialForm
         mode="edit"
         initialMaterial={material}
-        activeColors={activeColors}
-        linkedColorDetails={linkedColorDetails}
+        materialTypeOptions={materialTypeOptions}
         materialId={id}
+        initialProductLinks={productLinks}
       />
     </AdminPage>
   );

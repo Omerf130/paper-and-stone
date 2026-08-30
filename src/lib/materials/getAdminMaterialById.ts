@@ -2,7 +2,6 @@ import { Types } from "mongoose";
 import { connectDB } from "@/lib/db/mongoose";
 import Material from "@/models/Material";
 import type { AdminMaterialFormInput } from "@/types/admin-material";
-import type { MaterialType } from "@/types/material";
 
 export async function getAdminMaterialById(
   id: string,
@@ -20,12 +19,16 @@ export async function getAdminMaterialById(
   }
 
   return {
-    nameHe: material.nameHe,
-    nameEn: material.nameEn ?? "",
+    nameEn: material.nameEn,
     code: material.code ?? "",
-    type: material.type as MaterialType,
-    sortOrder: material.sortOrder.toString(),
+    type: material.type,
     isActive: material.isActive,
-    colorIds: (material.colorIds ?? []).map((colorId) => colorId.toString()),
+    variants: (material.variants ?? []).map((variant) => ({
+      id: variant._id.toString(),
+      name: variant.name,
+      hex: variant.hex ?? "",
+      swatchImage: variant.swatchImage,
+      isActive: variant.isActive,
+    })),
   };
 }

@@ -67,9 +67,15 @@ describe("pricing view security", () => {
       media: { gallery: [] },
       recolorConfig: { enabled: false, status: "missing_primary" },
       defaultInternalCostAgorot: 100_000,
+      internalCatalogName: "Internal Sofa",
+      catalogCode: "CAT-001",
+      supplierId: new Types.ObjectId(),
     } as never);
 
     expect(view).not.toHaveProperty("defaultInternalCostAgorot");
+    expect(view).not.toHaveProperty("internalCatalogName");
+    expect(view).not.toHaveProperty("catalogCode");
+    expect(view).not.toHaveProperty("supplierId");
   });
 
   it("does not expose admin pricing fields on architect settings view", () => {

@@ -12,6 +12,7 @@ export type AdminProductListItem = {
   nameHe: string;
   sku: string;
   categoryName: string;
+  supplierName?: string;
   isActive: boolean;
   isFeatured: boolean;
   updatedAt: string;
@@ -28,6 +29,9 @@ export type AdminProductFormInput = {
   slug: string;
   sku: string;
   categoryId: string;
+  supplierId: string;
+  internalCatalogName: string;
+  catalogCode: string;
   brand: string;
   designer: string;
   shortDescription: string;
@@ -60,6 +64,9 @@ export const EMPTY_PRODUCT_FORM: AdminProductFormInput = {
   slug: "",
   sku: "",
   categoryId: "",
+  supplierId: "",
+  internalCatalogName: "",
+  catalogCode: "",
   brand: "",
   designer: "",
   shortDescription: "",

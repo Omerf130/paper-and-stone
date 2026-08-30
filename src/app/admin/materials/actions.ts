@@ -4,7 +4,6 @@ import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/auth/authorization";
 import {
   createMaterial,
-  getMaterialColorIds,
   MaterialMutationError,
   updateMaterial,
 } from "@/lib/materials/material-mutations";
@@ -13,7 +12,6 @@ import {
   MATERIAL_ERRORS,
   parseMaterialFormInput,
 } from "@/lib/materials/material-validation";
-import { verifyMaterialColorIds } from "@/lib/materials/verifyColorIds";
 import type {
   AdminMaterialFormInput,
   MaterialFormState,
@@ -29,17 +27,7 @@ export async function createMaterialAction(
     return { fieldErrors: parsed.fieldErrors };
   }
 
-  const colorVerification = await verifyMaterialColorIds(parsed.data.colorIds);
-  if (!colorVerification.ok) {
-    return {
-      fieldErrors: { [colorVerification.field]: colorVerification.message },
-    };
-  }
-
-  const writeFields = mapMaterialInputToWriteFields(
-    parsed.data,
-    colorVerification.colorIds,
-  );
+  const writeFields = mapMaterialInputToWriteFields(parsed.data);
 
   let materialId: string;
 
@@ -70,22 +58,7 @@ export async function updateMaterialAction(
     return { fieldErrors: parsed.fieldErrors };
   }
 
-  const previousColorIds = await getMaterialColorIds(materialId);
-  const colorVerification = await verifyMaterialColorIds(
-    parsed.data.colorIds,
-    previousColorIds,
-  );
-
-  if (!colorVerification.ok) {
-    return {
-      fieldErrors: { [colorVerification.field]: colorVerification.message },
-    };
-  }
-
-  const writeFields = mapMaterialInputToWriteFields(
-    parsed.data,
-    colorVerification.colorIds,
-  );
+  const writeFields = mapMaterialInputToWriteFields(parsed.data);
 
   try {
     await updateMaterial(materialId, writeFields);

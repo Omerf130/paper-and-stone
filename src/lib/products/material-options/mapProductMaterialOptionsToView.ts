@@ -5,7 +5,6 @@ import type {
   ProductMaterialColorView,
   ProductMaterialOptionView,
 } from "@/types/product";
-import { isMaterialType } from "@/types/material";
 
 type StoredOption = {
   materialId: { toString(): string };
@@ -14,8 +13,16 @@ type StoredOption = {
 
 type MaterialRecord = {
   _id: { toString(): string };
-  nameHe: string;
+  nameEn?: string;
+  nameHe?: string;
   type: string;
+  variants?: Array<{
+    _id: { toString(): string };
+    name: string;
+    hex?: string;
+    isActive: boolean;
+  }>;
+  colorIds?: { toString(): string }[];
 };
 
 type ColorRecord = {
@@ -23,6 +30,38 @@ type ColorRecord = {
   nameHe: string;
   hex: string;
 };
+
+function resolveMaterialName(material: MaterialRecord): string {
+  return material.nameEn ?? material.nameHe ?? "";
+}
+
+function resolveVariantColorView(
+  material: MaterialRecord,
+  variantId: string,
+  colorById: Map<string, ColorRecord>,
+): ProductMaterialColorView | null {
+  const variant = material.variants?.find(
+    (entry) => entry._id.toString() === variantId,
+  );
+  if (variant?.hex) {
+    return {
+      id: variantId,
+      name: variant.name,
+      hex: variant.hex,
+    };
+  }
+
+  const color = colorById.get(variantId);
+  if (!color) {
+    return null;
+  }
+
+  return {
+    id: variantId,
+    name: color.nameHe,
+    hex: color.hex,
+  };
+}
 
 export function mapStoredOptionsToView(
   storedOptions: StoredOption[],
@@ -48,17 +87,11 @@ export function mapStoredOptionsToView(
     const mappedColors: ProductMaterialColorView[] = [];
 
     for (const colorRef of option.allowedColorIds) {
-      const colorId = colorRef.toString();
-      const color = colorById.get(colorId);
-      if (!color) {
-        continue;
+      const variantId = colorRef.toString();
+      const mapped = resolveVariantColorView(material, variantId, colorById);
+      if (mapped) {
+        mappedColors.push(mapped);
       }
-
-      mappedColors.push({
-        id: colorId,
-        name: color.nameHe,
-        hex: color.hex,
-      });
     }
 
     if (mappedColors.length === 0) {
@@ -67,8 +100,8 @@ export function mapStoredOptionsToView(
 
     result.push({
       materialId,
-      materialName: material.nameHe,
-      materialType: isMaterialType(material.type) ? material.type : "OTHER",
+      materialName: resolveMaterialName(material),
+      materialType: material.type,
       colors: mappedColors,
     });
   }
@@ -98,7 +131,7 @@ export async function mapProductMaterialOptionsToView(
 
   const [materials, colors] = await Promise.all([
     Material.find({ _id: { $in: materialIds } })
-      .select("nameHe type")
+      .select("nameEn nameHe type variants colorIds")
       .lean(),
     Color.find({ _id: { $in: colorIds } })
       .select("nameHe hex")
@@ -106,4 +139,15 @@ export async function mapProductMaterialOptionsToView(
   ]);
 
   return mapStoredOptionsToView(storedOptions, materials, colors);
+}
+
+export function getMaterialPaletteVariantIds(material: {
+  variants?: Array<{ _id: { toString(): string } }>;
+  colorIds?: Array<{ toString(): string }>;
+}): string[] {
+  if (material.variants?.length) {
+    return material.variants.map((variant) => variant._id.toString());
+  }
+
+  return (material.colorIds ?? []).map((id) => id.toString());
 }

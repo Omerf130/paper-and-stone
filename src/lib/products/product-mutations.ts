@@ -1,7 +1,11 @@
 import { Types } from "mongoose";
 import { connectDB } from "@/lib/db/mongoose";
 import { verifyCategoryForProductUpdate } from "@/lib/categories/verifyCategoryForProductUpdate";
+import { deleteOldBlobBestEffort } from "@/lib/media/product-media-mutations";
+import { verifyActiveSupplier } from "@/lib/suppliers/supplier-mutations";
 import Product from "@/models/Product";
+import Project from "@/models/Project";
+import ProjectQuote from "@/models/ProjectQuote";
 import { verifyActiveCategory } from "@/lib/products/getActiveCategories";
 import { ProductMutationError } from "@/lib/products/product-mutation-error";
 import { verifyProductMaterialOptions } from "@/lib/products/material-options/verifyProductMaterialOptions";
@@ -13,6 +17,22 @@ import {
 } from "@/lib/products/product-validation";
 
 export { ProductMutationError };
+
+export const PRODUCT_DELETE_ERRORS = {
+  NOT_FOUND: "המוצר לא נמצא",
+  IN_USE:
+    "לא ניתן למחוק מוצר שמשויך לפריטים בפרויקטים או להצעות מחיר. הסירו אותו מהפרויקטים תחילה.",
+  GENERIC: "אירעה שגיאה במחיקת המוצר. נסו שוב.",
+} as const;
+
+async function assertValidSupplier(supplierId: string): Promise<void> {
+  const isValid = await verifyActiveSupplier(supplierId);
+  if (!isValid) {
+    throw new ProductMutationError(PRODUCT_ERRORS.INVALID_SUPPLIER, {
+      supplierId: PRODUCT_ERRORS.INVALID_SUPPLIER,
+    });
+  }
+}
 
 async function assertValidCategory(categoryId: string): Promise<void> {
   const isValid = await verifyActiveCategory(categoryId);
@@ -77,6 +97,7 @@ export async function createProduct(
 ): Promise<string> {
   await connectDB();
   await assertValidCategory(fields.categoryId);
+  await assertValidSupplier(fields.supplierId);
   await assertValidMaterialOptions(fields);
 
   try {
@@ -87,6 +108,9 @@ export async function createProduct(
       sku: fields.sku,
       skuNormalized: fields.skuNormalized,
       categoryId: fields.categoryId,
+      supplierId: fields.supplierId,
+      internalCatalogName: fields.internalCatalogName,
+      catalogCode: fields.catalogCode,
       brand: fields.brand,
       designer: fields.designer,
       shortDescription: fields.shortDescription,
@@ -129,6 +153,7 @@ export async function updateProduct(
 ): Promise<void> {
   await connectDB();
   await verifyCategoryForProductUpdate(fields.categoryId, id);
+  await assertValidSupplier(fields.supplierId);
   await assertValidMaterialOptions(fields, id);
 
   try {
@@ -142,6 +167,9 @@ export async function updateProduct(
           sku: fields.sku,
       skuNormalized: fields.skuNormalized,
           categoryId: fields.categoryId,
+          supplierId: fields.supplierId,
+          internalCatalogName: fields.internalCatalogName,
+          catalogCode: fields.catalogCode,
           brand: fields.brand,
           designer: fields.designer,
           shortDescription: fields.shortDescription,
@@ -184,6 +212,71 @@ export async function updateProduct(
     }
     throw error;
   }
+}
+
+function collectProductMediaStorageKeys(
+  media: {
+    primaryImage?: { storageKey: string } | null;
+    gallery?: Array<{ storageKey: string }>;
+    technicalDrawing?: { storageKey: string } | null;
+    recolorMask?: { storageKey: string } | null;
+  } | null | undefined,
+): string[] {
+  if (!media) {
+    return [];
+  }
+
+  const keys: string[] = [];
+
+  if (media.primaryImage?.storageKey) {
+    keys.push(media.primaryImage.storageKey);
+  }
+
+  if (media.technicalDrawing?.storageKey) {
+    keys.push(media.technicalDrawing.storageKey);
+  }
+
+  if (media.recolorMask?.storageKey) {
+    keys.push(media.recolorMask.storageKey);
+  }
+
+  for (const item of media.gallery ?? []) {
+    if (item.storageKey) {
+      keys.push(item.storageKey);
+    }
+  }
+
+  return keys;
+}
+
+export async function deleteProduct(productId: string): Promise<void> {
+  if (!Types.ObjectId.isValid(productId)) {
+    throw new ProductMutationError(PRODUCT_DELETE_ERRORS.NOT_FOUND);
+  }
+
+  await connectDB();
+
+  const objectId = new Types.ObjectId(productId);
+
+  const [projectItemCount, quoteCount, product] = await Promise.all([
+    Project.countDocuments({ "items.productId": objectId }),
+    ProjectQuote.countDocuments({ productId: objectId }),
+    Product.findById(productId).select("media").lean(),
+  ]);
+
+  if (!product) {
+    throw new ProductMutationError(PRODUCT_DELETE_ERRORS.NOT_FOUND);
+  }
+
+  if (projectItemCount > 0 || quoteCount > 0) {
+    throw new ProductMutationError(PRODUCT_DELETE_ERRORS.IN_USE);
+  }
+
+  const storageKeys = collectProductMediaStorageKeys(product.media);
+
+  await Product.findByIdAndDelete(productId);
+
+  await Promise.all(storageKeys.map((key) => deleteOldBlobBestEffort(key)));
 }
 
 export { mapProductInputToWriteFields };

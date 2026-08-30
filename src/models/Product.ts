@@ -75,6 +75,9 @@ export interface IProduct extends Document {
   sku: string;
   skuNormalized?: string;
   categoryId: Types.ObjectId;
+  supplierId?: Types.ObjectId;
+  internalCatalogName?: string;
+  catalogCode?: string;
   brand?: string;
   designer?: string;
   shortDescription?: string;
@@ -210,6 +213,13 @@ const productSchema = new Schema<IProduct>(
       required: true,
       index: true,
     },
+    supplierId: {
+      type: Schema.Types.ObjectId,
+      ref: "Supplier",
+      index: true,
+    },
+    internalCatalogName: { type: String },
+    catalogCode: { type: String },
     brand: { type: String },
     designer: { type: String },
     shortDescription: { type: String },

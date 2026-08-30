@@ -1,7 +1,7 @@
 import { Types } from "mongoose";
 import { connectDB } from "@/lib/db/mongoose";
-import Product, { type IProduct } from "@/models/Product";
 import { formatAgorotToShekelsInput } from "@/lib/money/parse-money-input";
+import Product from "@/models/Product";
 import type { AdminProductFormInput } from "@/types/admin-product";
 
 export async function getAdminProductById(
@@ -13,7 +13,7 @@ export async function getAdminProductById(
 
   await connectDB();
 
-  const product = await Product.findById(id).lean<IProduct>();
+  const product = await Product.findById(id).lean();
 
   if (!product) {
     return null;
@@ -25,6 +25,9 @@ export async function getAdminProductById(
     slug: product.slug,
     sku: product.sku,
     categoryId: product.categoryId.toString(),
+    supplierId: product.supplierId?.toString() ?? "",
+    internalCatalogName: product.internalCatalogName ?? "",
+    catalogCode: product.catalogCode ?? "",
     brand: product.brand ?? "",
     designer: product.designer ?? "",
     shortDescription: product.shortDescription ?? "",

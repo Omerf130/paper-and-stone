@@ -1,0 +1,53 @@
+@use "../../../styles/tokens" as *;
+@use "../../../styles/mixins" as *;
+
+.actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: $spacing-xs;
+}
+
+.cardActions {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.iconButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  padding: $spacing-xs;
+  color: $color-text-secondary;
+  background: transparent;
+  border: 1px solid $color-border;
+  border-radius: $radius-sm;
+  cursor: pointer;
+  text-decoration: none;
+
+  @include focus-visible;
+
+  &:hover {
+    color: $color-text-primary;
+    border-color: $color-text-secondary;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.danger {
+  &:hover {
+    color: $color-danger-text;
+    border-color: $color-danger-text;
+  }
+}
+
+.icon {
+  display: block;
+}

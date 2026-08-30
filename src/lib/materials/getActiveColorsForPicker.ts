@@ -7,12 +7,12 @@ export async function getActiveColorsForPicker(): Promise<AdminColorOption[]> {
 
   const colors = await Color.find({ isActive: true })
     .sort({ sortOrder: 1, nameHe: 1 })
-    .select("nameHe hex isActive")
+    .select("nameHe nameEn hex isActive")
     .lean();
 
   return colors.map((color) => ({
     id: color._id.toString(),
-    nameHe: color.nameHe,
+    name: color.nameEn?.trim() || color.nameHe,
     hex: color.hex,
     isActive: color.isActive,
   }));
@@ -28,7 +28,7 @@ export async function getColorsByIds(
   await connectDB();
 
   const colors = await Color.find({ _id: { $in: colorIds } })
-    .select("nameHe hex isActive")
+    .select("nameHe nameEn hex isActive")
     .lean();
 
   const colorById = new Map(
@@ -36,7 +36,7 @@ export async function getColorsByIds(
       color._id.toString(),
       {
         id: color._id.toString(),
-        nameHe: color.nameHe,
+        name: color.nameEn?.trim() || color.nameHe,
         hex: color.hex,
         isActive: color.isActive,
       },
@@ -45,5 +45,5 @@ export async function getColorsByIds(
 
   return colorIds
     .map((id) => colorById.get(id))
-    .filter((color): color is AdminColorOption => color !== undefined);
+    .filter((color): color is NonNullable<typeof color> => color !== undefined);
 }

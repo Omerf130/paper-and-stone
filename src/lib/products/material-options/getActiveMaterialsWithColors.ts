@@ -1,17 +1,44 @@
 import { connectDB } from "@/lib/db/mongoose";
 import Color from "@/models/Color";
 import Material from "@/models/Material";
-import type { AdminColorOption } from "@/types/admin-material";
-import type { MaterialType } from "@/types/material";
-import { isMaterialType } from "@/types/material";
+import type { AdminMaterialVariantOption } from "@/types/admin-material";
 
 export type AdminMaterialWithColors = {
   id: string;
-  nameHe: string;
-  type: MaterialType;
+  nameEn: string;
+  type: string;
   isActive: boolean;
-  colors: AdminColorOption[];
+  colors: AdminMaterialVariantOption[];
 };
+
+async function resolveMaterialColors(
+  material: {
+    _id: { toString(): string };
+    variants?: Array<{
+      _id: { toString(): string };
+      name: string;
+      hex?: string;
+      swatchImage?: { url: string };
+      isActive: boolean;
+    }>;
+    colorIds?: { toString(): string }[];
+  },
+  colorById: Map<string, AdminMaterialVariantOption>,
+): Promise<AdminMaterialVariantOption[]> {
+  if (material.variants?.length) {
+    return material.variants.map((variant) => ({
+      id: variant._id.toString(),
+      name: variant.name,
+      hex: variant.hex,
+      swatchImageUrl: variant.swatchImage?.url,
+      isActive: variant.isActive,
+    }));
+  }
+
+  return (material.colorIds ?? [])
+    .map((colorId) => colorById.get(colorId.toString()))
+    .filter((color): color is AdminMaterialVariantOption => color !== undefined);
+}
 
 export async function getActiveMaterialsWithColors(): Promise<
   AdminMaterialWithColors[]
@@ -19,20 +46,22 @@ export async function getActiveMaterialsWithColors(): Promise<
   await connectDB();
 
   const materials = await Material.find({ isActive: true })
-    .sort({ sortOrder: 1, nameHe: 1 })
-    .select("nameHe type isActive colorIds")
+    .sort({ sortOrder: 1, nameEn: 1 })
+    .select("nameEn type isActive variants colorIds")
     .lean();
 
-  const allColorIds = [
+  const legacyColorIds = [
     ...new Set(
       materials.flatMap((material) =>
-        (material.colorIds ?? []).map((id) => id.toString()),
+        material.variants?.length
+          ? []
+          : (material.colorIds ?? []).map((id) => id.toString()),
       ),
     ),
   ];
 
-  const colors = allColorIds.length
-    ? await Color.find({ _id: { $in: allColorIds }, isActive: true })
+  const colors = legacyColorIds.length
+    ? await Color.find({ _id: { $in: legacyColorIds }, isActive: true })
         .select("nameHe hex isActive")
         .lean()
     : [];
@@ -42,22 +71,22 @@ export async function getActiveMaterialsWithColors(): Promise<
       color._id.toString(),
       {
         id: color._id.toString(),
-        nameHe: color.nameHe,
+        name: color.nameHe,
         hex: color.hex,
         isActive: color.isActive,
       },
     ]),
   );
 
-  return materials.map((material) => ({
-    id: material._id.toString(),
-    nameHe: material.nameHe,
-    type: isMaterialType(material.type) ? material.type : "OTHER",
-    isActive: material.isActive,
-    colors: (material.colorIds ?? [])
-      .map((colorId) => colorById.get(colorId.toString()))
-      .filter((color): color is AdminColorOption => color !== undefined),
-  }));
+  return Promise.all(
+    materials.map(async (material) => ({
+      id: material._id.toString(),
+      nameEn: material.nameEn,
+      type: material.type,
+      isActive: material.isActive,
+      colors: await resolveMaterialColors(material, colorById),
+    })),
+  );
 }
 
 export async function getMaterialsByIds(
@@ -70,19 +99,21 @@ export async function getMaterialsByIds(
   await connectDB();
 
   const materials = await Material.find({ _id: { $in: ids } })
-    .select("nameHe type isActive colorIds")
+    .select("nameEn type isActive variants colorIds")
     .lean();
 
-  const allColorIds = [
+  const legacyColorIds = [
     ...new Set(
       materials.flatMap((material) =>
-        (material.colorIds ?? []).map((id) => id.toString()),
+        material.variants?.length
+          ? []
+          : (material.colorIds ?? []).map((id) => id.toString()),
       ),
     ),
   ];
 
-  const colors = allColorIds.length
-    ? await Color.find({ _id: { $in: allColorIds } })
+  const colors = legacyColorIds.length
+    ? await Color.find({ _id: { $in: legacyColorIds } })
         .select("nameHe hex isActive")
         .lean()
     : [];
@@ -92,7 +123,7 @@ export async function getMaterialsByIds(
       color._id.toString(),
       {
         id: color._id.toString(),
-        nameHe: color.nameHe,
+        name: color.nameHe,
         hex: color.hex,
         isActive: color.isActive,
       },
@@ -100,18 +131,18 @@ export async function getMaterialsByIds(
   );
 
   const materialById = new Map(
-    materials.map((material) => [
-      material._id.toString(),
-      {
-        id: material._id.toString(),
-        nameHe: material.nameHe,
-        type: isMaterialType(material.type) ? material.type : "OTHER",
-        isActive: material.isActive,
-        colors: (material.colorIds ?? [])
-          .map((colorId) => colorById.get(colorId.toString()))
-          .filter((color): color is AdminColorOption => color !== undefined),
-      },
-    ]),
+    await Promise.all(
+      materials.map(async (material) => [
+        material._id.toString(),
+        {
+          id: material._id.toString(),
+          nameEn: material.nameEn,
+          type: material.type,
+          isActive: material.isActive,
+          colors: await resolveMaterialColors(material, colorById),
+        },
+      ] as const),
+    ),
   );
 
   return ids
@@ -119,4 +150,15 @@ export async function getMaterialsByIds(
     .filter(
       (material): material is AdminMaterialWithColors => material !== undefined,
     );
+}
+
+export function getMaterialVariantPaletteIds(material: {
+  variants?: Array<{ _id: { toString(): string } }>;
+  colorIds?: Array<{ toString(): string }>;
+}): string[] {
+  if (material.variants?.length) {
+    return material.variants.map((variant) => variant._id.toString());
+  }
+
+  return (material.colorIds ?? []).map((id) => id.toString());
 }

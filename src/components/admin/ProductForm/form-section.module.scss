@@ -11,6 +11,13 @@
   padding-bottom: 5rem;
 }
 
+.tabPanel {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+  padding-block: $spacing-md;
+}
+
 .section {
   display: flex;
   flex-direction: column;
@@ -267,4 +274,68 @@
 
 .fullWidth {
   grid-column: 1 / -1;
+}
+
+.subsectionHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: $spacing-md;
+}
+
+.inlineActionRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+}
+
+.hexFieldRow {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.visibilityGroup {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  padding: $spacing-md;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  background: $color-background-subtle;
+}
+
+.internalFieldsGroup {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  padding: $spacing-md;
+  border: 1px dashed $color-border;
+  border-radius: $radius-md;
+}
+
+.inlineCreatePanel {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  padding: $spacing-sm $spacing-md;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  background: $color-background-subtle;
+}
+
+.inlineCreateFields {
+  display: grid;
+  gap: $spacing-sm;
+
+  @include tablet-up {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.inlineCreateActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
 }

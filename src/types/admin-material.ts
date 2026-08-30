@@ -1,32 +1,37 @@
-import type { MaterialType } from "@/types/material";
+import type { MaterialVariantInput } from "@/types/material-variant";
 
-export type AdminColorOption = {
+export type AdminMaterialVariantOption = {
   id: string;
-  nameHe: string;
-  hex: string;
+  name: string;
+  hex?: string;
+  swatchImageUrl?: string;
   isActive: boolean;
+};
+
+/** @deprecated Use AdminMaterialVariantOption */
+export type AdminColorOption = AdminMaterialVariantOption;
+
+export type MaterialTypeOption = {
+  key: string;
+  labelEn: string;
 };
 
 export type AdminMaterialListItem = {
   id: string;
-  nameHe: string;
-  nameEn?: string;
+  nameEn: string;
   code?: string;
-  type: MaterialType;
-  colorCount: number;
+  type: string;
+  variantCount: number;
   isActive: boolean;
-  sortOrder: number;
   updatedAt: string;
 };
 
 export type AdminMaterialFormInput = {
-  nameHe: string;
   nameEn: string;
   code: string;
-  type: MaterialType;
-  sortOrder: string;
+  type: string;
   isActive: boolean;
-  colorIds: string[];
+  variants: MaterialVariantInput[];
 };
 
 export type MaterialFormState = {
@@ -36,11 +41,16 @@ export type MaterialFormState = {
 };
 
 export const EMPTY_MATERIAL_FORM: AdminMaterialFormInput = {
-  nameHe: "",
   nameEn: "",
   code: "",
   type: "FABRIC",
-  sortOrder: "0",
   isActive: true,
-  colorIds: [],
+  variants: [],
+};
+
+export type AdminMaterialProductLink = {
+  productId: string;
+  nameHe: string;
+  sku: string;
+  allowedVariantIds: string[];
 };
