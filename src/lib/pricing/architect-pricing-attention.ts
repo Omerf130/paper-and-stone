@@ -1,49 +1,56 @@
+import {
+  getItemPricingStatus,
+  type ItemPricingFields,
+  type ItemPricingStatus,
+} from "@/lib/pricing/pricing-commercial-model";
+
 export type ArchitectPricingAttention = {
   incompleteItemCount: number;
-  staleClientPriceCount: number;
+  needsReviewItemCount: number;
 };
 
-type ArchitectPricingFields = {
-  architectPriceAgorot?: number | null;
-  clientPriceAgorot?: number | null;
-  clientPriceStale?: boolean;
-};
+type ArchitectPricingFields = ItemPricingFields;
+
+function resolveArchitectItemPricingStatus(
+  pricing?: ArchitectPricingFields | null,
+): ItemPricingStatus {
+  if (pricing?.pricingStatus != null) {
+    return pricing.pricingStatus;
+  }
+
+  return getItemPricingStatus(pricing);
+}
 
 export function isArchitectPricingIncomplete(
   pricing?: ArchitectPricingFields | null,
 ): boolean {
-  return (
-    pricing?.architectPriceAgorot == null ||
-    pricing?.clientPriceAgorot == null
-  );
+  return resolveArchitectItemPricingStatus(pricing) !== "priced";
 }
 
 export function getArchitectPricingAttentionFromItems(
   items: Array<{ architectPricing?: ArchitectPricingFields }>,
 ): ArchitectPricingAttention {
   let incompleteItemCount = 0;
-  let staleClientPriceCount = 0;
+  let needsReviewItemCount = 0;
 
   for (const item of items) {
-    const pricing = item.architectPricing;
+    const status = resolveArchitectItemPricingStatus(item.architectPricing);
 
-    if (isArchitectPricingIncomplete(pricing)) {
+    if (status === "unpriced") {
       incompleteItemCount += 1;
-    }
-
-    if (pricing?.clientPriceStale) {
-      staleClientPriceCount += 1;
+    } else if (status === "needs_review") {
+      needsReviewItemCount += 1;
     }
   }
 
   return {
     incompleteItemCount,
-    staleClientPriceCount,
+    needsReviewItemCount,
   };
 }
 
 export function hasArchitectPricingAttention(
   attention: ArchitectPricingAttention,
 ): boolean {
-  return attention.incompleteItemCount > 0 || attention.staleClientPriceCount > 0;
+  return attention.incompleteItemCount > 0 || attention.needsReviewItemCount > 0;
 }

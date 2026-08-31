@@ -1,14 +1,22 @@
-import { formatIlsAgorot } from "@/lib/money/format-ils";
-import type { ProjectItemView } from "@/types/project";
 import styles from "./LayeredPricingTotalsSummary.module.scss";
 
 type LayeredPricingTotalsSummaryProps = {
   label: string;
   idPrefix: string;
   internalCostTotalFormatted?: string;
-  architectTotalFormatted?: string;
+  commercialMarginTotalFormatted?: string;
+  paperStoneProfitTotalFormatted?: string;
+  architectProfitTotalFormatted?: string;
+  clientSubtotalFormatted?: string;
+  vatAmountFormatted?: string;
+  clientTotalInclVatFormatted?: string;
+  /** @deprecated use clientSubtotalFormatted */
   clientTotalFormatted?: string;
+  /** @deprecated use architectProfitTotalFormatted */
+  architectTotalFormatted?: string;
   unpricedItemCount?: number;
+  needsReviewItemCount?: number;
+  /** @deprecated use needsReviewItemCount */
   staleItemCount?: number;
   variant?: "room" | "project";
 };
@@ -17,18 +25,34 @@ export default function LayeredPricingTotalsSummary({
   label,
   idPrefix,
   internalCostTotalFormatted,
-  architectTotalFormatted,
+  commercialMarginTotalFormatted,
+  paperStoneProfitTotalFormatted,
+  architectProfitTotalFormatted,
+  clientSubtotalFormatted,
+  vatAmountFormatted,
+  clientTotalInclVatFormatted,
   clientTotalFormatted,
+  architectTotalFormatted,
   unpricedItemCount = 0,
+  needsReviewItemCount = 0,
   staleItemCount = 0,
   variant = "room",
 }: LayeredPricingTotalsSummaryProps) {
+  const resolvedClientSubtotal = clientSubtotalFormatted ?? clientTotalFormatted;
+  const resolvedArchitectProfit =
+    architectProfitTotalFormatted ?? architectTotalFormatted;
+  const resolvedNeedsReview = needsReviewItemCount || staleItemCount;
+
   const hasAnyTotal =
     internalCostTotalFormatted ||
-    architectTotalFormatted ||
-    clientTotalFormatted;
+    commercialMarginTotalFormatted ||
+    paperStoneProfitTotalFormatted ||
+    resolvedArchitectProfit ||
+    resolvedClientSubtotal ||
+    vatAmountFormatted ||
+    clientTotalInclVatFormatted;
 
-  if (!hasAnyTotal && unpricedItemCount === 0 && staleItemCount === 0) {
+  if (!hasAnyTotal && unpricedItemCount === 0 && resolvedNeedsReview === 0) {
     return null;
   }
 
@@ -43,64 +67,57 @@ export default function LayeredPricingTotalsSummary({
       <p className={styles.label}>{label}</p>
       {internalCostTotalFormatted ? (
         <div className={styles.row}>
-          <dt>סה״כ עלות פנימית</dt>
+          <dt>סה״כ מחיר מוצר</dt>
           <dd dir="ltr">{internalCostTotalFormatted}</dd>
         </div>
       ) : null}
-      {architectTotalFormatted ? (
+      {commercialMarginTotalFormatted ? (
         <div className={styles.row}>
-          <dt>סה״כ לאדריכל</dt>
-          <dd dir="ltr">{architectTotalFormatted}</dd>
+          <dt>סה״כ מרווח כולל</dt>
+          <dd dir="ltr">{commercialMarginTotalFormatted}</dd>
         </div>
       ) : null}
-      {clientTotalFormatted ? (
+      {paperStoneProfitTotalFormatted ? (
         <div className={styles.row}>
-          <dt>סה״כ ללקוח</dt>
-          <dd dir="ltr">{clientTotalFormatted}</dd>
+          <dt>סה״כ רווח Paper & Stone</dt>
+          <dd dir="ltr">{paperStoneProfitTotalFormatted}</dd>
+        </div>
+      ) : null}
+      {resolvedArchitectProfit ? (
+        <div className={styles.row}>
+          <dt>סה״כ רווח אדריכל</dt>
+          <dd dir="ltr">{resolvedArchitectProfit}</dd>
+        </div>
+      ) : null}
+      {resolvedClientSubtotal ? (
+        <div className={styles.row}>
+          <dt>סה״כ לקוח לפני מע״מ</dt>
+          <dd dir="ltr">{resolvedClientSubtotal}</dd>
+        </div>
+      ) : null}
+      {vatAmountFormatted ? (
+        <div className={styles.row}>
+          <dt>מע״מ</dt>
+          <dd dir="ltr">{vatAmountFormatted}</dd>
+        </div>
+      ) : null}
+      {clientTotalInclVatFormatted ? (
+        <div className={styles.row}>
+          <dt>סה״כ לקוח כולל מע״מ</dt>
+          <dd dir="ltr">{clientTotalInclVatFormatted}</dd>
         </div>
       ) : null}
       {unpricedItemCount > 0 ? (
         <p className={styles.meta}>{`${unpricedItemCount} מוצרים ללא תמחור מלא`}</p>
       ) : null}
-      {staleItemCount > 0 ? (
-        <p className={styles.metaWarning}>{`${staleItemCount} מוצרים דורשים עדכון מחיר לקוח`}</p>
+      {resolvedNeedsReview > 0 ? (
+        <p className={styles.metaWarning}>{`${resolvedNeedsReview} מוצרים דורשים בדיקת תמחור`}</p>
       ) : null}
     </dl>
   );
 }
 
-export function getRoomArchitectTotalFormatted(
-  roomItems: ProjectItemView[],
-): string | undefined {
-  if (
-    roomItems.length === 0 ||
-    !roomItems.every((item) => item.adminPricing?.architectLineTotalAgorot != null)
-  ) {
-    return undefined;
-  }
-
-  const totalAgorot = roomItems.reduce(
-    (sum, item) => sum + (item.adminPricing?.architectLineTotalAgorot ?? 0),
-    0,
-  );
-
-  return formatIlsAgorot(totalAgorot);
-}
-
-export function getRoomArchitectTotalFormattedFromArchitectItems(
-  roomItems: ProjectItemView[],
-): string | undefined {
-  if (
-    roomItems.length === 0 ||
-    !roomItems.every((item) => item.architectPricing?.architectLineTotalAgorot != null)
-  ) {
-    return undefined;
-  }
-
-  const totalAgorot = roomItems.reduce(
-    (sum, item) => sum + (item.architectPricing?.architectLineTotalAgorot ?? 0),
-    0,
-  );
-
-  return formatIlsAgorot(totalAgorot);
-}
+export { getRoomClientTotalFormatted } from "@/lib/pricing/pricing-room-total-helpers";
+export {
+  getRoomArchitectProfitTotalFormatted as getRoomArchitectTotalFormattedFromArchitectItems,
+} from "@/lib/pricing/pricing-room-total-helpers";

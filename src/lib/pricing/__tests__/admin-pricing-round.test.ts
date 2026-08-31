@@ -11,6 +11,16 @@ import {
   shouldOpenAdminPricingRound,
 } from "@/lib/pricing/admin-pricing-round";
 
+const completeLayeredItemPricing = {
+  internalCostAgorot: 100_000,
+  architectPriceAgorot: 150_000,
+  architectMarkupBp: 1_200,
+  architectProfitAgorot: 18_000,
+  clientPriceAgorot: 168_000,
+  priceVersion: 1,
+  pricingReviewStatus: "none" as const,
+};
+
 const layeredProject = {
   onboardingStatus: "active" as const,
   adminPricingRevision: 2,
@@ -18,11 +28,7 @@ const layeredProject = {
   architectAdminPricingSeenRevision: 1,
   items: [
     {
-      pricing: {
-        internalCostAgorot: 100_000,
-        architectPriceAgorot: 140_000,
-        clientPriceAgorot: 210_000,
-      },
+      pricing: completeLayeredItemPricing,
     },
   ],
 };
@@ -81,17 +87,15 @@ describe("admin-pricing-round", () => {
     expect(update.$inc).toEqual({ adminPricingRevision: 1 });
   });
 
-  it("requires internal cost and architect price for admin layer completeness", () => {
+  it("requires complete commercial pricing for admin layer completeness", () => {
     expect(
-      isAdminLayerPricingIncomplete({
-        internalCostAgorot: 100_000,
-        architectPriceAgorot: 140_000,
-      }),
+      isAdminLayerPricingIncomplete(completeLayeredItemPricing),
     ).toBe(false);
 
     expect(
       isAdminLayerPricingIncomplete({
         internalCostAgorot: 100_000,
+        priceVersion: 0,
       }),
     ).toBe(true);
   });
@@ -134,10 +138,7 @@ describe("admin-pricing-round", () => {
     expect(
       isAdminPricingRoundComplete([
         {
-          pricing: {
-            internalCostAgorot: 100_000,
-            architectPriceAgorot: 140_000,
-          },
+          pricing: completeLayeredItemPricing,
         },
       ] as never),
     ).toBe(true);

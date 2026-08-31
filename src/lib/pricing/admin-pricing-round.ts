@@ -1,15 +1,11 @@
 import type { IProject, IProjectItem } from "@/models/Project";
+import { getItemPricingStatus } from "@/lib/pricing/pricing-commercial-model";
 import { usesLayeredPricing } from "@/lib/projects/project-workspace-gates";
 
 export type AdminPricingRoundFields = Pick<
   IProject,
   "onboardingStatus" | "adminPricingRevision" | "adminPricingDeliveredRevision"
 >;
-
-export type AdminLayerPricingFields = {
-  internalCostAgorot?: number | null;
-  architectPriceAgorot?: number | null;
-};
 
 export function getAdminPricingRevision(project: AdminPricingRoundFields): number {
   return project.adminPricingRevision ?? 0;
@@ -34,11 +30,9 @@ export function hasPendingAdminPricingDelivery(
 }
 
 export function isAdminLayerPricingIncomplete(
-  pricing?: AdminLayerPricingFields | null,
+  pricing?: IProjectItem["pricing"] | null,
 ): boolean {
-  return (
-    pricing?.internalCostAgorot == null || pricing?.architectPriceAgorot == null
-  );
+  return getItemPricingStatus(pricing) !== "priced";
 }
 
 export function isAdminPricingRoundComplete(items: IProjectItem[]): boolean {

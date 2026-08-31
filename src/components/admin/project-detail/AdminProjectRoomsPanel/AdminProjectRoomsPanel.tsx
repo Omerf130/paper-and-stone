@@ -10,7 +10,7 @@ import AdminProjectItemRow from "../AdminProjectItemRow/AdminProjectItemRow";
 import AdminProjectItemPricing from "../AdminProjectItemPricing/AdminProjectItemPricing";
 import AdminProjectPricingSettings from "../AdminProjectPricingSettings/AdminProjectPricingSettings";
 import LayeredPricingTotalsSummary, {
-  getRoomArchitectTotalFormatted,
+  getRoomClientTotalFormatted,
 } from "../LayeredPricingTotalsSummary/LayeredPricingTotalsSummary";
 import styles from "./AdminProjectRoomsPanel.module.scss";
 
@@ -54,7 +54,7 @@ export default function AdminProjectRoomsPanel({
 
       {sortedRooms.map((room) => {
         const roomItems = itemsByRoomId.get(room.id) ?? [];
-        const roomArchitectTotal = getRoomArchitectTotalFormatted(roomItems);
+        const roomClientTotal = getRoomClientTotalFormatted(roomItems);
 
         return (
           <section
@@ -82,19 +82,16 @@ export default function AdminProjectRoomsPanel({
                           projectId={projectId}
                           itemId={item.id}
                           pricing={item.adminPricing}
-                          defaultAdminMarkupPercent={
-                            pricingSettings?.defaultAdminMarkupPercent
-                          }
                           isEditable={isPricingEditable}
                         />
                       ) : null}
                     </li>
                   ))}
                 </ul>
-                {showPricing && roomArchitectTotal ? (
+                {showPricing && roomClientTotal ? (
                   <LayeredPricingTotalsSummary
                     label={`סיכום חדר — ${room.name}`}
-                    architectTotalFormatted={roomArchitectTotal}
+                    clientSubtotalFormatted={roomClientTotal}
                     idPrefix={`room-${room.id}`}
                   />
                 ) : null}
@@ -110,10 +107,20 @@ export default function AdminProjectRoomsPanel({
         <LayeredPricingTotalsSummary
           label="סיכום פרויקט"
           internalCostTotalFormatted={pricingTotals.internalCostTotalFormatted}
-          architectTotalFormatted={pricingTotals.architectTotalFormatted}
-          clientTotalFormatted={pricingTotals.clientTotalFormatted}
+          commercialMarginTotalFormatted={
+            pricingTotals.commercialMarginTotalFormatted
+          }
+          paperStoneProfitTotalFormatted={
+            pricingTotals.paperStoneProfitTotalFormatted
+          }
+          architectProfitTotalFormatted={
+            pricingTotals.architectProfitTotalFormatted
+          }
+          clientSubtotalFormatted={pricingTotals.clientSubtotalFormatted}
+          vatAmountFormatted={pricingTotals.vatAmountFormatted}
+          clientTotalInclVatFormatted={pricingTotals.clientTotalInclVatFormatted}
           unpricedItemCount={pricingTotals.unpricedItemCount}
-          staleItemCount={pricingTotals.staleItemCount}
+          needsReviewItemCount={pricingTotals.needsReviewItemCount}
           idPrefix="project"
           variant="project"
         />

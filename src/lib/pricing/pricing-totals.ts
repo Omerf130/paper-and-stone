@@ -3,7 +3,12 @@ import {
   calculateLineTotalAgorot,
   sumLineTotalsAgorot,
 } from "@/lib/pricing/pricing-calculations";
-import { isAdminLayerPricingIncomplete } from "@/lib/pricing/pricing-attention-utils";
+import {
+  getItemPricingStatus,
+  isItemCommercialPricingComplete,
+  resolveItemCommercialPricing,
+} from "@/lib/pricing/pricing-commercial-model";
+import { calculateLayeredPricingVatTotals } from "@/lib/pricing/pricing-vat";
 import type {
   AdminPricingTotalsView,
   ArchitectPricingTotalsView,
@@ -11,171 +16,192 @@ import type {
   PricingTotalsView,
 } from "@/types/project-pricing";
 
-function buildBaseTotals(items: IProjectItem[]): PricingTotalsView {
+function buildPricingTotalsBase(items: IProjectItem[]): PricingTotalsView {
   let pricedItemCount = 0;
   let unpricedItemCount = 0;
-  let staleItemCount = 0;
+  let needsReviewItemCount = 0;
 
   for (const item of items) {
-    const pricing = item.pricing;
+    const status = getItemPricingStatus(item.pricing);
 
-    if (
-      pricing?.architectPriceAgorot != null &&
-      pricing.clientPriceAgorot != null
-    ) {
+    if (status === "priced") {
       pricedItemCount += 1;
+    } else if (status === "needs_review") {
+      needsReviewItemCount += 1;
     } else {
       unpricedItemCount += 1;
-    }
-
-    if (pricing?.clientPriceStale) {
-      staleItemCount += 1;
     }
   }
 
   return {
     pricedItemCount,
     unpricedItemCount,
-    staleItemCount,
-    isComplete: unpricedItemCount === 0 && staleItemCount === 0,
+    needsReviewItemCount,
+    isComplete: unpricedItemCount === 0 && needsReviewItemCount === 0,
   };
 }
 
-function buildAdminBaseTotals(items: IProjectItem[]): PricingTotalsView {
-  let pricedItemCount = 0;
-  let unpricedItemCount = 0;
-  let staleItemCount = 0;
-
-  for (const item of items) {
-    const pricing = item.pricing;
-
-    if (!isAdminLayerPricingIncomplete(pricing)) {
-      pricedItemCount += 1;
-    } else {
-      unpricedItemCount += 1;
-    }
-
-    if (pricing?.clientPriceStale) {
-      staleItemCount += 1;
-    }
-  }
-
-  return {
-    pricedItemCount,
-    unpricedItemCount,
-    staleItemCount,
-    isComplete: unpricedItemCount === 0 && staleItemCount === 0,
-  };
+function allItemsArePriced(items: IProjectItem[]): boolean {
+  return (
+    items.length > 0 &&
+    items.every((item) => getItemPricingStatus(item.pricing) === "priced")
+  );
 }
 
 export function calculateAdminPricingTotals(
   items: IProjectItem[],
 ): AdminPricingTotalsView {
-  const base = buildAdminBaseTotals(items);
+  const base = buildPricingTotalsBase(items);
   const internalLineTotals: number[] = [];
-  const architectLineTotals: number[] = [];
+  const commercialMarginLineTotals: number[] = [];
+  const paperStoneProfitLineTotals: number[] = [];
+  const architectProfitLineTotals: number[] = [];
   const clientLineTotals: number[] = [];
 
   for (const item of items) {
-    const pricing = item.pricing;
+    const resolved = resolveItemCommercialPricing(item.pricing);
 
-    if (pricing?.internalCostAgorot != null) {
+    if (item.pricing?.internalCostAgorot != null) {
       internalLineTotals.push(
-        calculateLineTotalAgorot(pricing.internalCostAgorot, item.quantity),
+        calculateLineTotalAgorot(item.pricing.internalCostAgorot, item.quantity),
       );
     }
 
-    if (pricing?.architectPriceAgorot != null) {
-      architectLineTotals.push(
-        calculateLineTotalAgorot(pricing.architectPriceAgorot, item.quantity),
+    if (resolved != null) {
+      commercialMarginLineTotals.push(
+        calculateLineTotalAgorot(resolved.commercialMarginAgorot, item.quantity),
       );
-    }
-
-    if (pricing?.clientPriceAgorot != null) {
+      paperStoneProfitLineTotals.push(
+        calculateLineTotalAgorot(resolved.paperStoneProfitAgorot, item.quantity),
+      );
+      architectProfitLineTotals.push(
+        calculateLineTotalAgorot(resolved.architectProfitAgorot, item.quantity),
+      );
       clientLineTotals.push(
-        calculateLineTotalAgorot(pricing.clientPriceAgorot, item.quantity),
+        calculateLineTotalAgorot(resolved.clientPriceAgorot, item.quantity),
       );
     }
   }
 
-  const allInternalPriced = internalLineTotals.length === items.length && items.length > 0;
-  const allArchitectPriced = architectLineTotals.length === items.length && items.length > 0;
-  const allClientPriced = clientLineTotals.length === items.length && items.length > 0;
+  const allInternalPriced =
+    internalLineTotals.length === items.length && items.length > 0;
+  const allResolvedPriced =
+    clientLineTotals.length === items.length && items.length > 0;
+
+  const clientSubtotalAgorot = allResolvedPriced
+    ? sumLineTotalsAgorot(clientLineTotals)
+    : undefined;
+  const vatTotals =
+    clientSubtotalAgorot != null
+      ? calculateLayeredPricingVatTotals(clientSubtotalAgorot)
+      : undefined;
 
   return {
     ...base,
     internalCostTotalAgorot: allInternalPriced
       ? sumLineTotalsAgorot(internalLineTotals)
       : undefined,
-    architectTotalAgorot: allArchitectPriced
-      ? sumLineTotalsAgorot(architectLineTotals)
+    commercialMarginTotalAgorot: allResolvedPriced
+      ? sumLineTotalsAgorot(commercialMarginLineTotals)
       : undefined,
-    clientTotalAgorot: allClientPriced
-      ? sumLineTotalsAgorot(clientLineTotals)
+    paperStoneProfitTotalAgorot: allResolvedPriced
+      ? sumLineTotalsAgorot(paperStoneProfitLineTotals)
       : undefined,
+    architectProfitTotalAgorot: allResolvedPriced
+      ? sumLineTotalsAgorot(architectProfitLineTotals)
+      : undefined,
+    clientSubtotalAgorot,
+    vatRateBasisPoints: vatTotals?.vatRateBasisPoints,
+    vatAmountAgorot: vatTotals?.vatAmountAgorot,
+    clientTotalInclVatAgorot: vatTotals?.clientTotalInclVatAgorot,
+    clientTotalAgorot: clientSubtotalAgorot,
   };
 }
 
 export function calculateArchitectPricingTotals(
   items: IProjectItem[],
 ): ArchitectPricingTotalsView {
-  const base = buildBaseTotals(items);
-  const architectLineTotals: number[] = [];
+  const base = buildPricingTotalsBase(items);
+  const architectProfitLineTotals: number[] = [];
   const clientLineTotals: number[] = [];
 
   for (const item of items) {
-    const pricing = item.pricing;
-
-    if (pricing?.architectPriceAgorot != null) {
-      architectLineTotals.push(
-        calculateLineTotalAgorot(pricing.architectPriceAgorot, item.quantity),
-      );
+    if (getItemPricingStatus(item.pricing) !== "priced") {
+      continue;
     }
 
-    if (pricing?.clientPriceAgorot != null) {
-      clientLineTotals.push(
-        calculateLineTotalAgorot(pricing.clientPriceAgorot, item.quantity),
-      );
+    const resolved = resolveItemCommercialPricing(item.pricing);
+    if (resolved == null) {
+      continue;
     }
+
+    architectProfitLineTotals.push(
+      calculateLineTotalAgorot(resolved.architectProfitAgorot, item.quantity),
+    );
+    clientLineTotals.push(
+      calculateLineTotalAgorot(resolved.clientPriceAgorot, item.quantity),
+    );
   }
 
-  const allArchitectPriced = architectLineTotals.length === items.length && items.length > 0;
-  const allClientPriced = clientLineTotals.length === items.length && items.length > 0;
+  const allClientPriced = allItemsArePriced(items);
+  const clientSubtotalAgorot = allClientPriced
+    ? sumLineTotalsAgorot(clientLineTotals)
+    : undefined;
+  const vatTotals =
+    clientSubtotalAgorot != null
+      ? calculateLayeredPricingVatTotals(clientSubtotalAgorot)
+      : undefined;
 
   return {
     ...base,
-    architectTotalAgorot: allArchitectPriced
-      ? sumLineTotalsAgorot(architectLineTotals)
+    architectProfitTotalAgorot: allClientPriced
+      ? sumLineTotalsAgorot(architectProfitLineTotals)
       : undefined,
-    clientTotalAgorot: allClientPriced
-      ? sumLineTotalsAgorot(clientLineTotals)
-      : undefined,
+    clientSubtotalAgorot,
+    vatRateBasisPoints: vatTotals?.vatRateBasisPoints,
+    vatAmountAgorot: vatTotals?.vatAmountAgorot,
+    clientTotalInclVatAgorot: vatTotals?.clientTotalInclVatAgorot,
+    clientTotalAgorot: clientSubtotalAgorot,
   };
 }
 
 export function calculateClientPricingTotals(
   items: IProjectItem[],
 ): ClientPricingTotalsView {
-  const base = buildBaseTotals(items);
+  const base = buildPricingTotalsBase(items);
   const clientLineTotals: number[] = [];
 
   for (const item of items) {
-    const pricing = item.pricing;
-
-    if (pricing?.clientPriceAgorot != null && !pricing.clientPriceStale) {
-      clientLineTotals.push(
-        calculateLineTotalAgorot(pricing.clientPriceAgorot, item.quantity),
-      );
+    if (getItemPricingStatus(item.pricing) !== "priced") {
+      continue;
     }
+
+    const resolved = resolveItemCommercialPricing(item.pricing);
+    if (resolved == null) {
+      continue;
+    }
+
+    clientLineTotals.push(
+      calculateLineTotalAgorot(resolved.clientPriceAgorot, item.quantity),
+    );
   }
 
-  const allClientPriced = clientLineTotals.length === items.length && items.length > 0;
+  const allClientPriced = allItemsArePriced(items);
+  const clientSubtotalAgorot = allClientPriced
+    ? sumLineTotalsAgorot(clientLineTotals)
+    : undefined;
+  const vatTotals =
+    clientSubtotalAgorot != null
+      ? calculateLayeredPricingVatTotals(clientSubtotalAgorot)
+      : undefined;
 
   return {
     ...base,
-    clientTotalAgorot: allClientPriced
-      ? sumLineTotalsAgorot(clientLineTotals)
-      : undefined,
+    clientSubtotalAgorot,
+    vatRateBasisPoints: vatTotals?.vatRateBasisPoints,
+    vatAmountAgorot: vatTotals?.vatAmountAgorot,
+    clientTotalInclVatAgorot: vatTotals?.clientTotalInclVatAgorot,
+    clientTotalAgorot: clientSubtotalAgorot,
   };
 }
 
@@ -187,3 +213,5 @@ export function calculateRoomPricingTotals(
     items.filter((item) => item.roomId?.toString() === roomId),
   );
 }
+
+export { getItemPricingStatus, isItemCommercialPricingComplete };

@@ -8,7 +8,6 @@ import AdminProjectReviewHistory from "@/components/admin/project-detail/AdminPr
 import ProjectReviewPanel from "@/components/admin/ProjectReviewPanel/ProjectReviewPanel";
 import AdminDetailSection from "@/components/admin/project-detail/AdminDetailSection/AdminDetailSection";
 import StatusBadge from "@/components/ui/StatusBadge/StatusBadge";
-import AdminProjectWorkspaceMarkupHeader from "./AdminProjectWorkspaceMarkupHeader";
 import type { AdminProjectDetailWithThumbnails } from "@/lib/projects/getAdminProjects";
 import {
   mapOnboardingStatusToBadge,
@@ -32,9 +31,6 @@ export default function AdminProjectWorkspace({
   const clientLabel = project.assignedClientFullName ?? project.clientName ?? "—";
   const orphanItems = project.items.filter((item) => !item.roomId);
   const isPricingEditable = project.pricingSettings?.isAdminPricingEditable ?? false;
-  const defaultMarkupAffectedCount = project.items.filter(
-    (item) => item.adminPricing?.usesProjectAdminMarkup !== false,
-  ).length;
 
   return (
     <div className={styles.workspace}>
@@ -83,13 +79,13 @@ export default function AdminProjectWorkspace({
           </ul>
         ) : null}
         {project.pricingAttention.incompleteItemCount > 0 ||
-        project.pricingAttention.staleClientPriceCount > 0 ? (
+        project.pricingAttention.needsReviewItemCount > 0 ? (
           <p className={styles.pricingAttention}>
             {project.pricingAttention.incompleteItemCount > 0
               ? `${project.pricingAttention.incompleteItemCount} מוצרים ללא תמחור מלא · `
               : ""}
-            {project.pricingAttention.staleClientPriceCount > 0
-              ? `${project.pricingAttention.staleClientPriceCount} מחירי לקוח דורשים בדיקה`
+            {project.pricingAttention.needsReviewItemCount > 0
+              ? `${project.pricingAttention.needsReviewItemCount} מוצרים דורשים בדיקת תמחור`
               : ""}
           </p>
         ) : null}
@@ -134,14 +130,6 @@ export default function AdminProjectWorkspace({
         title="חדרים ומוצרים"
         description="תמחור ישיר בשורת המוצר"
       >
-        {project.pricingSettings ? (
-          <AdminProjectWorkspaceMarkupHeader
-            projectId={project.id}
-            settings={project.pricingSettings}
-            affectedItemCount={defaultMarkupAffectedCount}
-          />
-        ) : null}
-
         {project.rooms.length > 0 ? (
           <AdminProjectRoomAccordion
             projectId={project.id}
@@ -168,9 +156,6 @@ export default function AdminProjectWorkspace({
                     <AdminProjectItemPricingRow
                       projectId={project.id}
                       item={{ ...item, adminPricing: item.adminPricing }}
-                      defaultAdminMarkupPercent={
-                        project.pricingSettings?.defaultAdminMarkupPercent
-                      }
                       isEditable={isPricingEditable}
                       thumbnail={project.productThumbnailsById[item.productId]}
                     />
@@ -190,17 +175,29 @@ export default function AdminProjectWorkspace({
               />
             ) : null}
             <LayeredPricingTotalsSummary
-            label="סיכום פרויקט"
-            variant="project"
-            idPrefix="project"
-            internalCostTotalFormatted={
-              project.pricingTotals.internalCostTotalFormatted
-            }
-            architectTotalFormatted={project.pricingTotals.architectTotalFormatted}
-            clientTotalFormatted={project.pricingTotals.clientTotalFormatted}
-            unpricedItemCount={project.pricingTotals.unpricedItemCount}
-            staleItemCount={project.pricingTotals.staleItemCount}
-          />
+              label="סיכום פרויקט"
+              variant="project"
+              idPrefix="project"
+              internalCostTotalFormatted={
+                project.pricingTotals.internalCostTotalFormatted
+              }
+              commercialMarginTotalFormatted={
+                project.pricingTotals.commercialMarginTotalFormatted
+              }
+              paperStoneProfitTotalFormatted={
+                project.pricingTotals.paperStoneProfitTotalFormatted
+              }
+              architectProfitTotalFormatted={
+                project.pricingTotals.architectProfitTotalFormatted
+              }
+              clientSubtotalFormatted={project.pricingTotals.clientSubtotalFormatted}
+              vatAmountFormatted={project.pricingTotals.vatAmountFormatted}
+              clientTotalInclVatFormatted={
+                project.pricingTotals.clientTotalInclVatFormatted
+              }
+              unpricedItemCount={project.pricingTotals.unpricedItemCount}
+              needsReviewItemCount={project.pricingTotals.needsReviewItemCount}
+            />
           </>
         ) : null}
       </AdminDetailSection>

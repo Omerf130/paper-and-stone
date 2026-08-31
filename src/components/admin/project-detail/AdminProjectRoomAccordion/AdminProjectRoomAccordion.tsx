@@ -3,7 +3,7 @@
 import { useEffect, useId, useState } from "react";
 import AdminProjectItemPricingRow from "@/components/admin/project-detail/AdminProjectItemPricingRow/AdminProjectItemPricingRow";
 import LayeredPricingTotalsSummary, {
-  getRoomArchitectTotalFormatted,
+  getRoomClientTotalFormatted,
 } from "@/components/admin/project-detail/LayeredPricingTotalsSummary/LayeredPricingTotalsSummary";
 import { getPricingAttentionFromAdminItems } from "@/lib/pricing/pricing-attention-utils";
 import { groupItemsByRoomId } from "@/lib/projects/project-room-helpers";
@@ -95,7 +95,7 @@ export default function AdminProjectRoomAccordion({
         const panelId = `${baseId}-room-${room.id}`;
         const attention = countRoomAttention(roomItems);
         const incompleteCount = attention.incompleteItemCount;
-        const architectTotal = getRoomArchitectTotalFormatted(roomItems);
+        const clientTotal = getRoomClientTotalFormatted(roomItems);
 
         return (
           <section key={room.id} className={styles.roomSection}>
@@ -113,12 +113,12 @@ export default function AdminProjectRoomAccordion({
                 <span className={styles.roomName}>{room.name}</span>
                 <span className={styles.roomMeta}>
                   {room.itemCount === 1 ? "1 מוצר" : `${room.itemCount} מוצרים`}
-                  {architectTotal ? ` · ${architectTotal}` : ""}
+                  {clientTotal ? ` · ${clientTotal}` : ""}
                   {incompleteCount > 0
                     ? ` · ${incompleteCount === 1 ? "1 מוצר ללא תמחור מלא" : `${incompleteCount} מוצרים ללא תמחור מלא`}`
                     : ""}
-                  {attention.staleClientPriceCount > 0
-                    ? ` · ${attention.staleClientPriceCount} מחירי לקוח דורשים בדיקה`
+                  {attention.needsReviewItemCount > 0
+                    ? ` · ${attention.needsReviewItemCount} מוצרים דורשים בדיקת תמחור`
                     : ""}
                 </span>
               </span>
@@ -134,9 +134,6 @@ export default function AdminProjectRoomAccordion({
                           <AdminProjectItemPricingRow
                             projectId={projectId}
                             item={{ ...item, adminPricing: item.adminPricing }}
-                            defaultAdminMarkupPercent={
-                              pricingSettings?.defaultAdminMarkupPercent
-                            }
                             isEditable={isPricingEditable}
                             thumbnail={productThumbnailsById[item.productId]}
                             onSaveSuccess={() =>
@@ -157,9 +154,9 @@ export default function AdminProjectRoomAccordion({
                 {showPricing && roomItems.length > 0 ? (
                   <LayeredPricingTotalsSummary
                     label={`סיכום חדר — ${room.name}`}
-                    architectTotalFormatted={architectTotal}
+                    clientSubtotalFormatted={clientTotal}
                     unpricedItemCount={incompleteCount}
-                    staleItemCount={attention.staleClientPriceCount}
+                    needsReviewItemCount={attention.needsReviewItemCount}
                     idPrefix={`room-${room.id}`}
                   />
                 ) : null}

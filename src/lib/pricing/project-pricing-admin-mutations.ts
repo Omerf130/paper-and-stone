@@ -10,37 +10,23 @@ import {
   ADMIN_PRICING_STATUS_FILTER,
   usesLayeredPricing,
 } from "@/lib/projects/project-workspace-gates";
-import { isValidMarkupBasisPoints } from "@/lib/pricing/markup-basis-points";
-import {
-  applyAdminPricingUpdate,
-} from "@/lib/pricing/pricing-item-helpers";
-import {
-  getEffectiveAdminMarkupBp,
-  hasAdminMarkupOverride,
-} from "@/lib/pricing/pricing-inheritance";
-import {
-  isAdminProjectPricingEditable,
-} from "@/lib/pricing/pricing-gates";
+import { applyAdminCommercialPricingUpdate } from "@/lib/pricing/pricing-item-helpers";
+import { isAdminProjectPricingEditable } from "@/lib/pricing/pricing-gates";
+import { validateAdminCommercialPricingInput } from "@/lib/pricing/pricing-commercial-model";
 import { PRICING_ERRORS } from "@/lib/pricing/pricing-validation";
-import { appendCommercialDirtyToSet, applyCommercialDirtyToDocument } from "@/lib/projects/project-commercial-dirty";
 import {
-  appendOpenAdminPricingRoundToUpdate,
-  shouldOpenAdminPricingRound,
-} from "@/lib/pricing/admin-pricing-round";
+  appendCommercialDirtyToSet,
+  applyCommercialDirtyToDocument,
+} from "@/lib/projects/project-commercial-dirty";
+import { appendOpenAdminPricingRoundToUpdate } from "@/lib/pricing/admin-pricing-round";
 
 type SetProjectItemAdminPricingInput = {
   projectId: string;
   itemId: string;
   internalCostAgorot: number;
-  useProjectDefaultAdminMarkup?: boolean;
-  itemAdminMarkupBp?: number;
-  clearAdminMarkupOverride?: boolean;
+  clientPriceAgorot: number;
+  architectMarkupBp: number;
   expectedPriceVersion?: number;
-};
-
-type SetProjectDefaultAdminMarkupInput = {
-  projectId: string;
-  defaultAdminMarkupBp: number;
 };
 
 function buildPricingEditableProjectFilter(projectId: string) {
@@ -75,72 +61,13 @@ async function getPricingEditableProject(projectId: string): Promise<IProject> {
   return project;
 }
 
-function assertValidInternalCost(internalCostAgorot: number): void {
-  if (
-    !Number.isInteger(internalCostAgorot) ||
-    internalCostAgorot < 0
-  ) {
-    throw new ProjectMutationError(PRICING_ERRORS.INVALID_COST);
-  }
-}
-
-function assertValidMarkupBp(markupBp: number): void {
-  if (!isValidMarkupBasisPoints(markupBp)) {
-    throw new ProjectMutationError(PRICING_ERRORS.INVALID_MARKUP);
-  }
-}
-
-function resolveAdminMarkupUpdate(input: {
-  useProjectDefaultAdminMarkup?: boolean;
-  itemAdminMarkupBp?: number;
-  clearAdminMarkupOverride?: boolean;
-  item: IProjectItem;
-  project: IProject;
-}): {
-  adminMarkupBp: number;
-  overrideUpdate: "set" | "unset" | "keep";
-  overrideValue?: number;
-} {
-  if (input.clearAdminMarkupOverride || input.useProjectDefaultAdminMarkup) {
-    const adminMarkupBp = input.project.defaultAdminMarkupBp;
-
-    if (adminMarkupBp == null) {
-      throw new ProjectMutationError(PRICING_ERRORS.MARKUP_REQUIRED);
-    }
-
-    return {
-      adminMarkupBp,
-      overrideUpdate: "unset",
-    };
-  }
-
-  if (input.itemAdminMarkupBp != null) {
-    assertValidMarkupBp(input.itemAdminMarkupBp);
-
-    return {
-      adminMarkupBp: input.itemAdminMarkupBp,
-      overrideUpdate: "set",
-      overrideValue: input.itemAdminMarkupBp,
-    };
-  }
-
-  const adminMarkupBp = getEffectiveAdminMarkupBp(input.item, input.project);
-
-  if (adminMarkupBp == null) {
-    throw new ProjectMutationError(PRICING_ERRORS.MARKUP_REQUIRED);
-  }
-
-  return {
-    adminMarkupBp,
-    overrideUpdate: "keep",
-  };
-}
-
 async function assertItemExistsForVersionConflict(
   projectId: string,
   itemId: string,
 ): Promise<void> {
-  const project = await Project.findById(projectId).select("items._id items.pricing.priceVersion");
+  const project = await Project.findById(projectId).select(
+    "items._id items.pricing.priceVersion",
+  );
 
   const item = project?.items.find((entry) => entry._id.toString() === itemId);
 
@@ -155,9 +82,20 @@ export async function setProjectItemAdminPricing(
   adminUserId: string,
   input: SetProjectItemAdminPricingInput,
 ): Promise<void> {
-  assertValidInternalCost(input.internalCostAgorot);
+  const validation = validateAdminCommercialPricingInput({
+    internalCostAgorot: input.internalCostAgorot,
+    clientPriceAgorot: input.clientPriceAgorot,
+    architectMarkupBp: input.architectMarkupBp,
+  });
 
-  if (!Types.ObjectId.isValid(input.projectId) || !Types.ObjectId.isValid(input.itemId)) {
+  if (!validation.ok) {
+    throw new ProjectMutationError(validation.message);
+  }
+
+  if (
+    !Types.ObjectId.isValid(input.projectId) ||
+    !Types.ObjectId.isValid(input.itemId)
+  ) {
     throw new ProjectMutationError(PRICING_ERRORS.PROJECT_NOT_FOUND);
   }
 
@@ -168,25 +106,19 @@ export async function setProjectItemAdminPricing(
     throw new ProjectMutationError(PRICING_ERRORS.ITEM_NOT_FOUND);
   }
 
-  const markupUpdate = resolveAdminMarkupUpdate({
-    useProjectDefaultAdminMarkup: input.useProjectDefaultAdminMarkup,
-    itemAdminMarkupBp: input.itemAdminMarkupBp,
-    clearAdminMarkupOverride: input.clearAdminMarkupOverride,
-    item,
-    project,
-  });
-
   const existingPricing: IProjectItemPricing = item.pricing ?? {
     priceVersion: 0,
     clientPriceStale: false,
+    pricingReviewStatus: "none",
   };
-  const hadClientPrice = existingPricing.clientPriceAgorot != null;
 
-  const updatedPricing = applyAdminPricingUpdate({
+  const updatedPricing = applyAdminCommercialPricingUpdate({
     pricing: existingPricing,
-    internalCostAgorot: input.internalCostAgorot,
-    adminMarkupBp: markupUpdate.adminMarkupBp,
-    hadClientPrice,
+    commercialPricing: {
+      internalCostAgorot: input.internalCostAgorot,
+      clientPriceAgorot: input.clientPriceAgorot,
+      architectMarkupBp: input.architectMarkupBp,
+    },
   });
 
   const now = new Date();
@@ -199,12 +131,6 @@ export async function setProjectItemAdminPricing(
     pricedByAdminUserId: adminObjectId,
   };
 
-  if (markupUpdate.overrideUpdate === "set") {
-    pricingDocument.adminMarkupBp = markupUpdate.overrideValue;
-  } else if (markupUpdate.overrideUpdate === "unset") {
-    delete pricingDocument.adminMarkupBp;
-  }
-
   let updateDoc: Record<string, unknown>;
 
   if (isFirstTimePricing) {
@@ -214,27 +140,23 @@ export async function setProjectItemAdminPricing(
       },
     };
   } else {
-    const $set: Record<string, unknown> = {
-      "items.$[item].pricing.internalCostAgorot": input.internalCostAgorot,
-      "items.$[item].pricing.architectPriceAgorot": updatedPricing.architectPriceAgorot,
-      "items.$[item].pricing.priceVersion": updatedPricing.priceVersion,
-      "items.$[item].pricing.clientPriceStale": updatedPricing.clientPriceStale,
-      "items.$[item].pricing.pricedAt": now,
-      "items.$[item].pricing.pricedByAdminUserId": adminObjectId,
+    updateDoc = {
+      $set: {
+        "items.$[item].pricing.internalCostAgorot": input.internalCostAgorot,
+        "items.$[item].pricing.clientPriceAgorot": input.clientPriceAgorot,
+        "items.$[item].pricing.architectMarkupBp": input.architectMarkupBp,
+        "items.$[item].pricing.architectProfitAgorot":
+          updatedPricing.architectProfitAgorot,
+        "items.$[item].pricing.pricingReviewStatus": "none",
+        "items.$[item].pricing.clientPriceStale": false,
+        "items.$[item].pricing.priceVersion": updatedPricing.priceVersion,
+        "items.$[item].pricing.pricedAt": now,
+        "items.$[item].pricing.pricedByAdminUserId": adminObjectId,
+      },
+      $unset: {
+        "items.$[item].pricing.architectPriceAgorot": "",
+      },
     };
-
-    updateDoc = { $set };
-    const $unset: Record<string, string> = {};
-
-    if (markupUpdate.overrideUpdate === "unset") {
-      $unset["items.$[item].pricing.adminMarkupBp"] = "";
-    } else if (markupUpdate.overrideUpdate === "set") {
-      $set["items.$[item].pricing.adminMarkupBp"] = markupUpdate.overrideValue;
-    }
-
-    if (Object.keys($unset).length > 0) {
-      updateDoc.$unset = $unset;
-    }
   }
 
   const dirtySet = (updateDoc.$set ?? {}) as Record<string, unknown>;
@@ -285,49 +207,28 @@ export async function setProjectItemAdminPricing(
   }
 }
 
+/** @deprecated Pricing V1 — bulk default markup repricing removed in V2 */
 export async function setProjectDefaultAdminMarkup(
-  adminUserId: string,
-  input: SetProjectDefaultAdminMarkupInput,
+  _adminUserId: string,
+  _input: { projectId: string; defaultAdminMarkupBp: number },
 ): Promise<void> {
-  assertValidMarkupBp(input.defaultAdminMarkupBp);
+  throw new ProjectMutationError(PRICING_ERRORS.NOT_EDITABLE);
+}
 
-  const project = await getPricingEditableProject(input.projectId);
-
-  if (shouldOpenAdminPricingRound(project)) {
-    project.adminPricingRevision = (project.adminPricingRevision ?? 0) + 1;
-  }
-
-  const now = new Date();
-  const adminObjectId = new Types.ObjectId(adminUserId);
-
-  for (const item of project.items) {
-    if (hasAdminMarkupOverride(item.pricing)) {
-      continue;
-    }
-
-    const internalCostAgorot = item.pricing?.internalCostAgorot;
-    if (internalCostAgorot == null) {
-      continue;
-    }
-
-    const existingPricing: IProjectItemPricing = item.pricing!;
-    const hadClientPrice = existingPricing.clientPriceAgorot != null;
-    const updatedPricing = applyAdminPricingUpdate({
-      pricing: existingPricing,
-      internalCostAgorot,
-      adminMarkupBp: input.defaultAdminMarkupBp,
-      hadClientPrice,
-    });
-
-    item.pricing = {
-      ...existingPricing,
-      ...updatedPricing,
-      pricedAt: now,
-      pricedByAdminUserId: adminObjectId,
-    };
-  }
-
-  project.defaultAdminMarkupBp = input.defaultAdminMarkupBp;
+export async function markProjectItemPricingNeedsReview(
+  project: IProject,
+  itemId: string,
+): Promise<void> {
   applyCommercialDirtyToDocument(project);
+
+  const item = project.items.find((entry) => entry._id.toString() === itemId) as
+    | IProjectItem
+    | undefined;
+
+  if (!item?.pricing) {
+    return;
+  }
+
+  item.pricing.pricingReviewStatus = "needs_review";
   await project.save();
 }

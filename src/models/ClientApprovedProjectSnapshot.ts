@@ -1,6 +1,6 @@
 import mongoose, { Schema, type Document, type Model, Types } from "mongoose";
 
-export const CLIENT_APPROVED_PROJECT_SNAPSHOT_SCHEMA_VERSION = 1;
+export const CLIENT_APPROVED_PROJECT_SNAPSHOT_SCHEMA_VERSION = 2;
 
 export interface IClientApprovedProjectImageSnapshot {
   url: string;
@@ -51,7 +51,12 @@ export interface IClientApprovedProjectSnapshot extends Document {
   approvedAt: Date;
   architect: IClientApprovedArchitectSnapshot;
   rooms: IClientApprovedRoomSnapshot[];
+  /** Client subtotal before VAT */
   clientProjectTotalAgorot: number;
+  clientProjectSubtotalAgorot?: number;
+  vatRateBasisPoints?: number;
+  vatAmountAgorot?: number;
+  clientProjectTotalInclVatAgorot?: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -142,6 +147,10 @@ const clientApprovedProjectSnapshotSchema =
       architect: { type: architectSnapshotSchema, required: true },
       rooms: { type: [roomSnapshotSchema], default: [] },
       clientProjectTotalAgorot: { type: Number, required: true, min: 0 },
+      clientProjectSubtotalAgorot: { type: Number, min: 0 },
+      vatRateBasisPoints: { type: Number, min: 0 },
+      vatAmountAgorot: { type: Number, min: 0 },
+      clientProjectTotalInclVatAgorot: { type: Number, min: 0 },
     },
     { timestamps: true },
   );

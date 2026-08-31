@@ -16,6 +16,7 @@ import {
 } from "@/lib/projects/assertProjectEditable";
 import { buildProjectItemSnapshot } from "@/lib/projects/buildProjectItemSnapshot";
 import { createInitialItemPricing } from "@/lib/pricing/pricing-item-helpers";
+import { shouldMarkItemPricingNeedsReview } from "@/lib/pricing/pricing-review-detection";
 import {
   buildElemMatchCriteria,
   buildProjectItemSelectionKey,
@@ -262,12 +263,7 @@ function buildNewProjectItem(
 ): IProjectItem {
   const snapshot = buildProjectItemSnapshot(verified.productView, verified);
   const pricing =
-    project && usesLayeredPricing(project)
-      ? createInitialItemPricing({
-          defaultInternalCostAgorot: verified.defaultInternalCostAgorot,
-          project,
-        })
-      : undefined;
+    project && usesLayeredPricing(project) ? createInitialItemPricing() : undefined;
 
   return {
     _id: new Types.ObjectId(),
@@ -439,26 +435,33 @@ export async function updateProjectItem(
     existingItem.selectedSizeKey !== verified.selectedSizeKey;
   const quantityChanged = existingItem.quantity !== quantity;
 
+  const nextConfiguration = {
+    selectedMaterialId: verified.selectedMaterialId,
+    selectedColorId: verified.selectedColorId,
+    selectedSizeKey: verified.selectedSizeKey,
+  };
+
+  const markNeedsReview = shouldMarkItemPricingNeedsReview({
+    existingItem,
+    nextConfiguration,
+  });
+
+  const $set: Record<string, unknown> = {
+    "items.$[item].selectedMaterialId": verified.selectedMaterialId,
+    "items.$[item].selectedColorId": verified.selectedColorId,
+    "items.$[item].selectedSizeKey": verified.selectedSizeKey,
+    "items.$[item].quantity": quantity,
+    "items.$[item].snapshot": snapshot,
+  };
+
+  if (markNeedsReview) {
+    $set["items.$[item].pricing.pricingReviewStatus"] = "needs_review";
+  }
+
   const itemUpdate =
     configurationChanged || quantityChanged
-      ? withLayeredProjectItemUpdate(project, {
-          $set: {
-            "items.$[item].selectedMaterialId": verified.selectedMaterialId,
-            "items.$[item].selectedColorId": verified.selectedColorId,
-            "items.$[item].selectedSizeKey": verified.selectedSizeKey,
-            "items.$[item].quantity": quantity,
-            "items.$[item].snapshot": snapshot,
-          },
-        })
-      : withCommercialDirtySet(project, {
-          $set: {
-            "items.$[item].selectedMaterialId": verified.selectedMaterialId,
-            "items.$[item].selectedColorId": verified.selectedColorId,
-            "items.$[item].selectedSizeKey": verified.selectedSizeKey,
-            "items.$[item].quantity": quantity,
-            "items.$[item].snapshot": snapshot,
-          },
-        });
+      ? withLayeredProjectItemUpdate(project, { $set })
+      : withCommercialDirtySet(project, { $set });
 
   const result = await Project.updateOne(
     editableFilter,

@@ -11,8 +11,6 @@ describe("admin project detail pricing editability path", () => {
     const settings = mapProjectPricingSettingsView({
       onboardingStatus: "active",
       status,
-      defaultAdminMarkupBp: 4_000,
-      defaultArchitectMarkupBp: 5_000,
     });
 
     expect(settings.isAdminPricingEditable).toBe(expected);

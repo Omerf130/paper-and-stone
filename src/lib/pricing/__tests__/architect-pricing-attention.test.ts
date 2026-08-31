@@ -9,35 +9,33 @@ import {
 } from "@/lib/projects/architect-project-attention";
 
 describe("architect-pricing-attention", () => {
-  it("counts one incomplete item when architect and client prices are missing", () => {
+  it("counts one incomplete item when pricing is missing", () => {
     expect(
       getArchitectPricingAttentionFromItems([
-        { architectPricing: {} },
+        { architectPricing: { pricingStatus: "unpriced" } },
       ]),
     ).toEqual({
       incompleteItemCount: 1,
-      staleClientPriceCount: 0,
+      needsReviewItemCount: 0,
     });
   });
 
-  it("counts stale separately from incomplete", () => {
+  it("counts needs review separately from incomplete", () => {
     expect(
       getArchitectPricingAttentionFromItems([
         {
           architectPricing: {
-            architectPriceAgorot: 150_000,
-            clientPriceAgorot: 225_000,
-            clientPriceStale: true,
+            pricingStatus: "needs_review",
           },
         },
       ]),
     ).toEqual({
       incompleteItemCount: 0,
-      staleClientPriceCount: 1,
+      needsReviewItemCount: 1,
     });
   });
 
-  it("returns stale client pricing as top action hint", () => {
+  it("returns needs review as top action hint", () => {
     expect(
       getArchitectProjectActionHint({
         onboardingStatus: "active",
@@ -45,14 +43,12 @@ describe("architect-pricing-attention", () => {
         items: [
           {
             architectPricing: {
-              architectPriceAgorot: 150_000,
-              clientPriceAgorot: 225_000,
-              clientPriceStale: true,
+              pricingStatus: "needs_review",
             },
           },
         ],
       }),
-    ).toBe("מחיר לקוח דורש בדיקה");
+    ).toBe("תמחור דורש בדיקת מנהל");
   });
 
   it("flags changes requested before submitted review", () => {
@@ -66,11 +62,14 @@ describe("architect-pricing-attention", () => {
   });
 
   it("detects architect pricing incomplete helper", () => {
-    expect(isArchitectPricingIncomplete({ architectPriceAgorot: 100_000 })).toBe(true);
     expect(
       isArchitectPricingIncomplete({
-        architectPriceAgorot: 100_000,
-        clientPriceAgorot: 150_000,
+        pricingStatus: "unpriced",
+      }),
+    ).toBe(true);
+    expect(
+      isArchitectPricingIncomplete({
+        pricingStatus: "priced",
       }),
     ).toBe(false);
   });

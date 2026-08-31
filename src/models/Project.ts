@@ -33,16 +33,27 @@ export interface IProjectItemSnapshot {
 }
 
 export interface IProjectItemPricing {
+  /** Product price (authoritative admin input). */
   internalCostAgorot?: number;
+  /** @deprecated Pricing V1 admin layer — retained for migration reads only */
   adminMarkupBp?: number;
+  /** @deprecated Not V2 source of truth — retained for migration reads only */
   architectPriceAgorot?: number;
+  /** Architect margin-share percentage (basis points, authoritative admin input). */
   architectMarkupBp?: number;
+  /** Derived snapshot — share of commercial margin. */
+  architectProfitAgorot?: number;
+  /** Final client unit price (authoritative admin input, pre-VAT). */
   clientPriceAgorot?: number;
+  /** @deprecated Pricing V1 — use pricingReviewStatus */
   clientPriceStale?: boolean;
+  pricingReviewStatus?: "none" | "needs_review";
   priceVersion: number;
   pricedAt?: Date;
   pricedByAdminUserId?: Types.ObjectId;
+  /** @deprecated Pricing V1 — architect no longer prices items */
   clientPricedAt?: Date;
+  /** @deprecated Pricing V1 — architect no longer prices items */
   clientPricedByArchitectUserId?: Types.ObjectId;
 }
 
@@ -120,8 +131,14 @@ const projectItemPricingSchema = new Schema<IProjectItemPricing>(
     adminMarkupBp: { type: Number, min: 0 },
     architectPriceAgorot: { type: Number, min: 0 },
     architectMarkupBp: { type: Number, min: 0 },
+    architectProfitAgorot: { type: Number, min: 0 },
     clientPriceAgorot: { type: Number, min: 0 },
     clientPriceStale: { type: Boolean, default: false },
+    pricingReviewStatus: {
+      type: String,
+      enum: ["none", "needs_review"],
+      default: "none",
+    },
     priceVersion: { type: Number, default: 0, min: 0, required: true },
     pricedAt: { type: Date },
     pricedByAdminUserId: { type: Schema.Types.ObjectId, ref: "User" },

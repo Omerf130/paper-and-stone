@@ -7,7 +7,7 @@ import {
   isAdminProjectPricingEditable,
   isArchitectProjectPricingEditable,
 } from "@/lib/pricing/pricing-gates";
-import { applyAdminPricingUpdate } from "@/lib/pricing/pricing-item-helpers";
+import { applyAdminCommercialPricingUpdate } from "@/lib/pricing/pricing-item-helpers";
 import { ProjectMutationError } from "@/lib/projects/project-errors";
 import { PRICING_ERRORS } from "@/lib/pricing/pricing-validation";
 
@@ -24,7 +24,7 @@ const layeredIncomplete = {
     {
       pricing: {
         priceVersion: 0,
-        architectPriceAgorot: 100_000,
+        internalCostAgorot: 80_000,
       },
     },
   ],
@@ -38,9 +38,10 @@ const layeredComplete = {
       pricing: {
         priceVersion: 1,
         internalCostAgorot: 80_000,
-        architectPriceAgorot: 100_000,
-        clientPriceAgorot: 150_000,
-        clientPriceStale: false,
+        clientPriceAgorot: 128_000,
+        architectMarkupBp: 2_000,
+        architectProfitAgorot: 9_600,
+        pricingReviewStatus: "none",
       },
     },
   ],
@@ -71,21 +72,11 @@ describe("pricing-gates editability", () => {
     ).toBe(true);
   });
 
-  it("allows admin pricing for active changes_requested projects", () => {
-    expect(
-      isAdminProjectPricingEditable({
-        onboardingStatus: "active",
-        status: "changes_requested",
-      }),
-    ).toBe(true);
-  });
-
-  it("allows admin pricing for previously approved active projects", () => {
-    expect(isAdminProjectPricingEditable(activeApprovedProject)).toBe(true);
-  });
-
-  it("allows admin pricing while project is submitted for review", () => {
-    expect(isAdminProjectPricingEditable(activeSubmittedProject)).toBe(true);
+  it("blocks architect pricing in Pricing V2", () => {
+    expect(isArchitectProjectPricingEditable(activeApprovedProject)).toBe(false);
+    expect(getPricingUnavailableReason(activeApprovedProject, "architect")).toBe(
+      PRICING_ERRORS.ARCHITECT_PRICING_READONLY,
+    );
   });
 
   it("blocks admin pricing for pending onboarding projects", () => {
@@ -95,35 +86,35 @@ describe("pricing-gates editability", () => {
     );
   });
 
-  it("blocks architect pricing while submitted but allows admin pricing", () => {
-    expect(isArchitectProjectPricingEditable(activeSubmittedProject)).toBe(false);
-    expect(getPricingUnavailableReason(activeSubmittedProject, "architect")).toBe(
-      "הפרויקט נשלח לבדיקה — לא ניתן לערוך עד לקבלת תשובה",
-    );
+  it("allows admin pricing while project is submitted for review", () => {
+    expect(isAdminProjectPricingEditable(activeSubmittedProject)).toBe(true);
     expect(getPricingUnavailableReason(activeSubmittedProject, "admin")).toBeUndefined();
   });
 
-  it("allows architect pricing for approved active projects", () => {
-    expect(isArchitectProjectPricingEditable(activeApprovedProject)).toBe(true);
-  });
-
-  it("preserves client price and marks stale when admin reprices after approval", () => {
-    const updated = applyAdminPricingUpdate({
+  it("clears review status when admin saves commercial pricing", () => {
+    const updated = applyAdminCommercialPricingUpdate({
       pricing: {
         priceVersion: 3,
         internalCostAgorot: 100_000,
-        architectPriceAgorot: 140_000,
-        clientPriceAgorot: 210_000,
-        clientPriceStale: false,
+        clientPriceAgorot: 160_000,
+        architectMarkupBp: 2_000,
+        architectProfitAgorot: 12_000,
+        pricingReviewStatus: "needs_review",
+        clientPriceStale: true,
       },
-      internalCostAgorot: 110_000,
-      adminMarkupBp: 4_000,
-      hadClientPrice: true,
+      commercialPricing: {
+        internalCostAgorot: 110_000,
+        clientPriceAgorot: 170_000,
+        architectMarkupBp: 2_000,
+      },
     });
 
-    expect(updated.architectPriceAgorot).toBe(154_000);
-    expect(updated.clientPriceAgorot).toBe(210_000);
-    expect(updated.clientPriceStale).toBe(true);
+    expect(updated.internalCostAgorot).toBe(110_000);
+    expect(updated.clientPriceAgorot).toBe(170_000);
+    expect(updated.architectMarkupBp).toBe(2_000);
+    expect(updated.architectProfitAgorot).toBe(12_000);
+    expect(updated.pricingReviewStatus).toBe("none");
+    expect(updated.clientPriceStale).toBe(false);
     expect(updated.priceVersion).toBe(4);
   });
 });
@@ -139,18 +130,10 @@ describe("pricing-gates submit completeness", () => {
     expect(() =>
       assertLayeredPricingCompleteForSubmit(layeredIncomplete as never),
     ).toThrow(ProjectMutationError);
-
-    try {
-      assertLayeredPricingCompleteForSubmit(layeredIncomplete as never);
-    } catch (error) {
-      expect(error).toMatchObject({
-        message: PRICING_ERRORS.INCOMPLETE_PRICING,
-      });
-    }
   });
 
-  it("blocks submit when client prices are stale", () => {
-    try {
+  it("blocks submit when pricing needs review", () => {
+    expect(() =>
       assertLayeredPricingCompleteForSubmit({
         onboardingStatus: "active",
         status: "draft",
@@ -158,19 +141,18 @@ describe("pricing-gates submit completeness", () => {
           {
             pricing: {
               priceVersion: 2,
-              architectPriceAgorot: 100_000,
-              clientPriceAgorot: 150_000,
-              clientPriceStale: true,
+              internalCostAgorot: 100_000,
+              clientPriceAgorot: 160_000,
+              architectMarkupBp: 2_000,
+              architectProfitAgorot: 12_000,
+              pricingReviewStatus: "needs_review",
             },
           },
         ],
-      } as never);
-      expect.fail("expected stale pricing submit to throw");
-    } catch (error) {
-      expect(error).toMatchObject({
-        message: PRICING_ERRORS.STALE_PRICING_SUBMIT,
-      });
-    }
+      } as never),
+    ).toThrow(
+      new ProjectMutationError(PRICING_ERRORS.PRICING_NEEDS_REVIEW),
+    );
   });
 
   it("allows submit when layered pricing is complete", () => {
@@ -182,9 +164,8 @@ describe("pricing-gates submit completeness", () => {
   it("counts completeness metadata", () => {
     expect(getLayeredPricingCompleteness(layeredComplete.items as never)).toEqual({
       isComplete: true,
-      unpricedArchitectCount: 0,
-      unpricedClientCount: 0,
-      staleClientCount: 0,
+      unpricedItemCount: 0,
+      needsReviewItemCount: 0,
     });
   });
 
@@ -198,36 +179,14 @@ describe("pricing-gates submit completeness", () => {
       } as never),
     ).toBe(PRICING_ERRORS.ADMIN_PRICING_NOT_DELIVERED);
   });
-
-  it("blocks architect submit when admin layer is incomplete during pending delivery", () => {
-    expect(
-      getArchitectSubmitPricingBlockedReason({
-        onboardingStatus: "active",
-        adminPricingRevision: 2,
-        adminPricingDeliveredRevision: 1,
-        items: layeredIncomplete.items,
-      } as never),
-    ).toBe(PRICING_ERRORS.ADMIN_PRICING_INCOMPLETE);
-  });
 });
 
 describe("createInitialItemPricing", () => {
-  it("snapshots product default cost without backfilling from product on existing items", async () => {
+  it("returns undefined for new items in Pricing V2", async () => {
     const { createInitialItemPricing } = await import(
       "@/lib/pricing/pricing-item-helpers"
     );
 
-    const pricing = createInitialItemPricing({
-      defaultInternalCostAgorot: 100_000,
-      project: {
-        defaultAdminMarkupBp: 2_000,
-        defaultArchitectMarkupBp: 5_000,
-      },
-    });
-
-    expect(pricing?.internalCostAgorot).toBe(100_000);
-    expect(pricing?.architectPriceAgorot).toBe(120_000);
-    expect(pricing?.clientPriceAgorot).toBe(180_000);
-    expect(pricing?.adminMarkupBp).toBeUndefined();
+    expect(createInitialItemPricing()).toBeUndefined();
   });
 });

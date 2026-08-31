@@ -1,8 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
+  mapAdminProjectItemPricingView,
   mapArchitectProjectItemPricingView,
-  mapArchitectProjectPricingSettingsView,
   mapClientProjectItemPricingView,
+  mapProjectPricingSettingsView,
 } from "@/lib/pricing/pricing-view-mappers";
 import { mapProductToView } from "@/lib/products/mapProductToView";
 import type { IProjectItem } from "@/models/Project";
@@ -21,35 +22,64 @@ const pricedItem: IProjectItem = {
   },
   pricing: {
     priceVersion: 1,
-    internalCostAgorot: 100_000,
-    adminMarkupBp: 20_000,
-    architectPriceAgorot: 120_000,
-    architectMarkupBp: 50_000,
-    clientPriceAgorot: 180_000,
-    clientPriceStale: true,
+    internalCostAgorot: 1_000_000,
+    clientPriceAgorot: 1_600_000,
+    architectMarkupBp: 2_000,
+    architectProfitAgorot: 120_000,
+    pricingReviewStatus: "none",
   },
 };
 
 describe("pricing view security", () => {
   it("does not expose admin pricing fields on architect view", () => {
-    const view = mapArchitectProjectItemPricingView(pricedItem, {
-      defaultArchitectMarkupBp: 50_000,
+    const view = mapArchitectProjectItemPricingView(pricedItem);
+
+    expect(view.pricingStatus).toBe("priced");
+    expect(view.hasArchitectProfit).toBe(true);
+    expect(view.hasClientPrice).toBe(true);
+    expect(view).not.toHaveProperty("internalCostAgorot");
+    expect(view).not.toHaveProperty("commercialMarginAgorot");
+    expect(view).not.toHaveProperty("architectMarkupBp");
+    expect(view).not.toHaveProperty("paperStoneProfitAgorot");
+    expect(view).not.toHaveProperty("internalCostFormatted");
+  });
+
+  it("hides commercial pricing on architect view when review is required", () => {
+    const view = mapArchitectProjectItemPricingView({
+      ...pricedItem,
+      pricing: {
+        ...pricedItem.pricing!,
+        pricingReviewStatus: "needs_review",
+      },
     });
 
-    expect(view.hasArchitectPrice).toBe(true);
-    expect(view).not.toHaveProperty("internalCostAgorot");
-    expect(view).not.toHaveProperty("adminMarkupBp");
-    expect(view).not.toHaveProperty("internalCostFormatted");
+    expect(view.pricingStatus).toBe("needs_review");
+    expect(view.hasArchitectProfit).toBe(false);
+    expect(view.hasClientPrice).toBe(false);
   });
 
   it("does not expose upstream pricing on client view", () => {
     const view = mapClientProjectItemPricingView(pricedItem);
 
-    expect(view.hasClientPrice).toBe(false);
-    expect(view).not.toHaveProperty("architectPriceAgorot");
-    expect(view).not.toHaveProperty("architectMarkupBp");
+    expect(view.hasClientPrice).toBe(true);
+    expect(view).not.toHaveProperty("architectProfitAgorot");
     expect(view).not.toHaveProperty("internalCostAgorot");
-    expect(view).not.toHaveProperty("adminMarkupBp");
+    expect(view).not.toHaveProperty("architectMarkupBp");
+    expect(view).not.toHaveProperty("commercialMarginAgorot");
+  });
+
+  it("exposes full commercial structure on admin view", () => {
+    const view = mapAdminProjectItemPricingView(pricedItem);
+
+    expect(view.hasInternalCost).toBe(true);
+    expect(view.hasClientPrice).toBe(true);
+    expect(view.hasArchitectMarkup).toBe(true);
+    expect(view.architectMarkupPercent).toBe("20");
+    expect(view.hasCommercialMargin).toBe(true);
+    expect(view.hasPaperStoneProfit).toBe(true);
+    expect(view.hasArchitectProfit).toBe(true);
+    expect(view.clientLineTotalAgorot).toBe(3_200_000);
+    expect(view.commercialMarginLineTotalAgorot).toBe(1_200_000);
   });
 
   it("does not expose defaultInternalCostAgorot on public product view", async () => {
@@ -78,18 +108,15 @@ describe("pricing view security", () => {
     expect(view).not.toHaveProperty("supplierId");
   });
 
-  it("does not expose admin pricing fields on architect settings view", () => {
-    const view = mapArchitectProjectPricingSettingsView({
-      defaultArchitectMarkupBp: 5_000,
-      defaultAdminMarkupBp: 20_000,
+  it("does not expose admin-only settings on shared pricing settings view", () => {
+    const view = mapProjectPricingSettingsView({
       onboardingStatus: "active",
       status: "approved",
-    } as never);
+    });
 
-    expect(view.defaultArchitectMarkupPercent).toBe("50");
+    expect(view.usesLayeredPricing).toBe(true);
+    expect(view.isAdminPricingEditable).toBe(true);
     expect(view).not.toHaveProperty("defaultAdminMarkupBp");
-    expect(view).not.toHaveProperty("defaultAdminMarkupPercent");
-    expect(view).not.toHaveProperty("isAdminPricingEditable");
-    expect(view).not.toHaveProperty("adminPricingUnavailableReason");
+    expect(view).not.toHaveProperty("defaultArchitectMarkupBp");
   });
 });

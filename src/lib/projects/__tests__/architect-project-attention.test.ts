@@ -27,7 +27,7 @@ describe("architect-project-attention", () => {
     ).not.toContain("commercial_dirty");
   });
 
-  it("prioritizes stale pricing over commercial dirty in action hint", () => {
+  it("prioritizes needs review pricing over commercial dirty in action hint", () => {
     expect(
       getArchitectProjectActionHint({
         onboardingStatus: "active",
@@ -36,14 +36,12 @@ describe("architect-project-attention", () => {
         items: [
           {
             architectPricing: {
-              architectPriceAgorot: 100_000,
-              clientPriceAgorot: 150_000,
-              clientPriceStale: true,
+              pricingStatus: "needs_review",
             },
           },
         ],
       }),
-    ).toBe("מחיר לקוח דורש בדיקה");
+    ).toBe("תמחור דורש בדיקת מנהל");
   });
 
   it("prioritizes commercial dirty over incomplete pricing", () => {
@@ -52,7 +50,7 @@ describe("architect-project-attention", () => {
         onboardingStatus: "active",
         status: "approved",
         commercialDirty: true,
-        items: [{ architectPricing: { architectPriceAgorot: 100_000 } }],
+        items: [{ architectPricing: { pricingStatus: "unpriced" } }],
       }),
     ).toBe("יש שינויים שטרם נשלחו לבדיקה");
   });

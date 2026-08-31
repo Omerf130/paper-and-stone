@@ -1,41 +1,47 @@
+import type { ItemPricingStatus } from "@/lib/pricing/pricing-commercial-model";
+
 export type ProjectItemPricingViewBase = {
   priceVersion: number;
-  clientPriceStale: boolean;
+  pricingStatus: ItemPricingStatus;
 };
 
 export type AdminProjectItemPricingView = ProjectItemPricingViewBase & {
   internalCostAgorot?: number;
   internalCostFormatted?: string;
   hasInternalCost: boolean;
-  adminMarkupBp?: number;
-  adminMarkupPercent?: string;
-  usesProjectAdminMarkup: boolean;
-  architectPriceAgorot?: number;
-  architectPriceFormatted?: string;
-  hasArchitectPrice: boolean;
-  architectLineTotalAgorot?: number;
-  architectLineTotalFormatted?: string;
-  architectMarkupBp?: number;
-  architectMarkupPercent?: string;
-  usesProjectArchitectMarkup: boolean;
   clientPriceAgorot?: number;
   clientPriceFormatted?: string;
   hasClientPrice: boolean;
-  clientLineTotalAgorot?: number;
-  clientLineTotalFormatted?: string;
+  architectMarkupBp?: number;
+  architectMarkupPercent?: string;
+  hasArchitectMarkup: boolean;
+  commercialMarginAgorot?: number;
+  commercialMarginFormatted?: string;
+  hasCommercialMargin: boolean;
+  paperStoneProfitAgorot?: number;
+  paperStoneProfitFormatted?: string;
+  hasPaperStoneProfit: boolean;
+  architectProfitAgorot?: number;
+  architectProfitFormatted?: string;
+  hasArchitectProfit: boolean;
   internalCostLineTotalAgorot?: number;
   internalCostLineTotalFormatted?: string;
+  commercialMarginLineTotalAgorot?: number;
+  commercialMarginLineTotalFormatted?: string;
+  paperStoneProfitLineTotalAgorot?: number;
+  paperStoneProfitLineTotalFormatted?: string;
+  architectProfitLineTotalAgorot?: number;
+  architectProfitLineTotalFormatted?: string;
+  clientLineTotalAgorot?: number;
+  clientLineTotalFormatted?: string;
 };
 
 export type ArchitectProjectItemPricingView = ProjectItemPricingViewBase & {
-  architectPriceAgorot?: number;
-  architectPriceFormatted?: string;
-  hasArchitectPrice: boolean;
-  architectLineTotalAgorot?: number;
-  architectLineTotalFormatted?: string;
-  architectMarkupBp?: number;
-  architectMarkupPercent?: string;
-  usesProjectArchitectMarkup: boolean;
+  architectProfitAgorot?: number;
+  architectProfitFormatted?: string;
+  hasArchitectProfit: boolean;
+  architectProfitLineTotalAgorot?: number;
+  architectProfitLineTotalFormatted?: string;
   clientPriceAgorot?: number;
   clientPriceFormatted?: string;
   hasClientPrice: boolean;
@@ -44,6 +50,7 @@ export type ArchitectProjectItemPricingView = ProjectItemPricingViewBase & {
 };
 
 export type ClientProjectItemPricingView = {
+  pricingStatus: ItemPricingStatus;
   clientPriceAgorot?: number;
   clientPriceFormatted?: string;
   hasClientPrice: boolean;
@@ -54,47 +61,56 @@ export type ClientProjectItemPricingView = {
 export type PricingTotalsView = {
   pricedItemCount: number;
   unpricedItemCount: number;
-  staleItemCount: number;
+  needsReviewItemCount: number;
   isComplete: boolean;
 };
 
-export type AdminPricingTotalsView = PricingTotalsView & {
-  internalCostTotalAgorot?: number;
-  internalCostTotalFormatted?: string;
-  architectTotalAgorot?: number;
-  architectTotalFormatted?: string;
-  clientTotalAgorot?: number;
-  clientTotalFormatted?: string;
+export type PricingVatTotalsView = {
+  clientSubtotalAgorot?: number;
+  clientSubtotalFormatted?: string;
+  vatRateBasisPoints?: number;
+  vatAmountAgorot?: number;
+  vatAmountFormatted?: string;
+  clientTotalInclVatAgorot?: number;
+  clientTotalInclVatFormatted?: string;
 };
 
-export type ArchitectPricingTotalsView = PricingTotalsView & {
-  architectTotalAgorot?: number;
-  architectTotalFormatted?: string;
-  clientTotalAgorot?: number;
-  clientTotalFormatted?: string;
-};
+export type AdminPricingTotalsView = PricingTotalsView &
+  PricingVatTotalsView & {
+    internalCostTotalAgorot?: number;
+    internalCostTotalFormatted?: string;
+    commercialMarginTotalAgorot?: number;
+    commercialMarginTotalFormatted?: string;
+    paperStoneProfitTotalAgorot?: number;
+    paperStoneProfitTotalFormatted?: string;
+    architectProfitTotalAgorot?: number;
+    architectProfitTotalFormatted?: string;
+    /** @deprecated use clientSubtotalAgorot */
+    clientTotalAgorot?: number;
+    /** @deprecated use clientSubtotalFormatted */
+    clientTotalFormatted?: string;
+  };
 
-export type ClientPricingTotalsView = PricingTotalsView & {
-  clientTotalAgorot?: number;
-  clientTotalFormatted?: string;
-};
+export type ArchitectPricingTotalsView = PricingTotalsView &
+  PricingVatTotalsView & {
+    architectProfitTotalAgorot?: number;
+    architectProfitTotalFormatted?: string;
+    /** @deprecated use clientSubtotalAgorot */
+    clientTotalAgorot?: number;
+    /** @deprecated use clientSubtotalFormatted */
+    clientTotalFormatted?: string;
+  };
 
-export type ArchitectProjectPricingSettingsView = {
-  defaultArchitectMarkupBp?: number;
-  defaultArchitectMarkupPercent?: string;
-  isArchitectPricingEditable: boolean;
-  architectPricingUnavailableReason?: string;
-  usesLayeredPricing: boolean;
-};
+export type ClientPricingTotalsView = PricingTotalsView &
+  PricingVatTotalsView & {
+    /** @deprecated use clientSubtotalAgorot */
+    clientTotalAgorot?: number;
+    /** @deprecated use clientSubtotalFormatted */
+    clientTotalFormatted?: string;
+  };
 
 export type ProjectPricingSettingsView = {
-  defaultAdminMarkupBp?: number;
-  defaultAdminMarkupPercent?: string;
-  defaultArchitectMarkupBp?: number;
-  defaultArchitectMarkupPercent?: string;
   isAdminPricingEditable: boolean;
-  isArchitectPricingEditable: boolean;
   adminPricingUnavailableReason?: string;
-  architectPricingUnavailableReason?: string;
   usesLayeredPricing: boolean;
 };

@@ -1,37 +1,30 @@
 import { describe, expect, it } from "vitest";
-import { applyAdminPricingUpdate } from "@/lib/pricing/pricing-item-helpers";
+import { applyAdminCommercialPricingUpdate } from "@/lib/pricing/pricing-item-helpers";
 
-describe("inline admin pricing semantics", () => {
-  it("preserves client price and marks stale when repricing after approval", () => {
-    const updated = applyAdminPricingUpdate({
+describe("admin commercial pricing update", () => {
+  it("stores authoritative fields and derived profit snapshots", () => {
+    const updated = applyAdminCommercialPricingUpdate({
       pricing: {
         priceVersion: 5,
-        internalCostAgorot: 100_000,
-        architectPriceAgorot: 140_000,
-        clientPriceAgorot: 210_000,
-        clientPriceStale: false,
+        internalCostAgorot: 1_000_000,
+        clientPriceAgorot: 1_500_000,
+        architectMarkupBp: 1_000,
+        architectPriceAgorot: 1_400_000,
+        pricingReviewStatus: "needs_review",
       },
-      internalCostAgorot: 110_000,
-      adminMarkupBp: 4_000,
-      hadClientPrice: true,
+      commercialPricing: {
+        internalCostAgorot: 1_000_000,
+        clientPriceAgorot: 1_600_000,
+        architectMarkupBp: 2_000,
+      },
     });
 
-    expect(updated.clientPriceAgorot).toBe(210_000);
-    expect(updated.clientPriceStale).toBe(true);
-    expect(updated.architectPriceAgorot).toBe(154_000);
-  });
-
-  it("does not mark stale when setting initial pricing without client price", () => {
-    const updated = applyAdminPricingUpdate({
-      pricing: {
-        priceVersion: 0,
-        clientPriceStale: false,
-      },
-      internalCostAgorot: 100_000,
-      adminMarkupBp: 4_000,
-      hadClientPrice: false,
-    });
-
-    expect(updated.clientPriceStale).toBe(false);
+    expect(updated.internalCostAgorot).toBe(1_000_000);
+    expect(updated.clientPriceAgorot).toBe(1_600_000);
+    expect(updated.architectMarkupBp).toBe(2_000);
+    expect(updated.architectProfitAgorot).toBe(120_000);
+    expect(updated.architectPriceAgorot).toBeUndefined();
+    expect(updated.pricingReviewStatus).toBe("none");
+    expect(updated.priceVersion).toBe(6);
   });
 });

@@ -18,6 +18,7 @@ import { getUnreadMessageCountsForProjects, getUnreadArchitectClientMessageCount
 import { mapProjectToListItemView } from "@/lib/projects/mapProjectToView";
 import { getProjectRoomCountsByProjectIds } from "@/lib/projects/project-room-queries";
 import { getArchitectProjectActionHint } from "@/lib/projects/architect-project-attention";
+import { getItemPricingStatus } from "@/lib/pricing/pricing-commercial-model";
 import { countProjectItemsByStatus } from "@/lib/project-items/project-item-workflow-attention";
 import type { ProjectStatus } from "@/types/project";
 
@@ -62,13 +63,18 @@ function buildArchitectAttentionItems(items: IProjectItem[]) {
   return items.map((item) => ({
     architectPricing: item.pricing
       ? {
-          architectPriceAgorot: item.pricing.architectPriceAgorot,
-          clientPriceAgorot: item.pricing.clientPriceAgorot,
-          clientPriceStale: item.pricing.clientPriceStale,
+          pricingStatus: getItemPricingStatus(item.pricing),
         }
       : undefined,
   }));
 }
+
+const PRICING_NEEDS_REVIEW_ELEM_MATCH = {
+  $or: [
+    { "pricing.pricingReviewStatus": "needs_review" },
+    { "pricing.clientPriceStale": true },
+  ],
+};
 
 export function mergePriorityDashboardProjects(
   groups: {
@@ -171,7 +177,7 @@ export async function getProfessionalDashboardData(
     Project.countDocuments({
       ownerUserId: ownerObjectId,
       onboardingStatus: "active",
-      items: { $elemMatch: { "pricing.clientPriceStale": true } },
+      items: { $elemMatch: PRICING_NEEDS_REVIEW_ELEM_MATCH },
     }),
     Project.countDocuments({
       ownerUserId: ownerObjectId,
@@ -194,7 +200,7 @@ export async function getProfessionalDashboardData(
     Project.find({
       ownerUserId: ownerObjectId,
       onboardingStatus: "active",
-      items: { $elemMatch: { "pricing.clientPriceStale": true } },
+      items: { $elemMatch: PRICING_NEEDS_REVIEW_ELEM_MATCH },
     })
       .select(projectSelect)
       .sort({ updatedAt: -1 })

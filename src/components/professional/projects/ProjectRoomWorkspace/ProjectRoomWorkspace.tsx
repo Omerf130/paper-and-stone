@@ -79,7 +79,7 @@ export default function ProjectRoomWorkspace({
     : null;
   const isEditable = project.isRoomEditable && !readOnly;
   const showPricing = project.pricingSettings?.usesLayeredPricing ?? false;
-  const isPricingEditable = project.pricingSettings?.isArchitectPricingEditable ?? false;
+  const isPricingEditable = false;
 
   const selectRoom = (roomId: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -325,9 +325,6 @@ export default function ProjectRoomWorkspace({
                         projectId={project.id}
                         itemId={item.id}
                         pricing={item.architectPricing}
-                        defaultArchitectMarkupPercent={
-                          project.pricingSettings?.defaultArchitectMarkupPercent
-                        }
                         isEditable={isPricingEditable && !readOnly}
                       />
                     ) : null}

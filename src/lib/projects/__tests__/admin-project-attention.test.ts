@@ -8,23 +8,23 @@ import {
 } from "@/lib/projects/admin-project-attention";
 
 describe("admin-project-attention", () => {
-  it("counts one incomplete item when all three pricing fields are missing", () => {
+  it("counts one incomplete item when all authoritative pricing fields are missing", () => {
     expect(
       getProjectPricingAttention([
         {
           pricing: {
             internalCostAgorot: undefined,
-            architectPriceAgorot: undefined,
             clientPriceAgorot: undefined,
+            architectMarkupBp: undefined,
           },
         },
       ] as never),
     ).toEqual({
       incompleteItemCount: 1,
       missingInternalCostCount: 1,
-      missingArchitectPriceCount: 1,
       missingClientPriceCount: 1,
-      staleClientPriceCount: 0,
+      missingArchitectMarkupCount: 1,
+      needsReviewItemCount: 0,
     });
   });
 
@@ -34,8 +34,9 @@ describe("admin-project-attention", () => {
         {
           pricing: {
             internalCostAgorot: 100_000,
-            architectPriceAgorot: 140_000,
-            clientPriceAgorot: 210_000,
+            clientPriceAgorot: 160_000,
+            architectMarkupBp: 2_000,
+            architectProfitAgorot: 12_000,
           },
         },
         { pricing: { internalCostAgorot: 100_000 } },
@@ -44,52 +45,31 @@ describe("admin-project-attention", () => {
     ).toEqual({
       incompleteItemCount: 2,
       missingInternalCostCount: 1,
-      missingArchitectPriceCount: 2,
       missingClientPriceCount: 2,
-      staleClientPriceCount: 0,
+      missingArchitectMarkupCount: 2,
+      needsReviewItemCount: 0,
     });
   });
 
-  it("counts stale items separately without double-counting as incomplete", () => {
+  it("counts needs review separately without double-counting as incomplete", () => {
     expect(
       getProjectPricingAttention([
         {
           pricing: {
             internalCostAgorot: 100_000,
-            architectPriceAgorot: 140_000,
-            clientPriceAgorot: 210_000,
-            clientPriceStale: true,
+            clientPriceAgorot: 160_000,
+            architectMarkupBp: 2_000,
+            architectProfitAgorot: 12_000,
+            pricingReviewStatus: "needs_review",
           },
         },
       ] as never),
     ).toEqual({
       incompleteItemCount: 0,
       missingInternalCostCount: 0,
-      missingArchitectPriceCount: 0,
       missingClientPriceCount: 0,
-      staleClientPriceCount: 1,
-    });
-  });
-
-  it("counts missing layered pricing dimensions on partially priced items", () => {
-    expect(
-      getProjectPricingAttention([
-        { pricing: { internalCostAgorot: 100_000 } },
-        {
-          pricing: {
-            internalCostAgorot: 100_000,
-            architectPriceAgorot: 140_000,
-            clientPriceAgorot: 210_000,
-            clientPriceStale: true,
-          },
-        },
-      ] as never),
-    ).toEqual({
-      incompleteItemCount: 1,
-      missingInternalCostCount: 0,
-      missingArchitectPriceCount: 1,
-      missingClientPriceCount: 1,
-      staleClientPriceCount: 1,
+      missingArchitectMarkupCount: 0,
+      needsReviewItemCount: 1,
     });
   });
 
@@ -100,21 +80,21 @@ describe("admin-project-attention", () => {
         {
           adminPricing: {
             internalCostAgorot: 100_000,
-            architectPriceAgorot: 140_000,
-            clientPriceAgorot: 210_000,
+            clientPriceAgorot: 160_000,
+            architectMarkupBp: 2_000,
           },
         },
       ]),
     ).toEqual({
       incompleteItemCount: 1,
       missingInternalCostCount: 0,
-      missingArchitectPriceCount: 1,
       missingClientPriceCount: 1,
-      staleClientPriceCount: 0,
+      missingArchitectMarkupCount: 1,
+      needsReviewItemCount: 0,
     });
   });
 
-  it("returns attention reasons for active submitted project with stale prices", () => {
+  it("returns attention reasons for active submitted project with needs review pricing", () => {
     const reasons = getAdminProjectAttentionReasons({
       onboardingStatus: "active",
       status: "submitted",
@@ -122,9 +102,10 @@ describe("admin-project-attention", () => {
         {
           pricing: {
             internalCostAgorot: 100_000,
-            architectPriceAgorot: 140_000,
-            clientPriceAgorot: 210_000,
-            clientPriceStale: true,
+            clientPriceAgorot: 160_000,
+            architectMarkupBp: 2_000,
+            architectProfitAgorot: 12_000,
+            pricingReviewStatus: "needs_review",
           },
         },
       ],
@@ -141,9 +122,10 @@ describe("admin-project-attention", () => {
         {
           pricing: {
             internalCostAgorot: 100_000,
-            architectPriceAgorot: 140_000,
-            clientPriceAgorot: 210_000,
-            clientPriceStale: true,
+            clientPriceAgorot: 160_000,
+            architectMarkupBp: 2_000,
+            architectProfitAgorot: 12_000,
+            pricingReviewStatus: "needs_review",
           },
         },
       ],
@@ -162,61 +144,10 @@ describe("admin-project-attention", () => {
       hasLayeredPricingAttention({
         incompleteItemCount: 1,
         missingInternalCostCount: 1,
-        missingArchitectPriceCount: 0,
         missingClientPriceCount: 0,
-        staleClientPriceCount: 0,
+        missingArchitectMarkupCount: 0,
+        needsReviewItemCount: 0,
       }),
     ).toBe(true);
-  });
-
-  it("does not include commercial dirty alone in admin attention reasons", () => {
-    expect(
-      getAdminProjectAttentionReasons({
-        onboardingStatus: "active",
-        status: "approved",
-        commercialDirty: true,
-        items: [
-          {
-            pricing: {
-              internalCostAgorot: 100_000,
-              architectPriceAgorot: 140_000,
-              clientPriceAgorot: 210_000,
-            },
-          },
-        ],
-      } as never),
-    ).toEqual([]);
-  });
-
-  it("flags pending admin pricing rounds in attention reasons", () => {
-    expect(
-      getAdminProjectAttentionReasons({
-        onboardingStatus: "active",
-        status: "approved",
-        adminPricingRevision: 2,
-        adminPricingDeliveredRevision: 1,
-        items: [
-          {
-            pricing: {
-              internalCostAgorot: 100_000,
-              architectPriceAgorot: 140_000,
-              clientPriceAgorot: 210_000,
-            },
-          },
-        ],
-      } as never),
-    ).toEqual(["pricing_ready_to_deliver"]);
-  });
-
-  it("flags incomplete admin layer pricing during pending delivery", () => {
-    expect(
-      getAdminProjectAttentionReasons({
-        onboardingStatus: "active",
-        status: "approved",
-        adminPricingRevision: 2,
-        adminPricingDeliveredRevision: 1,
-        items: [{ pricing: { internalCostAgorot: 100_000 } }],
-      } as never),
-    ).toEqual(["admin_pricing_incomplete"]);
   });
 });

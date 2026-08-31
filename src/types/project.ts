@@ -124,7 +124,7 @@ export type ProjectDetailView = {
   isRoomEditable: boolean;
   rooms: import("@/types/project-room").ProjectRoomView[];
   selectedRoomId?: string | null;
-  pricingSettings?: import("@/types/project-pricing").ArchitectProjectPricingSettingsView;
+  pricingSettings?: import("@/types/project-pricing").ProjectPricingSettingsView;
   pricingTotals?: import("@/types/project-pricing").ArchitectPricingTotalsView;
   adminPricingDelivery?: {
     hasUnseenDelivery: boolean;

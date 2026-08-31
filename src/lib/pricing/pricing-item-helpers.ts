@@ -1,95 +1,31 @@
-import type { IProject, IProjectItemPricing } from "@/models/Project";
-import {
-  calculateArchitectPriceAgorot,
-  calculateClientPriceAgorot,
-} from "@/lib/pricing/pricing-calculations";
-import {
-  getEffectiveAdminMarkupBp,
-  getEffectiveArchitectMarkupBp,
-} from "@/lib/pricing/pricing-inheritance";
+import type { IProjectItemPricing } from "@/models/Project";
+import type { AdminCommercialPricingInput } from "@/lib/pricing/pricing-commercial-model";
+import { validateAdminCommercialPricingInput } from "@/lib/pricing/pricing-commercial-model";
 
-export function createInitialItemPricing(input: {
-  defaultInternalCostAgorot?: number | null;
-  project: Pick<IProject, "defaultAdminMarkupBp" | "defaultArchitectMarkupBp">;
-}): IProjectItemPricing | undefined {
-  const pricing: IProjectItemPricing = {
-    priceVersion: 0,
-    clientPriceStale: false,
-  };
-
-  if (input.defaultInternalCostAgorot == null) {
-    return undefined;
-  }
-
-  pricing.internalCostAgorot = input.defaultInternalCostAgorot;
-
-  const adminMarkupBp = getEffectiveAdminMarkupBp(
-    { pricing },
-    input.project,
-  );
-
-  if (adminMarkupBp != null) {
-    pricing.architectPriceAgorot = calculateArchitectPriceAgorot(
-      pricing.internalCostAgorot,
-      adminMarkupBp,
-    );
-  }
-
-  const architectMarkupBp = getEffectiveArchitectMarkupBp(
-    { pricing },
-    input.project,
-  );
-
-  if (
-    pricing.architectPriceAgorot != null &&
-    architectMarkupBp != null
-  ) {
-    pricing.clientPriceAgorot = calculateClientPriceAgorot(
-      pricing.architectPriceAgorot,
-      architectMarkupBp,
-    );
-  }
-
-  return pricing;
+export function createInitialItemPricing(): undefined {
+  return undefined;
 }
 
-export function applyAdminPricingUpdate(input: {
+export function applyAdminCommercialPricingUpdate(input: {
   pricing: IProjectItemPricing;
-  internalCostAgorot: number;
-  adminMarkupBp: number;
-  hadClientPrice: boolean;
+  commercialPricing: AdminCommercialPricingInput;
 }): IProjectItemPricing {
-  const architectPriceAgorot = calculateArchitectPriceAgorot(
-    input.internalCostAgorot,
-    input.adminMarkupBp,
-  );
-
-  const next: IProjectItemPricing = {
-    ...input.pricing,
-    internalCostAgorot: input.internalCostAgorot,
-    architectPriceAgorot,
-    priceVersion: (input.pricing.priceVersion ?? 0) + 1,
-    clientPriceStale: input.hadClientPrice,
-  };
-
-  if (!input.hadClientPrice) {
-    next.clientPriceStale = false;
+  const validation = validateAdminCommercialPricingInput(input.commercialPricing);
+  if (!validation.ok) {
+    throw new Error(validation.message);
   }
 
-  return next;
-}
+  const { resolved } = validation;
+  const nextPricing = { ...input.pricing };
+  delete nextPricing.architectPriceAgorot;
 
-export function applyArchitectPricingUpdate(input: {
-  pricing: IProjectItemPricing;
-  architectPriceAgorot: number;
-  architectMarkupBp: number;
-}): IProjectItemPricing {
   return {
-    ...input.pricing,
-    clientPriceAgorot: calculateClientPriceAgorot(
-      input.architectPriceAgorot,
-      input.architectMarkupBp,
-    ),
+    ...nextPricing,
+    internalCostAgorot: resolved.internalCostAgorot,
+    clientPriceAgorot: resolved.clientPriceAgorot,
+    architectMarkupBp: resolved.architectMarkupBp,
+    architectProfitAgorot: resolved.architectProfitAgorot,
+    pricingReviewStatus: "none",
     clientPriceStale: false,
     priceVersion: (input.pricing.priceVersion ?? 0) + 1,
   };

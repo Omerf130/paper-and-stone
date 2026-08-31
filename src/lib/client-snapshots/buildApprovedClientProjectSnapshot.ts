@@ -7,6 +7,7 @@ import {
   calculateLineTotalAgorot,
   sumLineTotalsAgorot,
 } from "@/lib/pricing/pricing-calculations";
+import { calculateLayeredPricingVatTotals } from "@/lib/pricing/pricing-vat";
 import { groupItemsByRoomId } from "@/lib/projects/project-room-helpers";
 import { resolveApprovedClientSnapshotImage } from "@/lib/client-snapshots/resolveApprovedClientSnapshotImage";
 import type { ProductThumbnailView } from "@/lib/products/loadProductThumbnailMap";
@@ -81,9 +82,10 @@ export function buildApprovedClientProjectSnapshot(
     };
   });
 
-  const clientProjectTotalAgorot = sumLineTotalsAgorot(
+  const clientProjectSubtotalAgorot = sumLineTotalsAgorot(
     roomSnapshots.map((room) => room.clientRoomTotalAgorot),
   );
+  const vatTotals = calculateLayeredPricingVatTotals(clientProjectSubtotalAgorot);
 
   return {
     schemaVersion: CLIENT_APPROVED_PROJECT_SNAPSHOT_SCHEMA_VERSION,
@@ -97,6 +99,10 @@ export function buildApprovedClientProjectSnapshot(
     approvedAt,
     architect: { fullName: architectFullName },
     rooms: roomSnapshots,
-    clientProjectTotalAgorot,
+    clientProjectTotalAgorot: clientProjectSubtotalAgorot,
+    clientProjectSubtotalAgorot,
+    vatRateBasisPoints: vatTotals.vatRateBasisPoints,
+    vatAmountAgorot: vatTotals.vatAmountAgorot,
+    clientProjectTotalInclVatAgorot: vatTotals.clientTotalInclVatAgorot,
   };
 }

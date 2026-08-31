@@ -79,7 +79,7 @@ export function getAdminProjectAttentionReasons(
 
     const attention = getProjectPricingAttention(project.items);
 
-    if (attention.staleClientPriceCount > 0) {
+    if (attention.needsReviewItemCount > 0) {
       reasons.push("stale_client_prices");
     }
   }
@@ -111,8 +111,10 @@ export const ADMIN_LAYER_INCOMPLETE_PRICING_ELEM_MATCH = {
     { pricing: { $exists: false } },
     { "pricing.internalCostAgorot": { $exists: false } },
     { "pricing.internalCostAgorot": null },
-    { "pricing.architectPriceAgorot": { $exists: false } },
-    { "pricing.architectPriceAgorot": null },
+    { "pricing.clientPriceAgorot": { $exists: false } },
+    { "pricing.clientPriceAgorot": null },
+    { "pricing.architectMarkupBp": { $exists: false } },
+    { "pricing.architectMarkupBp": null },
   ],
 } as const;
 
@@ -141,7 +143,14 @@ export function buildAdminProjectAttentionFilter(): Record<string, unknown> {
       },
       {
         onboardingStatus: "active",
-        items: { $elemMatch: { "pricing.clientPriceStale": true } },
+        items: {
+          $elemMatch: {
+            $or: [
+              { "pricing.pricingReviewStatus": "needs_review" },
+              { "pricing.clientPriceStale": true },
+            ],
+          },
+        },
       },
       {
         items: {

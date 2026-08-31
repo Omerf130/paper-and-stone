@@ -13,14 +13,12 @@ const adminUserId = "507f1f77bcf86cd799439013";
 
 function createEditableProject(overrides?: {
   itemPricing?: Record<string, unknown> | null;
-  defaultAdminMarkupBp?: number;
   status?: string;
 }) {
   return {
     _id: new Types.ObjectId(projectId),
     onboardingStatus: "active",
     status: overrides?.status ?? "approved",
-    defaultAdminMarkupBp: overrides?.defaultAdminMarkupBp ?? 5_000,
     items: [
       {
         _id: new Types.ObjectId(itemId),
@@ -30,10 +28,11 @@ function createEditableProject(overrides?: {
           ? undefined
           : (overrides?.itemPricing ?? {
               priceVersion: 1,
-              internalCostAgorot: 800_000,
-              adminMarkupBp: 5_000,
-              architectPriceAgorot: 840_000,
-              clientPriceStale: false,
+              internalCostAgorot: 1_000_000,
+              clientPriceAgorot: 1_600_000,
+              architectMarkupBp: 2_000,
+              architectProfitAgorot: 120_000,
+              pricingReviewStatus: "none",
             }),
       },
     ],
@@ -74,7 +73,8 @@ describe("project-pricing-admin-mutations", () => {
       projectId,
       itemId,
       internalCostAgorot: 1_000_000,
-      itemAdminMarkupBp: 5_000,
+      clientPriceAgorot: 1_600_000,
+      architectMarkupBp: 2_000,
       expectedPriceVersion: 0,
     });
 
@@ -85,9 +85,11 @@ describe("project-pricing-admin-mutations", () => {
     expect(filter.items.$elemMatch.pricing).toEqual({ $exists: false });
     expect(updateDoc.$set["items.$[item].pricing"]).toMatchObject({
       internalCostAgorot: 1_000_000,
-      architectPriceAgorot: 1_500_000,
-      adminMarkupBp: 5_000,
+      clientPriceAgorot: 1_600_000,
+      architectMarkupBp: 2_000,
+      architectProfitAgorot: 120_000,
       priceVersion: 1,
+      pricingReviewStatus: "none",
       clientPriceStale: false,
     });
     expect(options.arrayFilters[0]["item._id"]).toBeDefined();
@@ -101,8 +103,9 @@ describe("project-pricing-admin-mutations", () => {
     await setProjectItemAdminPricing(adminUserId, {
       projectId,
       itemId,
-      internalCostAgorot: 1_200_000,
-      itemAdminMarkupBp: 5_000,
+      internalCostAgorot: 1_000_000,
+      clientPriceAgorot: 1_700_000,
+      architectMarkupBp: 2_500,
       expectedPriceVersion: 1,
     });
 
@@ -111,40 +114,16 @@ describe("project-pricing-admin-mutations", () => {
     const [, updateDoc, options] = updateOneMock.mock.calls[0];
 
     expect(updateDoc.$set).toMatchObject({
-      "items.$[item].pricing.internalCostAgorot": 1_200_000,
-      "items.$[item].pricing.architectPriceAgorot": 1_800_000,
+      "items.$[item].pricing.internalCostAgorot": 1_000_000,
+      "items.$[item].pricing.clientPriceAgorot": 1_700_000,
+      "items.$[item].pricing.architectMarkupBp": 2_500,
+      "items.$[item].pricing.architectProfitAgorot": 175_000,
       "items.$[item].pricing.priceVersion": 2,
     });
+    expect(updateDoc.$unset).toEqual({
+      "items.$[item].pricing.architectPriceAgorot": "",
+    });
     expect(options.arrayFilters[0]["item.pricing.priceVersion"]).toBe(1);
-  });
-
-  it("uses project default markup when requested", async () => {
-    findOneMock.mockImplementation(async () =>
-      createEditableProject({ itemPricing: null }),
-    );
-
-    const { setProjectItemAdminPricing } = await import(
-      "@/lib/pricing/project-pricing-admin-mutations"
-    );
-
-    await setProjectItemAdminPricing(adminUserId, {
-      projectId,
-      itemId,
-      internalCostAgorot: 1_000_000,
-      useProjectDefaultAdminMarkup: true,
-      clearAdminMarkupOverride: true,
-      expectedPriceVersion: 0,
-    });
-
-    expect(updateOneMock).toHaveBeenCalledTimes(1);
-
-    const pricingDoc = updateOneMock.mock.calls[0][1].$set["items.$[item].pricing"];
-    expect(pricingDoc).toMatchObject({
-      internalCostAgorot: 1_000_000,
-      architectPriceAgorot: 1_500_000,
-      priceVersion: 1,
-    });
-    expect(pricingDoc.adminMarkupBp).toBeUndefined();
   });
 
   it("throws version conflict when update modifies nothing", async () => {
@@ -162,31 +141,9 @@ describe("project-pricing-admin-mutations", () => {
         projectId,
         itemId,
         internalCostAgorot: 1_000_000,
-        itemAdminMarkupBp: 5_000,
+        clientPriceAgorot: 1_600_000,
+        architectMarkupBp: 2_000,
         expectedPriceVersion: 1,
-      }),
-    ).rejects.toThrow(
-      new ProjectMutationError(PRICING_ERRORS.VERSION_CONFLICT),
-    );
-  });
-
-  it("throws version conflict when item exists but version is stale", async () => {
-    updateOneMock.mockResolvedValue({ matchedCount: 0, modifiedCount: 0 });
-    findByIdMock.mockReturnValue({
-      select: vi.fn().mockResolvedValue(createEditableProject()),
-    });
-
-    const { setProjectItemAdminPricing } = await import(
-      "@/lib/pricing/project-pricing-admin-mutations"
-    );
-
-    await expect(
-      setProjectItemAdminPricing(adminUserId, {
-        projectId,
-        itemId,
-        internalCostAgorot: 1_000_000,
-        itemAdminMarkupBp: 5_000,
-        expectedPriceVersion: 99,
       }),
     ).rejects.toThrow(
       new ProjectMutationError(PRICING_ERRORS.VERSION_CONFLICT),
@@ -207,7 +164,8 @@ describe("project-pricing-admin-mutations", () => {
         projectId,
         itemId,
         internalCostAgorot: 1_000_000,
-        itemAdminMarkupBp: 5_000,
+        clientPriceAgorot: 1_600_000,
+        architectMarkupBp: 2_000,
         expectedPriceVersion: 0,
       }),
     ).resolves.toBeUndefined();

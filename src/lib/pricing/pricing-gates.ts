@@ -5,8 +5,8 @@ import {
   hasPendingAdminPricingDelivery,
   isAdminLayerPricingIncomplete,
 } from "@/lib/pricing/admin-pricing-round";
+import { getItemPricingStatus } from "@/lib/pricing/pricing-commercial-model";
 import {
-  isArchitectWorkspaceEditable,
   isOnboardingPending,
   usesLayeredPricing,
 } from "@/lib/projects/project-workspace-gates";
@@ -28,17 +28,11 @@ export function isAdminProjectPricingEditable(
   );
 }
 
+/** Architect cannot edit commercial pricing in Pricing V2. */
 export function isArchitectProjectPricingEditable(
-  project: ProjectPricingGateInput,
+  _project: ProjectPricingGateInput,
 ): boolean {
-  return usesLayeredPricing(project) && isArchitectWorkspaceEditable(project);
-}
-
-/** @deprecated Use isAdminProjectPricingEditable or isArchitectProjectPricingEditable */
-export function isProjectPricingEditable(
-  project: ProjectPricingGateInput,
-): boolean {
-  return isArchitectProjectPricingEditable(project);
+  return false;
 }
 
 export function getPricingUnavailableReason(
@@ -61,16 +55,12 @@ export function getPricingUnavailableReason(
     return "לא ניתן לתמחר פרויקט במצב הנוכחי";
   }
 
-  if (role === "architect" && project.status === "submitted") {
-    return "הפרויקט נשלח לבדיקה — לא ניתן לערוך עד לקבלת תשובה";
+  if (role === "admin" && !isAdminProjectPricingEditable(project)) {
+    return PRICING_ERRORS.NOT_EDITABLE;
   }
 
-  if (
-    role === "admin"
-      ? !isAdminProjectPricingEditable(project)
-      : !isArchitectProjectPricingEditable(project)
-  ) {
-    return PRICING_ERRORS.NOT_EDITABLE;
+  if (role === "architect") {
+    return PRICING_ERRORS.ARCHITECT_PRICING_READONLY;
   }
 
   return undefined;
@@ -78,47 +68,30 @@ export function getPricingUnavailableReason(
 
 export type LayeredPricingCompleteness = {
   isComplete: boolean;
-  unpricedArchitectCount: number;
-  unpricedClientCount: number;
-  staleClientCount: number;
+  unpricedItemCount: number;
+  needsReviewItemCount: number;
 };
 
 export function getLayeredPricingCompleteness(
   items: IProjectItem[],
 ): LayeredPricingCompleteness {
-  let unpricedArchitectCount = 0;
-  let unpricedClientCount = 0;
-  let staleClientCount = 0;
-  let unpricedAdminLayerCount = 0;
+  let unpricedItemCount = 0;
+  let needsReviewItemCount = 0;
 
   for (const item of items) {
-    const pricing = item.pricing;
+    const status = getItemPricingStatus(item.pricing);
 
-    if (isAdminLayerPricingIncomplete(pricing)) {
-      unpricedAdminLayerCount += 1;
-    }
-
-    if (pricing?.architectPriceAgorot == null) {
-      unpricedArchitectCount += 1;
-    }
-
-    if (pricing?.clientPriceAgorot == null) {
-      unpricedClientCount += 1;
-    }
-
-    if (pricing?.clientPriceStale) {
-      staleClientCount += 1;
+    if (status === "unpriced") {
+      unpricedItemCount += 1;
+    } else if (status === "needs_review") {
+      needsReviewItemCount += 1;
     }
   }
 
   return {
-    isComplete:
-      unpricedAdminLayerCount === 0 &&
-      unpricedClientCount === 0 &&
-      staleClientCount === 0,
-    unpricedArchitectCount,
-    unpricedClientCount,
-    staleClientCount,
+    isComplete: unpricedItemCount === 0 && needsReviewItemCount === 0,
+    unpricedItemCount,
+    needsReviewItemCount,
   };
 }
 
@@ -165,15 +138,12 @@ export function assertLayeredPricingCompleteForSubmit(
 
   const completeness = getLayeredPricingCompleteness(project.items);
 
-  if (
-    completeness.unpricedArchitectCount > 0 ||
-    completeness.unpricedClientCount > 0
-  ) {
+  if (completeness.unpricedItemCount > 0) {
     throw new ProjectMutationError(PRICING_ERRORS.INCOMPLETE_PRICING);
   }
 
-  if (completeness.staleClientCount > 0) {
-    throw new ProjectMutationError(PRICING_ERRORS.STALE_PRICING_SUBMIT);
+  if (completeness.needsReviewItemCount > 0) {
+    throw new ProjectMutationError(PRICING_ERRORS.PRICING_NEEDS_REVIEW);
   }
 }
 
@@ -209,15 +179,12 @@ export function getLayeredPricingApprovalBlockedReason(
 
   const completeness = getLayeredPricingCompleteness(project.items);
 
-  if (
-    completeness.unpricedArchitectCount > 0 ||
-    completeness.unpricedClientCount > 0
-  ) {
+  if (completeness.unpricedItemCount > 0) {
     return PRICING_ERRORS.INCOMPLETE_PRICING;
   }
 
-  if (completeness.staleClientCount > 0) {
-    return PRICING_ERRORS.STALE_PRICING_SUBMIT;
+  if (completeness.needsReviewItemCount > 0) {
+    return PRICING_ERRORS.PRICING_NEEDS_REVIEW;
   }
 
   return null;
@@ -232,32 +199,5 @@ export function getArchitectSubmitPricingBlockedReason(
     | "items"
   >,
 ): string | null {
-  if (!usesLayeredPricing(project)) {
-    return null;
-  }
-
-  if (hasPendingAdminPricingDelivery(project)) {
-    const adminIncomplete = project.items.some((item) =>
-      isAdminLayerPricingIncomplete(item.pricing),
-    );
-
-    return adminIncomplete
-      ? PRICING_ERRORS.ADMIN_PRICING_INCOMPLETE
-      : PRICING_ERRORS.ADMIN_PRICING_NOT_DELIVERED;
-  }
-
-  const completeness = getLayeredPricingCompleteness(project.items);
-
-  if (
-    completeness.unpricedArchitectCount > 0 ||
-    completeness.unpricedClientCount > 0
-  ) {
-    return PRICING_ERRORS.INCOMPLETE_PRICING;
-  }
-
-  if (completeness.staleClientCount > 0) {
-    return PRICING_ERRORS.STALE_PRICING_SUBMIT;
-  }
-
-  return null;
+  return getLayeredPricingApprovalBlockedReason(project);
 }

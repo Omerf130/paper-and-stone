@@ -2,18 +2,16 @@ import { formatIlsAgorot } from "@/lib/money/format-ils";
 import { basisPointsToPercentageString } from "@/lib/pricing/markup-basis-points";
 import { calculateLineTotalAgorot } from "@/lib/pricing/pricing-calculations";
 import {
-  getEffectiveAdminMarkupBp,
-  getEffectiveArchitectMarkupBp,
-  hasAdminMarkupOverride,
-  hasArchitectMarkupOverride,
-} from "@/lib/pricing/pricing-inheritance";
+  getItemPricingStatus,
+  isItemPricingVisibleToRole,
+  resolveItemCommercialPricing,
+} from "@/lib/pricing/pricing-commercial-model";
 import type { IProject, IProjectItem } from "@/models/Project";
 import type {
   AdminPricingTotalsView,
   AdminProjectItemPricingView,
   ArchitectPricingTotalsView,
   ArchitectProjectItemPricingView,
-  ArchitectProjectPricingSettingsView,
   ClientProjectItemPricingView,
   ProjectPricingSettingsView,
 } from "@/types/project-pricing";
@@ -25,7 +23,6 @@ import {
 import {
   getPricingUnavailableReason,
   isAdminProjectPricingEditable,
-  isArchitectProjectPricingEditable,
 } from "@/lib/pricing/pricing-gates";
 import { usesLayeredPricing } from "@/lib/projects/project-workspace-gates";
 
@@ -33,59 +30,59 @@ function formatOptionalAgorot(value?: number): string | undefined {
   return value == null ? undefined : formatIlsAgorot(value);
 }
 
+function mapVatTotalsFormatted(
+  totals: Pick<
+    AdminPricingTotalsView,
+    | "clientSubtotalAgorot"
+    | "vatAmountAgorot"
+    | "clientTotalInclVatAgorot"
+  >,
+) {
+  return {
+    clientSubtotalFormatted: formatOptionalAgorot(totals.clientSubtotalAgorot),
+    vatAmountFormatted: formatOptionalAgorot(totals.vatAmountAgorot),
+    clientTotalInclVatFormatted: formatOptionalAgorot(
+      totals.clientTotalInclVatAgorot,
+    ),
+    clientTotalFormatted: formatOptionalAgorot(totals.clientSubtotalAgorot),
+  };
+}
+
 export function mapAdminProjectItemPricingView(
   item: IProjectItem,
-  project: Pick<IProject, "defaultAdminMarkupBp" | "defaultArchitectMarkupBp">,
+  _project?: Pick<IProject, "defaultAdminMarkupBp" | "defaultArchitectMarkupBp">,
 ): AdminProjectItemPricingView {
   const pricing = item.pricing;
-  const effectiveAdminMarkupBp = getEffectiveAdminMarkupBp(item, project);
-  const effectiveArchitectMarkupBp = getEffectiveArchitectMarkupBp(item, project);
+  const pricingStatus = getItemPricingStatus(pricing);
+  const resolved = resolveItemCommercialPricing(pricing);
   const hasInternalCost = pricing?.internalCostAgorot != null;
-  const hasArchitectPrice = pricing?.architectPriceAgorot != null;
   const hasClientPrice = pricing?.clientPriceAgorot != null;
+  const hasArchitectMarkup = pricing?.architectMarkupBp != null;
 
   return {
     priceVersion: pricing?.priceVersion ?? 0,
-    clientPriceStale: pricing?.clientPriceStale ?? false,
+    pricingStatus,
     internalCostAgorot: pricing?.internalCostAgorot,
     internalCostFormatted: formatOptionalAgorot(pricing?.internalCostAgorot),
     hasInternalCost,
-    adminMarkupBp: effectiveAdminMarkupBp ?? undefined,
-    adminMarkupPercent:
-      effectiveAdminMarkupBp == null
-        ? undefined
-        : basisPointsToPercentageString(effectiveAdminMarkupBp),
-    usesProjectAdminMarkup: !hasAdminMarkupOverride(pricing),
-    architectPriceAgorot: pricing?.architectPriceAgorot,
-    architectPriceFormatted: formatOptionalAgorot(pricing?.architectPriceAgorot),
-    hasArchitectPrice,
-    architectLineTotalAgorot:
-      hasArchitectPrice && pricing?.architectPriceAgorot != null
-        ? calculateLineTotalAgorot(pricing.architectPriceAgorot, item.quantity)
-        : undefined,
-    architectLineTotalFormatted: formatOptionalAgorot(
-      hasArchitectPrice && pricing?.architectPriceAgorot != null
-        ? calculateLineTotalAgorot(pricing.architectPriceAgorot, item.quantity)
-        : undefined,
-    ),
-    architectMarkupBp: effectiveArchitectMarkupBp ?? undefined,
-    architectMarkupPercent:
-      effectiveArchitectMarkupBp == null
-        ? undefined
-        : basisPointsToPercentageString(effectiveArchitectMarkupBp),
-    usesProjectArchitectMarkup: !hasArchitectMarkupOverride(pricing),
     clientPriceAgorot: pricing?.clientPriceAgorot,
     clientPriceFormatted: formatOptionalAgorot(pricing?.clientPriceAgorot),
     hasClientPrice,
-    clientLineTotalAgorot:
-      hasClientPrice && pricing?.clientPriceAgorot != null
-        ? calculateLineTotalAgorot(pricing.clientPriceAgorot, item.quantity)
-        : undefined,
-    clientLineTotalFormatted: formatOptionalAgorot(
-      hasClientPrice && pricing?.clientPriceAgorot != null
-        ? calculateLineTotalAgorot(pricing.clientPriceAgorot, item.quantity)
-        : undefined,
-    ),
+    architectMarkupBp: pricing?.architectMarkupBp ?? undefined,
+    architectMarkupPercent:
+      pricing?.architectMarkupBp == null
+        ? undefined
+        : basisPointsToPercentageString(pricing.architectMarkupBp),
+    hasArchitectMarkup,
+    commercialMarginAgorot: resolved?.commercialMarginAgorot,
+    commercialMarginFormatted: formatOptionalAgorot(resolved?.commercialMarginAgorot),
+    hasCommercialMargin: resolved != null && resolved.commercialMarginAgorot >= 0,
+    paperStoneProfitAgorot: resolved?.paperStoneProfitAgorot,
+    paperStoneProfitFormatted: formatOptionalAgorot(resolved?.paperStoneProfitAgorot),
+    hasPaperStoneProfit: resolved != null && resolved.paperStoneProfitAgorot >= 0,
+    architectProfitAgorot: resolved?.architectProfitAgorot,
+    architectProfitFormatted: formatOptionalAgorot(resolved?.architectProfitAgorot),
+    hasArchitectProfit: resolved != null,
     internalCostLineTotalAgorot:
       hasInternalCost && pricing?.internalCostAgorot != null
         ? calculateLineTotalAgorot(pricing.internalCostAgorot, item.quantity)
@@ -95,42 +92,33 @@ export function mapAdminProjectItemPricingView(
         ? calculateLineTotalAgorot(pricing.internalCostAgorot, item.quantity)
         : undefined,
     ),
-  };
-}
-
-export function mapArchitectProjectItemPricingView(
-  item: IProjectItem,
-  project: Pick<IProject, "defaultArchitectMarkupBp">,
-): ArchitectProjectItemPricingView {
-  const pricing = item.pricing;
-  const effectiveArchitectMarkupBp = getEffectiveArchitectMarkupBp(item, project);
-  const hasArchitectPrice = pricing?.architectPriceAgorot != null;
-  const hasClientPrice = pricing?.clientPriceAgorot != null;
-
-  return {
-    priceVersion: pricing?.priceVersion ?? 0,
-    clientPriceStale: pricing?.clientPriceStale ?? false,
-    architectPriceAgorot: pricing?.architectPriceAgorot,
-    architectPriceFormatted: formatOptionalAgorot(pricing?.architectPriceAgorot),
-    hasArchitectPrice,
-    architectLineTotalAgorot:
-      hasArchitectPrice && pricing?.architectPriceAgorot != null
-        ? calculateLineTotalAgorot(pricing.architectPriceAgorot, item.quantity)
+    commercialMarginLineTotalAgorot:
+      resolved != null
+        ? calculateLineTotalAgorot(resolved.commercialMarginAgorot, item.quantity)
         : undefined,
-    architectLineTotalFormatted: formatOptionalAgorot(
-      hasArchitectPrice && pricing?.architectPriceAgorot != null
-        ? calculateLineTotalAgorot(pricing.architectPriceAgorot, item.quantity)
+    commercialMarginLineTotalFormatted: formatOptionalAgorot(
+      resolved != null
+        ? calculateLineTotalAgorot(resolved.commercialMarginAgorot, item.quantity)
         : undefined,
     ),
-    architectMarkupBp: effectiveArchitectMarkupBp ?? undefined,
-    architectMarkupPercent:
-      effectiveArchitectMarkupBp == null
-        ? undefined
-        : basisPointsToPercentageString(effectiveArchitectMarkupBp),
-    usesProjectArchitectMarkup: !hasArchitectMarkupOverride(pricing),
-    clientPriceAgorot: pricing?.clientPriceAgorot,
-    clientPriceFormatted: formatOptionalAgorot(pricing?.clientPriceAgorot),
-    hasClientPrice,
+    paperStoneProfitLineTotalAgorot:
+      resolved != null
+        ? calculateLineTotalAgorot(resolved.paperStoneProfitAgorot, item.quantity)
+        : undefined,
+    paperStoneProfitLineTotalFormatted: formatOptionalAgorot(
+      resolved != null
+        ? calculateLineTotalAgorot(resolved.paperStoneProfitAgorot, item.quantity)
+        : undefined,
+    ),
+    architectProfitLineTotalAgorot:
+      resolved != null
+        ? calculateLineTotalAgorot(resolved.architectProfitAgorot, item.quantity)
+        : undefined,
+    architectProfitLineTotalFormatted: formatOptionalAgorot(
+      resolved != null
+        ? calculateLineTotalAgorot(resolved.architectProfitAgorot, item.quantity)
+        : undefined,
+    ),
     clientLineTotalAgorot:
       hasClientPrice && pricing?.clientPriceAgorot != null
         ? calculateLineTotalAgorot(pricing.clientPriceAgorot, item.quantity)
@@ -138,6 +126,45 @@ export function mapArchitectProjectItemPricingView(
     clientLineTotalFormatted: formatOptionalAgorot(
       hasClientPrice && pricing?.clientPriceAgorot != null
         ? calculateLineTotalAgorot(pricing.clientPriceAgorot, item.quantity)
+        : undefined,
+    ),
+  };
+}
+
+export function mapArchitectProjectItemPricingView(
+  item: IProjectItem,
+  _project?: Pick<IProject, "defaultArchitectMarkupBp">,
+): ArchitectProjectItemPricingView {
+  const pricing = item.pricing;
+  const pricingStatus = getItemPricingStatus(pricing);
+  const visible = isItemPricingVisibleToRole(pricing);
+  const resolved = visible ? resolveItemCommercialPricing(pricing) : null;
+
+  return {
+    priceVersion: pricing?.priceVersion ?? 0,
+    pricingStatus,
+    architectProfitAgorot: resolved?.architectProfitAgorot,
+    architectProfitFormatted: formatOptionalAgorot(resolved?.architectProfitAgorot),
+    hasArchitectProfit: resolved != null,
+    architectProfitLineTotalAgorot:
+      resolved != null
+        ? calculateLineTotalAgorot(resolved.architectProfitAgorot, item.quantity)
+        : undefined,
+    architectProfitLineTotalFormatted: formatOptionalAgorot(
+      resolved != null
+        ? calculateLineTotalAgorot(resolved.architectProfitAgorot, item.quantity)
+        : undefined,
+    ),
+    clientPriceAgorot: resolved?.clientPriceAgorot,
+    clientPriceFormatted: formatOptionalAgorot(resolved?.clientPriceAgorot),
+    hasClientPrice: resolved != null,
+    clientLineTotalAgorot:
+      resolved != null
+        ? calculateLineTotalAgorot(resolved.clientPriceAgorot, item.quantity)
+        : undefined,
+    clientLineTotalFormatted: formatOptionalAgorot(
+      resolved != null
+        ? calculateLineTotalAgorot(resolved.clientPriceAgorot, item.quantity)
         : undefined,
     ),
   };
@@ -147,75 +174,34 @@ export function mapClientProjectItemPricingView(
   item: IProjectItem,
 ): ClientProjectItemPricingView {
   const pricing = item.pricing;
-  const hasClientPrice =
-    pricing?.clientPriceAgorot != null && !pricing.clientPriceStale;
+  const pricingStatus = getItemPricingStatus(pricing);
+  const resolved = isItemPricingVisibleToRole(pricing)
+    ? resolveItemCommercialPricing(pricing)
+    : null;
 
   return {
-    clientPriceAgorot: hasClientPrice ? pricing?.clientPriceAgorot : undefined,
-    clientPriceFormatted: formatOptionalAgorot(
-      hasClientPrice ? pricing?.clientPriceAgorot : undefined,
-    ),
-    hasClientPrice,
+    pricingStatus,
+    clientPriceAgorot: resolved?.clientPriceAgorot,
+    clientPriceFormatted: formatOptionalAgorot(resolved?.clientPriceAgorot),
+    hasClientPrice: resolved != null,
     clientLineTotalAgorot:
-      hasClientPrice && pricing?.clientPriceAgorot != null
-        ? calculateLineTotalAgorot(pricing.clientPriceAgorot, item.quantity)
+      resolved != null
+        ? calculateLineTotalAgorot(resolved.clientPriceAgorot, item.quantity)
         : undefined,
     clientLineTotalFormatted: formatOptionalAgorot(
-      hasClientPrice && pricing?.clientPriceAgorot != null
-        ? calculateLineTotalAgorot(pricing.clientPriceAgorot, item.quantity)
+      resolved != null
+        ? calculateLineTotalAgorot(resolved.clientPriceAgorot, item.quantity)
         : undefined,
     ),
-  };
-}
-
-export function mapArchitectProjectPricingSettingsView(
-  project: Pick<
-    IProject,
-    "defaultArchitectMarkupBp" | "onboardingStatus" | "status"
-  >,
-): ArchitectProjectPricingSettingsView {
-  return {
-    defaultArchitectMarkupBp: project.defaultArchitectMarkupBp,
-    defaultArchitectMarkupPercent:
-      project.defaultArchitectMarkupBp == null
-        ? undefined
-        : basisPointsToPercentageString(project.defaultArchitectMarkupBp),
-    isArchitectPricingEditable: isArchitectProjectPricingEditable(project),
-    architectPricingUnavailableReason: getPricingUnavailableReason(
-      project,
-      "architect",
-    ),
-    usesLayeredPricing: usesLayeredPricing(project),
   };
 }
 
 export function mapProjectPricingSettingsView(
-  project: Pick<
-    IProject,
-    | "defaultAdminMarkupBp"
-    | "defaultArchitectMarkupBp"
-    | "onboardingStatus"
-    | "status"
-  >,
+  project: Pick<IProject, "onboardingStatus" | "status">,
 ): ProjectPricingSettingsView {
   return {
-    defaultAdminMarkupBp: project.defaultAdminMarkupBp,
-    defaultAdminMarkupPercent:
-      project.defaultAdminMarkupBp == null
-        ? undefined
-        : basisPointsToPercentageString(project.defaultAdminMarkupBp),
-    defaultArchitectMarkupBp: project.defaultArchitectMarkupBp,
-    defaultArchitectMarkupPercent:
-      project.defaultArchitectMarkupBp == null
-        ? undefined
-        : basisPointsToPercentageString(project.defaultArchitectMarkupBp),
     isAdminPricingEditable: isAdminProjectPricingEditable(project),
-    isArchitectPricingEditable: isArchitectProjectPricingEditable(project),
     adminPricingUnavailableReason: getPricingUnavailableReason(project, "admin"),
-    architectPricingUnavailableReason: getPricingUnavailableReason(
-      project,
-      "architect",
-    ),
     usesLayeredPricing: usesLayeredPricing(project),
   };
 }
@@ -227,8 +213,16 @@ export function mapAdminPricingTotalsView(
   return {
     ...totals,
     internalCostTotalFormatted: formatOptionalAgorot(totals.internalCostTotalAgorot),
-    architectTotalFormatted: formatOptionalAgorot(totals.architectTotalAgorot),
-    clientTotalFormatted: formatOptionalAgorot(totals.clientTotalAgorot),
+    commercialMarginTotalFormatted: formatOptionalAgorot(
+      totals.commercialMarginTotalAgorot,
+    ),
+    paperStoneProfitTotalFormatted: formatOptionalAgorot(
+      totals.paperStoneProfitTotalAgorot,
+    ),
+    architectProfitTotalFormatted: formatOptionalAgorot(
+      totals.architectProfitTotalAgorot,
+    ),
+    ...mapVatTotalsFormatted(totals),
   };
 }
 
@@ -238,8 +232,10 @@ export function mapArchitectPricingTotalsView(
   const totals = calculateArchitectPricingTotals(items);
   return {
     ...totals,
-    architectTotalFormatted: formatOptionalAgorot(totals.architectTotalAgorot),
-    clientTotalFormatted: formatOptionalAgorot(totals.clientTotalAgorot),
+    architectProfitTotalFormatted: formatOptionalAgorot(
+      totals.architectProfitTotalAgorot,
+    ),
+    ...mapVatTotalsFormatted(totals),
   };
 }
 
@@ -247,6 +243,6 @@ export function mapClientPricingTotalsView(items: IProjectItem[]) {
   const totals = calculateClientPricingTotals(items);
   return {
     ...totals,
-    clientTotalFormatted: formatOptionalAgorot(totals.clientTotalAgorot),
+    ...mapVatTotalsFormatted(totals),
   };
 }

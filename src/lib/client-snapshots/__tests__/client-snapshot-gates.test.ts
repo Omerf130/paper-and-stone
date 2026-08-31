@@ -32,9 +32,12 @@ describe("client-snapshot-gates", () => {
           items: [
             {
               pricing: {
-                architectPriceAgorot: 100_000,
-                clientPriceAgorot: 150_000,
-                clientPriceStale: false,
+                internalCostAgorot: 100_000,
+                architectPriceAgorot: 150_000,
+                architectMarkupBp: 1_200,
+                architectProfitAgorot: 18_000,
+                clientPriceAgorot: 168_000,
+                pricingReviewStatus: "none",
               },
               roomId: null,
             },

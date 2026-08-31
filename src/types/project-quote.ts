@@ -22,7 +22,7 @@ export const QUOTE_TAX_MODES = ["exclusive"] as const;
 
 export type QuoteTaxMode = (typeof QUOTE_TAX_MODES)[number];
 
-export const DEFAULT_VAT_RATE_BASIS_POINTS = 1800;
+export { DEFAULT_VAT_RATE_BASIS_POINTS } from "@/lib/pricing/vat-config";
 
 export type QuoteItemLineView = {
   projectItemId: string;

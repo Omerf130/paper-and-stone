@@ -12,14 +12,14 @@ import { groupItemsByRoomId } from "@/lib/projects/project-room-helpers";
 import type { ProductThumbnailView } from "@/lib/products/loadProductThumbnailMap";
 import type { ProjectDetailView } from "@/types/project";
 import type { ProductView } from "@/types/product";
-import type { ArchitectProjectPricingSettingsView } from "@/types/project-pricing";
+import type { ProjectPricingSettingsView } from "@/types/project-pricing";
 import styles from "./ArchitectProjectRoomAccordion.module.scss";
 
 type ArchitectProjectRoomAccordionProps = {
   projectId: string;
   rooms: ProjectDetailView["rooms"];
   items: ProjectDetailView["items"];
-  pricingSettings: ArchitectProjectPricingSettingsView;
+  pricingSettings: ProjectPricingSettingsView;
   productThumbnailsById: Record<string, ProductThumbnailView>;
   productViewsById: Record<string, ProductView>;
   isEditable: boolean;
@@ -103,7 +103,8 @@ export default function ArchitectProjectRoomAccordion({
         const isOpen = openRoomIds.has(room.id);
         const panelId = `${baseId}-room-${room.id}`;
         const attention = getArchitectPricingAttentionFromItems(roomItems);
-        const architectTotal = getRoomArchitectTotalFormattedFromArchitectItems(roomItems);
+        const architectProfitTotal =
+          getRoomArchitectTotalFormattedFromArchitectItems(roomItems);
 
         return (
           <section key={room.id} className={styles.roomSection}>
@@ -121,10 +122,10 @@ export default function ArchitectProjectRoomAccordion({
                 <span className={styles.roomName}>{room.name}</span>
                 <span className={styles.roomMeta}>
                   {room.itemCount === 1 ? "1 מוצר" : `${room.itemCount} מוצרים`}
-                  {architectTotal ? ` · ${architectTotal}` : ""}
+                  {architectProfitTotal ? ` · ${architectProfitTotal}` : ""}
                   {attention.incompleteItemCount > 0 ? " · תמחור חסר" : ""}
-                  {attention.staleClientPriceCount > 0
-                    ? ` · ${attention.staleClientPriceCount} מחירי לקוח דורשים בדיקה`
+                  {attention.needsReviewItemCount > 0
+                    ? ` · ${attention.needsReviewItemCount} דורשים בדיקת תמחור`
                     : ""}
                 </span>
               </span>
@@ -147,7 +148,6 @@ export default function ArchitectProjectRoomAccordion({
                             projectId={projectId}
                             item={item}
                             pricing={item.architectPricing}
-                            pricingSettings={pricingSettings}
                             thumbnail={productThumbnailsById[item.productId]}
                             productView={productViewsById[item.productId]}
                             isEditable={isEditable}
@@ -169,9 +169,9 @@ export default function ArchitectProjectRoomAccordion({
                 {showPricing && roomItems.length > 0 ? (
                   <LayeredPricingTotalsSummary
                     label={`סיכום חדר — ${room.name}`}
-                    architectTotalFormatted={architectTotal}
+                    architectProfitTotalFormatted={architectProfitTotal}
                     unpricedItemCount={attention.incompleteItemCount}
-                    staleItemCount={attention.staleClientPriceCount}
+                    needsReviewItemCount={attention.needsReviewItemCount}
                     idPrefix={`room-${room.id}`}
                   />
                 ) : null}

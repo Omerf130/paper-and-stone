@@ -1,74 +1,35 @@
 import { describe, expect, it } from "vitest";
 import {
-  calculateArchitectPriceAgorot,
-  calculateClientPriceAgorot,
+  calculateArchitectProfitFromMarginShare,
+  calculateCommercialMarginAgorot,
+  calculatePaperStoneProfitFromMarginShare,
 } from "@/lib/pricing/pricing-calculations";
-import {
-  applyAdminPricingUpdate,
-  applyArchitectPricingUpdate,
-} from "@/lib/pricing/pricing-item-helpers";
 
-describe("pricing-calculations", () => {
-  it("calculates architect price with 200% admin markup", () => {
-    expect(calculateArchitectPriceAgorot(100_000, 20_000)).toBe(300_000);
+describe("pricing-calculations margin split", () => {
+  it("calculates commercial margin from product and client prices", () => {
+    expect(calculateCommercialMarginAgorot(1_000_000, 1_600_000)).toBe(600_000);
   });
 
-  it("calculates client price with 133.33% architect markup", () => {
-    expect(calculateClientPriceAgorot(100_000, 13_333)).toBe(233_330);
-  });
-});
-
-describe("admin vs architect stale semantics", () => {
-  it("preserves client price and marks stale when admin reprices existing client price", () => {
-    const next = applyAdminPricingUpdate({
-      pricing: {
-        priceVersion: 1,
-        internalCostAgorot: 100_000,
-        architectPriceAgorot: 140_000,
-        clientPriceAgorot: 210_000,
-        clientPriceStale: false,
-      },
-      internalCostAgorot: 110_000,
-      adminMarkupBp: 2_000,
-      hadClientPrice: true,
-    });
-
-    expect(next.architectPriceAgorot).toBe(132_000);
-    expect(next.clientPriceAgorot).toBe(210_000);
-    expect(next.clientPriceStale).toBe(true);
-    expect(next.priceVersion).toBe(2);
+  it("calculates architect profit from margin share", () => {
+    expect(calculateArchitectProfitFromMarginShare(600_000, 2_000)).toBe(120_000);
   });
 
-  it("recomputes client price and clears stale when architect reprices", () => {
-    const next = applyArchitectPricingUpdate({
-      pricing: {
-        priceVersion: 2,
-        architectPriceAgorot: 132_000,
-        clientPriceAgorot: 210_000,
-        clientPriceStale: true,
-      },
-      architectPriceAgorot: 132_000,
-      architectMarkupBp: 5_000,
-    });
-
-    expect(next.clientPriceAgorot).toBe(198_000);
-    expect(next.clientPriceStale).toBe(false);
-    expect(next.priceVersion).toBe(3);
+  it("calculates Paper & Stone profit from remaining margin", () => {
+    expect(calculatePaperStoneProfitFromMarginShare(600_000, 120_000)).toBe(
+      480_000,
+    );
   });
 
-  it("does not mark stale when admin reprices before client price exists", () => {
-    const next = applyAdminPricingUpdate({
-      pricing: {
-        priceVersion: 0,
-        internalCostAgorot: 100_000,
-        architectPriceAgorot: 140_000,
-      },
-      internalCostAgorot: 110_000,
-      adminMarkupBp: 2_000,
-      hadClientPrice: false,
-    });
+  it("satisfies product + architect profit + P&S profit = client price", () => {
+    const product = 1_000_000;
+    const client = 1_600_000;
+    const margin = calculateCommercialMarginAgorot(product, client);
+    const architectProfit = calculateArchitectProfitFromMarginShare(margin, 2_000);
+    const paperStoneProfit = calculatePaperStoneProfitFromMarginShare(
+      margin,
+      architectProfit,
+    );
 
-    expect(next.clientPriceStale).toBe(false);
-    expect(next.clientPriceAgorot).toBeUndefined();
+    expect(product + architectProfit + paperStoneProfit).toBe(client);
   });
 });

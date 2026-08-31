@@ -111,8 +111,11 @@ describe("project-submission", () => {
       items: [
         {
           pricing: {
-            architectPriceAgorot: 100_000,
+            internalCostAgorot: 80_000,
             clientPriceAgorot: 150_000,
+            architectMarkupBp: 2_000,
+            architectProfitAgorot: 14_000,
+            pricingReviewStatus: "none",
             clientPriceStale: false,
           },
         },

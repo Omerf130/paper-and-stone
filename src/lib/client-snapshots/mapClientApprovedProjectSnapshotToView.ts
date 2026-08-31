@@ -20,6 +20,10 @@ type SnapshotLike = Pick<
   | "architect"
   | "rooms"
   | "clientProjectTotalAgorot"
+  | "clientProjectSubtotalAgorot"
+  | "vatRateBasisPoints"
+  | "vatAmountAgorot"
+  | "clientProjectTotalInclVatAgorot"
 >;
 
 function mapItemToView(
@@ -74,6 +78,10 @@ export function mapClientApprovedProjectSnapshotToView(
     architect: { fullName: snapshot.architect.fullName },
     rooms: snapshot.rooms.map(mapRoomToView),
     clientProjectTotalAgorot: snapshot.clientProjectTotalAgorot,
+    clientProjectSubtotalAgorot: snapshot.clientProjectSubtotalAgorot,
+    vatRateBasisPoints: snapshot.vatRateBasisPoints,
+    vatAmountAgorot: snapshot.vatAmountAgorot,
+    clientProjectTotalInclVatAgorot: snapshot.clientProjectTotalInclVatAgorot,
     schemaVersion: snapshot.schemaVersion,
   };
 }

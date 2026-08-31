@@ -45,6 +45,10 @@ function payloadToDocumentFields(
       })),
     })),
     clientProjectTotalAgorot: payload.clientProjectTotalAgorot,
+    clientProjectSubtotalAgorot: payload.clientProjectSubtotalAgorot,
+    vatRateBasisPoints: payload.vatRateBasisPoints,
+    vatAmountAgorot: payload.vatAmountAgorot,
+    clientProjectTotalInclVatAgorot: payload.clientProjectTotalInclVatAgorot,
   };
 }
 
@@ -64,6 +68,10 @@ function snapshotDocumentToRestoreFields(
     architect: snapshot.architect,
     rooms: snapshot.rooms,
     clientProjectTotalAgorot: snapshot.clientProjectTotalAgorot,
+    clientProjectSubtotalAgorot: snapshot.clientProjectSubtotalAgorot,
+    vatRateBasisPoints: snapshot.vatRateBasisPoints,
+    vatAmountAgorot: snapshot.vatAmountAgorot,
+    clientProjectTotalInclVatAgorot: snapshot.clientProjectTotalInclVatAgorot,
   };
 }
 

@@ -47,7 +47,12 @@ export type ClientApprovedProjectView = {
   approvedAt: string;
   architect: ClientApprovedArchitectView;
   rooms: ClientApprovedProjectRoomView[];
+  /** Client subtotal before VAT (schema v1 alias) */
   clientProjectTotalAgorot: number;
+  clientProjectSubtotalAgorot?: number;
+  vatRateBasisPoints?: number;
+  vatAmountAgorot?: number;
+  clientProjectTotalInclVatAgorot?: number;
   schemaVersion: number;
 };
 
@@ -81,4 +86,8 @@ export type ClientApprovedProjectSnapshotPayload = {
     clientRoomTotalAgorot: number;
   }>;
   clientProjectTotalAgorot: number;
+  clientProjectSubtotalAgorot?: number;
+  vatRateBasisPoints?: number;
+  vatAmountAgorot?: number;
+  clientProjectTotalInclVatAgorot?: number;
 };

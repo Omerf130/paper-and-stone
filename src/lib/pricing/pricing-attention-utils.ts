@@ -1,132 +1,102 @@
+import {
+  getItemPricingStatus,
+  isItemCommercialPricingComplete,
+  type ItemPricingFields,
+} from "@/lib/pricing/pricing-commercial-model";
+
 export type ProjectPricingAttention = {
   incompleteItemCount: number;
   missingInternalCostCount: number;
-  missingArchitectPriceCount: number;
   missingClientPriceCount: number;
-  staleClientPriceCount: number;
+  missingArchitectMarkupCount: number;
+  needsReviewItemCount: number;
 };
 
-export type AdminLayerPricingAttention = {
-  incompleteItemCount: number;
-  missingInternalCostCount: number;
-  missingArchitectPriceCount: number;
-};
-
-type PricingFields = {
-  internalCostAgorot?: number | null;
-  architectPriceAgorot?: number | null;
-  clientPriceAgorot?: number | null;
-  clientPriceStale?: boolean;
-};
+export type AdminLayerPricingAttention = ProjectPricingAttention;
 
 export function isAdminLayerPricingIncomplete(
-  pricing?: PricingFields | null,
+  pricing?: ItemPricingFields | null,
 ): boolean {
-  return (
-    pricing?.internalCostAgorot == null || pricing?.architectPriceAgorot == null
-  );
+  return getItemPricingStatus(pricing) !== "priced";
 }
 
-export function isPricingIncomplete(pricing?: PricingFields | null): boolean {
-  return (
-    isAdminLayerPricingIncomplete(pricing) || pricing?.clientPriceAgorot == null
-  );
+export function isPricingIncomplete(pricing?: ItemPricingFields | null): boolean {
+  return getItemPricingStatus(pricing) !== "priced";
 }
 
 function countAdminLayerPricingAttentionFromFields<T>(
   items: T[],
-  getPricing: (item: T) => PricingFields | null | undefined,
+  getPricing: (item: T) => ItemPricingFields | null | undefined,
 ): AdminLayerPricingAttention {
   let incompleteItemCount = 0;
   let missingInternalCostCount = 0;
-  let missingArchitectPriceCount = 0;
-
-  for (const item of items) {
-    const pricing = getPricing(item);
-
-    if (pricing?.internalCostAgorot == null) {
-      missingInternalCostCount += 1;
-    }
-
-    if (pricing?.architectPriceAgorot == null) {
-      missingArchitectPriceCount += 1;
-    }
-
-    if (isAdminLayerPricingIncomplete(pricing)) {
-      incompleteItemCount += 1;
-    }
-  }
-
-  return {
-    incompleteItemCount,
-    missingInternalCostCount,
-    missingArchitectPriceCount,
-  };
-}
-
-function countPricingAttentionFromFields<T>(
-  items: T[],
-  getPricing: (item: T) => PricingFields | null | undefined,
-): ProjectPricingAttention {
-  let incompleteItemCount = 0;
-  let missingInternalCostCount = 0;
-  let missingArchitectPriceCount = 0;
   let missingClientPriceCount = 0;
-  let staleClientPriceCount = 0;
+  let missingArchitectMarkupCount = 0;
+  let needsReviewItemCount = 0;
 
   for (const item of items) {
     const pricing = getPricing(item);
+    const status = getItemPricingStatus(pricing);
 
     if (pricing?.internalCostAgorot == null) {
       missingInternalCostCount += 1;
-    }
-
-    if (pricing?.architectPriceAgorot == null) {
-      missingArchitectPriceCount += 1;
     }
 
     if (pricing?.clientPriceAgorot == null) {
       missingClientPriceCount += 1;
     }
 
-    if (isPricingIncomplete(pricing)) {
-      incompleteItemCount += 1;
+    if (pricing?.architectMarkupBp == null) {
+      missingArchitectMarkupCount += 1;
     }
 
-    if (pricing?.clientPriceStale) {
-      staleClientPriceCount += 1;
+    if (status === "needs_review") {
+      needsReviewItemCount += 1;
+    }
+
+    if (status === "unpriced") {
+      incompleteItemCount += 1;
     }
   }
 
   return {
     incompleteItemCount,
     missingInternalCostCount,
-    missingArchitectPriceCount,
     missingClientPriceCount,
-    staleClientPriceCount,
+    missingArchitectMarkupCount,
+    needsReviewItemCount,
   };
 }
 
+function countPricingAttentionFromFields<T>(
+  items: T[],
+  getPricing: (item: T) => ItemPricingFields | null | undefined,
+): ProjectPricingAttention {
+  return countAdminLayerPricingAttentionFromFields(items, getPricing);
+}
+
 export function getAdminLayerPricingAttentionFromItemPricing(
-  items: Array<{ pricing?: PricingFields | null }>,
+  items: Array<{ pricing?: ItemPricingFields | null }>,
 ): AdminLayerPricingAttention {
   return countAdminLayerPricingAttentionFromFields(items, (item) => item.pricing);
 }
 
 export function getPricingAttentionFromAdminItems(
   items: Array<{
-    adminPricing?: PricingFields;
+    adminPricing?: ItemPricingFields;
   }>,
 ): ProjectPricingAttention {
   return countPricingAttentionFromFields(items, (item) => item.adminPricing);
 }
 
 export function hasPricingAttention(attention: ProjectPricingAttention): boolean {
-  return attention.incompleteItemCount > 0 || attention.staleClientPriceCount > 0;
+  return attention.incompleteItemCount > 0 || attention.needsReviewItemCount > 0;
 }
 
 export function getPricingAttentionFromItemPricing(
-  items: Array<{ pricing?: PricingFields | null }>,
+  items: Array<{ pricing?: ItemPricingFields | null }>,
 ): ProjectPricingAttention {
   return countPricingAttentionFromFields(items, (item) => item.pricing);
 }
+
+export { isItemCommercialPricingComplete };

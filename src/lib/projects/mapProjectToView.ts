@@ -33,7 +33,7 @@ import { mapProjectItemStatusHistoryEntry } from "@/lib/project-items/set-projec
 import {
   mapArchitectPricingTotalsView,
   mapArchitectProjectItemPricingView,
-  mapArchitectProjectPricingSettingsView,
+  mapProjectPricingSettingsView,
 } from "@/lib/pricing/pricing-view-mappers";
 
 export function mapProjectItemToView(
@@ -165,7 +165,7 @@ export async function mapProjectToDetailView(
     selectedRoomId: selectedRoomId ?? null,
     ...(layeredPricing
       ? {
-          pricingSettings: mapArchitectProjectPricingSettingsView(project),
+          pricingSettings: mapProjectPricingSettingsView(project),
           pricingTotals: mapArchitectPricingTotalsView(project.items),
           adminPricingDelivery: {
             hasUnseenDelivery: hasUnseenAdminPricingDelivery(project),

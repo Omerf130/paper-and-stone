@@ -26,9 +26,13 @@ function createDeliverableProject(overrides?: {
         productId: new Types.ObjectId("507f1f77bcf86cd799439014"),
         quantity: 1,
         pricing: overrides?.itemPricing ?? {
+          priceVersion: 1,
           internalCostAgorot: 100_000,
-          architectPriceAgorot: 140_000,
-          clientPriceAgorot: 210_000,
+          architectPriceAgorot: 150_000,
+          architectMarkupBp: 1_200,
+          architectProfitAgorot: 18_000,
+          clientPriceAgorot: 168_000,
+          pricingReviewStatus: "none",
         },
       },
     ],
@@ -100,6 +104,7 @@ describe("deliver-admin-pricing-round", () => {
       createDeliverableProject({
         itemPricing: {
           internalCostAgorot: 100_000,
+          priceVersion: 0,
         },
       }),
     );

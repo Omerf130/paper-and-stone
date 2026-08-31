@@ -109,9 +109,13 @@ describe("mergePriorityDashboardProjects", () => {
           snapshot: { productName: "Item", productSlug: "item" },
           pricing: {
             priceVersion: 1,
+            internalCostAgorot: 100_000,
+            architectPriceAgorot: 150_000,
+            architectMarkupBp: 1_200,
+            architectProfitAgorot: 18_000,
+            clientPriceAgorot: 168_000,
+            pricingReviewStatus: "needs_review",
             clientPriceStale: true,
-            architectPriceAgorot: 100_000,
-            clientPriceAgorot: 150_000,
           },
         },
       ],
@@ -136,6 +140,6 @@ describe("mergePriorityDashboardProjects", () => {
     );
 
     expect(result[0]?.id).toBe(staleProject._id.toString());
-    expect(result[0]?.actionHint).toBe("מחיר לקוח דורש בדיקה");
+    expect(result[0]?.actionHint).toBe("תמחור דורש בדיקת מנהל");
   });
 });

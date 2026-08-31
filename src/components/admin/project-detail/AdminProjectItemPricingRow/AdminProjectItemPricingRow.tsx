@@ -17,17 +17,28 @@ import styles from "./AdminProjectItemPricingRow.module.scss";
 type AdminProjectItemPricingRowProps = {
   projectId: string;
   item: ProjectItemView & { adminPricing: AdminProjectItemPricingView };
-  defaultAdminMarkupPercent?: string;
   isEditable: boolean;
   thumbnail?: ProductThumbnailView;
   onSaveSuccess?: () => void;
   onSaveError?: (message: string) => void;
 };
 
+function getPricingStatusLabel(
+  pricingStatus: AdminProjectItemPricingView["pricingStatus"],
+): string | null {
+  switch (pricingStatus) {
+    case "unpriced":
+      return "ממתין לתמחור";
+    case "needs_review":
+      return "דורש בדיקת תמחור";
+    case "priced":
+      return null;
+  }
+}
+
 export default function AdminProjectItemPricingRow({
   projectId,
   item,
-  defaultAdminMarkupPercent,
   isEditable,
   thumbnail,
   onSaveSuccess,
@@ -41,30 +52,26 @@ export default function AdminProjectItemPricingRow({
     item.status != null
       ? getProjectItemStatusWorkflowContext(item.status, "admin")
       : undefined;
+  const pricingStatusLabel = getPricingStatusLabel(pricing.pricingStatus);
 
   const form = useAdminItemPricingForm({
     projectId,
     itemId: item.id,
     pricing,
-    defaultAdminMarkupPercent,
     isEditable,
     onSaveSuccess,
     onSaveError,
   });
 
-  const defaultMarkupLabel = defaultAdminMarkupPercent
-    ? `ברירת מחדל ${defaultAdminMarkupPercent}%`
-    : pricing.adminMarkupPercent && pricing.usesProjectAdminMarkup
-      ? `ברירת מחדל ${pricing.adminMarkupPercent}%`
-      : "ברירת מחדל";
-
-  const architectPriceDisplay =
-    form.previewArchitectPriceFormatted ??
-    (pricing.hasArchitectPrice ? pricing.architectPriceFormatted : null);
-
-  const clientPriceDisplay = pricing.hasClientPrice
-    ? pricing.clientPriceFormatted
-    : null;
+  const commercialMarginDisplay =
+    form.previewCommercialMarginFormatted ??
+    (pricing.hasCommercialMargin ? pricing.commercialMarginFormatted : null);
+  const paperStoneProfitDisplay =
+    form.previewPaperStoneProfitFormatted ??
+    (pricing.hasPaperStoneProfit ? pricing.paperStoneProfitFormatted : null);
+  const architectProfitDisplay =
+    form.previewArchitectProfitFormatted ??
+    (pricing.hasArchitectProfit ? pricing.architectProfitFormatted : null);
 
   return (
     <article className={styles.card} aria-labelledby={`item-${item.id}-name`}>
@@ -98,6 +105,11 @@ export default function AdminProjectItemPricingRow({
                 </p>
               ) : null}
               <p className={styles.quantity}>כמות: {item.quantity}</p>
+              {pricingStatusLabel ? (
+                <StatusBadge tone={pricing.pricingStatus === "needs_review" ? "warning" : "info"}>
+                  {pricingStatusLabel}
+                </StatusBadge>
+              ) : null}
               {!item.isProductActive ? (
                 <StatusBadge tone="warning">המוצר אינו פעיל</StatusBadge>
               ) : null}
@@ -132,10 +144,10 @@ export default function AdminProjectItemPricingRow({
         <h5 className={styles.pricingHeading}>תמחור</h5>
 
         <div className={styles.pricingGrid}>
-          <div className={styles.pricingField} data-pricing-field="internal">
+          <div className={styles.pricingField} data-pricing-field="product-price">
             {isEditable ? (
               <FormField
-                label="עלות פנימית (₪)"
+                label="מחיר המוצר (₪)"
                 htmlFor={`internal-cost-${item.id}`}
                 error={form.fieldErrors.internalCostShekels}
               >
@@ -149,7 +161,7 @@ export default function AdminProjectItemPricingRow({
                     form.setInternalCostShekels(event.target.value)
                   }
                   disabled={form.isPending}
-                  placeholder="לא הוגדרה עלות"
+                  placeholder="לא הוגדר"
                   aria-invalid={
                     form.fieldErrors.internalCostShekels ? true : undefined
                   }
@@ -157,7 +169,7 @@ export default function AdminProjectItemPricingRow({
               </FormField>
             ) : (
               <>
-                <p className={styles.fieldLabel}>עלות פנימית (₪)</p>
+                <p className={styles.fieldLabel}>מחיר המוצר (₪)</p>
                 <p className={styles.readOnlyValue} dir="ltr">
                   {pricing.hasInternalCost
                     ? pricing.internalCostFormatted
@@ -167,65 +179,82 @@ export default function AdminProjectItemPricingRow({
             )}
           </div>
 
-          <div className={styles.pricingField} data-pricing-field="markup">
+          <div className={styles.pricingField} data-pricing-field="client-price">
             {isEditable ? (
               <FormField
-                label="Markup אדמין"
-                htmlFor={`markup-mode-${item.id}`}
-                error={form.fieldErrors.itemAdminMarkupPercent}
+                label="מחיר סופי ללקוח (₪)"
+                htmlFor={`client-price-${item.id}`}
+                error={form.fieldErrors.clientPriceShekels}
               >
-                <div className={styles.markupControls}>
-                  <select
-                    id={`markup-mode-${item.id}`}
-                    className={`${formFieldStyles.input} ${styles.markupModeSelect}`}
-                    value={form.markupMode}
-                    onChange={(event) =>
-                      form.setMarkupMode(event.target.value as "default" | "override")
-                    }
-                    disabled={form.isPending}
-                  >
-                    <option value="default">שימוש ב{defaultMarkupLabel}</option>
-                    <option value="override">התאמה למוצר</option>
-                  </select>
-                  {form.markupMode === "override" ? (
-                    <input
-                      id={`item-admin-markup-${item.id}`}
-                      className={`${formFieldStyles.input} ${styles.markupOverrideInput}`}
-                      inputMode="decimal"
-                      dir="ltr"
-                      value={form.itemMarkupPercent}
-                      onChange={(event) =>
-                        form.setItemMarkupPercent(event.target.value)
-                      }
-                      disabled={form.isPending}
-                      placeholder="%"
-                      aria-label="Markup למוצר"
-                      aria-invalid={
-                        form.fieldErrors.itemAdminMarkupPercent ? true : undefined
-                      }
-                    />
-                  ) : null}
-                </div>
+                <input
+                  id={`client-price-${item.id}`}
+                  className={formFieldStyles.input}
+                  inputMode="decimal"
+                  dir="ltr"
+                  value={form.clientPriceShekels}
+                  onChange={(event) =>
+                    form.setClientPriceShekels(event.target.value)
+                  }
+                  disabled={form.isPending}
+                  placeholder="לא הוגדר"
+                  aria-invalid={
+                    form.fieldErrors.clientPriceShekels ? true : undefined
+                  }
+                />
               </FormField>
             ) : (
               <>
-                <p className={styles.fieldLabel}>Markup אדמין</p>
+                <p className={styles.fieldLabel}>מחיר סופי ללקוח (₪)</p>
                 <p className={styles.readOnlyValue} dir="ltr">
-                  {pricing.adminMarkupPercent != null
-                    ? `${pricing.adminMarkupPercent}%`
-                    : PRICING_ERRORS.MARKUP_REQUIRED}
-                  {pricing.usesProjectAdminMarkup ? " (ברירת מחדל)" : ""}
+                  {pricing.hasClientPrice
+                    ? pricing.clientPriceFormatted
+                    : "—"}
                 </p>
               </>
             )}
           </div>
 
-          <div className={styles.pricingField} data-pricing-field="architect">
+          <div className={styles.pricingField} data-pricing-field="architect-markup">
+            {isEditable ? (
+              <FormField
+                label="מרקאפ אדריכל (%)"
+                htmlFor={`architect-markup-${item.id}`}
+                error={form.fieldErrors.architectMarkupPercent}
+              >
+                <input
+                  id={`architect-markup-${item.id}`}
+                  className={formFieldStyles.input}
+                  inputMode="decimal"
+                  dir="ltr"
+                  value={form.architectMarkupPercent}
+                  onChange={(event) =>
+                    form.setArchitectMarkupPercent(event.target.value)
+                  }
+                  disabled={form.isPending}
+                  placeholder="לדוגמה: 20"
+                  aria-invalid={
+                    form.fieldErrors.architectMarkupPercent ? true : undefined
+                  }
+                />
+              </FormField>
+            ) : (
+              <>
+                <p className={styles.fieldLabel}>מרקאפ אדריכל (%)</p>
+                <p className={styles.readOnlyValue} dir="ltr">
+                  {pricing.hasArchitectMarkup
+                    ? `${pricing.architectMarkupPercent}%`
+                    : PRICING_ERRORS.MARKUP_REQUIRED}
+                </p>
+              </>
+            )}
+          </div>
+
+          <div className={styles.pricingField} data-pricing-field="commercial-margin">
             <div className={styles.summaryBlock}>
-              <p className={styles.fieldLabel}>מחיר אדריכל</p>
-              {architectPriceDisplay ? (
+              <p className={styles.fieldLabel}>מרווח כולל (₪)</p>
+              {commercialMarginDisplay ? (
                 <p className={styles.summaryValue} dir="ltr">
-                  {architectPriceDisplay}
+                  {commercialMarginDisplay}
                 </p>
               ) : (
                 <p className={styles.summaryMissing}>—</p>
@@ -233,24 +262,38 @@ export default function AdminProjectItemPricingRow({
             </div>
           </div>
 
-          <div className={styles.pricingField} data-pricing-field="client">
+          <div className={styles.pricingField} data-pricing-field="architect-profit">
             <div className={styles.summaryBlock}>
-              <p className={styles.fieldLabel}>מחיר לקוח</p>
-              {clientPriceDisplay ? (
+              <p className={styles.fieldLabel}>רווח אדריכל (₪)</p>
+              {architectProfitDisplay ? (
                 <p className={styles.summaryValue} dir="ltr">
-                  {clientPriceDisplay}
+                  {architectProfitDisplay}
                 </p>
               ) : (
                 <p className={styles.summaryMissing}>—</p>
               )}
-              {pricing.clientPriceStale ? (
-                <p className={styles.staleWarning} role="status">
-                  מחיר הלקוח דורש בדיקה
+            </div>
+          </div>
+
+          <div className={styles.pricingField} data-pricing-field="paper-stone">
+            <div className={styles.summaryBlock}>
+              <p className={styles.fieldLabel}>רווח Paper & Stone (₪)</p>
+              {paperStoneProfitDisplay ? (
+                <p className={styles.summaryValue} dir="ltr">
+                  {paperStoneProfitDisplay}
                 </p>
-              ) : null}
+              ) : (
+                <p className={styles.summaryMissing}>—</p>
+              )}
             </div>
           </div>
         </div>
+
+        {pricing.clientLineTotalFormatted ? (
+          <p className={styles.lineTotal} dir="ltr">
+            סה״כ שורה ללקוח: {pricing.clientLineTotalFormatted}
+          </p>
+        ) : null}
 
         {isEditable ? (
           <footer className={styles.pricingFooter}>

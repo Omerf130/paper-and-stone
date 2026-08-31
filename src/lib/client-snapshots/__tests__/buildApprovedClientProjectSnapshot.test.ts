@@ -87,6 +87,10 @@ describe("buildApprovedClientProjectSnapshot", () => {
     expect(payload.rooms[0]?.items[0]?.clientLineTotalAgorot).toBe(300_000);
     expect(payload.rooms[1]?.items[0]?.clientLineTotalAgorot).toBe(200_000);
     expect(payload.clientProjectTotalAgorot).toBe(500_000);
+    expect(payload.schemaVersion).toBe(2);
+    expect(payload.clientProjectSubtotalAgorot).toBe(500_000);
+    expect(payload.vatAmountAgorot).toBe(90_000);
+    expect(payload.clientProjectTotalInclVatAgorot).toBe(590_000);
     expect(payload.rooms[0]?.items[0]?.image).toEqual({
       url: "https://img/sofa.jpg",
       alt: "Sofa",

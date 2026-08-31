@@ -2,6 +2,7 @@ import type { ProjectOnboardingStatus, ProjectStatus } from "@/types/project";
 import {
   getArchitectPricingAttentionFromItems,
 } from "@/lib/pricing/architect-pricing-attention";
+import type { ArchitectProjectItemPricingView } from "@/types/project-pricing";
 
 export type { ArchitectPricingAttention } from "@/lib/pricing/architect-pricing-attention";
 export {
@@ -34,8 +35,8 @@ export const ARCHITECT_PROJECT_ATTENTION_LABELS: Record<
   changes_requested: "האדמין ביקש שינויים",
   submitted_review: "ממתין לבדיקה מסחרית",
   commercial_dirty: "יש שינויים שטרם נשלחו לבדיקה",
-  stale_client_prices: "מחיר לקוח דורש בדיקה",
-  incomplete_client_pricing: "יש להשלים תמחור ללקוח",
+  stale_client_prices: "תמחור דורש בדיקת מנהל",
+  incomplete_client_pricing: "ממתין לתמחור מנהל",
 };
 
 type ArchitectAttentionProject = {
@@ -43,11 +44,10 @@ type ArchitectAttentionProject = {
   status: ProjectStatus;
   commercialDirty?: boolean;
   items: Array<{
-    architectPricing?: {
-      architectPriceAgorot?: number;
-      clientPriceAgorot?: number;
-      clientPriceStale?: boolean;
-    };
+    architectPricing?: Pick<
+      ArchitectProjectItemPricingView,
+      "pricingStatus"
+    >;
   }>;
 };
 
@@ -83,7 +83,7 @@ export function getArchitectProjectAttentionReasons(
   if (usesArchitectLayeredPricing(project)) {
     const attention = getArchitectPricingAttentionFromItems(project.items);
 
-    if (attention.staleClientPriceCount > 0) {
+    if (attention.needsReviewItemCount > 0) {
       reasons.push("stale_client_prices");
     }
 

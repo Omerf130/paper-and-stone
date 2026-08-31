@@ -5,10 +5,10 @@ import { useRouter } from "next/navigation";
 import { setProjectItemAdminPricingAction } from "@/app/admin/projects/pricing-actions";
 import { formatAgorotToShekelsInput } from "@/lib/money/parse-money-input";
 import { formatIlsAgorot } from "@/lib/money/format-ils";
-import { calculateArchitectPriceAgorot } from "@/lib/pricing/pricing-calculations";
+import { resolveItemCommercialPricing } from "@/lib/pricing/pricing-commercial-model";
 import {
+  parseArchitectMarginShareInput,
   parseInternalCostInput,
-  parseMarkupPercentageInput,
   PRICING_ERRORS,
 } from "@/lib/pricing/pricing-validation";
 import type { AdminProjectItemPricingView } from "@/types/project-pricing";
@@ -20,7 +20,6 @@ type UseAdminItemPricingFormInput = {
   projectId: string;
   itemId: string;
   pricing: AdminProjectItemPricingView;
-  defaultAdminMarkupPercent?: string;
   isEditable: boolean;
   onSaveSuccess?: () => void;
   onSaveError?: (message: string) => void;
@@ -30,7 +29,6 @@ export function useAdminItemPricingForm({
   projectId,
   itemId,
   pricing,
-  defaultAdminMarkupPercent,
   isEditable,
   onSaveSuccess,
   onSaveError,
@@ -41,11 +39,13 @@ export function useAdminItemPricingForm({
       ? formatAgorotToShekelsInput(pricing.internalCostAgorot)
       : "",
   );
-  const [markupMode, setMarkupMode] = useState<"default" | "override">(
-    pricing.usesProjectAdminMarkup ? "default" : "override",
+  const [clientPriceShekels, setClientPriceShekels] = useState(() =>
+    pricing.clientPriceAgorot != null
+      ? formatAgorotToShekelsInput(pricing.clientPriceAgorot)
+      : "",
   );
-  const [itemMarkupPercent, setItemMarkupPercent] = useState(
-    pricing.usesProjectAdminMarkup ? "" : (pricing.adminMarkupPercent ?? ""),
+  const [architectMarkupPercent, setArchitectMarkupPercent] = useState(
+    pricing.architectMarkupPercent ?? "",
   );
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [isPending, startTransition] = useTransition();
@@ -54,51 +54,49 @@ export function useAdminItemPricingForm({
     pricing.internalCostAgorot != null
       ? formatAgorotToShekelsInput(pricing.internalCostAgorot)
       : "";
-  const savedMarkupMode = pricing.usesProjectAdminMarkup ? "default" : "override";
-  const savedItemMarkupPercent = pricing.usesProjectAdminMarkup
-    ? ""
-    : (pricing.adminMarkupPercent ?? "");
+  const savedClientPriceShekels =
+    pricing.clientPriceAgorot != null
+      ? formatAgorotToShekelsInput(pricing.clientPriceAgorot)
+      : "";
+  const savedArchitectMarkupPercent = pricing.architectMarkupPercent ?? "";
 
   const isDirty =
     isEditable &&
     (internalCostShekels !== savedInternalCostShekels ||
-      markupMode !== savedMarkupMode ||
-      (markupMode === "override" && itemMarkupPercent !== savedItemMarkupPercent));
+      clientPriceShekels !== savedClientPriceShekels ||
+      architectMarkupPercent !== savedArchitectMarkupPercent);
 
-  const previewArchitectPrice = useMemo(() => {
-    const costAgorot = parseInternalCostInput(internalCostShekels);
-    if (costAgorot == null) {
+  const previewResolved = useMemo(() => {
+    const internalCostAgorot = parseInternalCostInput(internalCostShekels);
+    const clientPriceAgorot = parseInternalCostInput(clientPriceShekels);
+    const architectMarkupBp = parseArchitectMarginShareInput(architectMarkupPercent);
+
+    if (
+      internalCostAgorot == null ||
+      clientPriceAgorot == null ||
+      architectMarkupBp == null
+    ) {
       return null;
     }
 
-    let markupBp: number | null = null;
-    if (markupMode === "default") {
-      if (defaultAdminMarkupPercent?.trim()) {
-        markupBp = parseMarkupPercentageInput(defaultAdminMarkupPercent);
-      } else if (pricing.adminMarkupBp != null && pricing.usesProjectAdminMarkup) {
-        markupBp = pricing.adminMarkupBp;
-      }
-    } else if (itemMarkupPercent.trim()) {
-      markupBp = parseMarkupPercentageInput(itemMarkupPercent);
-    }
+    return resolveItemCommercialPricing({
+      internalCostAgorot,
+      clientPriceAgorot,
+      architectMarkupBp,
+    });
+  }, [internalCostShekels, clientPriceShekels, architectMarkupPercent]);
 
-    if (markupBp == null) {
-      return null;
-    }
-
-    return calculateArchitectPriceAgorot(costAgorot, markupBp);
-  }, [
-    internalCostShekels,
-    markupMode,
-    itemMarkupPercent,
-    defaultAdminMarkupPercent,
-    pricing.adminMarkupBp,
-    pricing.usesProjectAdminMarkup,
-  ]);
-
-  const previewArchitectPriceFormatted =
-    previewArchitectPrice != null
-      ? formatIlsAgorot(previewArchitectPrice)
+  const previewCommercialMarginFormatted =
+    previewResolved != null && previewResolved.commercialMarginAgorot >= 0
+      ? formatIlsAgorot(previewResolved.commercialMarginAgorot)
+      : null;
+  const previewPaperStoneProfitFormatted =
+    previewResolved != null && previewResolved.paperStoneProfitAgorot >= 0
+      ? formatIlsAgorot(previewResolved.paperStoneProfitAgorot)
+      : null;
+  const previewArchitectProfitFormatted =
+    previewResolved != null
+      ? formatIlsAgorot(previewResolved.architectProfitAgorot)
       : null;
 
   const handleSave = () => {
@@ -112,9 +110,8 @@ export function useAdminItemPricingForm({
         projectId,
         itemId,
         internalCostShekels,
-        useProjectDefaultAdminMarkup: markupMode === "default",
-        itemAdminMarkupPercent: markupMode === "override" ? itemMarkupPercent : undefined,
-        clearAdminMarkupOverride: markupMode === "default",
+        clientPriceShekels,
+        architectMarkupPercent,
         expectedPriceVersion: pricing.priceVersion,
       });
 
@@ -140,14 +137,16 @@ export function useAdminItemPricingForm({
   return {
     internalCostShekels,
     setInternalCostShekels,
-    markupMode,
-    setMarkupMode,
-    itemMarkupPercent,
-    setItemMarkupPercent,
+    clientPriceShekels,
+    setClientPriceShekels,
+    architectMarkupPercent,
+    setArchitectMarkupPercent,
     fieldErrors,
     isPending,
     isDirty,
-    previewArchitectPriceFormatted,
+    previewCommercialMarginFormatted,
+    previewPaperStoneProfitFormatted,
+    previewArchitectProfitFormatted,
     handleSave,
     versionConflictMessage: VERSION_CONFLICT_MESSAGE,
   };

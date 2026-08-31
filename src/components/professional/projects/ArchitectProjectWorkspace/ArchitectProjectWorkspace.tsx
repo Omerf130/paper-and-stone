@@ -132,13 +132,13 @@ export default function ArchitectProjectWorkspace({
           </ul>
         ) : null}
         {pricingAttention.incompleteItemCount > 0 ||
-        pricingAttention.staleClientPriceCount > 0 ? (
+        pricingAttention.needsReviewItemCount > 0 ? (
           <p className={styles.pricingAttention}>
             {pricingAttention.incompleteItemCount > 0
-              ? `${pricingAttention.incompleteItemCount} מוצרים דורשים תמחור ללקוח · `
+              ? `${pricingAttention.incompleteItemCount} מוצרים ממתינים לתמחור מנהל · `
               : ""}
-            {pricingAttention.staleClientPriceCount > 0
-              ? `${pricingAttention.staleClientPriceCount} מחירי לקוח דורשים בדיקה`
+            {pricingAttention.needsReviewItemCount > 0
+              ? `${pricingAttention.needsReviewItemCount} מוצרים דורשים בדיקת תמחור`
               : ""}
           </p>
         ) : null}
@@ -214,10 +214,14 @@ export default function ArchitectProjectWorkspace({
             <LayeredPricingTotalsSummary
               label="סיכום פרויקט"
               variant="project"
-              architectTotalFormatted={pricingTotals.architectTotalFormatted}
-              clientTotalFormatted={pricingTotals.clientTotalFormatted}
+              architectProfitTotalFormatted={
+                pricingTotals.architectProfitTotalFormatted
+              }
+              clientSubtotalFormatted={pricingTotals.clientSubtotalFormatted}
+              vatAmountFormatted={pricingTotals.vatAmountFormatted}
+              clientTotalInclVatFormatted={pricingTotals.clientTotalInclVatFormatted}
               unpricedItemCount={pricingTotals.unpricedItemCount}
-              staleItemCount={pricingTotals.staleItemCount}
+              needsReviewItemCount={pricingTotals.needsReviewItemCount}
               idPrefix="arch-project"
             />
           ) : null}
@@ -235,7 +239,6 @@ export default function ArchitectProjectWorkspace({
                         projectId={project.id}
                         item={item}
                         pricing={item.architectPricing}
-                        pricingSettings={pricingSettings}
                         thumbnail={productThumbnailsById[item.productId]}
                         productView={productViewsById[item.productId]}
                         isEditable={isEditable}
