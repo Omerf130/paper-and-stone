@@ -53,4 +53,7 @@ export type AdminMaterialProductLink = {
   nameHe: string;
   sku: string;
   allowedVariantIds: string[];
+  categoryName?: string;
+  isActive: boolean;
+  thumbnailUrl?: string;
 };

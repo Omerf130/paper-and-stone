@@ -16,9 +16,12 @@ export async function fetchMaterialProductLinksAction(
   return getProductsUsingMaterial(materialId);
 }
 
-export async function fetchUnlinkedProductsAction(materialId: string) {
+export async function fetchUnlinkedProductsAction(
+  materialId: string,
+  query?: string,
+) {
   await requireAdmin();
-  return getUnlinkedProductsForMaterial(materialId);
+  return getUnlinkedProductsForMaterial(materialId, query);
 }
 
 export async function linkMaterialProductAction(

@@ -1,6 +1,8 @@
 import { Types } from "mongoose";
+import { escapeRegex } from "@/lib/catalog/escape-regex";
 import { connectDB } from "@/lib/db/mongoose";
 import Color from "@/models/Color";
+import Category from "@/models/Category";
 import Material from "@/models/Material";
 import Product from "@/models/Product";
 import type { AdminMaterialProductLink } from "@/types/admin-material";
@@ -23,7 +25,12 @@ export async function getProductsUsingMaterial(
   const products = await Product.find({
     "materialOptions.materialId": materialId,
   })
-    .select("nameHe sku materialOptions")
+    .populate<{ categoryId: { nameHe: string } | null }>({
+      path: "categoryId",
+      model: Category,
+      select: "nameHe",
+    })
+    .select("nameHe sku isActive categoryId materialOptions media.primaryImage.url")
     .sort({ nameHe: 1 })
     .lean();
 
@@ -39,6 +46,9 @@ export async function getProductsUsingMaterial(
       allowedVariantIds: (option?.allowedColorIds ?? []).map((id) =>
         id.toString(),
       ),
+      categoryName: product.categoryId?.nameHe,
+      isActive: product.isActive,
+      thumbnailUrl: product.media?.primaryImage?.url,
     };
   });
 }
@@ -53,6 +63,10 @@ export async function linkMaterialToProduct(
     !Types.ObjectId.isValid(productId)
   ) {
     return { ok: false, message: "מזהה לא תקין" };
+  }
+
+  if (allowedVariantIds.length === 0) {
+    return { ok: false, message: "יש לבחור לפחות variant אחד" };
   }
 
   await connectDB();
@@ -127,6 +141,11 @@ export async function unlinkMaterialFromProduct(
     allowedColorIds: option.allowedColorIds.map((id) => id.toString()),
   }));
 
+  const hadMaterial = previous.some((option) => option.materialId === materialId);
+  if (!hadMaterial) {
+    return { ok: false, message: "המוצר אינו משויך לחומר זה" };
+  }
+
   const nextOptions = previous.filter(
     (option) => option.materialId !== materialId,
   );
@@ -195,16 +214,31 @@ export async function getMaterialVariantOptions(materialId: string) {
   }));
 }
 
-export async function getUnlinkedProductsForMaterial(materialId: string) {
+export async function getUnlinkedProductsForMaterial(
+  materialId: string,
+  query?: string,
+) {
   if (!Types.ObjectId.isValid(materialId)) {
     return [];
   }
 
   await connectDB();
 
-  const products = await Product.find({
+  const filter: Record<string, unknown> = {
     "materialOptions.materialId": { $ne: new Types.ObjectId(materialId) },
-  })
+  };
+
+  const trimmedQuery = query?.trim();
+  if (trimmedQuery) {
+    const regex = escapeRegex(trimmedQuery);
+    filter.$or = [
+      { nameHe: { $regex: regex, $options: "i" } },
+      { nameEn: { $regex: regex, $options: "i" } },
+      { sku: { $regex: regex, $options: "i" } },
+    ];
+  }
+
+  const products = await Product.find(filter)
     .select("nameHe sku")
     .sort({ nameHe: 1 })
     .limit(200)

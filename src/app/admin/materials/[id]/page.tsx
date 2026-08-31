@@ -39,7 +39,7 @@ export default async function AdminEditMaterialPage({
   ]);
 
   return (
-    <AdminPage width="form">
+    <AdminPage width="wide">
       <AdminPageHeader
         title="עריכת חומר"
         description={material.nameEn}
