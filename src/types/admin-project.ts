@@ -41,6 +41,7 @@ export type AdminProjectDetailView = {
   commercialDirtyAt?: string;
   items: import("@/types/project").ProjectItemView[];
   usesRoomBasedWorkspace: boolean;
+  isWorkspaceEditable: boolean;
   rooms: import("@/types/project-room").ProjectRoomView[];
   reviewHistory: import("@/types/project").ProjectReviewHistoryEntry[];
   submittedAt?: string;
@@ -57,6 +58,10 @@ export type AdminProjectDetailView = {
   pricingApprovalBlockedReason?: string | null;
   adminPricingRound?: import("@/lib/pricing/admin-pricing-round-presentation").AdminPricingRoundPresentation | null;
   workflowAttentionSummary?: WorkflowAttentionSummaryLine[];
+  payments?: import("@/types/project-payment").AdminProjectPaymentView[];
+  paymentSummary?: import("@/types/project-payment").AdminProjectPaymentSummaryView;
+  paymentSummaryCompact?: string;
+  logisticsInProgressCount?: number;
 };
 
 export type AdminProjectsPageResult = {

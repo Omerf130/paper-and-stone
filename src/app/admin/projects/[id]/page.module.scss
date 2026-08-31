@@ -29,3 +29,10 @@
   line-height: $line-height-relaxed;
   color: $color-text-secondary;
 }
+
+.workspaceShell {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  min-width: 0;
+}

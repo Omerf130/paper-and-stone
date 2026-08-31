@@ -25,6 +25,8 @@ type TabsProps = {
   onTabChange?: (tabId: string) => void;
   actions?: ReactNode;
   ariaLabel?: string;
+  density?: "default" | "compact";
+  stickyTabBar?: boolean;
 };
 
 function getNextTabIndex(
@@ -43,6 +45,8 @@ export default function Tabs({
   onTabChange,
   actions,
   ariaLabel = "מידע מוצר",
+  density = "default",
+  stickyTabBar = false,
 }: TabsProps) {
   const fallbackId = useId();
   const tablistId = `${fallbackId}-tablist`;
@@ -108,8 +112,8 @@ export default function Tabs({
   }
 
   return (
-    <div className={styles.root}>
-      <div className={styles.header}>
+    <div className={density === "compact" ? styles.rootCompact : styles.root}>
+      <div className={stickyTabBar ? `${styles.header} ${styles.headerSticky}` : styles.header}>
         <div
           id={tablistId}
           role="tablist"

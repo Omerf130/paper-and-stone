@@ -1,0 +1,187 @@
+@use "../../../../styles/tokens" as *;
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  padding-bottom: $spacing-sm;
+  border-bottom: 1px solid $color-border;
+}
+
+.primaryRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-sm $spacing-md;
+}
+
+.identity {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: $spacing-sm $spacing-md;
+  min-width: 0;
+}
+
+.projectName {
+  margin: 0;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  line-height: $line-height-tight;
+}
+
+.statusGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-xs;
+}
+
+.metaRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: $spacing-xs $spacing-sm;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.metaButton {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: $spacing-xs;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 2px;
+
+  &:hover {
+    color: $color-text-primary;
+    text-decoration-color: currentColor;
+  }
+}
+
+.metaLabel {
+  color: $color-text-secondary;
+}
+
+.metaValue {
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+}
+
+.metaDivider {
+  color: $color-border;
+}
+
+.metaStat {
+  white-space: nowrap;
+}
+
+.attentionGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-xs;
+  margin-inline-start: auto;
+}
+
+.actionsMenu {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.actionsTrigger {
+  list-style: none;
+  cursor: pointer;
+  padding: $spacing-xs $spacing-sm;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+  border: 1px solid $color-border;
+  border-radius: $radius-sm;
+  background: $color-background;
+
+  &::-webkit-details-marker {
+    display: none;
+  }
+
+  &::after {
+    content: " ▾";
+    font-size: $font-size-xs;
+    color: $color-text-secondary;
+  }
+}
+
+.actionsPanel {
+  position: absolute;
+  inset-inline-end: 0;
+  top: calc(100% + $spacing-xs);
+  z-index: $z-index-dialog;
+  display: flex;
+  flex-direction: column;
+  min-width: 11rem;
+  padding: $spacing-xs;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  background: $color-background;
+  box-shadow: $shadow-md;
+}
+
+.actionsItem {
+  display: block;
+  width: 100%;
+  padding: $spacing-sm $spacing-md;
+  border: 0;
+  border-radius: $radius-sm;
+  background: transparent;
+  color: $color-text-primary;
+  font: inherit;
+  font-size: $font-size-sm;
+  text-align: start;
+  text-decoration: none;
+  cursor: pointer;
+
+  &:hover {
+    background: $color-interactive-hover;
+  }
+}
+
+.detailList {
+  display: grid;
+  gap: $spacing-sm;
+  margin: 0 0 $spacing-md;
+
+  dt {
+    font-size: $font-size-xs;
+    color: $color-text-secondary;
+  }
+
+  dd {
+    margin: 0;
+    font-size: $font-size-sm;
+    color: $color-text-primary;
+  }
+}
+
+@media (max-width: #{$breakpoint-tablet - 1px}) {
+  .identity {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .attentionGroup {
+    margin-inline-start: 0;
+    width: 100%;
+  }
+
+  .metaStat {
+    width: 100%;
+    white-space: normal;
+  }
+}

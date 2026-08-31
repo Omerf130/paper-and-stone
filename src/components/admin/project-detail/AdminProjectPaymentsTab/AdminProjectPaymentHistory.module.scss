@@ -1,0 +1,135 @@
+@use "../../../../styles/tokens" as *;
+
+.history {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  min-width: 0;
+}
+
+.title {
+  margin: 0;
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+}
+
+.empty {
+  margin: 0;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.tableWrap {
+  display: none;
+  overflow-x: auto;
+
+  @media (min-width: $breakpoint-tablet) {
+    display: block;
+  }
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: $font-size-sm;
+}
+
+.table th,
+.table td {
+  padding: $spacing-sm $spacing-md;
+  text-align: start;
+  border-bottom: 1px solid $color-border;
+  vertical-align: top;
+}
+
+.table th {
+  font-weight: $font-weight-medium;
+  color: $color-text-secondary;
+  background: $color-background-subtle;
+}
+
+.noteCell {
+  max-width: 14rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-xs;
+}
+
+.actionButton {
+  border: none;
+  background: none;
+  padding: 0;
+  font: inherit;
+  font-size: $font-size-xs;
+  color: $color-primary;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.actionButtonDanger {
+  composes: actionButton;
+  color: $color-danger-text;
+}
+
+.cards {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+
+  @media (min-width: $breakpoint-tablet) {
+    display: none;
+  }
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+  padding: $spacing-md;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  background: $color-background;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: $spacing-sm;
+}
+
+.cardAmount {
+  margin: 0;
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+}
+
+.cardDate {
+  margin: 0;
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+}
+
+.cardMeta {
+  margin: 0;
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+}
+
+.cardNote {
+  margin: 0;
+  font-size: $font-size-sm;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.cardActions {
+  display: flex;
+  gap: $spacing-md;
+  margin-top: $spacing-xs;
+}

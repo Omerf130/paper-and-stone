@@ -80,6 +80,8 @@ export type ProjectItemView = {
   statusHistory?: import("@/types/project-item-status").ProjectItemStatusHistoryEntry[];
   adminPricing?: import("@/types/project-pricing").AdminProjectItemPricingView;
   architectPricing?: import("@/types/project-pricing").ArchitectProjectItemPricingView;
+  logistics?: import("@/types/project-item-logistics").ProjectItemLogisticsView;
+  supplierName?: string;
 };
 
 export type ProjectListItemView = {

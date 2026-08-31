@@ -120,6 +120,28 @@ export function usesLayeredPricing(
   return usesRoomBasedWorkspace(project);
 }
 
+export function isAdminProjectWorkspaceEditable(
+  project: Pick<IProject, "onboardingStatus" | "status">,
+): boolean {
+  return (
+    usesLayeredPricing(project) &&
+    project.onboardingStatus === "active" &&
+    project.status !== "rejected"
+  );
+}
+
+export function isAdminProjectRoomEditable(
+  project: ProjectGateInput,
+): boolean {
+  return (
+    usesRoomBasedWorkspace(project) && isAdminProjectWorkspaceEditable(project)
+  );
+}
+
+export const ADMIN_WORKSPACE_EDITABLE_STATUS_FILTER = {
+  $nin: ["rejected"],
+} as const;
+
 export function isProjectRoomEditable(project: ProjectGateInput): boolean {
   return usesRoomBasedWorkspace(project) && isProjectItemEditable(project);
 }

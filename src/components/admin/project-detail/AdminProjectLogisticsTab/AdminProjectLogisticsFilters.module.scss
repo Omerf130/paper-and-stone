@@ -1,0 +1,33 @@
+@use "../../../../styles/tokens" as *;
+
+.filters {
+  display: grid;
+  gap: $spacing-sm;
+
+  @media (min-width: $breakpoint-tablet) {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.label {
+  margin: 0;
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+}
+
+.input {
+  width: 100%;
+  padding: $spacing-xs $spacing-sm;
+  font: inherit;
+  font-size: $font-size-sm;
+  border: 1px solid $color-border;
+  border-radius: $radius-sm;
+  background: $color-background;
+}

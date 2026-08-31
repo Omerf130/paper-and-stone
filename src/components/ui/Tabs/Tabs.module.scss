@@ -8,12 +8,26 @@
   min-width: 0;
 }
 
+.rootCompact {
+  composes: root;
+  gap: $spacing-md;
+}
+
 .header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: $spacing-md;
   min-width: 0;
+}
+
+.headerSticky {
+  position: sticky;
+  top: 0;
+  z-index: $z-index-header;
+  padding-block: $spacing-xs;
+  background: $color-background;
+  border-bottom: 1px solid $color-border;
 }
 
 .tablist {

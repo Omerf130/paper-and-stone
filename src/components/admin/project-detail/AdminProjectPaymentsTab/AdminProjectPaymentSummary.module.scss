@@ -1,0 +1,50 @@
+@use "../../../../styles/tokens" as *;
+
+.summary {
+  display: grid;
+  gap: $spacing-sm;
+  padding: $spacing-md;
+  background: $color-background-subtle;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+
+  @media (min-width: $breakpoint-tablet) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  min-width: 0;
+}
+
+.label {
+  margin: 0;
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+}
+
+.value {
+  margin: 0;
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  line-height: $line-height-tight;
+}
+
+.valueMuted {
+  composes: value;
+  color: $color-text-secondary;
+  font-weight: $font-weight-medium;
+}
+
+.warning {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: $spacing-sm $spacing-md;
+  font-size: $font-size-sm;
+  color: $color-warning-text;
+  background: $color-warning-bg;
+  border-radius: $radius-sm;
+}

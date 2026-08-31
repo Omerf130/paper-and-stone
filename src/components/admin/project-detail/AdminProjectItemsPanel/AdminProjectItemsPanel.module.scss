@@ -1,0 +1,128 @@
+@use "../../../../styles/tokens" as *;
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  min-width: 0;
+}
+
+.accordion {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.roomSection {
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  overflow: hidden;
+  background: $color-background;
+}
+
+.roomHeaderRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-xs;
+  min-height: 2.5rem;
+  padding-inline: $spacing-sm;
+  background: $color-background-subtle;
+  border-bottom: 1px solid $color-border;
+}
+
+.roomHeader {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  flex: 1;
+  min-width: 0;
+  padding: $spacing-sm;
+  border: 0;
+  background: transparent;
+  text-align: start;
+  cursor: pointer;
+  font: inherit;
+}
+
+.chevron {
+  flex-shrink: 0;
+  width: 1rem;
+  color: $color-text-secondary;
+  font-size: $font-size-xs;
+}
+
+.roomTitleWrap {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: $spacing-xs $spacing-sm;
+  min-width: 0;
+}
+
+.roomName {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+}
+
+.roomMeta {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+}
+
+.roomActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  padding-inline: $spacing-xs;
+}
+
+.roomPanel {
+  padding: 0;
+}
+
+.itemList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  > li + li {
+    border-top: 1px solid $color-border;
+  }
+}
+
+.emptyRoom,
+.emptyNotice {
+  margin: 0;
+  padding: $spacing-sm $spacing-md;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.orphanSection {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.orphanTitle {
+  margin: 0;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text-secondary;
+}
+
+.orphanList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  overflow: hidden;
+  background: $color-background;
+
+  > li + li {
+    border-top: 1px solid $color-border;
+  }
+}

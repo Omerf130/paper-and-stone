@@ -12,10 +12,12 @@ import styles from "./ProjectClientReassignPanel.module.scss";
 
 type ProjectClientReassignPanelProps = {
   project: AdminProjectDetailView;
+  embedded?: boolean;
 };
 
 export default function ProjectClientReassignPanel({
   project,
+  embedded = false,
 }: ProjectClientReassignPanelProps) {
   const { toast } = useToast();
   const [selectedClient, setSelectedClient] = useState<ClientLookupItem | null>(
@@ -49,14 +51,21 @@ export default function ProjectClientReassignPanel({
   };
 
   return (
-    <section className={styles.panel} aria-labelledby="client-reassign-title">
-      <h3 id="client-reassign-title" className={styles.title}>
-        שיוך לקוח
-      </h3>
+    <section
+      className={embedded ? styles.embeddedPanel : styles.panel}
+      aria-labelledby={embedded ? undefined : "client-reassign-title"}
+    >
+      {embedded ? null : (
+        <h3 id="client-reassign-title" className={styles.title}>
+          שיוך לקוח
+        </h3>
+      )}
 
-      <p className={styles.current}>
-        לקוח משויך: {project.assignedClientFullName ?? "—"}
-      </p>
+      {embedded ? null : (
+        <p className={styles.current}>
+          לקוח משויך: {project.assignedClientFullName ?? "—"}
+        </p>
+      )}
 
       <AdminClientPicker
         selectedClientId={selectedClient?.id ?? project.clientUserId}

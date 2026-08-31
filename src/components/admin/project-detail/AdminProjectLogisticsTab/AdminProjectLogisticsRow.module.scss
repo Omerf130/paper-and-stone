@@ -1,0 +1,95 @@
+@use "../../../../styles/tokens" as *;
+
+.row {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  padding: $spacing-md;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  background: $color-background;
+
+  @media (min-width: $breakpoint-tablet) {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 0.8fr) 4rem minmax(0, 0.9fr) minmax(0, 1fr) minmax(0, 0.8fr) minmax(0, 1.2fr) auto;
+    align-items: start;
+    gap: $spacing-sm $spacing-md;
+    padding: $spacing-sm $spacing-md;
+  }
+}
+
+.productName {
+  margin: 0;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+}
+
+.sku {
+  margin: 0.125rem 0 0;
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+}
+
+.cellLabel {
+  margin: 0 0 0.125rem;
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+
+  @media (min-width: $breakpoint-tablet) {
+    display: none;
+  }
+}
+
+.cellValue {
+  margin: 0;
+  font-size: $font-size-sm;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.select,
+.textarea {
+  width: 100%;
+  padding: $spacing-xs $spacing-sm;
+  font: inherit;
+  font-size: $font-size-sm;
+  border: 1px solid $color-border;
+  border-radius: $radius-sm;
+  background: $color-background;
+}
+
+.textarea {
+  min-height: 2.5rem;
+  resize: vertical;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.error {
+  margin: 0;
+  font-size: $font-size-xs;
+  color: $color-danger-text;
+}
+
+.desktopOnly {
+  display: none;
+
+  @media (min-width: $breakpoint-tablet) {
+    display: block;
+  }
+}
+
+.mobileOnly {
+  @media (min-width: $breakpoint-tablet) {
+    display: none;
+  }
+}

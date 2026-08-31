@@ -13,6 +13,10 @@ import {
   type ProjectItemStatus,
   type ProjectItemStatusChangeRole,
 } from "@/types/project-item-status";
+import {
+  PROJECT_ITEM_LOGISTICS_STATUSES,
+  type ProjectItemLogisticsStatus,
+} from "@/types/project-item-logistics";
 
 export interface IProjectItemStatusHistoryEntry {
   from: ProjectItemStatus;
@@ -57,6 +61,13 @@ export interface IProjectItemPricing {
   clientPricedByArchitectUserId?: Types.ObjectId;
 }
 
+export interface IProjectItemLogistics {
+  status: ProjectItemLogisticsStatus;
+  note?: string;
+  updatedAt?: Date;
+  updatedByAdminUserId?: Types.ObjectId;
+}
+
 export interface IProjectItem {
   _id: Types.ObjectId;
   productId: Types.ObjectId;
@@ -67,6 +78,7 @@ export interface IProjectItem {
   quantity: number;
   snapshot: IProjectItemSnapshot;
   pricing?: IProjectItemPricing;
+  logistics?: IProjectItemLogistics;
   status?: ProjectItemStatus;
   statusHistory?: IProjectItemStatusHistoryEntry[];
 }
@@ -175,6 +187,21 @@ const projectItemStatusHistorySchema = new Schema<IProjectItemStatusHistoryEntry
   { _id: false },
 );
 
+const projectItemLogisticsSchema = new Schema<IProjectItemLogistics>(
+  {
+    status: {
+      type: String,
+      enum: PROJECT_ITEM_LOGISTICS_STATUSES,
+      default: "not_ordered",
+      required: true,
+    },
+    note: { type: String, trim: true, maxlength: 500 },
+    updatedAt: { type: Date },
+    updatedByAdminUserId: { type: Schema.Types.ObjectId, ref: "User" },
+  },
+  { _id: false },
+);
+
 const projectItemSchema = new Schema<IProjectItem>(
   {
     productId: {
@@ -193,6 +220,7 @@ const projectItemSchema = new Schema<IProjectItem>(
     quantity: { type: Number, required: true, min: 1, max: 999 },
     snapshot: { type: projectItemSnapshotSchema, required: true },
     pricing: { type: projectItemPricingSchema },
+    logistics: { type: projectItemLogisticsSchema },
     status: {
       type: String,
       enum: PROJECT_ITEM_STATUSES,

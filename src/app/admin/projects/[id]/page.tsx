@@ -8,6 +8,7 @@ import AdminProjectOverview from "@/components/admin/project-detail/AdminProject
 import AdminProjectReviewHistory from "@/components/admin/project-detail/AdminProjectReviewHistory/AdminProjectReviewHistory";
 import AdminQuotePanel from "@/components/admin/project-detail/AdminQuotePanel/AdminQuotePanel";
 import AdminProjectWorkspace from "@/components/admin/project-detail/AdminProjectWorkspace/AdminProjectWorkspace";
+import { resolveAdminProjectTabId } from "@/lib/projects/admin-project-tab-params";
 import ProjectOnboardingReviewPanel from "@/components/admin/project-detail/ProjectOnboardingReviewPanel/ProjectOnboardingReviewPanel";
 import ProjectReviewPanel from "@/components/admin/ProjectReviewPanel/ProjectReviewPanel";
 import ProjectMessageReadMarker from "@/components/project-messages/ProjectMessageReadMarker/ProjectMessageReadMarker";
@@ -37,9 +38,12 @@ type AdminProjectDetailPageProps = PageProps<"/admin/projects/[id]">;
 
 export default async function AdminProjectDetailPage({
   params,
+  searchParams,
 }: AdminProjectDetailPageProps) {
   const user = await requireAdmin();
   const { id } = await params;
+  const resolvedSearchParams = await searchParams;
+  const initialTabId = resolveAdminProjectTabId(resolvedSearchParams.tab);
   const projectWithThumbnails = await getAdminProjectDetailViewWithThumbnails(id);
 
   if (!projectWithThumbnails) {
@@ -68,22 +72,18 @@ export default async function AdminProjectDetailPage({
   if (isActiveWorkspace) {
     return (
       <AdminPage width="wide">
-        <AdminPageHeader
-          title={projectWithThumbnails.name}
-          actions={
-            <Button href="/admin/projects?queue=active" variant="ghost" size="sm">
-              חזרה לפרויקטים
-            </Button>
-          }
-        />
+        <div className={styles.workspaceShell}>
+          <ProjectMessageReadMarker
+            projectId={projectWithThumbnails.id}
+            messagingAvailable={messagingAvailable}
+            markReadAction={markAdminProjectMessagesReadAction}
+          />
 
-        <ProjectMessageReadMarker
-          projectId={projectWithThumbnails.id}
-          messagingAvailable={messagingAvailable}
-          markReadAction={markAdminProjectMessagesReadAction}
-        />
-
-        <AdminProjectWorkspace project={projectWithThumbnails} />
+          <AdminProjectWorkspace
+            project={projectWithThumbnails}
+            initialTabId={initialTabId}
+          />
+        </div>
 
         <AdminDetailSection id="project-messages" title="שיחה עם האדריכל">
           <ProjectMessageThread

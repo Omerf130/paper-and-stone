@@ -6,7 +6,7 @@ import {
 } from "@/lib/projects/mapProjectToView";
 import { getProjectRoomViews, getProjectRoomsForProject } from "@/lib/projects/project-room-queries";
 import { mapReviewHistoryEntryToView } from "@/lib/projects/project-review-history";
-import { usesLayeredPricing, usesRoomBasedWorkspace } from "@/lib/projects/project-workspace-gates";
+import { usesLayeredPricing, usesRoomBasedWorkspace, isAdminProjectWorkspaceEditable } from "@/lib/projects/project-workspace-gates";
 import { resolveAssignedClientFullName } from "@/lib/admin/clients/client-lookup-queries";
 import {
   mapAdminPricingTotalsView,
@@ -22,6 +22,15 @@ import {
   getAdminPricingRoundPresentationForProject,
   getProjectPricingAttention,
 } from "@/lib/projects/admin-project-attention";
+import { loadProjectItemSuppliers } from "@/lib/projects/loadProjectItemSuppliers";
+import { mapProjectItemLogisticsView } from "@/lib/projects/mapProjectItemLogisticsView";
+import {
+  countLogisticsInProgressItems,
+  getProjectPaymentSummaryForAdminView,
+  getProjectPaymentsForAdminView,
+} from "@/lib/projects/project-payment-queries";
+import { Types } from "mongoose";
+import User from "@/models/User";
 import type {
   AdminProjectDetailView,
   AdminProjectListItemView,
@@ -84,6 +93,16 @@ export async function mapLeanProjectToAdminDetailView(
     project.items,
     "admin",
   );
+  const [payments, paymentSummary, productSuppliersById] = await Promise.all([
+    getProjectPaymentsForAdminView(project._id.toString()),
+    getProjectPaymentSummaryForAdminView(project._id.toString(), project.items),
+    loadProjectItemSuppliers(productIds),
+  ]);
+
+  const logisticsAdminUserIds = project.items
+    .map((item) => item.logistics?.updatedByAdminUserId?.toString())
+    .filter((id): id is string => Boolean(id));
+  const logisticsAdminLabels = await resolveLogisticsAdminLabels(logisticsAdminUserIds);
 
   return {
     id: project._id.toString(),
@@ -99,12 +118,15 @@ export async function mapLeanProjectToAdminDetailView(
     commercialDirtyAt: project.commercialDirtyAt?.toISOString(),
     items: project.items.map((item) => {
       const statusView = statusViews.get(item._id.toString());
+      const supplierInfo = productSuppliersById[item.productId.toString()];
 
       return {
         ...mapProjectItemToView(item, activeProductIds),
         status: statusView?.status,
         statusPresentation: statusView?.presentation,
         allowedTargetStatuses: statusView?.allowedTargetStatuses,
+        logistics: mapProjectItemLogisticsView(item, logisticsAdminLabels),
+        supplierName: supplierInfo?.supplierName,
         ...(layeredPricing
           ? {
               adminPricing: mapAdminProjectItemPricingView(item, project),
@@ -113,6 +135,7 @@ export async function mapLeanProjectToAdminDetailView(
       };
     }),
     usesRoomBasedWorkspace: roomBased,
+    isWorkspaceEditable: isAdminProjectWorkspaceEditable(project),
     rooms,
     reviewHistory: (project.reviewHistory ?? []).map(mapReviewHistoryEntryToView),
     submittedAt: project.submittedAt?.toISOString(),
@@ -136,5 +159,31 @@ export async function mapLeanProjectToAdminDetailView(
           adminPricingRound: getAdminPricingRoundPresentationForProject(project),
         }
       : {}),
+    payments,
+    paymentSummary,
+    paymentSummaryCompact: paymentSummary.paymentSummaryCompact,
+    logisticsInProgressCount: countLogisticsInProgressItems(project.items),
   };
+}
+
+async function resolveLogisticsAdminLabels(
+  userIds: string[],
+): Promise<Map<string, string>> {
+  const uniqueIds = [...new Set(userIds.filter(Boolean))];
+  if (uniqueIds.length === 0) {
+    return new Map();
+  }
+
+  const users = await User.find({
+    _id: { $in: uniqueIds.map((id) => new Types.ObjectId(id)) },
+  })
+    .select("fullName email")
+    .lean();
+
+  return new Map(
+    users.map((user) => [
+      user._id.toString(),
+      user.fullName?.trim() || user.email,
+    ]),
+  );
 }
