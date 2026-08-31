@@ -4,6 +4,7 @@ import AdminPageHeader from "@/components/admin/AdminPageHeader/AdminPageHeader"
 import AdminProjectsPagination from "@/components/admin/AdminProjectsPagination/AdminProjectsPagination";
 import AdminProjectsToolbar from "@/components/admin/AdminProjectsToolbar/AdminProjectsToolbar";
 import AdminProjectListItem from "@/components/admin/projects/AdminProjectListItem/AdminProjectListItem";
+import Button from "@/components/ui/Button/Button";
 import cardStyles from "@/components/admin/list/admin-list-card.module.scss";
 import layoutStyles from "@/components/admin/list/admin-list-layout.module.scss";
 import tableStyles from "@/components/admin/list/admin-table.module.scss";
@@ -54,6 +55,11 @@ export default async function AdminProjectsPage({
       <AdminPageHeader
         title="פרויקטים"
         description="מרחב עבודה תפעולי — מעקב, תמחור וטיפול בפרויקטים"
+        actions={
+          <Button href="/admin/projects/new" size="sm">
+            צור פרויקט
+          </Button>
+        }
       />
 
       <AdminProjectsToolbar params={params} total={result.total} />

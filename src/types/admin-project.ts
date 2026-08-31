@@ -16,6 +16,7 @@ export type AdminProjectListItemView = {
   roomCount: number;
   professionalEmail: string;
   professionalName?: string;
+  ownerUserId: string;
   submittedAt?: string;
   updatedAt: string;
   attentionReasons: string[];
@@ -49,6 +50,7 @@ export type AdminProjectDetailView = {
   reviewedByUserId?: string;
   professionalEmail: string;
   professionalName?: string;
+  ownerUserId: string;
   createdAt: string;
   updatedAt: string;
   attentionReasons: string[];
@@ -104,4 +106,5 @@ export const PROJECT_REVIEW_ACTION_LABELS: Record<
   onboarding_rejected: "נדחה בפתיחה",
   onboarding_resubmitted: "נשלח מחדש לאישור פתיחה",
   onboarding_client_reassigned: "לקוח עודכן",
+  onboarding_architect_reassigned: "אדריכל עודכן",
 };

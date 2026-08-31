@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import AdminPage from "@/components/admin/AdminPage/AdminPage";
 import AdminPageHeader from "@/components/admin/AdminPageHeader/AdminPageHeader";
+import AdminCrmTabSection from "@/components/admin/crm/AdminCrmTabSection/AdminCrmTabSection";
 import ArchitectRequestRowActions from "@/components/admin/ArchitectRequestRowActions/ArchitectRequestRowActions";
 import cardStyles from "@/components/admin/list/admin-list-card.module.scss";
 import layoutStyles from "@/components/admin/list/admin-list-layout.module.scss";
 import tableStyles from "@/components/admin/list/admin-table.module.scss";
+import Button from "@/components/ui/Button/Button";
 import StatusBadge from "@/components/ui/StatusBadge/StatusBadge";
 import EmptyState from "@/components/ui/EmptyState/EmptyState";
 import { getPendingArchitectRequests } from "@/lib/users/architect-request-queries";
@@ -16,17 +18,34 @@ import {
 } from "@/types/admin-user";
 
 export const metadata: Metadata = {
-  title: "בקשות אדריכל | Paper & Stone",
+  title: "אדריכלים | Paper & Stone",
 };
 
 export default async function AdminArchitectRequestsPage() {
   const requests = await getPendingArchitectRequests();
+  const pendingRequestCount = requests.length;
 
   return (
     <AdminPage width="wide">
       <AdminPageHeader
-        title="בקשות אדריכל"
-        description="משתמשים שנרשמו כלקוחות וביקשו הרשאת אדריכל"
+        title="אדריכלים"
+        description="ניהול אדריכלים, פרופילים ופרויקטים"
+        actions={
+          <Button href="/admin/architects/new" size="sm">
+            יצירת אדריכל
+          </Button>
+        }
+      />
+
+      <AdminCrmTabSection
+        workspace="architects"
+        activeTab="requests"
+        pendingRequestCount={pendingRequestCount}
+        summary={
+          pendingRequestCount > 0
+            ? `${pendingRequestCount} בקשות ממתינות`
+            : "אין בקשות ממתינות"
+        }
       />
 
       {requests.length === 0 ? (

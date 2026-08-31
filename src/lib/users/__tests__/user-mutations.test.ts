@@ -5,6 +5,9 @@ const updateOneMock = vi.fn();
 const deleteSessionsForUserMock = vi.fn();
 const countActiveAdminsMock = vi.fn();
 const verifyArchitectDowngradeSafetyMock = vi.fn();
+const ensureProfileMock = vi.fn();
+const verifyClientDeactivationMock = vi.fn();
+const verifyArchitectDeactivationMock = vi.fn();
 
 vi.mock("@/lib/db/mongoose", () => ({
   connectDB: vi.fn(),
@@ -33,6 +36,15 @@ vi.mock("@/lib/users/verifyClientRoleChange", () => ({
   verifyClientRoleChangeSafety: vi.fn().mockResolvedValue(undefined),
 }));
 
+vi.mock("@/lib/users/verifyDeactivationSafety", () => ({
+  verifyClientDeactivationSafety: verifyClientDeactivationMock,
+  verifyArchitectDeactivationSafety: verifyArchitectDeactivationMock,
+}));
+
+vi.mock("@/lib/professionals/ensureProfessionalProfile", () => ({
+  ensureProfessionalProfile: ensureProfileMock,
+}));
+
 describe("user-mutations", () => {
   beforeEach(() => {
     findUserByIdMock.mockReset();
@@ -40,9 +52,15 @@ describe("user-mutations", () => {
     deleteSessionsForUserMock.mockReset();
     countActiveAdminsMock.mockReset();
     verifyArchitectDowngradeSafetyMock.mockReset();
+    ensureProfileMock.mockReset();
+    verifyClientDeactivationMock.mockReset();
+    verifyArchitectDeactivationMock.mockReset();
     updateOneMock.mockResolvedValue({ matchedCount: 1 });
     countActiveAdminsMock.mockResolvedValue(2);
     verifyArchitectDowngradeSafetyMock.mockResolvedValue(undefined);
+    ensureProfileMock.mockResolvedValue(undefined);
+    verifyClientDeactivationMock.mockResolvedValue(undefined);
+    verifyArchitectDeactivationMock.mockResolvedValue(undefined);
   });
 
   it("updates role and clears requestedRole", async () => {
@@ -64,6 +82,7 @@ describe("user-mutations", () => {
       { _id: "507f1f77bcf86cd799439011" },
       { $set: { role: "architect", requestedRole: null } },
     );
+    expect(ensureProfileMock).toHaveBeenCalledWith("507f1f77bcf86cd799439011");
   });
 
   it("blocks architect downgrade when user owns projects", async () => {

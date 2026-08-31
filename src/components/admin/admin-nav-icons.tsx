@@ -170,6 +170,39 @@ export function UsersNavIcon(props: IconProps) {
   );
 }
 
+export function ClientsNavIcon(props: IconProps) {
+  return (
+    <NavIconBase {...props}>
+      <circle cx="10" cy="7.5" r="2.75" stroke="currentColor" strokeWidth="1.5" />
+      <path
+        d="M5 15.5C5 12.86 7.24 10.75 10 10.75C12.76 10.75 15 12.86 15 15.5"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+    </NavIconBase>
+  );
+}
+
+export function ArchitectsNavIcon(props: IconProps) {
+  return (
+    <NavIconBase {...props}>
+      <path
+        d="M4.5 15.5L10 5.5L15.5 15.5"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M7.25 12H12.75"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+    </NavIconBase>
+  );
+}
+
 export function WorkflowNavIcon(props: IconProps) {
   return (
     <NavIconBase {...props}>
@@ -190,6 +223,8 @@ const ADMIN_NAV_ICON_BY_HREF: Record<string, ComponentType<IconProps>> = {
   "/admin/suppliers": SuppliersNavIcon,
   "/admin/materials": MaterialsNavIcon,
   "/admin/projects": ProjectsNavIcon,
+  "/admin/clients": ClientsNavIcon,
+  "/admin/architects": ArchitectsNavIcon,
   "/admin/content": ContentNavIcon,
   "/admin/client-requests": ClientRequestsNavIcon,
   "/admin/architect-requests": ArchitectRequestsNavIcon,

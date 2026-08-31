@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import AdminProjectArchitectReassignPanel from "@/components/admin/project-detail/AdminProjectArchitectReassignPanel/AdminProjectArchitectReassignPanel";
 import ProjectClientReassignPanel from "@/components/admin/project-detail/ProjectClientReassignPanel/ProjectClientReassignPanel";
 import StatusBadge from "@/components/ui/StatusBadge/StatusBadge";
 import Button from "@/components/ui/Button/Button";
@@ -309,6 +310,12 @@ export default function AdminProjectWorkspaceHeader({
               <dd dir="ltr">{project.professionalEmail}</dd>
             </div>
           </dl>
+
+          <AdminProjectArchitectReassignPanel
+            project={project}
+            currentArchitectLabel={project.professionalName ?? project.professionalEmail}
+            embedded
+          />
 
           <div className={dialogStyles.actions}>
             <Button variant="secondary" onClick={() => setArchitectDialogOpen(false)}>

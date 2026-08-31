@@ -11,7 +11,7 @@ export type ClientLookupItem = {
   email: string;
 };
 
-const CLIENT_LOOKUP_LIMIT = 20;
+const CLIENT_LOOKUP_LIMIT = 50;
 
 const ACTIVE_CLIENT_FILTER = {
   role: CLIENT_ROLE_FILTER,
@@ -33,6 +33,7 @@ export function buildClientSearchFilter(query: string | null | undefined) {
     $or: [
       { email: { $regex: regex, $options: "i" } },
       { fullName: { $regex: regex, $options: "i" } },
+      { identificationNumber: { $regex: regex, $options: "i" } },
     ],
   };
 }

@@ -11,6 +11,11 @@ import {
   verifyArchitectDowngradeSafety,
 } from "@/lib/users/verifyArchitectDowngrade";
 import { verifyClientRoleChangeSafety } from "@/lib/users/verifyClientRoleChange";
+import {
+  verifyArchitectDeactivationSafety,
+  verifyClientDeactivationSafety,
+} from "@/lib/users/verifyDeactivationSafety";
+import { ensureProfessionalProfile } from "@/lib/professionals/ensureProfessionalProfile";
 import { UserMutationError } from "@/lib/users/user-errors";
 import { normalizeUserRole } from "@/lib/auth/user-role";
 import type { SafeUser, UserRole } from "@/types/user";
@@ -53,6 +58,10 @@ export async function updateUserRole(
   if (result.matchedCount === 0) {
     throw new UserMutationError("המשתמש לא נמצא.");
   }
+
+  if (newRole === "architect") {
+    await ensureProfessionalProfile(userId);
+  }
 }
 
 export async function updateUserActiveStatus(
@@ -71,6 +80,16 @@ export async function updateUserActiveStatus(
 
   verifySelfDeactivation(currentAdmin, target, isActive);
   await verifyLastActiveAdmin(target, null, isActive, countActiveAdmins);
+  await verifyClientDeactivationSafety(
+    userId,
+    targetUser.role,
+    isActive,
+  );
+  await verifyArchitectDeactivationSafety(
+    userId,
+    targetUser.role,
+    isActive,
+  );
 
   const result = await User.updateOne({ _id: userId }, { isActive });
 

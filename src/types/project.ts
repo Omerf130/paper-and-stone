@@ -4,6 +4,7 @@ export const ONBOARDING_REVIEW_ACTIONS = [
   "onboarding_rejected",
   "onboarding_resubmitted",
   "onboarding_client_reassigned",
+  "onboarding_architect_reassigned",
 ] as const;
 
 export type OnboardingReviewAction =

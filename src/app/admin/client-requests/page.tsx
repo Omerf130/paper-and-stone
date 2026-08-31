@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import AdminPage from "@/components/admin/AdminPage/AdminPage";
 import AdminPageHeader from "@/components/admin/AdminPageHeader/AdminPageHeader";
+import AdminCrmTabSection from "@/components/admin/crm/AdminCrmTabSection/AdminCrmTabSection";
 import ClientRequestRowActions from "@/components/admin/ClientRequestRowActions/ClientRequestRowActions";
 import cardStyles from "@/components/admin/list/admin-list-card.module.scss";
 import layoutStyles from "@/components/admin/list/admin-list-layout.module.scss";
 import tableStyles from "@/components/admin/list/admin-table.module.scss";
+import Button from "@/components/ui/Button/Button";
 import StatusBadge from "@/components/ui/StatusBadge/StatusBadge";
 import EmptyState from "@/components/ui/EmptyState/EmptyState";
 import { getPendingClientRequests } from "@/lib/users/client-request-queries";
@@ -13,17 +15,34 @@ import { USER_ROLE_LABELS } from "@/types/admin-user";
 import { getAccountStatusLabel } from "@/lib/users/account-status";
 
 export const metadata: Metadata = {
-  title: "בקשות לקוח | Paper & Stone",
+  title: "לקוחות | Paper & Stone",
 };
 
 export default async function AdminClientRequestsPage() {
   const requests = await getPendingClientRequests();
+  const pendingRequestCount = requests.length;
 
   return (
     <AdminPage width="wide">
       <AdminPageHeader
-        title="בקשות לקוח"
-        description="משתמשים שנרשמו כלקוחות וממתינים לאישור מנהל המערכת"
+        title="לקוחות"
+        description="ניהול לקוחות ופרויקטים משויכים"
+        actions={
+          <Button href="/admin/clients/new" size="sm">
+            יצירת לקוח
+          </Button>
+        }
+      />
+
+      <AdminCrmTabSection
+        workspace="clients"
+        activeTab="requests"
+        pendingRequestCount={pendingRequestCount}
+        summary={
+          pendingRequestCount > 0
+            ? `${pendingRequestCount} בקשות ממתינות`
+            : "אין בקשות ממתינות"
+        }
       />
 
       {requests.length === 0 ? (
