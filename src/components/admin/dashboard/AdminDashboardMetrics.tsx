@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { AdminDashboardMetrics } from "@/types/admin-dashboard";
 import styles from "./AdminDashboardMetrics.module.scss";
 
@@ -8,13 +9,21 @@ type AdminDashboardMetricsProps = {
 const METRIC_ITEMS: Array<{
   key: keyof AdminDashboardMetrics;
   label: string;
+  href: string;
 }> = [
-  { key: "activeProducts", label: "מוצרים פעילים" },
-  { key: "featuredProducts", label: "מוצרים מומלצים" },
-  { key: "activeCategories", label: "קטגוריות פעילות" },
-  { key: "activeMaterials", label: "חומרים פעילים" },
-  { key: "activeColors", label: "צבעים פעילים" },
-  { key: "activeArchitects", label: "אדריכלים פעילים" },
+  { key: "clients", label: "לקוחות", href: "/admin/clients" },
+  { key: "architects", label: "אדריכלים", href: "/admin/architects" },
+  { key: "projects", label: "פרויקטים", href: "/admin/projects" },
+  {
+    key: "activeProjects",
+    label: "פעילים",
+    href: "/admin/projects?queue=active",
+  },
+  {
+    key: "attentionProjects",
+    label: "דורשים טיפול",
+    href: "/admin/projects?queue=attention",
+  },
 ];
 
 export default function AdminDashboardMetrics({
@@ -26,14 +35,16 @@ export default function AdminDashboardMetrics({
         מבט על המערכת
       </h2>
 
-      <dl className={styles.grid}>
+      <ul className={styles.grid}>
         {METRIC_ITEMS.map((item) => (
-          <div key={item.key} className={styles.metric}>
-            <dt className={styles.label}>{item.label}</dt>
-            <dd className={styles.value}>{metrics[item.key]}</dd>
-          </div>
+          <li key={item.key}>
+            <Link href={item.href} className={styles.block}>
+              <span className={styles.value}>{metrics[item.key]}</span>
+              <span className={styles.label}>{item.label}</span>
+            </Link>
+          </li>
         ))}
-      </dl>
+      </ul>
     </section>
   );
 }

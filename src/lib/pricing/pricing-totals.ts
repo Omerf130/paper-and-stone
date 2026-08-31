@@ -48,6 +48,16 @@ function allItemsArePriced(items: IProjectItem[]): boolean {
   );
 }
 
+export function calculatePaymentReadyPricingTotals(
+  items: IProjectItem[],
+): AdminPricingTotalsView {
+  const pricedItems = items.filter(
+    (item) => getItemPricingStatus(item.pricing) === "priced",
+  );
+
+  return calculateAdminPricingTotals(pricedItems);
+}
+
 export function calculateAdminPricingTotals(
   items: IProjectItem[],
 ): AdminPricingTotalsView {

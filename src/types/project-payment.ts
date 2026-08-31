@@ -68,4 +68,6 @@ export type AdminProjectPaymentSummaryView = {
   isOverpaid: boolean;
   isProjectTotalKnown: boolean;
   paymentSummaryCompact?: string;
+  commercialTotalIncomplete?: boolean;
+  commercialTotalIncompleteMessage?: string;
 };

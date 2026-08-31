@@ -46,7 +46,6 @@ export const adminNavGroups: AdminNavGroup[] = [
     id: "system",
     label: "מערכת",
     items: [
-      { label: "משתמשים", href: "/admin/users" },
       {
         label: "תהליך סטטוס מוצר",
         href: "/admin/settings/project-item-workflow",

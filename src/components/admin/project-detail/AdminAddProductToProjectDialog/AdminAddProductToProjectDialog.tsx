@@ -113,7 +113,6 @@ export default function AdminAddProductToProjectDialog({
 
     const trimmed = searchQuery.trim();
     if (trimmed.length < 2) {
-      setSearchResults([]);
       return;
     }
 
@@ -126,6 +125,13 @@ export default function AdminAddProductToProjectDialog({
 
     return () => window.clearTimeout(timeout);
   }, [searchQuery, open]);
+
+  const handleSearchQueryChange = (value: string) => {
+    setSearchQuery(value);
+    if (value.trim().length < 2) {
+      setSearchResults([]);
+    }
+  };
 
   const handleSelectProduct = async (product: AdminProductSearchResult) => {
     setSelectedProduct(product);
@@ -234,7 +240,7 @@ export default function AdminAddProductToProjectDialog({
               type="search"
               className={formFieldStyles.input}
               value={searchQuery}
-              onChange={(event) => setSearchQuery(event.target.value)}
+              onChange={(event) => handleSearchQueryChange(event.target.value)}
               placeholder="שם, SKU או קוד..."
               autoComplete="off"
             />

@@ -2,13 +2,11 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 
 const projectCountDocumentsMock = vi.fn();
 const projectFindMock = vi.fn();
-const productCountDocumentsMock = vi.fn();
-const categoryCountDocumentsMock = vi.fn();
-const materialCountDocumentsMock = vi.fn();
-const colorCountDocumentsMock = vi.fn();
-const userCountDocumentsMock = vi.fn();
 const unreadCountMock = vi.fn();
 const pendingArchitectRequestsMock = vi.fn();
+const pendingClientRequestsMock = vi.fn();
+const countClientsMock = vi.fn();
+const countArchitectsMock = vi.fn();
 
 vi.mock("@/lib/db/mongoose", () => ({
   connectDB: vi.fn(),
@@ -18,36 +16,6 @@ vi.mock("@/models/Project", () => ({
   default: {
     countDocuments: projectCountDocumentsMock,
     find: projectFindMock,
-  },
-}));
-
-vi.mock("@/models/Product", () => ({
-  default: {
-    countDocuments: productCountDocumentsMock,
-  },
-}));
-
-vi.mock("@/models/Category", () => ({
-  default: {
-    countDocuments: categoryCountDocumentsMock,
-  },
-}));
-
-vi.mock("@/models/Material", () => ({
-  default: {
-    countDocuments: materialCountDocumentsMock,
-  },
-}));
-
-vi.mock("@/models/Color", () => ({
-  default: {
-    countDocuments: colorCountDocumentsMock,
-  },
-}));
-
-vi.mock("@/models/User", () => ({
-  default: {
-    countDocuments: userCountDocumentsMock,
   },
 }));
 
@@ -73,18 +41,25 @@ vi.mock("@/lib/users/architect-request-queries", () => ({
   countPendingArchitectRequests: pendingArchitectRequestsMock,
 }));
 
+vi.mock("@/lib/users/client-request-queries", () => ({
+  countPendingClientRequests: pendingClientRequestsMock,
+}));
+
+vi.mock("@/lib/admin/admin-dashboard-metrics", () => ({
+  countApprovedActiveClients: countClientsMock,
+  countApprovedActiveArchitects: countArchitectsMock,
+}));
+
 describe("getAdminDashboardData", () => {
   beforeEach(() => {
     projectCountDocumentsMock.mockReset();
     projectFindMock.mockReset();
-    productCountDocumentsMock.mockReset();
-    categoryCountDocumentsMock.mockReset();
-    materialCountDocumentsMock.mockReset();
-    colorCountDocumentsMock.mockReset();
-    userCountDocumentsMock.mockReset();
     unreadCountMock.mockReset();
     quoteAttentionMock.mockReset();
     pendingArchitectRequestsMock.mockReset();
+    pendingClientRequestsMock.mockReset();
+    countClientsMock.mockReset();
+    countArchitectsMock.mockReset();
     attentionCountMock.mockReset();
     activeCountMock.mockReset();
 
@@ -92,7 +67,8 @@ describe("getAdminDashboardData", () => {
     activeCountMock.mockResolvedValue(12);
     projectCountDocumentsMock
       .mockResolvedValueOnce(3)
-      .mockResolvedValueOnce(5);
+      .mockResolvedValueOnce(5)
+      .mockResolvedValueOnce(18);
     unreadCountMock.mockResolvedValue(2);
     quoteAttentionMock.mockResolvedValue({
       quoteAcceptedAwaitingApprovalCount: 1,
@@ -100,13 +76,9 @@ describe("getAdminDashboardData", () => {
       quoteAwaitingProfessionalCount: 3,
     });
     pendingArchitectRequestsMock.mockResolvedValue(2);
-    productCountDocumentsMock
-      .mockResolvedValueOnce(10)
-      .mockResolvedValueOnce(4);
-    categoryCountDocumentsMock.mockResolvedValue(6);
-    materialCountDocumentsMock.mockResolvedValue(8);
-    colorCountDocumentsMock.mockResolvedValue(12);
-    userCountDocumentsMock.mockResolvedValue(5);
+    pendingClientRequestsMock.mockResolvedValue(4);
+    countClientsMock.mockResolvedValue(24);
+    countArchitectsMock.mockResolvedValue(7);
     projectFindMock.mockReturnValue({
       sort: vi.fn().mockReturnValue({
         limit: vi.fn().mockReturnValue({
@@ -140,13 +112,13 @@ describe("getAdminDashboardData", () => {
     expect(data.quoteChangeRequestedCount).toBe(2);
     expect(data.quoteAwaitingArchitectCount).toBe(3);
     expect(data.pendingArchitectRequestCount).toBe(2);
+    expect(data.pendingClientRequestCount).toBe(4);
     expect(data.metrics).toEqual({
-      activeProducts: 10,
-      featuredProducts: 4,
-      activeCategories: 6,
-      activeMaterials: 8,
-      activeColors: 12,
-      activeArchitects: 5,
+      clients: 24,
+      architects: 7,
+      projects: 18,
+      activeProjects: 12,
+      attentionProjects: 7,
     });
     expect(data.recentSubmittedProjects).toEqual([
       {

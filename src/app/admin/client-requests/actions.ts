@@ -23,6 +23,7 @@ export async function approveClientAccountAction(
   try {
     await approveClientAccount(admin, parsedId.data);
     revalidatePath("/admin/client-requests");
+    revalidatePath("/admin/clients");
     revalidatePath("/admin/users");
     revalidatePath("/admin");
     return { success: true };
@@ -48,6 +49,7 @@ export async function rejectClientAccountAction(
   try {
     await rejectClientAccount(admin, parsedId.data);
     revalidatePath("/admin/client-requests");
+    revalidatePath("/admin/clients");
     revalidatePath("/admin/users");
     revalidatePath("/admin");
     return { success: true };

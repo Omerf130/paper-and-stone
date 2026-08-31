@@ -11,7 +11,7 @@ export const ADMIN_PROJECT_TAB_LABELS: Record<AdminProjectTabId, string> = {
   summary: "סיכום",
   costs: "עלויות",
   payments: "תשלומים",
-  import: "ייבוא",
+  import: "לוגיסטיקה",
 };
 
 export function isAdminProjectTabId(

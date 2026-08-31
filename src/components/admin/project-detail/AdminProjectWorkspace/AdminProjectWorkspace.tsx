@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useSyncExternalStore } from "react";
 import AdminProjectWorkspaceHeader from "@/components/admin/project-detail/AdminProjectWorkspaceHeader/AdminProjectWorkspaceHeader";
 import AdminProjectWorkspaceTabs from "@/components/admin/project-detail/AdminProjectWorkspaceTabs/AdminProjectWorkspaceTabs";
 import type { AdminProjectDetailWithThumbnails } from "@/lib/projects/getAdminProjects";
@@ -12,15 +12,19 @@ type AdminProjectWorkspaceProps = {
   initialTabId?: AdminProjectTabId;
 };
 
+function useClientMounted(): boolean {
+  return useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
+}
+
 export default function AdminProjectWorkspace({
   project,
   initialTabId,
 }: AdminProjectWorkspaceProps) {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = useClientMounted();
 
   if (!mounted) {
     return (

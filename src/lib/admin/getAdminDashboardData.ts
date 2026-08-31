@@ -1,11 +1,9 @@
 import { connectDB } from "@/lib/db/mongoose";
-import Category from "@/models/Category";
-import Color from "@/models/Color";
-import Material from "@/models/Material";
-import Product from "@/models/Product";
 import Project from "@/models/Project";
-import User from "@/models/User";
-import { ARCHITECT_ROLE_FILTER } from "@/lib/auth/user-role";
+import {
+  countApprovedActiveArchitects,
+  countApprovedActiveClients,
+} from "@/lib/admin/admin-dashboard-metrics";
 import { getUnreadAdminProjectMessageCount } from "@/lib/project-messages/getUnreadAdminProjectMessageCount";
 import { getAdminQuoteAttentionSummary } from "@/lib/quotes/quote-queries";
 import {
@@ -28,12 +26,9 @@ export async function getAdminDashboardData(
     pendingOnboardingProjectCount,
     unreadAdminMessageCount,
     quoteAttention,
-    activeProducts,
-    featuredProducts,
-    activeCategories,
-    activeMaterials,
-    activeColors,
-    activeArchitects,
+    clients,
+    architects,
+    projects,
     pendingArchitectRequestCount,
     pendingClientRequestCount,
     recentSubmittedProjects,
@@ -44,12 +39,9 @@ export async function getAdminDashboardData(
     Project.countDocuments({ onboardingStatus: "pending_approval" }),
     getUnreadAdminProjectMessageCount(adminUserId),
     getAdminQuoteAttentionSummary(),
-    Product.countDocuments({ isActive: true }),
-    Product.countDocuments({ isFeatured: true }),
-    Category.countDocuments({ isActive: true }),
-    Material.countDocuments({ isActive: true }),
-    Color.countDocuments({ isActive: true }),
-    User.countDocuments({ role: ARCHITECT_ROLE_FILTER, isActive: true }),
+    countApprovedActiveClients(),
+    countApprovedActiveArchitects(),
+    Project.countDocuments({}),
     countPendingArchitectRequests(),
     countPendingClientRequests(),
     Project.find({ status: "submitted" })
@@ -73,12 +65,11 @@ export async function getAdminDashboardData(
     pendingArchitectRequestCount,
     pendingClientRequestCount,
     metrics: {
-      activeProducts,
-      featuredProducts,
-      activeCategories,
-      activeMaterials,
-      activeColors,
-      activeArchitects,
+      clients,
+      architects,
+      projects,
+      activeProjects: activeProjectCount,
+      attentionProjects: attentionProjectCount,
     },
     recentSubmittedProjects: recentSubmittedProjects.map((project) => ({
       id: project._id.toString(),

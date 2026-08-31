@@ -4,7 +4,8 @@ import { formatIlsAgorot } from "@/lib/money/format-ils";
 import ProjectPayment, { type IProjectPayment } from "@/models/ProjectPayment";
 import User from "@/models/User";
 import { calculateProjectPaymentSummary } from "@/lib/projects/project-payment-totals";
-import { mapAdminPricingTotalsView } from "@/lib/pricing/pricing-view-mappers";
+import { calculatePaymentReadyPricingTotals } from "@/lib/pricing/pricing-totals";
+import { getItemPricingStatus } from "@/lib/pricing/pricing-commercial-model";
 import type { IProjectItem } from "@/models/Project";
 import {
   PROJECT_PAYMENT_METHOD_LABELS,
@@ -84,12 +85,42 @@ export async function getProjectPaymentSummaryForAdminView(
   items: IProjectItem[],
 ): Promise<AdminProjectPaymentSummaryView> {
   const payments = await getProjectPaymentsForAdminView(projectId);
-  const pricingTotals = mapAdminPricingTotalsView(items);
+  const pricingTotals = calculatePaymentReadyPricingTotals(items);
+  const needsReviewItemCount = items.filter(
+    (item) => getItemPricingStatus(item.pricing) === "needs_review",
+  ).length;
+  const unpricedItemCount = items.filter(
+    (item) => getItemPricingStatus(item.pricing) === "unpriced",
+  ).length;
+  const commercialTotalIncomplete =
+    needsReviewItemCount > 0 || unpricedItemCount > 0;
 
-  return calculateProjectPaymentSummary({
-    projectTotalInclVatAgorot: pricingTotals.clientTotalInclVatAgorot,
+  const summary = calculateProjectPaymentSummary({
+    projectTotalInclVatAgorot: commercialTotalIncomplete
+      ? undefined
+      : pricingTotals.clientTotalInclVatAgorot,
     payments,
   });
+
+  if (!commercialTotalIncomplete) {
+    return summary;
+  }
+
+  const messageParts: string[] = [];
+  if (needsReviewItemCount > 0) {
+    messageParts.push(
+      `${needsReviewItemCount} פריטים ממתינים לבדיקת תמחור`,
+    );
+  }
+  if (unpricedItemCount > 0) {
+    messageParts.push(`${unpricedItemCount} פריטים ללא תמחור`);
+  }
+
+  return {
+    ...summary,
+    commercialTotalIncomplete: true,
+    commercialTotalIncompleteMessage: `סה״כ התשלום אינו שלם — ${messageParts.join(" · ")}.`,
+  };
 }
 
 export function countLogisticsInProgressItems(

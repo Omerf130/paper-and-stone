@@ -16,6 +16,7 @@ import {
   verifyClientDeactivationSafety,
 } from "@/lib/users/verifyDeactivationSafety";
 import { ensureProfessionalProfile } from "@/lib/professionals/ensureProfessionalProfile";
+import { normalizeAccountStatus } from "@/lib/users/account-status";
 import { UserMutationError } from "@/lib/users/user-errors";
 import { normalizeUserRole } from "@/lib/auth/user-role";
 import type { SafeUser, UserRole } from "@/types/user";
@@ -47,6 +48,16 @@ export async function updateUserRole(
     targetUser.role,
     newRole,
   );
+
+  const accountStatus = normalizeAccountStatus(targetUser.accountStatus);
+  if (
+    (newRole === "architect" || newRole === "client") &&
+    accountStatus !== "approved"
+  ) {
+    throw new UserMutationError(
+      "לא ניתן לשנות תפקיד לחשבון שלא אושר. יש לאשר את החשבון דרך בקשות לקוח או אדריכל.",
+    );
+  }
 
   const updatePayload = {
     role: newRole,

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import Tabs from "@/components/ui/Tabs/Tabs";
 import AdminProjectSummaryTab from "@/components/admin/project-detail/AdminProjectSummaryTab/AdminProjectSummaryTab";
@@ -27,17 +27,15 @@ export default function AdminProjectWorkspaceTabs({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const [activeTabId, setActiveTabId] = useState<AdminProjectTabId>(initialTabId);
-
-  useEffect(() => {
-    const tabParam = searchParams.get("tab");
-    setActiveTabId(isAdminProjectTabId(tabParam) ? tabParam : "summary");
-  }, [searchParams]);
+  const tabParam = searchParams.get("tab");
+  const activeTabId: AdminProjectTabId = isAdminProjectTabId(tabParam)
+    ? tabParam
+    : initialTabId;
 
   const handleTabChange = useCallback(
     (tabId: string) => {
-      if (isAdminProjectTabId(tabId)) {
-        setActiveTabId(tabId);
+      if (!isAdminProjectTabId(tabId)) {
+        return;
       }
 
       const params = new URLSearchParams(searchParams.toString());

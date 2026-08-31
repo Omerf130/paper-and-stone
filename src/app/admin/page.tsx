@@ -7,6 +7,7 @@ import AdminDashboardQuickActions from "@/components/admin/dashboard/AdminDashbo
 import AdminDashboardRecentProjects from "@/components/admin/dashboard/AdminDashboardRecentProjects";
 import { requireAdmin } from "@/lib/auth/authorization";
 import { getAdminDashboardData } from "@/lib/admin/getAdminDashboardData";
+import dashboardStyles from "./AdminDashboardPage.module.scss";
 
 export const metadata: Metadata = {
   title: "ניהול | Paper & Stone",
@@ -17,32 +18,34 @@ export default async function AdminDashboardPage() {
   const data = await getAdminDashboardData(user.id);
 
   return (
-    <AdminPage width="default">
-      <AdminPageHeader
-        title="ראשי"
-        description="סקירה של מה שדורש טיפול, מצב המערכת וקיצורי דרך לניהול."
-      />
+    <AdminPage width="wide">
+      <div className={dashboardStyles.page}>
+        <AdminPageHeader
+          title="ראשי"
+          description="סקירה של מה שדורש טיפול, מצב המערכת וקיצורי דרך לניהול."
+        />
 
-      <AdminDashboardAttention
-        attentionProjectCount={data.attentionProjectCount}
-        activeProjectCount={data.activeProjectCount}
-        submittedProjectCount={data.submittedProjectCount}
-        pendingOnboardingProjectCount={data.pendingOnboardingProjectCount}
-        unreadAdminMessageCount={data.unreadAdminMessageCount}
-        quoteAcceptedAwaitingApprovalCount={
-          data.quoteAcceptedAwaitingApprovalCount
-        }
-        quoteChangeRequestedCount={data.quoteChangeRequestedCount}
-        quoteAwaitingArchitectCount={data.quoteAwaitingArchitectCount}
-        pendingArchitectRequestCount={data.pendingArchitectRequestCount}
-        pendingClientRequestCount={data.pendingClientRequestCount}
-      />
+        <AdminDashboardMetrics metrics={data.metrics} />
 
-      <AdminDashboardMetrics metrics={data.metrics} />
+        <AdminDashboardAttention
+          attentionProjectCount={data.attentionProjectCount}
+          activeProjectCount={data.activeProjectCount}
+          submittedProjectCount={data.submittedProjectCount}
+          pendingOnboardingProjectCount={data.pendingOnboardingProjectCount}
+          unreadAdminMessageCount={data.unreadAdminMessageCount}
+          quoteAcceptedAwaitingApprovalCount={
+            data.quoteAcceptedAwaitingApprovalCount
+          }
+          quoteChangeRequestedCount={data.quoteChangeRequestedCount}
+          quoteAwaitingArchitectCount={data.quoteAwaitingArchitectCount}
+          pendingArchitectRequestCount={data.pendingArchitectRequestCount}
+          pendingClientRequestCount={data.pendingClientRequestCount}
+        />
 
-      <AdminDashboardQuickActions />
+        <AdminDashboardQuickActions />
 
-      <AdminDashboardRecentProjects projects={data.recentSubmittedProjects} />
+        <AdminDashboardRecentProjects projects={data.recentSubmittedProjects} />
+      </div>
     </AdminPage>
   );
 }

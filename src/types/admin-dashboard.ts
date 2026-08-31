@@ -1,10 +1,9 @@
 export type AdminDashboardMetrics = {
-  activeProducts: number;
-  featuredProducts: number;
-  activeCategories: number;
-  activeMaterials: number;
-  activeColors: number;
-  activeArchitects: number;
+  clients: number;
+  architects: number;
+  projects: number;
+  activeProjects: number;
+  attentionProjects: number;
 };
 
 export type AdminDashboardRecentProject = {

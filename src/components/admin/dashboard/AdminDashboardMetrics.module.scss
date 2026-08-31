@@ -4,49 +4,62 @@
 .section {
   display: flex;
   flex-direction: column;
-  gap: $spacing-lg;
-  padding-block-start: $spacing-xl;
-  border-top: 1px solid $color-border;
+  gap: $spacing-sm;
 }
 
 .title {
   margin: 0;
-  font-size: $font-size-section-title;
+  font-size: $font-size-sm;
   font-weight: $font-weight-medium;
-  color: $color-text-primary;
+  color: $color-text-secondary;
 }
 
 .grid {
   display: grid;
-  gap: $spacing-xl $spacing-lg;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: $spacing-sm;
   margin: 0;
+  padding: 0;
+  list-style: none;
 
-  @include tablet-up {
+  @media (max-width: #{$breakpoint-tablet - 1px}) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-
-  @include desktop-up {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
 }
 
-.metric {
+.block {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
   gap: $spacing-xs;
-}
+  min-height: 3.75rem;
+  padding: $spacing-sm $spacing-md;
+  text-decoration: none;
+  color: inherit;
+  background-color: $color-background-subtle;
+  border: 1px solid $color-border;
+  border-radius: $radius-sm;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
 
-.label {
-  margin: 0;
-  font-size: $font-size-sm;
-  font-weight: $font-weight-normal;
-  color: $color-text-secondary;
+  &:hover {
+    background-color: $color-background;
+    border-color: $color-text-secondary;
+  }
 }
 
 .value {
   margin: 0;
-  font-size: $font-size-2xl;
+  font-size: $font-size-xl;
   font-weight: $font-weight-semibold;
-  line-height: $line-height-tight;
+  line-height: 1.1;
   color: $color-text-primary;
+}
+
+.label {
+  margin: 0;
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
 }

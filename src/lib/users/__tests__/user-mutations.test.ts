@@ -67,6 +67,7 @@ describe("user-mutations", () => {
     findUserByIdMock.mockResolvedValue({
       _id: { toString: () => "user-2" },
       role: "client",
+      accountStatus: "approved",
       isActive: true,
     });
 
@@ -83,6 +84,28 @@ describe("user-mutations", () => {
       { $set: { role: "architect", requestedRole: null } },
     );
     expect(ensureProfileMock).toHaveBeenCalledWith("507f1f77bcf86cd799439011");
+  });
+
+  it("blocks role promotion when account is not approved", async () => {
+    findUserByIdMock.mockResolvedValue({
+      _id: { toString: () => "user-2" },
+      role: "client",
+      accountStatus: "pending",
+      requestedRole: "architect",
+      isActive: true,
+    });
+
+    const { updateUserRole } = await import("@/lib/users/user-mutations");
+
+    await expect(
+      updateUserRole(
+        { id: "admin-1", email: "admin@example.com", role: "admin", accountStatus: "approved", requestedRole: null },
+        "507f1f77bcf86cd799439011",
+        "architect",
+      ),
+    ).rejects.toThrow("לא ניתן לשנות תפקיד לחשבון שלא אושר");
+
+    expect(updateOneMock).not.toHaveBeenCalled();
   });
 
   it("blocks architect downgrade when user owns projects", async () => {

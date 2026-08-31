@@ -31,6 +31,7 @@ describe("applyAdminNavBadges", () => {
 
     expect(hrefs).not.toContain("/admin/client-requests");
     expect(hrefs).not.toContain("/admin/architect-requests");
+    expect(hrefs).not.toContain("/admin/users");
   });
 
   it("includes CRM workspaces in people navigation group", () => {

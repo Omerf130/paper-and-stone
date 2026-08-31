@@ -226,8 +226,6 @@ const ADMIN_NAV_ICON_BY_HREF: Record<string, ComponentType<IconProps>> = {
   "/admin/clients": ClientsNavIcon,
   "/admin/architects": ArchitectsNavIcon,
   "/admin/content": ContentNavIcon,
-  "/admin/client-requests": ClientRequestsNavIcon,
-  "/admin/architect-requests": ArchitectRequestsNavIcon,
   "/admin/users": UsersNavIcon,
   "/admin/settings/project-item-workflow": WorkflowNavIcon,
 };

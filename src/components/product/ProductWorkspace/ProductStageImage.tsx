@@ -101,7 +101,7 @@ function getContentViewportSize(
   };
 }
 
-export default function ProductStageImage({
+function ProductStageImageContent({
   image,
   priority = false,
 }: ProductStageImageProps) {
@@ -112,8 +112,6 @@ export default function ProductStageImage({
 
   useEffect(() => {
     let cancelled = false;
-    setAnalysisFailed(false);
-    setBoundsFit(null);
 
     void analyzeImageBoundsFit(image.url).then((result) => {
       if (cancelled) {
@@ -122,7 +120,9 @@ export default function ProductStageImage({
 
       if (result) {
         setBoundsFit({ sourceUrl: image.url, ...result });
+        setAnalysisFailed(false);
       } else {
+        setBoundsFit(null);
         setAnalysisFailed(true);
       }
     });
@@ -218,4 +218,8 @@ export default function ProductStageImage({
       </div>
     </div>
   );
+}
+
+export default function ProductStageImage(props: ProductStageImageProps) {
+  return <ProductStageImageContent key={props.image.url} {...props} />;
 }

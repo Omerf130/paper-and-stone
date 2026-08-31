@@ -46,6 +46,13 @@ export default function AdminProjectPaymentSummary({
           שולם {summary.overpaidFormatted} מעבר לסכום הפרויקט
         </p>
       ) : null}
+
+      {summary.commercialTotalIncomplete &&
+      summary.commercialTotalIncompleteMessage ? (
+        <p className={styles.warning} role="status">
+          {summary.commercialTotalIncompleteMessage}
+        </p>
+      ) : null}
     </div>
   );
 }
