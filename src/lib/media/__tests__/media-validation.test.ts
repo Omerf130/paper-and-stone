@@ -3,8 +3,10 @@ import {
   ALLOWED_IMAGE_MIME_TYPES,
   GALLERY_MAX_COUNT,
   MEDIA_SIZE_LIMITS,
+  SMALL_IMAGE_QUALITY_WARNING_EDGE_PX,
   getAllowedMimeTypesForSlot,
   getMaxBytesForSlot,
+  getSmallImageQualityWarning,
   parseMediaUploadClientPayload,
   validateFileForSlotClient,
 } from "@/lib/media/media-validation";
@@ -58,5 +60,13 @@ describe("media-validation", () => {
 
   it("caps gallery at eight images", () => {
     expect(GALLERY_MAX_COUNT).toBe(8);
+  });
+
+  it("warns when the longest image edge is below the quality threshold", () => {
+    expect(SMALL_IMAGE_QUALITY_WARNING_EDGE_PX).toBe(800);
+    expect(getSmallImageQualityWarning(799, 600)).toContain("799×600");
+    expect(getSmallImageQualityWarning(600, 799)).toContain("600×799");
+    expect(getSmallImageQualityWarning(800, 600)).toBeNull();
+    expect(getSmallImageQualityWarning(1600, 1200)).toBeNull();
   });
 });

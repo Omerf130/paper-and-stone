@@ -47,7 +47,7 @@
   object-position: center;
 }
 
-.normalizationPreview {
+.uploadPreview {
   display: flex;
   flex-direction: column;
   gap: $spacing-md;
@@ -173,11 +173,18 @@
 }
 
 .messageError,
-.messageSuccess {
+.messageSuccess,
+.messageWarning {
   margin: 0;
   padding: $spacing-sm $spacing-md;
   font-size: $font-size-sm;
   border: 1px solid $color-border;
+}
+
+.messageWarning {
+  color: $color-warning-text;
+  background-color: $color-warning-bg;
+  border-color: $color-warning-border;
 }
 
 .messageError {

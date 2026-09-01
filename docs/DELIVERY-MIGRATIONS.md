@@ -21,21 +21,18 @@ Use `.env.local` with a valid `MONGODB_URI`.
    npm run migrate:pricing-v2
    ```
 
-4. **Product media normalization** — if PDP images show inconsistent framing (e.g. Milano green gallery):
-   ```bash
-   npm run normalize:product-media -- --dry-run --product-slug milano-sofa --gallery
-   npm run normalize:product-media -- --apply --product-slug milano-sofa --gallery
-   ```
-
 ## Idempotency
 
 - `migrate:18c-account-status` — safe to re-run
 - `migrate:19b-catalog` — skips variant creation when already present; may still backfill names
 - `migrate:pricing-v2` — safe to re-run (tested idempotency)
-- `normalize:product-media` — inspect dry-run output before `--apply`
+
+## Product media recovery
+
+Admin product uploads are stored as the original image bytes (no automatic normalization). If a product image was damaged by an earlier normalization pass, re-upload the original source file through Admin → Product → Media.
 
 ## Not required for greenfield
 
-Fresh `npm run seed` environments typically need only seed + optional Milano media normalization if real blob assets were uploaded manually.
+Fresh `npm run seed` environments typically need only seed.
 
 Payments and logistics use runtime schema defaults — no migration scripts.

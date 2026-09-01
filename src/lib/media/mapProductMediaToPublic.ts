@@ -3,7 +3,7 @@ import type { PublicImageView } from "@/types/product-media";
 
 type LeanMediaItem = Pick<
   IProductMediaItem,
-  "url" | "altText" | "width" | "height" | "sortOrder"
+  "url" | "altText" | "width" | "height" | "sortOrder" | "normalized"
 >;
 
 export function mapMediaItemToPublicImage(
@@ -25,6 +25,10 @@ export function mapMediaItemToPublicImage(
 
   if (item.height !== undefined && item.height > 0) {
     image.height = item.height;
+  }
+
+  if (item.normalized === true) {
+    image.normalized = true;
   }
 
   return image;

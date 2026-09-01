@@ -11,6 +11,7 @@ export type PublicImageView = {
   alt: string;
   width?: number;
   height?: number;
+  normalized?: boolean;
 };
 
 export type ProductMediaItem = {

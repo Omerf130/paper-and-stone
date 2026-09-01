@@ -11,7 +11,6 @@ import {
   applyLuminancePreservingRecolor,
   imageDimensionsMatch,
 } from "@/lib/recolor/applyLuminancePreservingRecolor";
-import { drawCroppedImageDataToCanvas } from "@/lib/media/crop-image-to-content";
 import type { PublicImageView, PublicRecolorMaskView } from "@/types/product-media";
 import styles from "./ProductRecolorCanvas.module.scss";
 
@@ -119,7 +118,16 @@ export default function ProductRecolorCanvas({
       colorHex,
     );
 
-    drawCroppedImageDataToCanvas(canvas, recolored);
+    canvas.width = recolored.width;
+    canvas.height = recolored.height;
+
+    const context = canvas.getContext("2d");
+    if (!context) {
+      throw new Error("Canvas unsupported");
+    }
+
+    context.clearRect(0, 0, recolored.width, recolored.height);
+    context.putImageData(recolored, 0, 0);
   }, []);
 
   useEffect(() => {

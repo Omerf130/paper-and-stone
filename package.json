@@ -13,8 +13,7 @@
     "migrate:18c-account-status": "tsx --env-file=.env.local scripts/migrate-account-status-approved.ts",
     "migrate:19b-catalog": "tsx --env-file=.env.local scripts/migrate-phase-19b-catalog.ts",
     "migrate:pricing-v2": "tsx --env-file=.env.local scripts/migrate-pricing-v2.ts",
-    "backfill:17c-sku-normalized": "tsx --env-file=.env.local scripts/backfill-sku-normalized-17c.ts",
-    "normalize:product-media": "tsx --env-file=.env.local scripts/normalize-product-media.ts"
+    "backfill:17c-sku-normalized": "tsx --env-file=.env.local scripts/backfill-sku-normalized-17c.ts"
   },
   "dependencies": {
     "@vercel/blob": "^2.8.0",

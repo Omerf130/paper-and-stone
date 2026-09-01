@@ -11,7 +11,7 @@ import {
   finalizeMediaUploadAction,
   moveGalleryImageAction,
   prepareMediaUploadAction,
-  previewProductImageNormalizationAction,
+  previewProductImageTrimAction,
   updateGalleryAltTextAction,
   updatePrimaryAltTextAction,
   updateTechnicalAltTextAction,
@@ -19,14 +19,17 @@ import {
 import Button from "@/components/ui/Button/Button";
 import ConfirmDialog from "@/components/ui/ConfirmDialog/ConfirmDialog";
 import { useToast } from "@/components/ui/Toast/ToastProvider";
-import { GALLERY_MAX_COUNT } from "@/lib/media/media-validation";
-import { shouldNormalizeMediaSlot } from "@/lib/media/normalization-policy";
+import {
+  GALLERY_MAX_COUNT,
+  getSmallImageQualityWarning,
+  validateFileForSlotClient,
+} from "@/lib/media/media-validation";
+import { shouldTrimProductPhotoSlot } from "@/lib/media/product-photo-slots";
 import type {
   AdminMediaItemView,
   AdminProductMediaView,
   MediaSlot,
 } from "@/types/admin-product-media";
-import { validateFileForSlotClient } from "@/lib/media/media-validation";
 import styles from "./ProductMediaManager.module.scss";
 
 type ProductMediaManagerProps = {
@@ -53,17 +56,19 @@ type ConfirmAction =
   | { type: "technical-delete" }
   | null;
 
-type PendingNormalizedUpload = {
+type PendingUpload = {
   slot: MediaSlot;
   altText?: string;
   file: File;
   previewUrl: string;
-  width?: number;
-  height?: number;
-  normalized: boolean;
-  skipped: boolean;
-  reason: string;
+  width: number;
+  height: number;
+  qualityWarning: string | null;
+  trimmed: boolean;
+  trimMessage: string;
 };
+
+type UploadPhase = "processing" | "uploading" | null;
 
 function fileFromBase64(
   base64: string,
@@ -72,27 +77,12 @@ function fileFromBase64(
 ): File {
   const binary = atob(base64);
   const bytes = new Uint8Array(binary.length);
+
   for (let index = 0; index < binary.length; index += 1) {
     bytes[index] = binary.charCodeAt(index);
   }
 
   return new File([bytes], filename, { type: mimeType });
-}
-
-function previewMessage(normalized: boolean, skipped: boolean, reason: string) {
-  if (normalized) {
-    return "התמונה עברה התאמת מסגור אוטומטית. כך היא תוצג בקטלוג ובדף המוצר.";
-  }
-
-  if (skipped && reason === "well_framed") {
-    return "התמונה כבר ממוסגרת היטב — נשמרת ללא שינוי.";
-  }
-
-  if (skipped && reason === "detection_uncertain") {
-    return "לא ניתן לזהות את המוצר בביטחון — נשמרת התמונה המקורית.";
-  }
-
-  return "התמונה תישמר ללא שינוי.";
 }
 
 export default function ProductMediaManager({
@@ -105,8 +95,10 @@ export default function ProductMediaManager({
   const [pendingKey, setPendingKey] = useState<PendingKey>(null);
   const [error, setError] = useState<string | null>(null);
   const [confirmAction, setConfirmAction] = useState<ConfirmAction>(null);
-  const [pendingUpload, setPendingUpload] =
-    useState<PendingNormalizedUpload | null>(null);
+  const [pendingUpload, setPendingUpload] = useState<PendingUpload | null>(
+    null,
+  );
+  const [uploadPhase, setUploadPhase] = useState<UploadPhase>(null);
 
   const [primaryAlt, setPrimaryAlt] = useState(
     media.primaryImage?.altText ?? "",
@@ -161,7 +153,6 @@ export default function ProductMediaManager({
     metadata?: {
       width?: number;
       height?: number;
-      normalized?: boolean;
     },
   ) => {
     const clientValidation = validateFileForSlotClient(file, slot);
@@ -179,6 +170,7 @@ export default function ProductMediaManager({
 
     setError(null);
     setPendingKey(pending);
+    setUploadPhase("uploading");
 
     startTransition(async () => {
       try {
@@ -203,7 +195,6 @@ export default function ProductMediaManager({
           ...basePayload,
           width: metadata?.width,
           height: metadata?.height,
-          normalized: metadata?.normalized,
           byteSize: file.size,
         });
 
@@ -225,7 +216,6 @@ export default function ProductMediaManager({
           altText,
           width: metadata?.width,
           height: metadata?.height,
-          normalized: metadata?.normalized,
         });
 
         if (finalize.error) {
@@ -242,6 +232,7 @@ export default function ProductMediaManager({
         toast({ type: "error", message });
       } finally {
         setPendingKey(null);
+        setUploadPhase(null);
       }
     });
   };
@@ -257,7 +248,7 @@ export default function ProductMediaManager({
       return;
     }
 
-    if (!shouldNormalizeMediaSlot(slot)) {
+    if (!shouldTrimProductPhotoSlot(slot)) {
       void handleUpload(slot, file, altText);
       return;
     }
@@ -266,44 +257,52 @@ export default function ProductMediaManager({
       slot === "primary" ? "primary-upload" : "gallery-upload";
     setError(null);
     setPendingKey(pending);
+    setUploadPhase("processing");
 
     startTransition(async () => {
       try {
         const formData = new FormData();
         formData.set("file", file);
-        formData.set("slot", slot);
 
-        const preview = await previewProductImageNormalizationAction(formData);
+        const preview = await previewProductImageTrimAction(formData);
+
         if ("error" in preview) {
           setError(preview.error);
           toast({ type: "error", message: preview.error });
           return;
         }
 
-        const uploadFile = fileFromBase64(
+        const trimmedFile = fileFromBase64(
           preview.previewBase64,
           preview.suggestedFilename,
           preview.mimeType,
         );
-        const previewUrl = URL.createObjectURL(uploadFile);
+        const previewUrl = URL.createObjectURL(trimmedFile);
+        const trimMessage = preview.trimmed
+          ? "רקע ריק הוסר. כך התמונה תוצג בדף המוצר."
+          : "התמונה תישמר ללא שינוי.";
 
         setPendingUpload({
           slot,
           altText,
-          file: uploadFile,
+          file: trimmedFile,
           previewUrl,
-          width: preview.width || undefined,
-          height: preview.height || undefined,
-          normalized: preview.normalized,
-          skipped: preview.skipped,
-          reason: preview.reason,
+          width: preview.width,
+          height: preview.height,
+          qualityWarning: getSmallImageQualityWarning(
+            preview.width,
+            preview.height,
+          ),
+          trimmed: preview.trimmed,
+          trimMessage,
         });
       } catch {
-        const message = "אירעה שגיאה בעיבוד התמונה.";
+        const message = "לא ניתן לעבד את התמונה.";
         setError(message);
         toast({ type: "error", message });
       } finally {
         setPendingKey(null);
+        setUploadPhase(null);
       }
     });
   };
@@ -320,7 +319,6 @@ export default function ProductMediaManager({
     void handleUpload(current.slot, current.file, current.altText, {
       width: current.width,
       height: current.height,
-      normalized: current.normalized || undefined,
     });
   };
 
@@ -348,6 +346,9 @@ export default function ProductMediaManager({
   const galleryCount = media.gallery.length;
   const galleryFull = galleryCount >= GALLERY_MAX_COUNT;
 
+  const productPhotoUploadLoadingLabel =
+    uploadPhase === "processing" ? "מעבד..." : "מעלה...";
+
   return (
     <div className={styles.section}>
       {hideTitle ? null : (
@@ -371,6 +372,8 @@ export default function ProductMediaManager({
         inputId={primaryInputId}
         isBusy={isPending}
         pendingKey={pendingKey}
+        uploadLoading={pendingKey === "primary-upload"}
+        uploadLoadingLabel={productPhotoUploadLoadingLabel}
         onAltChange={setPrimaryAlt}
         onFileChange={(event) => onFileChange("primary", event, primaryAlt)}
         onSaveAlt={() =>
@@ -388,6 +391,8 @@ export default function ProductMediaManager({
         galleryFull={galleryFull}
         isBusy={isPending}
         pendingKey={pendingKey}
+        uploadLoading={pendingKey === "gallery-upload"}
+        uploadLoadingLabel={productPhotoUploadLoadingLabel}
         onAltChange={(id, value) =>
           setGalleryAlts((current) => ({ ...current, [id]: value }))
         }
@@ -428,15 +433,14 @@ export default function ProductMediaManager({
       />
 
       {pendingUpload ? (
-        <div className={styles.normalizationPreview} role="dialog" aria-modal="true">
+        <div className={styles.uploadPreview} role="dialog" aria-modal="true">
           <h3 className={styles.subheading}>תצוגה מקדימה לפני שמירה</h3>
-          <p className={styles.helperText}>
-            {previewMessage(
-              pendingUpload.normalized,
-              pendingUpload.skipped,
-              pendingUpload.reason,
-            )}
-          </p>
+          <p className={styles.helperText}>{pendingUpload.trimMessage}</p>
+          {pendingUpload.qualityWarning ? (
+            <p className={styles.messageWarning} role="status">
+              {pendingUpload.qualityWarning}
+            </p>
+          ) : null}
           <div className={styles.preview}>
             <Image
               src={pendingUpload.previewUrl}
@@ -453,10 +457,8 @@ export default function ProductMediaManager({
               size="sm"
               onClick={confirmPendingUpload}
               disabled={isPending}
-              loading={
-                pendingKey === "primary-upload" || pendingKey === "gallery-upload"
-              }
-              loadingLabel="שומר..."
+              loading={uploadPhase === "uploading"}
+              loadingLabel="מעלה..."
             >
               שמירה
             </Button>
@@ -536,6 +538,8 @@ type PrimarySectionProps = {
   inputId: string;
   isBusy: boolean;
   pendingKey: PendingKey;
+  uploadLoading: boolean;
+  uploadLoadingLabel: string;
   onAltChange: (value: string) => void;
   onFileChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onSaveAlt: () => void;
@@ -548,6 +552,8 @@ function PrimarySection({
   inputId,
   isBusy,
   pendingKey,
+  uploadLoading,
+  uploadLoadingLabel,
   onAltChange,
   onFileChange,
   onSaveAlt,
@@ -589,8 +595,8 @@ function PrimarySection({
           variant="secondary"
           size="sm"
           disabled={isBusy}
-          loading={pendingKey === "primary-upload"}
-          loadingLabel="מעבד..."
+          loading={uploadLoading}
+          loadingLabel={uploadLoadingLabel}
           onClick={() => document.getElementById(inputId)?.click()}
         >
           {item ? "החלפת תמונה" : "העלאת תמונה"}
@@ -640,6 +646,8 @@ type GallerySectionProps = {
   galleryFull: boolean;
   isBusy: boolean;
   pendingKey: PendingKey;
+  uploadLoading: boolean;
+  uploadLoadingLabel: string;
   onAltChange: (id: string, value: string) => void;
   onFileChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onSaveAlt: (id: string) => void;
@@ -654,6 +662,8 @@ function GallerySection({
   galleryFull,
   isBusy,
   pendingKey,
+  uploadLoading,
+  uploadLoadingLabel,
   onAltChange,
   onFileChange,
   onSaveAlt,
@@ -745,8 +755,8 @@ function GallerySection({
           variant="secondary"
           size="sm"
           disabled={isBusy || galleryFull}
-          loading={pendingKey === "gallery-upload"}
-          loadingLabel="מעבד..."
+          loading={uploadLoading}
+          loadingLabel={uploadLoadingLabel}
           onClick={() => document.getElementById(inputId)?.click()}
         >
           הוספת תמונה לגלריה

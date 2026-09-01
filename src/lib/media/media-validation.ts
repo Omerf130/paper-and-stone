@@ -14,6 +14,9 @@ export type AllowedMaskMimeType = (typeof ALLOWED_MASK_MIME_TYPES)[number];
 
 export const GALLERY_MAX_COUNT = 8;
 
+/** Non-blocking quality warning when the longest image edge is below this size. */
+export const SMALL_IMAGE_QUALITY_WARNING_EDGE_PX = 800;
+
 export const MEDIA_SIZE_LIMITS = {
   primary: 5 * 1024 * 1024,
   gallery: 5 * 1024 * 1024,
@@ -124,6 +127,19 @@ export function validateFileForSlotClient(
   }
 
   return { ok: true };
+}
+
+export function getSmallImageQualityWarning(
+  width: number,
+  height: number,
+): string | null {
+  const longestEdge = Math.max(width, height);
+
+  if (longestEdge >= SMALL_IMAGE_QUALITY_WARNING_EDGE_PX) {
+    return null;
+  }
+
+  return `רזולוציית התמונה (${width}×${height}) נמוכה — התמונה עלולה להיראות באיכות נמוכה בדף המוצר. מומלץ להעלות תמונה בגודל של לפחות ${SMALL_IMAGE_QUALITY_WARNING_EDGE_PX}px בצד הארוך.`;
 }
 
 export function getMediaTypeForSlot(
