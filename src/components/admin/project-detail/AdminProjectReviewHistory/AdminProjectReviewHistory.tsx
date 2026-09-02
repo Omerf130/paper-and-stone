@@ -20,17 +20,20 @@ export default function AdminProjectReviewHistory({
     <ol className={styles.list}>
       {entries.map((entry, index) => (
         <li key={`${entry.createdAt}-${index}`} className={styles.item}>
-          <div className={styles.header}>
-            <span className={styles.action}>
-              {getProjectReviewActionLabel(entry.action)}
-            </span>
-            <time className={styles.time} dateTime={entry.createdAt}>
-              {formatDateTime(entry.createdAt)}
-            </time>
+          <span className={styles.indicator} aria-hidden="true" />
+          <div className={styles.content}>
+            <div className={styles.header}>
+              <span className={styles.action}>
+                {getProjectReviewActionLabel(entry.action)}
+              </span>
+              <time className={styles.time} dateTime={entry.createdAt}>
+                {formatDateTime(entry.createdAt)}
+              </time>
+            </div>
+            {entry.message ? (
+              <p className={styles.message}>{entry.message}</p>
+            ) : null}
           </div>
-          {entry.message ? (
-            <p className={styles.message}>{entry.message}</p>
-          ) : null}
         </li>
       ))}
     </ol>

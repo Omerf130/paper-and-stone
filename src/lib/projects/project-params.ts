@@ -15,6 +15,8 @@ export type AdminProjectsParams = {
   query: string | null;
   queue: AdminProjectsQueue;
   status: AdminProjectsStatusFilter;
+  clientId: string | null;
+  architectId: string | null;
   page: number;
 };
 
@@ -22,6 +24,8 @@ export type AdminProjectsHrefInput = {
   query?: string | null;
   queue?: AdminProjectsQueue;
   status?: AdminProjectsStatusFilter;
+  clientId?: string | null;
+  architectId?: string | null;
   page?: number;
 };
 
@@ -90,6 +94,18 @@ function parseQueueParam(
   return value as AdminProjectsQueue;
 }
 
+function parseObjectIdParam(
+  raw: string | string[] | undefined,
+): string | null {
+  const value = parseStringParam(raw);
+
+  if (!value || !/^[a-f\d]{24}$/i.test(value)) {
+    return null;
+  }
+
+  return value;
+}
+
 export function parseAdminProjectsParams(
   raw: Record<string, string | string[] | undefined>,
 ): AdminProjectsParams {
@@ -97,6 +113,8 @@ export function parseAdminProjectsParams(
     query: parseStringParam(raw.q),
     queue: parseQueueParam(raw.queue),
     status: parseStatusParam(raw.status),
+    clientId: parseObjectIdParam(raw.clientId),
+    architectId: parseObjectIdParam(raw.architectId),
     page: parsePageValue(raw.page),
   };
 }
@@ -117,12 +135,32 @@ export function buildAdminProjectsHref(input: AdminProjectsHrefInput = {}): stri
     params.set("status", input.status);
   }
 
+  if (input.clientId) {
+    params.set("clientId", input.clientId);
+  }
+
+  if (input.architectId) {
+    params.set("architectId", input.architectId);
+  }
+
   if (input.page && input.page > 1) {
     params.set("page", String(input.page));
   }
 
   const search = params.toString();
   return search ? `/admin/projects?${search}` : "/admin/projects";
+}
+
+export function hasAdminProjectsFilters(
+  params: AdminProjectsParams,
+): boolean {
+  return Boolean(
+    params.query ||
+      params.clientId ||
+      params.architectId ||
+      (params.queue === "commercial" && params.status !== "submitted") ||
+      params.queue !== "attention",
+  );
 }
 
 export const ADMIN_PROJECTS_QUEUE_LABELS: Record<AdminProjectsQueue, string> = {

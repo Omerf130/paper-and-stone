@@ -1,0 +1,41 @@
+@use "../../../styles/tokens" as *;
+
+@mixin dashboard-panel {
+  overflow: hidden;
+  background-color: $admin-dashboard-surface;
+  border: 1px solid $admin-dashboard-border;
+  border-radius: $admin-dashboard-panel-radius;
+}
+
+@mixin dashboard-panel-header {
+  padding: $spacing-sm $spacing-md;
+  border-bottom: 1px solid $admin-dashboard-separator;
+}
+
+@mixin dashboard-interactive-surface {
+  background-color: $admin-dashboard-interactive-surface;
+  border: 1px solid $admin-dashboard-border;
+  border-radius: $admin-dashboard-control-radius;
+}
+
+@mixin dashboard-interactive-hover {
+  border-color: #ddd9d3;
+  background-color: $admin-dashboard-hover-surface;
+}
+
+@mixin dashboard-kpi-card {
+  background-color: $admin-dashboard-surface;
+  border: 1px solid $admin-dashboard-border;
+  border-radius: $admin-dashboard-panel-radius;
+}
+
+@mixin dashboard-quick-tile {
+  background-color: $admin-dashboard-interactive-surface;
+  border: 1px solid $admin-dashboard-border;
+  border-radius: $admin-dashboard-quick-radius;
+}
+
+@mixin dashboard-icon-circle {
+  background-color: $admin-dashboard-interactive-surface;
+  border-radius: 999px;
+}

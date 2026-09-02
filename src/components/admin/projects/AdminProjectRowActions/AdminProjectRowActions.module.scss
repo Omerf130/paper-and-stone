@@ -1,0 +1,45 @@
+@use "../../../../styles/tokens" as *;
+@use "../../../../styles/mixins" as *;
+
+.menu {
+  position: relative;
+  display: inline-block;
+}
+
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.75rem;
+  min-height: 1.75rem;
+  padding: 0;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  list-style: none;
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: $radius-sm;
+
+  &::-webkit-details-marker {
+    display: none;
+  }
+
+  @include focus-visible;
+}
+
+.trigger:hover {
+  color: $color-text-primary;
+  border-color: $color-border;
+}
+
+.panel {
+  position: absolute;
+  inset-inline-end: 0;
+  z-index: 5;
+  min-width: 8rem;
+  padding: $spacing-xs;
+  background-color: $color-background;
+  border: 1px solid $color-border;
+  box-shadow: $shadow-sm;
+}

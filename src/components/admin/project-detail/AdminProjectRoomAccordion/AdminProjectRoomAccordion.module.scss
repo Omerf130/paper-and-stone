@@ -1,28 +1,33 @@
 @use "../../../../styles/tokens" as *;
+@use "../project-detail-surfaces" as detail;
 
 .accordion {
   display: flex;
   flex-direction: column;
-  gap: $spacing-sm;
+  gap: 0.5rem;
 }
 
 .roomSection {
-  border: 1px solid $color-border;
-  border-radius: $radius-md;
+  @include detail.detail-panel;
+  padding: 0;
   overflow: hidden;
 }
 
 .roomHeader {
   display: flex;
   align-items: flex-start;
-  gap: $spacing-md;
+  gap: 0.625rem;
   width: 100%;
-  min-height: 2.75rem;
-  padding: $spacing-md;
+  min-height: 2.5rem;
+  padding: 0.625rem 0.75rem;
   border: 0;
-  background: $color-background-subtle;
+  background: $admin-dashboard-interactive-surface;
   text-align: start;
   cursor: pointer;
+
+  &:hover {
+    background: $admin-dashboard-hover-surface;
+  }
 }
 
 .chevron {
@@ -33,33 +38,33 @@
 .roomTitleWrap {
   display: flex;
   flex-direction: column;
-  gap: $spacing-xs;
+  gap: 0.125rem;
   min-width: 0;
 }
 
 .roomName {
-  font-size: $font-size-base;
+  font-size: $font-size-xs;
   font-weight: $font-weight-semibold;
   color: $color-text-primary;
 }
 
 .roomMeta {
-  font-size: $font-size-sm;
+  font-size: 0.6875rem;
   color: $color-text-secondary;
 }
 
 .roomPanel {
   display: flex;
   flex-direction: column;
-  gap: $spacing-md;
-  padding: $spacing-md;
-  border-top: 1px solid $color-border;
+  gap: 0.5rem;
+  padding: 0.625rem 0.75rem;
+  border-top: 1px solid $admin-dashboard-separator;
 }
 
 .itemList {
   display: flex;
   flex-direction: column;
-  gap: $spacing-sm;
+  gap: 0.5rem;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -67,6 +72,6 @@
 
 .emptyRoom {
   margin: 0;
-  font-size: $font-size-sm;
+  font-size: $font-size-xs;
   color: $color-text-secondary;
 }

@@ -1,7 +1,9 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { Suspense, useSyncExternalStore } from "react";
 import AdminProjectWorkspaceHeader from "@/components/admin/project-detail/AdminProjectWorkspaceHeader/AdminProjectWorkspaceHeader";
+import AdminProjectWorkspaceMetrics from "@/components/admin/project-detail/AdminProjectWorkspaceMetrics/AdminProjectWorkspaceMetrics";
 import AdminProjectWorkspaceTabs from "@/components/admin/project-detail/AdminProjectWorkspaceTabs/AdminProjectWorkspaceTabs";
 import type { AdminProjectDetailWithThumbnails } from "@/lib/projects/getAdminProjects";
 import type { AdminProjectTabId } from "@/lib/projects/admin-project-tab-params";
@@ -25,6 +27,7 @@ export default function AdminProjectWorkspace({
   initialTabId,
 }: AdminProjectWorkspaceProps) {
   const mounted = useClientMounted();
+  const pathname = usePathname();
 
   if (!mounted) {
     return (
@@ -37,6 +40,7 @@ export default function AdminProjectWorkspace({
   return (
     <div className={styles.workspace}>
       <AdminProjectWorkspaceHeader project={project} />
+      <AdminProjectWorkspaceMetrics project={project} projectHref={pathname} />
       <Suspense fallback={<p className={styles.loading}>טוען...</p>}>
         <AdminProjectWorkspaceTabs
           project={project}

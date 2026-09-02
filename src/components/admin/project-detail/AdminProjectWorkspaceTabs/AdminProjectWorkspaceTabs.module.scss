@@ -1,5 +1,36 @@
+@use "../../../../styles/tokens" as *;
+
 .tabsWrap {
   display: flex;
   flex-direction: column;
   min-width: 0;
+
+  :global([class*="tablist"]) {
+    gap: 0;
+    padding-inline: 0;
+    border-bottom: 1px solid $admin-dashboard-separator;
+    overflow-x: auto;
+  }
+
+  :global([class*="tab"]),
+  :global([class*="tabActive"]) {
+    padding: 0.5rem 0.875rem;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-medium;
+    color: $color-text-secondary;
+    background: transparent;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    border-radius: 0;
+    white-space: nowrap;
+  }
+
+  :global([class*="tabActive"]) {
+    color: $color-text-primary;
+    border-bottom-color: $color-text-primary;
+  }
+
+  :global([class*="panel"]) {
+    padding-top: 0;
+  }
 }

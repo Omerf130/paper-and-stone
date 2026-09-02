@@ -2,6 +2,7 @@
 
 import { formatDateTime } from "@/lib/ui/format-date-time";
 import type { AdminProjectPaymentView } from "@/types/project-payment";
+import tableStyles from "@/components/admin/project-detail/admin-project-detail-table.module.scss";
 import styles from "./AdminProjectPaymentHistory.module.scss";
 
 type AdminProjectPaymentHistoryProps = {
@@ -32,8 +33,8 @@ export default function AdminProjectPaymentHistory({
         היסטוריית תשלומים
       </h2>
 
-      <div className={styles.tableWrap}>
-        <table className={styles.table}>
+      <div className={tableStyles.tableWrap}>
+        <table className={tableStyles.table}>
           <thead>
             <tr>
               <th scope="col">תאריך</th>
@@ -41,7 +42,9 @@ export default function AdminProjectPaymentHistory({
               <th scope="col">אמצעי</th>
               <th scope="col">הערה</th>
               <th scope="col">נרשם על ידי</th>
-              <th scope="col">פעולות</th>
+              <th scope="col">
+                <span className={tableStyles.srOnly}>פעולות</span>
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -50,25 +53,30 @@ export default function AdminProjectPaymentHistory({
                 <td>{formatDateTime(payment.paymentDate)}</td>
                 <td>{payment.amountFormatted}</td>
                 <td>{payment.paymentMethodLabel}</td>
-                <td className={styles.noteCell}>{payment.note ?? "—"}</td>
+                <td className={tableStyles.noteCell}>{payment.note ?? "—"}</td>
                 <td>{payment.createdByAdminLabel ?? "—"}</td>
-                <td>
-                  <div className={styles.actions}>
-                    <button
-                      type="button"
-                      className={styles.actionButton}
-                      onClick={() => onEdit(payment)}
-                    >
-                      עריכה
-                    </button>
-                    <button
-                      type="button"
-                      className={styles.actionButtonDanger}
-                      onClick={() => onDelete(payment)}
-                    >
-                      מחיקה
-                    </button>
-                  </div>
+                <td className={tableStyles.actionsCell}>
+                  <details className={styles.menu}>
+                    <summary className={styles.menuTrigger} aria-label="פעולות תשלום">
+                      ⋯
+                    </summary>
+                    <div className={styles.menuPanel}>
+                      <button
+                        type="button"
+                        className={styles.menuItem}
+                        onClick={() => onEdit(payment)}
+                      >
+                        עריכה
+                      </button>
+                      <button
+                        type="button"
+                        className={`${styles.menuItem} ${styles.menuItemDanger}`}
+                        onClick={() => onDelete(payment)}
+                      >
+                        מחיקה
+                      </button>
+                    </div>
+                  </details>
                 </td>
               </tr>
             ))}
@@ -98,14 +106,14 @@ export default function AdminProjectPaymentHistory({
               <div className={styles.cardActions}>
                 <button
                   type="button"
-                  className={styles.actionButton}
+                  className={styles.menuItem}
                   onClick={() => onEdit(payment)}
                 >
                   עריכה
                 </button>
                 <button
                   type="button"
-                  className={styles.actionButtonDanger}
+                  className={`${styles.menuItem} ${styles.menuItemDanger}`}
                   onClick={() => onDelete(payment)}
                 >
                   מחיקה

@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import type { AdminNavGroup } from "@/config/admin-nav";
+import { logoutAction } from "@/lib/auth/logout-action";
 import {
   SidebarCollapseIcon,
   SidebarExpandIcon,
@@ -30,6 +31,10 @@ export default function AdminSidebar({
       aria-label="ניווט ניהול"
     >
       <div className={styles.header}>
+        <div className={styles.brandBlock}>
+          <AdminBrand compact={collapsed} sidebarCompact={collapsed} />
+        </div>
+
         <div className={styles.headerControls}>
           <button
             type="button"
@@ -41,10 +46,6 @@ export default function AdminSidebar({
             {collapsed ? <SidebarExpandIcon /> : <SidebarCollapseIcon />}
           </button>
         </div>
-
-        <div className={styles.brandBlock}>
-          <AdminBrand compact={collapsed} sidebarCompact={collapsed} />
-        </div>
       </div>
 
       <nav className={styles.nav}>
@@ -55,6 +56,20 @@ export default function AdminSidebar({
           collapsed={collapsed}
         />
       </nav>
+
+      <div className={styles.footer}>
+        {!collapsed ? (
+          <div className={styles.helpBox}>
+            <p className={styles.helpTitle}>צריכים עזרה?</p>
+            <p className={styles.helpText}>פנו לצוות Paper &amp; Stone לתמיכה תפעולית.</p>
+          </div>
+        ) : null}
+        <form action={logoutAction}>
+          <button type="submit" className={styles.footerLogout} title="התנתקות">
+            <span>התנתקות</span>
+          </button>
+        </form>
+      </div>
     </aside>
   );
 }

@@ -1,0 +1,42 @@
+@use "../../../styles/tokens" as *;
+
+.panel {
+  background-color: $color-background;
+  border: 1px solid $admin-workspace-border;
+}
+
+.panelHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-sm;
+  padding: $spacing-sm $spacing-md;
+  border-bottom: 1px solid $admin-workspace-border;
+}
+
+.panelTitle {
+  margin: 0;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+}
+
+.panelAction {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  text-decoration: none;
+
+  &:hover {
+    color: $color-text-primary;
+    text-decoration: underline;
+  }
+}
+
+.panelBody {
+  padding: 0;
+}
+
+.panelBodyPadded {
+  padding: $spacing-md;
+}

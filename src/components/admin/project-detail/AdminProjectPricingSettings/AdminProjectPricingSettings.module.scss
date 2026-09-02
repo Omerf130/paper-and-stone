@@ -1,31 +1,23 @@
 @use "../../../../styles/tokens" as *;
+@use "../project-detail-surfaces" as detail;
 
 .settings {
+  @include detail.detail-strip;
   display: flex;
   flex-direction: column;
-  gap: $spacing-md;
-  padding-block-end: $spacing-lg;
-  border-bottom: 1px solid $color-border;
+  gap: 0.5rem;
+  align-items: stretch;
 }
 
 .title {
-  margin: 0;
-  font-size: $font-size-base;
-  font-weight: $font-weight-semibold;
-  color: $color-text-primary;
+  @include detail.detail-section-title;
 }
 
-.description {
-  margin: 0;
-  font-size: $font-size-sm;
-  line-height: $line-height-relaxed;
-  color: $color-text-secondary;
-}
-
+.description,
 .notice {
   margin: 0;
-  font-size: $font-size-sm;
-  line-height: $line-height-relaxed;
+  font-size: 0.6875rem;
+  line-height: 1.4;
   color: $color-text-secondary;
 }
 
@@ -33,7 +25,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
-  gap: $spacing-md;
+  gap: 0.5rem;
 
   > :first-child {
     flex: 1 1 12rem;

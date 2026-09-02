@@ -1,0 +1,146 @@
+@use "../../../styles/tokens" as *;
+@use "../../../styles/mixins" as *;
+@use "../dashboard/dashboard-surfaces" as dashboard;
+@use "../admin-icon-accents" as accents;
+
+.card {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  min-height: $admin-workspace-metric-card-min-height;
+  padding: $spacing-sm $spacing-md;
+  text-decoration: none;
+  color: inherit;
+  background-color: $color-background;
+  border: 1px solid $admin-workspace-border;
+  border-radius: $radius-sm;
+  transition:
+    border-color $transition-fast,
+    background-color $transition-fast;
+
+  @include focus-visible;
+
+  @include reduced-motion {
+    transition: none;
+  }
+}
+
+.card:hover {
+  border-color: #d8d4ce;
+  background-color: $color-background-subtle;
+}
+
+.cardStatic {
+  cursor: default;
+}
+
+.cardStatic:hover {
+  border-color: $admin-workspace-border;
+  background-color: $color-background;
+}
+
+.cardDashboard {
+  min-height: $admin-dashboard-kpi-height;
+  border-color: $admin-dashboard-border;
+  border-radius: $admin-dashboard-panel-radius;
+  background-color: $admin-dashboard-surface;
+}
+
+.cardDashboard:hover {
+  @include dashboard.dashboard-interactive-hover;
+}
+
+.iconWrapDashboard {
+  width: $admin-icon-accent-size;
+  height: $admin-icon-accent-size;
+
+  @include accents.admin-icon-circle-base;
+  @include accents.admin-icon-accent-default;
+
+  svg {
+    display: block;
+    flex-shrink: 0;
+    width: 0.9375rem;
+    height: 0.9375rem;
+    margin: 0;
+  }
+}
+
+.iconWrap {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: $color-text-secondary;
+
+  @include accents.admin-icon-circle-base;
+  @include accents.admin-icon-accent-default;
+
+  svg {
+    display: block;
+    flex-shrink: 0;
+    width: 0.875rem;
+    height: 0.875rem;
+    margin: 0;
+  }
+}
+
+@include accents.emit-accent-modifier-classes;
+
+.content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.125rem;
+  min-width: 0;
+}
+
+.value {
+  margin: 0;
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  line-height: 1;
+  color: $color-text-primary;
+}
+
+.label {
+  margin: 0;
+  font-size: 0.6875rem;
+  line-height: 1.2;
+  color: $color-text-secondary;
+}
+
+.action {
+  flex-shrink: 0;
+  margin: 0;
+  font-size: 0.625rem;
+  color: $color-text-secondary;
+  white-space: nowrap;
+}
+
+/* Compact inline strip variant (project workspace KPIs) */
+.stripItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  padding-inline: $spacing-md;
+  border-inline-start: 1px solid $admin-workspace-border;
+
+  &:first-child {
+    padding-inline-start: 0;
+    border-inline-start: none;
+  }
+}
+
+.stripValue {
+  margin: 0;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  line-height: 1.1;
+  color: $color-text-primary;
+}
+
+.stripLabel {
+  margin: 0;
+  font-size: 0.625rem;
+  color: $color-text-secondary;
+  white-space: nowrap;
+}

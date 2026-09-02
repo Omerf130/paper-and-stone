@@ -1,0 +1,6 @@
+@use "../../../../styles/tokens" as *;
+@use "../products-surfaces" as products;
+
+.workspace {
+  @include products.products-panel;
+}

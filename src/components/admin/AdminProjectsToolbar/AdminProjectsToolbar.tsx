@@ -1,17 +1,22 @@
+"use client";
+
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useTransition, type ChangeEvent } from "react";
 import {
   ADMIN_PROJECTS_QUEUE_LABELS,
-  buildAdminProjectsHref,
+  hasAdminProjectsFilters,
   type AdminProjectsParams,
 } from "@/lib/projects/project-params";
+import type { AdminProjectsFilterOption } from "@/lib/projects/admin-projects-filter-options";
 import { PROJECT_STATUS_LABELS } from "@/types/admin-project";
 import type { ProjectStatus } from "@/types/project";
-import Button from "@/components/ui/Button/Button";
-import styles from "@/components/admin/list/admin-list-toolbar.module.scss";
+import styles from "./AdminProjectsToolbar.module.scss";
 
 type AdminProjectsToolbarProps = {
   params: AdminProjectsParams;
-  total: number;
+  clientOptions: AdminProjectsFilterOption[];
+  architectOptions: AdminProjectsFilterOption[];
 };
 
 const COMMERCIAL_STATUS_OPTIONS: Array<{ value: ProjectStatus; label: string }> = [
@@ -22,7 +27,7 @@ const COMMERCIAL_STATUS_OPTIONS: Array<{ value: ProjectStatus; label: string }> 
   { value: "draft", label: PROJECT_STATUS_LABELS.draft },
 ];
 
-const QUEUE_TABS = [
+const QUEUE_OPTIONS = [
   "all",
   "attention",
   "active",
@@ -32,95 +37,144 @@ const QUEUE_TABS = [
 
 export default function AdminProjectsToolbar({
   params,
-  total,
+  clientOptions,
+  architectOptions,
 }: AdminProjectsToolbarProps) {
-  const hasFilters = Boolean(
-    params.query || (params.queue === "commercial" && params.status !== "submitted"),
-  );
+  const router = useRouter();
+  const [, startTransition] = useTransition();
+  const showReset = hasAdminProjectsFilters(params);
+
+  function navigateTo(href: string) {
+    startTransition(() => {
+      router.push(href);
+    });
+  }
+
+  function handleSelectChange(event: ChangeEvent<HTMLSelectElement>) {
+    const form = event.currentTarget.form;
+    if (!form) {
+      return;
+    }
+
+    const formData = new FormData(form);
+    const nextParams = new URLSearchParams();
+
+    for (const [key, value] of formData.entries()) {
+      if (typeof value === "string" && value.trim()) {
+        nextParams.set(key, value);
+      }
+    }
+
+    const href = nextParams.toString()
+      ? `/admin/projects?${nextParams.toString()}`
+      : "/admin/projects";
+
+    navigateTo(href);
+  }
 
   return (
-    <section className={styles.toolbar} aria-label="סינון פרויקטים">
-      <nav className={styles.queueTabs} aria-label="תצוגות פרויקט">
-        {QUEUE_TABS.map((queue) => (
-          <Link
-            key={queue}
-            href={buildAdminProjectsHref({
-              query: params.query,
-              queue,
-              status: params.queue === "commercial" ? params.status : undefined,
-            })}
-            className={
-              params.queue === queue ? styles.queueTabActive : styles.queueTab
-            }
-            aria-current={params.queue === queue ? "page" : undefined}
-          >
-            {ADMIN_PROJECTS_QUEUE_LABELS[queue]}
-          </Link>
-        ))}
-      </nav>
-
+    <div className={styles.toolbar} aria-label="סינון פרויקטים">
       <form method="get" className={styles.form}>
-        {params.queue !== "attention" ? (
-          <input type="hidden" name="queue" value={params.queue} />
+        <div className={styles.searchWrap}>
+          <label className={styles.srOnly} htmlFor="projects-search">
+            חיפוש
+          </label>
+          <input
+            id="projects-search"
+            name="q"
+            type="search"
+            className={styles.search}
+            defaultValue={params.query ?? ""}
+            placeholder="חיפוש פרויקטים..."
+          />
+        </div>
+
+        <div className={styles.selectWrap}>
+          <label className={styles.srOnly} htmlFor="projects-queue">
+            סטטוס
+          </label>
+          <select
+            id="projects-queue"
+            name="queue"
+            className={styles.select}
+            defaultValue={params.queue}
+            onChange={handleSelectChange}
+          >
+            {QUEUE_OPTIONS.map((queue) => (
+              <option key={queue} value={queue}>
+                {ADMIN_PROJECTS_QUEUE_LABELS[queue]}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {params.queue === "commercial" ? (
+          <div className={styles.selectWrap}>
+            <label className={styles.srOnly} htmlFor="projects-status">
+              סטטוס מסחרי
+            </label>
+            <select
+              id="projects-status"
+              name="status"
+              className={styles.select}
+              defaultValue={params.status}
+              onChange={handleSelectChange}
+            >
+              {COMMERCIAL_STATUS_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
         ) : null}
 
-        <div className={styles.filters}>
-          <div className={styles.field}>
-            <label className={styles.label} htmlFor="projects-search">
-              חיפוש
-            </label>
-            <input
-              id="projects-search"
-              name="q"
-              type="search"
-              className={styles.input}
-              defaultValue={params.query ?? ""}
-              placeholder="שם פרויקט, אדריכל, לקוח או אימייל"
-            />
-          </div>
-
-          {params.queue === "commercial" ? (
-            <div className={styles.field}>
-              <label className={styles.label} htmlFor="projects-status">
-                סטטוס מסחרי
-              </label>
-              <select
-                id="projects-status"
-                name="status"
-                className={styles.select}
-                defaultValue={params.status}
-              >
-                {COMMERCIAL_STATUS_OPTIONS.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-          ) : null}
+        <div className={styles.selectWrap}>
+          <label className={styles.srOnly} htmlFor="projects-client">
+            לקוח
+          </label>
+          <select
+            id="projects-client"
+            name="clientId"
+            className={styles.select}
+            defaultValue={params.clientId ?? ""}
+            onChange={handleSelectChange}
+          >
+            <option value="">כל הלקוחות</option>
+            {clientOptions.map((option) => (
+              <option key={option.id} value={option.id}>
+                {option.label}
+              </option>
+            ))}
+          </select>
         </div>
 
-        <div className={styles.actions}>
-          <Button type="submit" variant="secondary" size="sm">
-            חיפוש
-          </Button>
-          {hasFilters ? (
-            <Link
-              href={buildAdminProjectsHref({ queue: params.queue })}
-              className={styles.resetLink}
-            >
-              ניקוי סינון
-            </Link>
-          ) : null}
+        <div className={styles.selectWrap}>
+          <label className={styles.srOnly} htmlFor="projects-architect">
+            אדריכל
+          </label>
+          <select
+            id="projects-architect"
+            name="architectId"
+            className={styles.select}
+            defaultValue={params.architectId ?? ""}
+            onChange={handleSelectChange}
+          >
+            <option value="">כל האדריכלים</option>
+            {architectOptions.map((option) => (
+              <option key={option.id} value={option.id}>
+                {option.label}
+              </option>
+            ))}
+          </select>
         </div>
+
+        {showReset ? (
+          <Link href="/admin/projects" className={styles.resetLink}>
+            איפוס
+          </Link>
+        ) : null}
       </form>
-
-      <p className={styles.summary}>
-        {total} פרויקטים · {ADMIN_PROJECTS_QUEUE_LABELS[params.queue]}
-        {params.queue === "commercial"
-          ? ` · ${PROJECT_STATUS_LABELS[params.status]}`
-          : ""}
-      </p>
-    </section>
+    </div>
   );
 }

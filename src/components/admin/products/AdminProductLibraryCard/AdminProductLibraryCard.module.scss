@@ -1,0 +1,146 @@
+@use "../../../../styles/tokens" as *;
+@use "../../../../styles/mixins" as *;
+@use "../../dashboard/dashboard-surfaces" as dashboard;
+
+.card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  background-color: $admin-dashboard-surface;
+  border: 1px solid $admin-dashboard-border;
+  border-radius: $admin-dashboard-panel-radius;
+  transition:
+    border-color $transition-fast,
+    background-color $transition-fast;
+
+  @include reduced-motion {
+    transition: none;
+  }
+
+  &:hover {
+    @include dashboard.dashboard-interactive-hover;
+  }
+}
+
+.mediaLink {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
+.media {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 4 / 3;
+  padding: 0.5rem 0.75rem;
+  overflow: hidden;
+  background-color: $admin-dashboard-interactive-surface;
+  border-radius: $admin-dashboard-panel-radius $admin-dashboard-panel-radius 0 0;
+}
+
+.mediaImage {
+  display: block;
+  flex-shrink: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  object-fit: contain;
+  object-position: center;
+}
+
+.placeholder {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: $color-text-secondary;
+}
+
+.placeholderIcon {
+  display: block;
+  opacity: 0.45;
+}
+
+.body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.125rem;
+  padding: $spacing-sm;
+}
+
+.nameLink {
+  text-decoration: none;
+  color: inherit;
+
+  &:hover .name {
+    text-decoration: underline;
+  }
+}
+
+.name {
+  display: -webkit-box;
+  margin: 0;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  line-height: 1.3;
+  color: $color-text-primary;
+}
+
+.category {
+  margin: 0;
+  font-size: 0.625rem;
+  line-height: 1.35;
+  color: $color-text-secondary;
+}
+
+.supplier {
+  margin: 0;
+  font-size: 0.625rem;
+  line-height: 1.35;
+  color: $color-text-secondary;
+}
+
+.sku {
+  margin: 0;
+  font-size: 0.5625rem;
+  line-height: 1.35;
+  color: $color-text-secondary;
+  opacity: 0.85;
+}
+
+.footer {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: $spacing-xs;
+  margin-top: auto;
+  padding-top: $spacing-xs;
+}
+
+.footerStart {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.125rem;
+  min-width: 0;
+}
+
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.1875rem;
+}
+
+.updated {
+  margin: 0;
+  font-size: 0.5625rem;
+  line-height: 1.2;
+  color: $color-text-secondary;
+  opacity: 0.85;
+}

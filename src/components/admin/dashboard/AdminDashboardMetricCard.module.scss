@@ -1,0 +1,78 @@
+@use "../../../styles/tokens" as *;
+@use "../../../styles/mixins" as *;
+@use "./dashboard-surfaces" as dashboard;
+@use "../admin-icon-accents" as accents;
+
+.card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: $spacing-sm;
+  align-items: center;
+  min-height: $admin-dashboard-kpi-height;
+  padding: 0.625rem 0.875rem;
+  text-decoration: none;
+  color: inherit;
+  transition:
+    border-color $transition-fast,
+    background-color $transition-fast;
+
+  @include dashboard.dashboard-kpi-card;
+  @include focus-visible;
+
+  @include reduced-motion {
+    transition: none;
+  }
+
+  &:hover {
+    @include dashboard.dashboard-interactive-hover;
+  }
+}
+
+.iconWrap {
+  width: $admin-icon-accent-size;
+  height: $admin-icon-accent-size;
+
+  @include accents.admin-icon-circle-base;
+  @include accents.admin-icon-accent-default;
+
+  svg {
+    display: block;
+    flex-shrink: 0;
+    width: 0.9375rem;
+    height: 0.9375rem;
+    margin: 0;
+  }
+}
+
+@include accents.emit-accent-modifier-classes;
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  min-width: 0;
+}
+
+.value {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: $font-weight-semibold;
+  line-height: 1;
+  color: $color-text-primary;
+}
+
+.label {
+  margin: 0;
+  font-size: 0.6875rem;
+  line-height: 1.2;
+  color: $color-text-secondary;
+}
+
+.action {
+  font-size: 0.625rem;
+  color: $color-text-secondary;
+}
+
+.card:hover .action {
+  color: $color-text-primary;
+}

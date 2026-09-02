@@ -1,0 +1,30 @@
+@use "../../../../styles/tokens" as *;
+
+.overview {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: $spacing-xs;
+}
+
+.item {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  color: $color-text-secondary;
+}
+
+.separator {
+  margin-inline: $spacing-xs;
+  color: $admin-workspace-border;
+}
+
+.value {
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.label {
+  color: $color-text-secondary;
+}

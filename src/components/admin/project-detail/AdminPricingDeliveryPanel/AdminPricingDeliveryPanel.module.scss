@@ -1,36 +1,33 @@
 @use "../../../../styles/tokens" as *;
+@use "../project-detail-surfaces" as detail;
 
 .panel {
+  @include detail.detail-strip;
   display: flex;
   flex-direction: column;
-  gap: $spacing-md;
-  padding: $spacing-lg;
-  border: 1px solid $color-border;
-  background-color: $color-background-subtle;
+  gap: 0.5rem;
+  align-items: stretch;
 }
 
 .title {
-  margin: 0;
-  font-size: $font-size-base;
-  font-weight: $font-weight-medium;
-  color: $color-text-primary;
+  @include detail.detail-section-title;
 }
 
 .message {
   margin: 0;
-  font-size: $font-size-sm;
+  font-size: 0.6875rem;
   color: $color-text-secondary;
 }
 
 .actions {
   display: flex;
   flex-wrap: wrap;
-  gap: $spacing-sm;
+  gap: 0.375rem;
   align-items: center;
 }
 
 .error {
   margin: 0;
-  font-size: $font-size-sm;
+  font-size: 0.6875rem;
   color: $color-danger-text;
 }

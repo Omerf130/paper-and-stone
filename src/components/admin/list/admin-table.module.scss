@@ -2,28 +2,37 @@
 @use "../../../styles/mixins" as *;
 
 .wrap {
-  border: 1px solid $color-border;
+  border: 1px solid $admin-workspace-border;
   background-color: $color-background;
 }
 
 .table {
   width: 100%;
   border-collapse: collapse;
-  font-size: $font-size-sm;
+  font-size: $font-size-xs;
 }
 
 .table th,
 .table td {
-  padding: $spacing-md;
+  padding: $admin-workspace-table-row-padding;
   text-align: start;
-  border-bottom: 1px solid $color-border;
-  vertical-align: top;
+  border-bottom: 1px solid $admin-workspace-border;
+  vertical-align: middle;
+}
+
+.compact th,
+.compact td {
+  padding: $admin-workspace-table-row-padding;
+  font-size: $font-size-xs;
 }
 
 .table th {
+  font-size: 0.625rem;
   font-weight: $font-weight-medium;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   color: $color-text-secondary;
-  background-color: $color-background-subtle;
+  background-color: $admin-workspace-panel-header-bg;
 }
 
 .table tbody tr:last-child td {
@@ -39,16 +48,18 @@
 }
 
 .table tbody tr:hover {
-  background-color: $color-interactive-hover;
+  background-color: #faf9f7;
 }
 
 .primary {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
   color: $color-text-primary;
 }
 
 .subtle {
-  margin-block-start: $spacing-xs;
-  font-size: $font-size-sm;
+  margin-block-start: 0.125rem;
+  font-size: 0.625rem;
   color: $color-text-secondary;
 }
 
@@ -58,7 +69,7 @@
 }
 
 .actionLink {
-  font-size: $font-size-sm;
+  font-size: $font-size-xs;
   color: $color-text-primary;
   text-decoration: underline;
   text-underline-offset: 0.15em;

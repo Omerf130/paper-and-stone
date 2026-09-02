@@ -48,6 +48,7 @@ export async function mapLeanProjectToAdminListItem(
   return {
     id: project._id.toString(),
     name: project.name,
+    location: project.location,
     clientName: project.clientName,
     assignedClientFullName,
     clientUserId: project.clientUserId?.toString() ?? null,

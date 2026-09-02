@@ -1,50 +1,111 @@
 @use "../../../styles/tokens" as *;
-@use "../../../styles/mixins" as *;
 
 .section {
   display: flex;
   flex-direction: column;
-  gap: $spacing-md;
-  padding-block-start: $spacing-lg;
-  border-top: 1px solid $color-border;
+  background-color: $color-background;
+  border: 1px solid $admin-workspace-border;
+}
+
+.header {
+  padding: $spacing-sm $spacing-md;
+  border-bottom: 1px solid $admin-workspace-border;
 }
 
 .title {
   margin: 0;
-  font-size: $font-size-section-title;
+  font-size: $font-size-sm;
   font-weight: $font-weight-medium;
   color: $color-text-primary;
 }
 
-.list {
+.feed {
   display: flex;
   flex-direction: column;
-  gap: 0;
+  margin: 0;
+  padding: $spacing-xs 0;
   list-style: none;
 }
 
 .item {
-  padding-block: $spacing-md;
-  border-bottom: 1px solid $color-border;
+  display: flex;
+  gap: $spacing-sm;
+  align-items: flex-start;
+  padding: $spacing-sm $spacing-md;
 
-  &:first-child {
-    border-top: 1px solid $color-border;
+  & + & {
+    border-top: 1px solid $admin-workspace-border;
   }
 }
 
-.link {
-  font-size: $font-size-base;
+.marker {
+  flex-shrink: 0;
+  width: 1.625rem;
+  height: 1.625rem;
+  margin-block-start: 0.0625rem;
+  border-radius: 999px;
+  background-color: $color-surface-cream;
+  border: 1px solid $admin-workspace-border;
+}
+
+.marker_attention {
+  background-color: $color-warning-bg;
+  border-color: $color-warning-border;
+}
+
+.marker_message {
+  background-color: $color-info-bg;
+}
+
+.marker_review {
+  background-color: $color-surface-cream;
+}
+
+.marker_request {
+  background-color: #f3f0ec;
+}
+
+.marker_quote {
+  background-color: #f7f5f2;
+}
+
+.marker_active {
+  background-color: $color-success-bg;
+  border-color: $color-success-border;
+}
+
+.marker_neutral {
+  background-color: $color-background-subtle;
+}
+
+.content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.125rem;
+  min-width: 0;
+}
+
+.primary,
+.primaryMuted {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  line-height: 1.35;
   color: $color-text-primary;
   text-decoration: none;
-
-  @include focus-visible;
-
-  &:hover {
-    color: $color-accent;
-  }
 }
 
-.empty {
-  font-size: $font-size-base;
+.primary:hover {
+  text-decoration: underline;
+}
+
+.primaryMuted {
+  font-weight: $font-weight-normal;
+  color: $color-text-secondary;
+}
+
+.secondary {
+  font-size: 0.625rem;
+  line-height: 1.3;
   color: $color-text-secondary;
 }

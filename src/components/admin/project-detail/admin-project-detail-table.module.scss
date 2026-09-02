@@ -1,0 +1,35 @@
+@use "../../../styles/tokens" as *;
+@use "../../../styles/mixins" as *;
+@use "./project-detail-surfaces" as detail;
+
+.tableWrap {
+  @include detail.detail-table-wrap;
+}
+
+.table {
+  @include detail.detail-table-base;
+}
+
+.actionsCell {
+  width: 2.5rem;
+  text-align: end;
+}
+
+.noteCell {
+  max-width: 14rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: $color-text-secondary;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

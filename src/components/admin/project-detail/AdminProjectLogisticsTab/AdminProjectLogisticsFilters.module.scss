@@ -1,8 +1,9 @@
 @use "../../../../styles/tokens" as *;
+@use "../project-detail-surfaces" as detail;
 
 .filters {
   display: grid;
-  gap: $spacing-sm;
+  gap: 0.5rem;
 
   @media (min-width: $breakpoint-tablet) {
     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -12,22 +13,17 @@
 .field {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.125rem;
   min-width: 0;
 }
 
 .label {
   margin: 0;
-  font-size: $font-size-xs;
+  font-size: 0.625rem;
   color: $color-text-secondary;
 }
 
 .input {
+  @include detail.detail-control;
   width: 100%;
-  padding: $spacing-xs $spacing-sm;
-  font: inherit;
-  font-size: $font-size-sm;
-  border: 1px solid $color-border;
-  border-radius: $radius-sm;
-  background: $color-background;
 }

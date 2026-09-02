@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import AdminPage from "@/components/admin/AdminPage/AdminPage";
-import AdminPageHeader from "@/components/admin/AdminPageHeader/AdminPageHeader";
-import AdminDashboardAttention from "@/components/admin/dashboard/AdminDashboardAttention";
+import AdminDashboardActivityFeed from "@/components/admin/dashboard/AdminDashboardActivityFeed";
 import AdminDashboardMetrics from "@/components/admin/dashboard/AdminDashboardMetrics";
+import AdminDashboardPageHeader from "@/components/admin/dashboard/AdminDashboardPageHeader";
+import AdminDashboardProjectStatusOverview from "@/components/admin/dashboard/AdminDashboardProjectStatusOverview";
 import AdminDashboardQuickActions from "@/components/admin/dashboard/AdminDashboardQuickActions";
+import AdminDashboardRecentProducts from "@/components/admin/dashboard/AdminDashboardRecentProducts";
 import AdminDashboardRecentProjects from "@/components/admin/dashboard/AdminDashboardRecentProjects";
 import { requireAdmin } from "@/lib/auth/authorization";
 import { getAdminDashboardData } from "@/lib/admin/getAdminDashboardData";
@@ -16,35 +18,36 @@ export const metadata: Metadata = {
 export default async function AdminDashboardPage() {
   const user = await requireAdmin();
   const data = await getAdminDashboardData(user.id);
+  const greetingName = user.email.split("@")[0] ?? "מנהל/ת";
 
   return (
     <AdminPage width="wide">
       <div className={dashboardStyles.page}>
-        <AdminPageHeader
-          title="ראשי"
-          description="סקירה של מה שדורש טיפול, מצב המערכת וקיצורי דרך לניהול."
-        />
+        <AdminDashboardPageHeader greetingName={greetingName} />
 
         <AdminDashboardMetrics metrics={data.metrics} />
 
-        <AdminDashboardAttention
-          attentionProjectCount={data.attentionProjectCount}
-          activeProjectCount={data.activeProjectCount}
-          submittedProjectCount={data.submittedProjectCount}
-          pendingOnboardingProjectCount={data.pendingOnboardingProjectCount}
-          unreadAdminMessageCount={data.unreadAdminMessageCount}
-          quoteAcceptedAwaitingApprovalCount={
-            data.quoteAcceptedAwaitingApprovalCount
-          }
-          quoteChangeRequestedCount={data.quoteChangeRequestedCount}
-          quoteAwaitingArchitectCount={data.quoteAwaitingArchitectCount}
-          pendingArchitectRequestCount={data.pendingArchitectRequestCount}
-          pendingClientRequestCount={data.pendingClientRequestCount}
-        />
+        <div className={dashboardStyles.workspaceGrid}>
+          <div className={dashboardStyles.primaryColumn}>
+            <AdminDashboardRecentProjects
+              projects={data.recentProjects}
+              totalProjects={data.metrics.projects}
+            />
+            <AdminDashboardQuickActions />
+          </div>
 
-        <AdminDashboardQuickActions />
-
-        <AdminDashboardRecentProjects projects={data.recentSubmittedProjects} />
+          <div className={dashboardStyles.secondaryColumn}>
+            <AdminDashboardActivityFeed
+              entries={data.activityFeed}
+              attentionProjectCount={data.attentionProjectCount}
+            />
+            <AdminDashboardProjectStatusOverview summary={data.queueSummary} />
+            <AdminDashboardRecentProducts
+              products={data.recentProducts}
+              productThumbnailsById={data.productThumbnailsById}
+            />
+          </div>
+        </div>
       </div>
     </AdminPage>
   );

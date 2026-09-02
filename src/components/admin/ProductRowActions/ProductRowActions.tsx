@@ -43,9 +43,50 @@ export default function ProductRowActions({
     });
   };
 
+  if (layout === "card") {
+    return (
+      <>
+        <details className={styles.menu}>
+          <summary className={styles.trigger} aria-label="פעולות מוצר">
+            ⋯
+          </summary>
+          <div className={styles.panel}>
+            <Link
+              href={`/admin/products/${product.id}`}
+              className={styles.item}
+              aria-label={editLabel}
+            >
+              עריכה
+            </Link>
+            <button
+              type="button"
+              className={`${styles.item} ${styles.dangerItem}`}
+              aria-label={deleteLabel}
+              disabled={isPending}
+              onClick={() => setConfirmOpen(true)}
+            >
+              מחיקה
+            </button>
+          </div>
+        </details>
+
+        <ConfirmDialog
+          open={confirmOpen}
+          title="מחיקת מוצר"
+          description={`למחוק את "${product.nameHe}"? פעולה זו אינה ניתנת לביטול.`}
+          confirmLabel="מחיקה"
+          tone="danger"
+          loading={isPending}
+          onConfirm={handleDelete}
+          onCancel={() => setConfirmOpen(false)}
+        />
+      </>
+    );
+  }
+
   return (
     <>
-      <div className={layout === "card" ? styles.cardActions : styles.actions}>
+      <div className={styles.actions}>
         <Link
           href={`/admin/products/${product.id}`}
           className={styles.iconButton}

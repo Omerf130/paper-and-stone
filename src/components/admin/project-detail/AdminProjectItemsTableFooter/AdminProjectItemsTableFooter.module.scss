@@ -1,0 +1,16 @@
+@use "../../../../styles/tokens" as *;
+@use "../project-detail-surfaces" as detail;
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.6875rem;
+  color: $color-text-secondary;
+  border-top: 1px solid $admin-dashboard-separator;
+}
+
+.label {
+  margin: 0;
+}

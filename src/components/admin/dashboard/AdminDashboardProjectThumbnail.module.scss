@@ -1,0 +1,10 @@
+@use "../../../styles/tokens" as *;
+
+.thumbnail {
+  display: inline-block;
+  flex-shrink: 0;
+  width: $admin-dashboard-thumbnail-size;
+  height: $admin-dashboard-thumbnail-size;
+  background-color: $admin-dashboard-interactive-surface;
+  border-radius: $admin-dashboard-small-radius;
+}

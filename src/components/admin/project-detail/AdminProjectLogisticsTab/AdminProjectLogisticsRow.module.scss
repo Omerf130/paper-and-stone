@@ -1,38 +1,47 @@
 @use "../../../../styles/tokens" as *;
+@use "../project-detail-surfaces" as detail;
 
 .row {
   display: flex;
   flex-direction: column;
-  gap: $spacing-sm;
-  padding: $spacing-md;
-  border: 1px solid $color-border;
-  border-radius: $radius-md;
-  background: $color-background;
+  gap: 0.5rem;
+  padding: 0.625rem 0.75rem;
+  border-bottom: 1px solid $admin-dashboard-separator;
+  background: transparent;
 
   @media (min-width: $breakpoint-tablet) {
     display: grid;
     grid-template-columns: minmax(0, 1.4fr) minmax(0, 0.8fr) 4rem minmax(0, 0.9fr) minmax(0, 1fr) minmax(0, 0.8fr) minmax(0, 1.2fr) auto;
-    align-items: start;
-    gap: $spacing-sm $spacing-md;
-    padding: $spacing-sm $spacing-md;
+    align-items: center;
+    gap: 0.5rem 0.75rem;
+    min-height: 3.375rem;
+    padding: 0.5rem 0.75rem;
+  }
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background-color: $admin-dashboard-hover-surface;
   }
 }
 
 .productName {
   margin: 0;
-  font-size: $font-size-sm;
+  font-size: $font-size-xs;
   font-weight: $font-weight-medium;
 }
 
 .sku {
   margin: 0.125rem 0 0;
-  font-size: $font-size-xs;
+  font-size: 0.6875rem;
   color: $color-text-secondary;
 }
 
 .cellLabel {
   margin: 0 0 0.125rem;
-  font-size: $font-size-xs;
+  font-size: 0.625rem;
   color: $color-text-secondary;
 
   @media (min-width: $breakpoint-tablet) {
@@ -42,7 +51,7 @@
 
 .cellValue {
   margin: 0;
-  font-size: $font-size-sm;
+  font-size: $font-size-xs;
 }
 
 .field {
@@ -54,29 +63,25 @@
 
 .select,
 .textarea {
+  @include detail.detail-control;
   width: 100%;
-  padding: $spacing-xs $spacing-sm;
-  font: inherit;
-  font-size: $font-size-sm;
-  border: 1px solid $color-border;
-  border-radius: $radius-sm;
-  background: $color-background;
+  min-height: 2.25rem;
 }
 
 .textarea {
-  min-height: 2.5rem;
+  min-height: 2.25rem;
   resize: vertical;
 }
 
 .actions {
   display: flex;
   align-items: center;
-  gap: $spacing-sm;
+  gap: 0.5rem;
 }
 
 .error {
   margin: 0;
-  font-size: $font-size-xs;
+  font-size: 0.625rem;
   color: $color-danger-text;
 }
 

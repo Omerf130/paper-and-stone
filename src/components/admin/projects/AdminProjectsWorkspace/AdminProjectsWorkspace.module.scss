@@ -1,0 +1,6 @@
+@use "../../../../styles/tokens" as *;
+@use "../projects-surfaces" as projects;
+
+.workspace {
+  @include projects.projects-panel;
+}

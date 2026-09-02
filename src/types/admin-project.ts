@@ -5,6 +5,7 @@ import type { ProjectPricingAttention } from "@/lib/projects/admin-project-atten
 export type AdminProjectListItemView = {
   id: string;
   name: string;
+  location?: string;
   clientName?: string;
   assignedClientFullName?: string | null;
   clientUserId?: string | null;

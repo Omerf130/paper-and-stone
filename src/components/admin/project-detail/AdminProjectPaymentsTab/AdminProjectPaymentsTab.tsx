@@ -75,15 +75,17 @@ export default function AdminProjectPaymentsTab({
 
   return (
     <div className={styles.tab}>
-      <header className={styles.header}>
+      <AdminProjectPaymentSummary summary={paymentSummary} />
+
+      <div className={styles.toolbar}>
         <div className={styles.headerText}>
           <h2 className={styles.title}>תשלומים</h2>
           <p className={styles.subtitle}>רישום תשלומים ידני מול סכום הפרויקט כולל מע״מ</p>
         </div>
-        <Button onClick={openCreateForm}>+ הוספת תשלום</Button>
-      </header>
-
-      <AdminProjectPaymentSummary summary={paymentSummary} />
+        <Button size="sm" onClick={openCreateForm}>
+          + הוספת תשלום
+        </Button>
+      </div>
 
       <AdminProjectPaymentHistory
         payments={payments}

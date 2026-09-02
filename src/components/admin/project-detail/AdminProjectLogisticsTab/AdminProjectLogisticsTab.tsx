@@ -54,41 +54,45 @@ export default function AdminProjectLogisticsTab({
         </p>
       </header>
 
-      <AdminProjectLogisticsFilters
-        filters={filters}
-        roomOptions={project.rooms.map((room) => ({ id: room.id, name: room.name }))}
-        supplierOptions={supplierOptions}
-        onChange={setFilters}
-      />
+      <div className={styles.workspace}>
+        <div className={styles.filtersWrap}>
+          <AdminProjectLogisticsFilters
+            filters={filters}
+            roomOptions={project.rooms.map((room) => ({ id: room.id, name: room.name }))}
+            supplierOptions={supplierOptions}
+            onChange={setFilters}
+          />
+        </div>
 
-      <div className={styles.tableHeader} aria-hidden="true">
-        <span>מוצר</span>
-        <span>חדר</span>
-        <span>כמות</span>
-        <span>ספק</span>
-        <span>סטטוס</span>
-        <span>עדכון אחרון</span>
-        <span>הערה</span>
-        <span>פעולות</span>
+        <div className={styles.tableHeader} aria-hidden="true">
+          <span>מוצר</span>
+          <span>חדר</span>
+          <span>כמות</span>
+          <span>ספק</span>
+          <span>סטטוס</span>
+          <span>עדכון אחרון</span>
+          <span>הערה</span>
+          <span>פעולות</span>
+        </div>
+
+        {filteredItems.length === 0 ? (
+          <p className={styles.empty}>לא נמצאו מוצרים לפי הסינון.</p>
+        ) : (
+          <ul className={styles.list}>
+            {filteredItems.map((item) => (
+              <li key={item.id}>
+                <AdminProjectLogisticsRow
+                  projectId={project.id}
+                  item={item}
+                  roomName={
+                    item.roomId ? roomNameById.get(item.roomId) : undefined
+                  }
+                />
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
-
-      {filteredItems.length === 0 ? (
-        <p className={styles.empty}>לא נמצאו מוצרים לפי הסינון.</p>
-      ) : (
-        <ul className={styles.list}>
-          {filteredItems.map((item) => (
-            <li key={item.id}>
-              <AdminProjectLogisticsRow
-                projectId={project.id}
-                item={item}
-                roomName={
-                  item.roomId ? roomNameById.get(item.roomId) : undefined
-                }
-              />
-            </li>
-          ))}
-        </ul>
-      )}
     </div>
   );
 }

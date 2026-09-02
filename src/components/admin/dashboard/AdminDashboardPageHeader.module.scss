@@ -1,0 +1,35 @@
+@use "../../../styles/tokens" as *;
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-sm;
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  min-width: 0;
+}
+
+.greeting {
+  margin: 0;
+  font-family: $font-family-serif;
+  font-size: $admin-dashboard-greeting-size;
+  font-weight: $font-weight-normal;
+  line-height: $line-height-tight;
+  color: $color-text-primary;
+}
+
+.subtitle {
+  margin: 0;
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+}
+
+.cta {
+  flex-shrink: 0;
+}

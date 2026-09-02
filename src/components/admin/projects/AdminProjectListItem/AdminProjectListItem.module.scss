@@ -1,27 +1,12 @@
-.attentionList {
+@use "../../../../styles/tokens" as *;
+
+.cardTitleRow {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin: 0.5rem 0 0;
-  padding: 0;
-  list-style: none;
+  align-items: center;
+  gap: 0.625rem;
 }
 
-.statusStack {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  align-items: flex-start;
-}
-
-.primaryAttention {
-  margin: 0.5rem 0 0;
-}
-
-.pricingState {
-  margin: 0.5rem 0 0;
-}
-
-.workflowAttention {
-  margin: 0.5rem 0 0;
+.statusSecondary {
+  font-size: 0.6875rem;
+  color: $color-text-secondary;
 }

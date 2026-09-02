@@ -1,0 +1,114 @@
+@use "../../../styles/tokens" as *;
+@use "./dashboard-surfaces" as dashboard;
+
+.section {
+  display: flex;
+  flex-direction: column;
+
+  @include dashboard.dashboard-panel;
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-sm;
+
+  @include dashboard.dashboard-panel-header;
+}
+
+.title {
+  margin: 0;
+  font-size: $admin-dashboard-section-title-size;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+}
+
+.viewAll {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  text-decoration: none;
+
+  &:hover {
+    color: $color-text-primary;
+    text-decoration: underline;
+  }
+}
+
+.body {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-md;
+  align-items: center;
+  padding: $spacing-md $spacing-lg;
+}
+
+.chartWrap {
+  flex: 0 0 auto;
+  padding: $spacing-xs;
+}
+
+.donut {
+  position: relative;
+  width: 5.5rem;
+  height: 5.5rem;
+  border-radius: 999px;
+}
+
+.donutHole {
+  position: absolute;
+  inset: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: $admin-dashboard-surface;
+  border-radius: 999px;
+}
+
+.donutValue {
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  line-height: 1;
+  color: $color-text-primary;
+}
+
+.donutLabel {
+  font-size: 0.625rem;
+  color: $color-text-secondary;
+}
+
+.legend {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.375rem;
+  min-width: 9rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.legendItem {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: $spacing-xs;
+  align-items: center;
+  font-size: 0.6875rem;
+}
+
+.legendDot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+}
+
+.legendLabel {
+  color: $color-text-secondary;
+}
+
+.legendValue {
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+}

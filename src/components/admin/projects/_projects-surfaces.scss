@@ -1,0 +1,27 @@
+@use "../../../styles/tokens" as *;
+@use "../dashboard/dashboard-surfaces" as dashboard;
+
+@mixin projects-panel {
+  @include dashboard.dashboard-panel;
+}
+
+@mixin projects-toolbar {
+  padding: $spacing-sm $spacing-md;
+  border-bottom: 1px solid $admin-dashboard-separator;
+}
+
+@mixin projects-footer {
+  padding: $spacing-sm $spacing-md;
+  border-top: 1px solid $admin-dashboard-separator;
+}
+
+@mixin projects-control {
+  min-height: 2.375rem;
+  padding-inline: $spacing-sm;
+  font: inherit;
+  font-size: $font-size-xs;
+  color: $color-text-primary;
+  background-color: $admin-dashboard-interactive-surface;
+  border: 1px solid $admin-dashboard-border;
+  border-radius: $admin-dashboard-control-radius;
+}

@@ -4,8 +4,8 @@
 .sidebar {
   display: none;
   flex-direction: column;
-  border-inline-start: 1px solid $color-border;
-  background-color: $color-background-subtle;
+  border-inline-end: 1px solid $admin-workspace-border;
+  background-color: $color-background;
 
   @include desktop-up {
     display: flex;
@@ -15,9 +15,9 @@
 .header {
   display: flex;
   flex-direction: column;
-  gap: $spacing-sm;
-  padding: $spacing-lg $spacing-lg $spacing-md;
-  border-bottom: 1px solid $color-border;
+  gap: $spacing-xs;
+  padding: $spacing-sm $spacing-md;
+  border-bottom: 1px solid $admin-workspace-border;
 }
 
 .headerControls {
@@ -41,8 +41,67 @@
 
 .nav {
   flex: 1;
-  padding: $spacing-lg;
+  padding: $spacing-xs $spacing-sm $spacing-sm;
   overflow-y: auto;
+}
+
+.footer {
+  padding: $spacing-sm $spacing-md;
+  border-top: 1px solid $admin-workspace-border;
+}
+
+.helpBox {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  padding: $spacing-sm;
+  margin-inline: $spacing-xs;
+  margin-block-end: $spacing-xs;
+  background-color: $admin-dashboard-interactive-surface;
+  border: 1px solid $admin-dashboard-border;
+  border-radius: $admin-dashboard-nav-radius;
+}
+
+.helpTitle {
+  margin: 0;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+}
+
+.helpText {
+  margin: 0;
+  font-size: 0.6875rem;
+  line-height: 1.4;
+  color: $color-text-secondary;
+}
+
+.footerLogout {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  padding: 0;
+  font: inherit;
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+
+  @include focus-visible;
+}
+
+.collapsed .helpBox,
+.collapsed .footerLogout span {
+  display: none;
+}
+
+.collapsed .footer {
+  display: flex;
+  justify-content: center;
+  padding-inline: $spacing-xs;
 }
 
 .collapsed .nav {
@@ -58,8 +117,8 @@
   padding: $spacing-xs;
   color: $color-text-secondary;
   background: transparent;
-  border: 1px solid $color-border;
-  border-radius: $radius-sm;
+  border: 1px solid $admin-dashboard-border;
+  border-radius: $admin-dashboard-nav-radius;
   cursor: pointer;
 
   @include focus-visible;

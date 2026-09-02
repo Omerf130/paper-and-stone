@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import AdminProjectArchitectReassignPanel from "@/components/admin/project-detail/AdminProjectArchitectReassignPanel/AdminProjectArchitectReassignPanel";
+import AdminProjectDetailBreadcrumb from "@/components/admin/project-detail/AdminProjectDetailBreadcrumb/AdminProjectDetailBreadcrumb";
 import ProjectClientReassignPanel from "@/components/admin/project-detail/ProjectClientReassignPanel/ProjectClientReassignPanel";
 import StatusBadge from "@/components/ui/StatusBadge/StatusBadge";
 import Button from "@/components/ui/Button/Button";
@@ -11,14 +12,42 @@ import {
   mapOnboardingStatusToBadge,
   mapProjectStatusToBadge,
 } from "@/lib/ui/map-status-badge";
+import { formatRelativeTime } from "@/lib/ui/format-relative-time";
 import { formatDateTime } from "@/lib/ui/format-date-time";
-import { ONBOARDING_STATUS_LABELS, PROJECT_STATUS_LABELS } from "@/types/admin-project";
 import dialogStyles from "@/components/professional/projects/project-room-dialog.module.scss";
 import styles from "./AdminProjectWorkspaceHeader.module.scss";
 
 type AdminProjectWorkspaceHeaderProps = {
   project: AdminProjectDetailWithThumbnails;
 };
+
+function MetaIcon({ children }: { children: React.ReactNode }) {
+  return (
+    <span className={styles.metaIcon} aria-hidden="true">
+      {children}
+    </span>
+  );
+}
+
+function resolveSecondaryIndicator(project: AdminProjectDetailWithThumbnails): string | null {
+  if (project.status === "approved" && project.commercialDirty) {
+    return "אושר בעבר · השתנה מאז";
+  }
+
+  if (project.attentionReasons[0]) {
+    return project.attentionReasons[0];
+  }
+
+  if (project.pricingAttention.incompleteItemCount > 0) {
+    return `${project.pricingAttention.incompleteItemCount} ללא תמחור מלא`;
+  }
+
+  if (project.pricingAttention.needsReviewItemCount > 0) {
+    return `${project.pricingAttention.needsReviewItemCount} דורשים בדיקת תמחור`;
+  }
+
+  return project.workflowAttentionSummary?.[0]?.label ?? null;
+}
 
 export default function AdminProjectWorkspaceHeader({
   project,
@@ -81,40 +110,19 @@ export default function AdminProjectWorkspaceHeader({
     return () => dialog.removeEventListener("close", handleClose);
   }, []);
 
-  const onboardingBadge = project.onboardingStatus
-    ? mapOnboardingStatusToBadge(project.onboardingStatus)
-    : null;
+  const onboardingStatus = project.onboardingStatus;
+  const showOnboardingStatus =
+    onboardingStatus === "pending_approval" || onboardingStatus === "rejected";
+  const onboardingBadge =
+    showOnboardingStatus && onboardingStatus
+      ? mapOnboardingStatusToBadge(onboardingStatus)
+      : null;
   const commercialBadge = mapProjectStatusToBadge(project.status);
+  const secondaryIndicator = resolveSecondaryIndicator(project);
   const clientLabel = project.assignedClientFullName ?? project.clientName ?? "—";
   const architectLabel = project.professionalName ?? project.professionalEmail;
-
-  const attentionBadges: Array<{ key: string; label: string }> = [];
-
-  if (project.status === "approved" && project.commercialDirty) {
-    attentionBadges.push({ key: "commercial-dirty", label: "אושר בעבר · השתנה מאז" });
-  }
-
-  for (const reason of project.attentionReasons) {
-    attentionBadges.push({ key: reason, label: reason });
-  }
-
-  if (project.pricingAttention.incompleteItemCount > 0) {
-    attentionBadges.push({
-      key: "unpriced",
-      label: `${project.pricingAttention.incompleteItemCount} ללא תמחור מלא`,
-    });
-  }
-
-  if (project.pricingAttention.needsReviewItemCount > 0) {
-    attentionBadges.push({
-      key: "needs-review",
-      label: `${project.pricingAttention.needsReviewItemCount} דורשים בדיקת תמחור`,
-    });
-  }
-
-  for (const line of project.workflowAttentionSummary ?? []) {
-    attentionBadges.push({ key: line.status, label: line.label });
-  }
+  const updatedLabel =
+    formatRelativeTime(project.updatedAt, "") || formatDateTime(project.updatedAt);
 
   const closeActionsMenu = () => {
     if (actionsRef.current) {
@@ -125,115 +133,132 @@ export default function AdminProjectWorkspaceHeader({
   return (
     <>
       <header className={styles.header}>
+        <AdminProjectDetailBreadcrumb projectName={project.name} />
+
         <div className={styles.primaryRow}>
           <div className={styles.identity}>
             <h1 className={styles.projectName}>{project.name}</h1>
-            <div className={styles.statusGroup}>
-              {onboardingBadge ? (
-                <StatusBadge tone={onboardingBadge.tone}>
-                  {ONBOARDING_STATUS_LABELS[project.onboardingStatus!]}: {onboardingBadge.label}
-                </StatusBadge>
-              ) : null}
-              <StatusBadge tone={commercialBadge.tone}>
-                {PROJECT_STATUS_LABELS[project.status]}: {commercialBadge.label}
-              </StatusBadge>
-            </div>
           </div>
 
-          <details ref={actionsRef} className={styles.actionsMenu}>
-            <summary className={styles.actionsTrigger}>פעולות</summary>
-            <div className={styles.actionsPanel} role="menu">
-              <Link
-                href="/admin/projects?queue=active"
-                className={styles.actionsItem}
-                onClick={closeActionsMenu}
-              >
-                חזרה לפרויקטים
-              </Link>
-              <button
-                type="button"
-                className={styles.actionsItem}
-                onClick={() => {
-                  closeActionsMenu();
-                  setClientDialogOpen(true);
-                }}
-              >
-                שיוך לקוח
-              </button>
-              <button
-                type="button"
-                className={styles.actionsItem}
-                onClick={() => {
-                  closeActionsMenu();
-                  setArchitectDialogOpen(true);
-                }}
-              >
-                פרטי אדריכל
-              </button>
+          <div className={styles.headerAside}>
+            <div className={styles.statusBlock}>
+              <span className={styles.statusLabel}>סטטוס פרויקט</span>
+              {onboardingBadge ? (
+                <StatusBadge tone={onboardingBadge.tone}>
+                  {onboardingBadge.label}
+                </StatusBadge>
+              ) : (
+                <StatusBadge tone={commercialBadge.tone}>
+                  {commercialBadge.label}
+                </StatusBadge>
+              )}
+              {secondaryIndicator ? (
+                <span className={styles.statusSecondary}>{secondaryIndicator}</span>
+              ) : null}
             </div>
-          </details>
+
+            <details ref={actionsRef} className={styles.actionsMenu}>
+              <summary className={styles.actionsTrigger}>פעולות</summary>
+              <div className={styles.actionsPanel} role="menu">
+                <Link
+                  href="/admin/projects?queue=active"
+                  className={styles.actionsItem}
+                  onClick={closeActionsMenu}
+                >
+                  חזרה לפרויקטים
+                </Link>
+                <button
+                  type="button"
+                  className={styles.actionsItem}
+                  onClick={() => {
+                    closeActionsMenu();
+                    setClientDialogOpen(true);
+                  }}
+                >
+                  שיוך לקוח
+                </button>
+                <button
+                  type="button"
+                  className={styles.actionsItem}
+                  onClick={() => {
+                    closeActionsMenu();
+                    setArchitectDialogOpen(true);
+                  }}
+                >
+                  פרטי אדריכל
+                </button>
+              </div>
+            </details>
+          </div>
         </div>
 
         <div className={styles.metaRow}>
-          <button
-            type="button"
-            className={styles.metaButton}
-            onClick={() => setClientDialogOpen(true)}
-          >
-            <span className={styles.metaLabel}>לקוח</span>
-            <span className={styles.metaValue}>{clientLabel}</span>
-          </button>
-          <span className={styles.metaDivider} aria-hidden="true">
-            ·
-          </span>
-          <button
-            type="button"
-            className={styles.metaButton}
-            onClick={() => setArchitectDialogOpen(true)}
-          >
-            <span className={styles.metaLabel}>אדריכל</span>
-            <span className={styles.metaValue}>{architectLabel}</span>
-          </button>
-          <span className={styles.metaDivider} aria-hidden="true">
-            ·
-          </span>
           <span className={styles.metaStat}>
-            {project.rooms.length} חדרים · {project.items.length} מוצרים · עודכן{" "}
-            <time dateTime={project.updatedAt}>{formatDateTime(project.updatedAt)}</time>
+            <MetaIcon>
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                <circle cx="6" cy="4" r="2.25" stroke="currentColor" strokeWidth="1" />
+                <path
+                  d="M2.5 10.5c0-1.933 1.567-3.5 3.5-3.5s3.5 1.567 3.5 3.5"
+                  stroke="currentColor"
+                  strokeWidth="1"
+                  strokeLinecap="round"
+                />
+              </svg>
+            </MetaIcon>
+            {clientLabel}
           </span>
 
-          {project.paymentSummaryCompact ? (
-            <>
-              <span className={styles.metaDivider} aria-hidden="true">
-                ·
-              </span>
-              <span className={styles.metaStat}>
-                תשלומים {project.paymentSummaryCompact}
-              </span>
-            </>
+          {project.location ? (
+            <span className={styles.metaStat}>
+              <MetaIcon>
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                  <path
+                    d="M6 1.5c-1.933 0-3.5 1.567-3.5 3.5 0 2.625 3.5 5.5 3.5 5.5s3.5-2.875 3.5-5.5c0-1.933-1.567-3.5-3.5-3.5Z"
+                    stroke="currentColor"
+                    strokeWidth="1"
+                  />
+                  <circle cx="6" cy="5" r="1" fill="currentColor" />
+                </svg>
+              </MetaIcon>
+              {project.location}
+            </span>
           ) : null}
 
-          {project.logisticsInProgressCount != null &&
-          project.logisticsInProgressCount > 0 ? (
-            <>
-              <span className={styles.metaDivider} aria-hidden="true">
-                ·
-              </span>
-              <span className={styles.metaStat}>
-                {project.logisticsInProgressCount} בלוגיסטיקה
-              </span>
-            </>
-          ) : null}
+          <span className={styles.metaStat}>
+            <MetaIcon>
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                <rect
+                  x="2"
+                  y="2.5"
+                  width="8"
+                  height="7"
+                  rx="1"
+                  stroke="currentColor"
+                  strokeWidth="1"
+                />
+                <path d="M4 1.5v2M8 1.5v2M2 5h8" stroke="currentColor" strokeWidth="1" />
+              </svg>
+            </MetaIcon>
+            {architectLabel}
+          </span>
 
-          {attentionBadges.length > 0 ? (
-            <div className={styles.attentionGroup} aria-label="דרוש טיפול">
-              {attentionBadges.slice(0, 3).map((badge) => (
-                <StatusBadge key={badge.key} tone="warning">
-                  {badge.label}
-                </StatusBadge>
-              ))}
-            </div>
-          ) : null}
+          <span className={styles.metaStat}>
+            <MetaIcon>
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                <rect
+                  x="2"
+                  y="2.5"
+                  width="8"
+                  height="7"
+                  rx="1"
+                  stroke="currentColor"
+                  strokeWidth="1"
+                />
+                <path d="M2 5h8M5 2.5v7M7 2.5v7" stroke="currentColor" strokeWidth="1" />
+              </svg>
+            </MetaIcon>
+            <time dateTime={project.updatedAt}>עודכן {updatedLabel}</time>
+          </span>
         </div>
       </header>
 

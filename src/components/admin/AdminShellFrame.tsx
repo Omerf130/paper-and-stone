@@ -1,11 +1,11 @@
 "use client";
 
-import Link from "next/link";
 import type { AdminNavGroup } from "@/config/admin-nav";
-import { logoutAction } from "@/lib/auth/logout-action";
+import AdminAccountMenu from "./AdminAccountMenu";
 import AdminBrand from "./AdminBrand";
 import AdminMobileNav from "./AdminMobileNav";
 import AdminSidebar from "./AdminSidebar";
+import AdminTopbarSearch from "./AdminTopbarSearch";
 import styles from "./AdminShell.module.scss";
 import {
   useAdminSidebarCollapsed,
@@ -18,6 +18,17 @@ type AdminShellFrameProps = {
   adminEmail: string;
 };
 
+function deriveInitials(email: string): string {
+  const local = email.split("@")[0] ?? "";
+  const parts = local.split(/[._-]+/).filter(Boolean);
+
+  if (parts.length >= 2) {
+    return `${parts[0]![0] ?? ""}${parts[1]![0] ?? ""}`.toUpperCase();
+  }
+
+  return local.slice(0, 2).toUpperCase();
+}
+
 export default function AdminShellFrame({
   children,
   navGroups,
@@ -25,6 +36,7 @@ export default function AdminShellFrame({
 }: AdminShellFrameProps) {
   const { collapsed, toggleCollapsed } = useAdminSidebarCollapsed();
   const transitionsEnabled = useAdminSidebarTransitionsEnabled();
+  const initials = deriveInitials(adminEmail);
 
   return (
     <div
@@ -43,20 +55,13 @@ export default function AdminShellFrame({
           <div className={styles.topBarStart}>
             <AdminMobileNav navGroups={navGroups} />
             <AdminBrand className={styles.mobileBrand} compact />
+            <div className={styles.desktopSearch}>
+              <AdminTopbarSearch />
+            </div>
           </div>
 
           <div className={styles.topBarActions}>
-            <span className={styles.adminEmail} title={adminEmail}>
-              {adminEmail}
-            </span>
-            <Link href="/" className={styles.publicLink}>
-              חזרה לאתר
-            </Link>
-            <form action={logoutAction}>
-              <button type="submit" className={styles.logoutButton}>
-                התנתקות
-              </button>
-            </form>
+            <AdminAccountMenu adminEmail={adminEmail} initials={initials} />
           </div>
         </header>
 

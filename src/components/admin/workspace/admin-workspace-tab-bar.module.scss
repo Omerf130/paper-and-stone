@@ -1,0 +1,54 @@
+@use "../../../styles/tokens" as *;
+@use "../../../styles/mixins" as *;
+
+.tabList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-lg;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-bottom: 1px solid $color-border;
+}
+
+.tabLink,
+.tabLinkActive {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  margin-block-end: -1px;
+  padding-block: $spacing-sm;
+  font-size: $font-size-sm;
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+
+  @include focus-visible;
+}
+
+.tabLink {
+  color: $color-text-secondary;
+}
+
+.tabLink:hover {
+  color: $color-text-primary;
+}
+
+.tabLinkActive {
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+  border-bottom-color: $color-text-primary;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.125rem;
+  height: 1.125rem;
+  padding-inline: $spacing-xs;
+  font-size: 0.625rem;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+  background-color: $color-surface;
+  border-radius: 999px;
+}

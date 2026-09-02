@@ -3,5 +3,32 @@
 .page {
   display: flex;
   flex-direction: column;
-  gap: $spacing-xl;
+  gap: $spacing-sm;
+}
+
+.workspaceGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.62fr) minmax(0, 1fr);
+  gap: $spacing-md;
+  align-items: stretch;
+
+  @media (max-width: #{$breakpoint-desktop - 1px}) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.primaryColumn,
+.secondaryColumn {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  min-width: 0;
+}
+
+.primaryColumn {
+  min-height: 0;
+}
+
+.secondaryColumn {
+  min-height: 0;
 }

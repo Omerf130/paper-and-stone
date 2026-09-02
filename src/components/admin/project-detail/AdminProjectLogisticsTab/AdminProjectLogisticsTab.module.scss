@@ -1,10 +1,8 @@
 @use "../../../../styles/tokens" as *;
+@use "../project-detail-surfaces" as detail;
 
 .tab {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-  min-width: 0;
+  @include detail.detail-tab-shell;
 }
 
 .header {
@@ -12,31 +10,38 @@
 }
 
 .title {
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 600;
-  line-height: 1.3;
+  @include detail.detail-section-title;
 }
 
 .subtitle {
-  margin: 0.125rem 0 0;
-  font-size: $font-size-sm;
-  color: $color-text-secondary;
+  @include detail.detail-section-subtitle;
+}
+
+.workspace {
+  @include detail.detail-panel;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.filtersWrap {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid $admin-dashboard-separator;
 }
 
 .list {
   display: flex;
   flex-direction: column;
-  gap: $spacing-sm;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
 .empty {
-  margin: 0;
-  font-size: $font-size-sm;
-  color: $color-text-secondary;
+  @include detail.detail-empty-state;
 }
 
 .tableHeader {
@@ -45,9 +50,14 @@
   @media (min-width: $breakpoint-tablet) {
     display: grid;
     grid-template-columns: minmax(0, 1.4fr) minmax(0, 0.8fr) 4rem minmax(0, 0.9fr) minmax(0, 1fr) minmax(0, 0.8fr) minmax(0, 1.2fr) auto;
-    gap: $spacing-sm $spacing-md;
-    padding: 0 $spacing-md $spacing-xs;
-    font-size: $font-size-xs;
+    gap: 0.5rem 0.75rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.625rem;
+    font-weight: $font-weight-medium;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
     color: $color-text-secondary;
+    background-color: $admin-dashboard-interactive-surface;
+    border-bottom: 1px solid $admin-dashboard-separator;
   }
 }

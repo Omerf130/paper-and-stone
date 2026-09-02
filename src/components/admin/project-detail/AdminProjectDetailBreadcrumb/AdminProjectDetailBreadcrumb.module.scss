@@ -1,0 +1,29 @@
+@use "../../../../styles/tokens" as *;
+
+.breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.375rem;
+  margin-bottom: 0.375rem;
+  font-size: 0.6875rem;
+  color: $color-text-secondary;
+}
+
+.link {
+  color: $color-text-secondary;
+  text-decoration: none;
+
+  &:hover {
+    color: $color-text-primary;
+    text-decoration: underline;
+  }
+}
+
+.separator {
+  color: $color-border;
+}
+
+.current {
+  color: $color-text-primary;
+}

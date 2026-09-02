@@ -1,0 +1,126 @@
+@use "../../styles/tokens" as *;
+
+@mixin admin-icon-circle-base {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+}
+
+@mixin admin-icon-accent-colors($bg, $fg, $border) {
+  background-color: $bg;
+  color: $fg;
+  border: 1px solid $border;
+}
+
+@mixin admin-icon-accent-sand {
+  @include admin-icon-accent-colors(
+    $admin-accent-sand-bg,
+    $admin-accent-sand-fg,
+    $admin-accent-sand-border
+  );
+}
+
+@mixin admin-icon-accent-sage {
+  @include admin-icon-accent-colors(
+    $admin-accent-sage-bg,
+    $admin-accent-sage-fg,
+    $admin-accent-sage-border
+  );
+}
+
+@mixin admin-icon-accent-blush {
+  @include admin-icon-accent-colors(
+    $admin-accent-blush-bg,
+    $admin-accent-blush-fg,
+    $admin-accent-blush-border
+  );
+}
+
+@mixin admin-icon-accent-blue {
+  @include admin-icon-accent-colors(
+    $admin-accent-blue-bg,
+    $admin-accent-blue-fg,
+    $admin-accent-blue-border
+  );
+}
+
+@mixin admin-icon-accent-gold {
+  @include admin-icon-accent-colors(
+    $admin-accent-gold-bg,
+    $admin-accent-gold-fg,
+    $admin-accent-gold-border
+  );
+}
+
+@mixin admin-icon-accent-neutral {
+  @include admin-icon-accent-colors(
+    $admin-accent-neutral-bg,
+    $admin-accent-neutral-fg,
+    $admin-accent-neutral-border
+  );
+}
+
+@mixin admin-icon-accent-danger {
+  @include admin-icon-accent-colors(
+    $admin-accent-danger-bg,
+    $admin-accent-danger-fg,
+    $admin-accent-danger-border
+  );
+}
+
+@mixin admin-icon-accent-default {
+  background-color: $admin-dashboard-interactive-surface;
+  color: $color-text-secondary;
+  border: 1px solid transparent;
+}
+
+// Modifier classes for CSS modules (include once per module file)
+@mixin emit-accent-modifier-classes {
+  .accentSand {
+    @include admin-icon-accent-sand;
+  }
+
+  .accentSage {
+    @include admin-icon-accent-sage;
+  }
+
+  .accentBlush {
+    @include admin-icon-accent-blush;
+  }
+
+  .accentBlue {
+    @include admin-icon-accent-blue;
+  }
+
+  .accentGold {
+    @include admin-icon-accent-gold;
+  }
+
+  .accentNeutral {
+    @include admin-icon-accent-neutral;
+  }
+}
+
+@mixin emit-semantic-accent-modifier-classes {
+  .accentSemanticSuccess {
+    @include admin-icon-accent-sage;
+  }
+
+  .accentSemanticWarning {
+    @include admin-icon-accent-gold;
+  }
+
+  .accentSemanticInfo {
+    @include admin-icon-accent-blue;
+  }
+
+  .accentSemanticNeutral {
+    @include admin-icon-accent-neutral;
+  }
+
+  .accentSemanticDanger {
+    @include admin-icon-accent-danger;
+  }
+}

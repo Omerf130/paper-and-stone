@@ -1,0 +1,34 @@
+@use "../../../../styles/tokens" as *;
+@use "../project-detail-surfaces" as detail;
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+}
+
+.searchWrap {
+  flex: 1;
+  min-width: 12rem;
+  max-width: 20rem;
+}
+
+.search {
+  @include detail.detail-control;
+  width: 100%;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

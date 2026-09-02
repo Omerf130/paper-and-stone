@@ -1,0 +1,15 @@
+@use "../../../../styles/tokens" as *;
+@use "../project-detail-surfaces" as detail;
+
+.banner {
+  @include detail.detail-panel;
+  margin-bottom: 0.625rem;
+  padding: 0.625rem 0.75rem;
+}
+
+.title {
+  margin: 0 0 0.5rem;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}

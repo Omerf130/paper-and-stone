@@ -3,6 +3,7 @@ export const ADMIN_PROJECT_TAB_IDS = [
   "costs",
   "payments",
   "import",
+  "history",
 ] as const;
 
 export type AdminProjectTabId = (typeof ADMIN_PROJECT_TAB_IDS)[number];
@@ -12,6 +13,7 @@ export const ADMIN_PROJECT_TAB_LABELS: Record<AdminProjectTabId, string> = {
   costs: "עלויות",
   payments: "תשלומים",
   import: "לוגיסטיקה",
+  history: "היסטוריה",
 };
 
 export function isAdminProjectTabId(

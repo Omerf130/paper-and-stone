@@ -71,6 +71,26 @@ export type AdminProductsPageResult = {
   total: number;
 };
 
+export type AdminProductLibraryMetrics = {
+  total: number;
+  visible: number;
+  hidden: number;
+  featured: number;
+};
+
+export async function getAdminProductLibraryMetrics(): Promise<AdminProductLibraryMetrics> {
+  await connectDB();
+
+  const [total, visible, hidden, featured] = await Promise.all([
+    Product.countDocuments({}),
+    Product.countDocuments({ isActive: true }),
+    Product.countDocuments({ isActive: false }),
+    Product.countDocuments({ isFeatured: true }),
+  ]);
+
+  return { total, visible, hidden, featured };
+}
+
 export async function getAdminProducts(
   params: AdminProductsParams,
 ): Promise<AdminProductsPageResult> {

@@ -35,21 +35,32 @@
   align-items: center;
   justify-content: space-between;
   gap: $spacing-md;
-  min-height: $header-height-mobile;
+  min-height: $admin-workspace-topbar-height;
   padding-inline: $container-padding-inline;
   border-bottom: 1px solid $color-border;
   background-color: $color-background;
 
   @include desktop-up {
-    min-height: $header-height-desktop;
+    min-height: $admin-workspace-topbar-height;
   }
 }
 
 .topBarStart {
   display: flex;
+  flex: 1;
   align-items: center;
   gap: $spacing-md;
   min-width: 0;
+}
+
+.desktopSearch {
+  display: none;
+  flex: 1;
+  min-width: 0;
+
+  @include desktop-up {
+    display: block;
+  }
 }
 
 .mobileBrand {
@@ -104,5 +115,49 @@
 
 .content {
   flex: 1;
-  padding: $spacing-xl $container-padding-inline $spacing-2xl;
+  padding: $spacing-md $container-padding-inline $spacing-lg;
+}
+
+.accountArea {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  min-width: 0;
+}
+
+.avatar {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+  background-color: $color-surface-cream;
+  border: 1px solid $color-border;
+  border-radius: 999px;
+}
+
+.accountMeta {
+  display: none;
+  flex-direction: column;
+  gap: 0;
+  min-width: 0;
+
+  @include tablet-up {
+    display: flex;
+  }
+}
+
+.accountLabel {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+}
+
+.accountRole {
+  font-size: 0.6875rem;
+  color: $color-text-secondary;
 }

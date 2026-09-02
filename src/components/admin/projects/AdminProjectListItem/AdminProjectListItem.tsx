@@ -1,15 +1,14 @@
-import Button from "@/components/ui/Button/Button";
+import Link from "next/link";
+import AdminProjectThumbnailPlaceholder from "@/components/admin/projects/AdminProjectThumbnailPlaceholder/AdminProjectThumbnailPlaceholder";
+import AdminProjectRowActions from "@/components/admin/projects/AdminProjectRowActions/AdminProjectRowActions";
 import StatusBadge from "@/components/ui/StatusBadge/StatusBadge";
 import { formatUnreadMessageLabel } from "@/types/project-message";
 import { formatDateTime } from "@/lib/ui/format-date-time";
-import {
-  mapOnboardingStatusToBadge,
-  mapProjectStatusToBadge,
-} from "@/lib/ui/map-status-badge";
-import { getCommercialDirtyLabel } from "@/lib/projects/project-status-presentation";
+import { formatRelativeTime } from "@/lib/ui/format-relative-time";
+import { resolveProjectListStatusPresentation } from "@/lib/projects/project-status-presentation";
 import type { AdminProjectListItemView } from "@/types/admin-project";
 import cardStyles from "@/components/admin/list/admin-list-card.module.scss";
-import tableStyles from "@/components/admin/list/admin-table.module.scss";
+import tableStyles from "../admin-projects-table.module.scss";
 import styles from "./AdminProjectListItem.module.scss";
 
 type AdminProjectListItemProps = {
@@ -17,77 +16,68 @@ type AdminProjectListItemProps = {
   variant: "table" | "card";
 };
 
+function formatUpdatedLabel(updatedAt: string): string {
+  const relative = formatRelativeTime(updatedAt, "");
+  return relative || formatDateTime(updatedAt);
+}
+
 export default function AdminProjectListItem({
   project,
   variant,
 }: AdminProjectListItemProps) {
-  const clientLabel = project.assignedClientFullName ?? project.clientName;
-  const workBadge = project.onboardingStatus
-    ? mapOnboardingStatusToBadge(project.onboardingStatus)
-    : null;
-  const commercialBadge = mapProjectStatusToBadge(project.status);
-  const dirtyBadge =
-    project.status === "approved" && project.commercialDirty ? (
-      <StatusBadge tone="warning">
-        {getCommercialDirtyLabel("listBadge")}
-      </StatusBadge>
-    ) : null;
-  const primaryAttention = project.attentionReasons[0];
+  const clientLabel = project.assignedClientFullName ?? project.clientName ?? "—";
+  const architectLabel = project.professionalName ?? project.professionalEmail ?? "—";
+  const statusPresentation = resolveProjectListStatusPresentation({
+    onboardingStatus: project.onboardingStatus,
+    status: project.status,
+    commercialDirty: project.commercialDirty,
+    attentionReasons: project.attentionReasons,
+  });
 
   if (variant === "card") {
     return (
       <li className={cardStyles.card}>
         <div className={cardStyles.header}>
-          <h2 className={cardStyles.title}>{project.name}</h2>
-          {clientLabel ? (
-            <p className={cardStyles.subtitle}>לקוח: {clientLabel}</p>
-          ) : null}
+          <div className={styles.cardTitleRow}>
+            <AdminProjectThumbnailPlaceholder />
+            <div>
+              <h2 className={cardStyles.title}>{project.name}</h2>
+              {project.location ? (
+                <p className={cardStyles.subtitle}>{project.location}</p>
+              ) : null}
+            </div>
+          </div>
+          <p className={cardStyles.subtitle}>לקוח: {clientLabel}</p>
         </div>
 
         <div className={cardStyles.badges}>
-          {workBadge ? (
-            <StatusBadge tone={workBadge.tone}>{workBadge.label}</StatusBadge>
+          <StatusBadge tone={statusPresentation.primaryTone}>
+            {statusPresentation.primaryLabel}
+          </StatusBadge>
+          {statusPresentation.secondaryLabel ? (
+            <span className={styles.statusSecondary}>
+              {statusPresentation.secondaryLabel}
+            </span>
           ) : null}
-          <StatusBadge tone={commercialBadge.tone}>{commercialBadge.label}</StatusBadge>
-          {dirtyBadge}
         </div>
-
-        {primaryAttention ? (
-          <p className={styles.primaryAttention}>
-            <StatusBadge tone="warning">{primaryAttention}</StatusBadge>
-          </p>
-        ) : null}
-        {project.pricingStateLabel ? (
-          <p className={styles.pricingState}>
-            <StatusBadge tone="info">{project.pricingStateLabel}</StatusBadge>
-          </p>
-        ) : null}
-        {project.workflowAttentionSummary?.map((line) => (
-          <p key={line.status} className={styles.workflowAttention}>
-            <StatusBadge tone="warning">{line.label}</StatusBadge>
-          </p>
-        ))}
 
         <div className={cardStyles.metaGrid}>
           <div className={cardStyles.metaRow}>
             <span className={cardStyles.metaLabel}>אדריכל</span>
-            <span className={cardStyles.metaValue}>
-              {project.professionalName ?? project.professionalEmail}
-            </span>
+            <span className={cardStyles.metaValue}>{architectLabel}</span>
           </div>
           <div className={cardStyles.metaRow}>
-            <span className={cardStyles.metaLabel}>חדרים / מוצרים</span>
+            <span className={cardStyles.metaLabel}>פריטים</span>
             <span className={cardStyles.metaValue}>
-              {project.roomCount > 0
-                ? `${project.roomCount} / ${project.itemCount}`
-                : project.itemCount}
+              {project.itemCount}
+              {project.roomCount > 0 ? ` · ${project.roomCount} חדרים` : ""}
             </span>
           </div>
           <div className={cardStyles.metaRow}>
             <span className={cardStyles.metaLabel}>עודכן</span>
             <span className={cardStyles.metaValue}>
               <time dateTime={project.updatedAt}>
-                {formatDateTime(project.updatedAt)}
+                {formatUpdatedLabel(project.updatedAt)}
               </time>
             </span>
           </div>
@@ -100,9 +90,7 @@ export default function AdminProjectListItem({
         ) : null}
 
         <div className={cardStyles.actions}>
-          <Button href={`/admin/projects/${project.id}`} variant="primary" size="sm">
-            פתיחת פרויקט
-          </Button>
+          <AdminProjectRowActions projectId={project.id} />
         </div>
       </li>
     );
@@ -111,56 +99,47 @@ export default function AdminProjectListItem({
   return (
     <tr>
       <td>
-        <div className={tableStyles.primary}>{project.name}</div>
-        {clientLabel ? <div className={tableStyles.subtle}>{clientLabel}</div> : null}
-        {primaryAttention ? (
-          <div className={styles.primaryAttention}>
-            <StatusBadge tone="warning">{primaryAttention}</StatusBadge>
+        <div className={tableStyles.projectCell}>
+          <AdminProjectThumbnailPlaceholder />
+          <div className={tableStyles.projectMeta}>
+            <Link href={`/admin/projects/${project.id}`} className={tableStyles.projectName}>
+              {project.name}
+            </Link>
+            {project.location ? (
+              <span className={tableStyles.projectSecondary}>{project.location}</span>
+            ) : null}
           </div>
-        ) : null}
-        {project.pricingStateLabel ? (
-          <div className={styles.pricingState}>
-            <StatusBadge tone="info">{project.pricingStateLabel}</StatusBadge>
-          </div>
-        ) : null}
-        {project.workflowAttentionSummary?.map((line) => (
-          <div key={line.status} className={styles.workflowAttention}>
-            <StatusBadge tone="warning">{line.label}</StatusBadge>
-          </div>
-        ))}
-        {formatUnreadMessageLabel(project.unreadMessageCount ?? 0) ? (
-          <div className={cardStyles.unread} role="status">
-            {formatUnreadMessageLabel(project.unreadMessageCount ?? 0)}
-          </div>
-        ) : null}
-      </td>
-      <td>
-        <div>{project.professionalName ?? project.professionalEmail}</div>
-        <div className={tableStyles.subtle} dir="ltr">
-          {project.professionalEmail}
         </div>
       </td>
-      <td>
-        <div className={styles.statusStack}>
-          {workBadge ? (
-            <StatusBadge tone={workBadge.tone}>{workBadge.label}</StatusBadge>
+      <td className={tableStyles.clientCell}>{clientLabel}</td>
+      <td className={tableStyles.architectCell}>{architectLabel}</td>
+      <td className={tableStyles.statusCell}>
+        <div className={tableStyles.statusPrimary}>
+          <StatusBadge tone={statusPresentation.primaryTone}>
+            {statusPresentation.primaryLabel}
+          </StatusBadge>
+          {statusPresentation.secondaryLabel ? (
+            <span className={tableStyles.statusSecondary}>
+              {statusPresentation.secondaryLabel}
+            </span>
           ) : null}
-          <StatusBadge tone={commercialBadge.tone}>{commercialBadge.label}</StatusBadge>
-          {dirtyBadge}
         </div>
       </td>
-      <td>
-        {project.roomCount > 0
-          ? `${project.roomCount} חדרים · ${project.itemCount} מוצרים`
-          : project.itemCount}
+      <td className={tableStyles.itemsCell}>
+        {project.itemCount}
+        {project.roomCount > 0 ? (
+          <span className={tableStyles.itemsSecondary}>
+            {project.roomCount} חדרים
+          </span>
+        ) : null}
       </td>
-      <td>
-        <time dateTime={project.updatedAt}>{formatDateTime(project.updatedAt)}</time>
+      <td className={tableStyles.updatedCell}>
+        <time dateTime={project.updatedAt}>
+          {formatUpdatedLabel(project.updatedAt)}
+        </time>
       </td>
-      <td>
-        <Button href={`/admin/projects/${project.id}`} variant="secondary" size="sm">
-          פתיחת פרויקט
-        </Button>
+      <td className={tableStyles.actionsCell}>
+        <AdminProjectRowActions projectId={project.id} />
       </td>
     </tr>
   );

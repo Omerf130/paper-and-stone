@@ -1,0 +1,64 @@
+@use "../../../../styles/tokens" as *;
+@use "../../../../styles/mixins" as *;
+
+.menu {
+  position: relative;
+  display: inline-block;
+}
+
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.75rem;
+  min-height: 1.75rem;
+  padding: 0;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  list-style: none;
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: $admin-dashboard-control-radius;
+
+  &::-webkit-details-marker {
+    display: none;
+  }
+
+  @include focus-visible;
+}
+
+.trigger:hover {
+  color: $color-text-primary;
+  border-color: $admin-dashboard-border;
+}
+
+.panel {
+  position: absolute;
+  inset-inline-end: 0;
+  z-index: 5;
+  min-width: 7rem;
+  padding: 0.25rem;
+  background-color: $color-background;
+  border: 1px solid $admin-dashboard-border;
+  border-radius: $admin-dashboard-small-radius;
+  box-shadow: $shadow-sm;
+}
+
+.item {
+  display: block;
+  width: 100%;
+  padding: 0.375rem 0.5rem;
+  border: 0;
+  border-radius: $admin-dashboard-control-radius;
+  background: transparent;
+  color: $color-text-primary;
+  font: inherit;
+  font-size: $font-size-xs;
+  text-align: start;
+  cursor: pointer;
+
+  &:hover {
+    background: $admin-dashboard-hover-surface;
+  }
+}

@@ -1,0 +1,17 @@
+@use "../../../../styles/tokens" as *;
+@use "../products-surfaces" as products;
+
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: $spacing-sm;
+
+  @include products.products-footer;
+}
+
+.summary {
+  margin: 0;
+  font-size: 0.6875rem;
+  color: $color-text-secondary;
+}

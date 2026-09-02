@@ -7,6 +7,7 @@ import AdminProjectSummaryTab from "@/components/admin/project-detail/AdminProje
 import AdminProjectCostsTab from "@/components/admin/project-detail/AdminProjectCostsTab/AdminProjectCostsTab";
 import AdminProjectPaymentsTab from "@/components/admin/project-detail/AdminProjectPaymentsTab/AdminProjectPaymentsTab";
 import AdminProjectImportTab from "@/components/admin/project-detail/AdminProjectImportTab/AdminProjectImportTab";
+import AdminProjectHistoryTab from "@/components/admin/project-detail/AdminProjectHistoryTab/AdminProjectHistoryTab";
 import type { AdminProjectDetailWithThumbnails } from "@/lib/projects/getAdminProjects";
 import {
   ADMIN_PROJECT_TAB_LABELS,
@@ -67,6 +68,11 @@ export default function AdminProjectWorkspaceTabs({
         label: ADMIN_PROJECT_TAB_LABELS.import,
         panel: <AdminProjectImportTab project={project} />,
       },
+      {
+        id: "history",
+        label: ADMIN_PROJECT_TAB_LABELS.history,
+        panel: <AdminProjectHistoryTab project={project} />,
+      },
     ],
     [project],
   );
@@ -79,7 +85,6 @@ export default function AdminProjectWorkspaceTabs({
         onTabChange={handleTabChange}
         ariaLabel="עבודת פרויקט מנהל"
         density="compact"
-        stickyTabBar
       />
     </div>
   );

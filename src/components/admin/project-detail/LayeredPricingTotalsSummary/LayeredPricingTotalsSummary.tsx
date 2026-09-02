@@ -102,7 +102,7 @@ export default function LayeredPricingTotalsSummary({
         </div>
       ) : null}
       {clientTotalInclVatFormatted ? (
-        <div className={styles.row}>
+        <div className={styles.rowPrimary}>
           <dt>סה״כ לקוח כולל מע״מ</dt>
           <dd dir="ltr">{clientTotalInclVatFormatted}</dd>
         </div>

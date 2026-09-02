@@ -1,0 +1,20 @@
+@use "../../../../styles/tokens" as *;
+@use "../project-detail-surfaces" as detail;
+
+.tab {
+  @include detail.detail-tab-shell;
+}
+
+.panel {
+  @include detail.detail-panel;
+  padding: 0.75rem;
+}
+
+.title {
+  @include detail.detail-section-title;
+  margin-bottom: 0.5rem;
+}
+
+.empty {
+  @include detail.detail-empty-state;
+}

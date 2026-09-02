@@ -1,0 +1,46 @@
+@use "../../../styles/tokens" as *;
+@use "../../../styles/mixins" as *;
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.main {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-sm;
+}
+
+.title {
+  margin: 0;
+  font-family: $font-family-serif;
+  font-size: $admin-workspace-page-title-size;
+  font-weight: $font-weight-normal;
+  line-height: $line-height-tight;
+  color: $color-text-primary;
+}
+
+.description {
+  margin: 0;
+  max-width: 42rem;
+  font-size: $font-size-xs;
+  line-height: $line-height-base;
+  color: $color-text-secondary;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.below {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}

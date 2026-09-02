@@ -1,0 +1,86 @@
+@use "../../../../styles/tokens" as *;
+@use "../../../../styles/mixins" as *;
+@use "../projects-surfaces" as projects;
+
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-sm;
+
+  @include projects.projects-footer;
+}
+
+.summary {
+  margin: 0;
+  font-size: 0.6875rem;
+  color: $color-text-secondary;
+}
+
+.pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: $spacing-xs;
+  margin-inline-start: auto;
+}
+
+.control,
+.pageLink,
+.disabled,
+.current {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.75rem;
+  min-height: 1.75rem;
+  padding-inline: $spacing-xs;
+  font-size: $font-size-xs;
+  text-decoration: none;
+  border-radius: $admin-dashboard-small-radius;
+}
+
+.control,
+.pageLink {
+  color: $color-text-primary;
+  background-color: $color-background;
+  border: 1px solid $admin-dashboard-border;
+
+  @include focus-visible;
+
+  &:hover {
+    background-color: $admin-dashboard-hover-surface;
+  }
+}
+
+.disabled {
+  color: $color-text-secondary;
+}
+
+.current {
+  font-weight: $font-weight-medium;
+  color: $color-primary-text;
+  background-color: $color-primary;
+  border: 1px solid $color-primary;
+}
+
+.pages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pageItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.ellipsis {
+  padding-inline: 0.125rem;
+  color: $color-text-secondary;
+}

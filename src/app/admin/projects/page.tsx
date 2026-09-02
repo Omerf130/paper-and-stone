@@ -1,19 +1,36 @@
 import type { Metadata } from "next";
 import AdminPage from "@/components/admin/AdminPage/AdminPage";
-import AdminPageHeader from "@/components/admin/AdminPageHeader/AdminPageHeader";
-import AdminProjectsPagination from "@/components/admin/AdminProjectsPagination/AdminProjectsPagination";
 import AdminProjectsToolbar from "@/components/admin/AdminProjectsToolbar/AdminProjectsToolbar";
 import AdminProjectListItem from "@/components/admin/projects/AdminProjectListItem/AdminProjectListItem";
-import Button from "@/components/ui/Button/Button";
-import cardStyles from "@/components/admin/list/admin-list-card.module.scss";
+import AdminProjectsPageHeader from "@/components/admin/projects/AdminProjectsPageHeader/AdminProjectsPageHeader";
+import AdminProjectsTableFooter from "@/components/admin/projects/AdminProjectsTableFooter/AdminProjectsTableFooter";
+import AdminProjectsWorkspace from "@/components/admin/projects/AdminProjectsWorkspace/AdminProjectsWorkspace";
+import tableStyles from "@/components/admin/projects/admin-projects-table.module.scss";
 import layoutStyles from "@/components/admin/list/admin-list-layout.module.scss";
-import tableStyles from "@/components/admin/list/admin-table.module.scss";
 import EmptyState from "@/components/ui/EmptyState/EmptyState";
 import { requireAdmin } from "@/lib/auth/authorization";
-import { getAdminProjects } from "@/lib/projects/getAdminProjects";
 import {
+  findArchitectByIdForAdmin,
+  searchArchitectsForAdmin,
+} from "@/lib/admin/architects/architect-lookup-queries";
+import {
+  findClientByIdForAdmin,
+  searchClientsForAdmin,
+} from "@/lib/admin/clients/client-lookup-queries";
+import {
+  formatAdminProjectsFilterOptionLabel,
+  mergeAdminProjectsFilterOption,
+  type AdminProjectsFilterOption,
+} from "@/lib/projects/admin-projects-filter-options";
+import {
+  getAdminProjects,
+  getAdminProjectsQueueSummary,
+} from "@/lib/projects/getAdminProjects";
+import {
+  hasAdminProjectsFilters,
   parseAdminProjectsParams,
 } from "@/lib/projects/project-params";
+import styles from "./AdminProjectsPage.module.scss";
 
 export const metadata: Metadata = {
   title: "פרויקטים | Paper & Stone",
@@ -22,13 +39,6 @@ export const metadata: Metadata = {
 type AdminProjectsPageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
-
-function hasProjectFilters(params: ReturnType<typeof parseAdminProjectsParams>): boolean {
-  return Boolean(
-    params.query ||
-      (params.queue === "commercial" && params.status !== "submitted"),
-  );
-}
 
 const EMPTY_COPY: Record<
   ReturnType<typeof parseAdminProjectsParams>["queue"],
@@ -41,82 +51,134 @@ const EMPTY_COPY: Record<
   onboarding: "אין פרויקטים שממתינים לאישור פתיחה",
 };
 
+async function loadAdminProjectsFilterOptions(params: ReturnType<
+  typeof parseAdminProjectsParams
+>): Promise<{
+  clientOptions: AdminProjectsFilterOption[];
+  architectOptions: AdminProjectsFilterOption[];
+}> {
+  const [clients, architects, selectedClient, selectedArchitect] = await Promise.all([
+    searchClientsForAdmin(null),
+    searchArchitectsForAdmin(null),
+    params.clientId ? findClientByIdForAdmin(params.clientId) : Promise.resolve(null),
+    params.architectId
+      ? findArchitectByIdForAdmin(params.architectId)
+      : Promise.resolve(null),
+  ]);
+
+  const clientOptions = mergeAdminProjectsFilterOption(
+    clients.map((client) => ({
+      id: client.id,
+      label: formatAdminProjectsFilterOptionLabel(client),
+    })),
+    selectedClient
+      ? {
+          id: selectedClient.id,
+          label: formatAdminProjectsFilterOptionLabel(selectedClient),
+        }
+      : null,
+  );
+
+  const architectOptions = mergeAdminProjectsFilterOption(
+    architects.map((architect) => ({
+      id: architect.id,
+      label: formatAdminProjectsFilterOptionLabel(architect),
+    })),
+    selectedArchitect
+      ? {
+          id: selectedArchitect.id,
+          label: formatAdminProjectsFilterOptionLabel(selectedArchitect),
+        }
+      : null,
+  );
+
+  return { clientOptions, architectOptions };
+}
+
 export default async function AdminProjectsPage({
   searchParams,
 }: AdminProjectsPageProps) {
   const resolvedSearchParams = await searchParams;
   const params = parseAdminProjectsParams(resolvedSearchParams);
   const user = await requireAdmin();
-  const result = await getAdminProjects(params, user.id);
-  const filtered = hasProjectFilters(params);
+  const [result, queueSummary, filterOptions] = await Promise.all([
+    getAdminProjects(params, user.id),
+    getAdminProjectsQueueSummary(),
+    loadAdminProjectsFilterOptions(params),
+  ]);
+  const filtered = hasAdminProjectsFilters(params);
 
   return (
     <AdminPage width="wide">
-      <AdminPageHeader
-        title="פרויקטים"
-        description="מרחב עבודה תפעולי — מעקב, תמחור וטיפול בפרויקטים"
-        actions={
-          <Button href="/admin/projects/new" size="sm">
-            צור פרויקט
-          </Button>
-        }
-      />
+      <div className={styles.page}>
+        <AdminProjectsPageHeader summary={queueSummary} />
 
-      <AdminProjectsToolbar params={params} total={result.total} />
-
-      {result.projects.length === 0 ? (
-        <EmptyState
-          title={
-            filtered
-              ? "לא נמצאו פרויקטים שמתאימים לחיפוש"
-              : EMPTY_COPY[params.queue]
-          }
-        />
-      ) : (
-        <>
-          <div className={layoutStyles.desktopOnlyDesktop}>
-            <div className={tableStyles.wrap}>
-              <table className={tableStyles.table}>
-                <thead>
-                  <tr>
-                    <th scope="col">פרויקט</th>
-                    <th scope="col">אדריכל</th>
-                    <th scope="col">סטטוס</th>
-                    <th scope="col">חדרים / מוצרים</th>
-                    <th scope="col">עודכן</th>
-                    <th scope="col">פעולות</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {result.projects.map((project) => (
-                    <AdminProjectListItem
-                      key={project.id}
-                      project={project}
-                      variant="table"
-                    />
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <ul className={`${cardStyles.list} ${layoutStyles.mobileOnlyDesktop}`}>
-            {result.projects.map((project) => (
-              <AdminProjectListItem
-                key={project.id}
-                project={project}
-                variant="card"
-              />
-            ))}
-          </ul>
-
-          <AdminProjectsPagination
+        <AdminProjectsWorkspace>
+          <AdminProjectsToolbar
             params={params}
-            page={result.page}
-            totalPages={result.totalPages}
+            clientOptions={filterOptions.clientOptions}
+            architectOptions={filterOptions.architectOptions}
           />
-        </>
-      )}
+
+          {result.projects.length === 0 ? (
+            <EmptyState
+              title={
+                filtered
+                  ? "לא נמצאו פרויקטים שמתאימים לחיפוש"
+                  : EMPTY_COPY[params.queue]
+              }
+            />
+          ) : (
+            <>
+              <div className={layoutStyles.desktopOnlyDesktop}>
+                <div className={tableStyles.tableWrap}>
+                  <table className={tableStyles.table}>
+                    <thead>
+                      <tr>
+                        <th scope="col">פרויקט</th>
+                        <th scope="col">לקוח</th>
+                        <th scope="col">אדריכל</th>
+                        <th scope="col">סטטוס</th>
+                        <th scope="col">פריטים</th>
+                        <th scope="col">עודכן</th>
+                        <th scope="col">
+                          <span className={tableStyles.srOnly}>פעולות</span>
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {result.projects.map((project) => (
+                        <AdminProjectListItem
+                          key={project.id}
+                          project={project}
+                          variant="table"
+                        />
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <ul className={layoutStyles.mobileOnlyDesktop}>
+                {result.projects.map((project) => (
+                  <AdminProjectListItem
+                    key={project.id}
+                    project={project}
+                    variant="card"
+                  />
+                ))}
+              </ul>
+
+              <AdminProjectsTableFooter
+                params={params}
+                page={result.page}
+                total={result.total}
+                totalPages={result.totalPages}
+              />
+            </>
+          )}
+        </AdminProjectsWorkspace>
+      </div>
     </AdminPage>
   );
 }

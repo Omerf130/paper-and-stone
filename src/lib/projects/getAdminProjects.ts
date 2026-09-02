@@ -58,6 +58,28 @@ export async function getAdminProjectAttentionCount(): Promise<number> {
   return Project.countDocuments(buildAdminProjectAttentionFilter());
 }
 
+export type AdminProjectsQueueSummary = {
+  all: number;
+  attention: number;
+  active: number;
+  commercial: number;
+  onboarding: number;
+};
+
+export async function getAdminProjectsQueueSummary(): Promise<AdminProjectsQueueSummary> {
+  await connectDB();
+
+  const [all, attention, active, commercial, onboarding] = await Promise.all([
+    Project.countDocuments({}),
+    Project.countDocuments(buildAdminProjectAttentionFilter()),
+    Project.countDocuments({ onboardingStatus: "active" }),
+    Project.countDocuments({ status: "submitted" }),
+    Project.countDocuments({ onboardingStatus: "pending_approval" }),
+  ]);
+
+  return { all, attention, active, commercial, onboarding };
+}
+
 export async function getActiveProjectCount(): Promise<number> {
   await connectDB();
   return Project.countDocuments({ onboardingStatus: "active" });
@@ -125,6 +147,16 @@ export async function getAdminProjects(
   await connectDB();
 
   const baseFilter = buildAdminProjectsFilter(params);
+  const idFilters: AdminProjectsFilter[] = [];
+
+  if (params.clientId) {
+    idFilters.push({ clientUserId: new Types.ObjectId(params.clientId) });
+  }
+
+  if (params.architectId) {
+    idFilters.push({ ownerUserId: new Types.ObjectId(params.architectId) });
+  }
+
   let filter: AdminProjectsFilter = baseFilter;
 
   if (params.query) {
@@ -137,7 +169,11 @@ export async function getAdminProjects(
     });
 
     filter = {
-      $and: [...normalizeFilterParts(baseFilter), searchOr],
+      $and: [...normalizeFilterParts(baseFilter), searchOr, ...idFilters],
+    };
+  } else if (idFilters.length > 0) {
+    filter = {
+      $and: [...normalizeFilterParts(baseFilter), ...idFilters],
     };
   }
 

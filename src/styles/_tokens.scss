@@ -84,10 +84,75 @@ $header-height-mobile: 3.5rem;
 $header-height-desktop: 4rem;
 $catalog-sidebar-width: 15rem;
 $category-tile-aspect-ratio: 4 / 5;
-$admin-sidebar-width: 16.5rem;
+$admin-sidebar-width: 15rem;
 $admin-sidebar-width-collapsed: 3.75rem;
 $admin-page-max-width: 56rem;
 $admin-form-max-width: 48rem;
+
+// Admin workspace (Batch 2 visual rebuild)
+$admin-workspace-topbar-height: 3.5rem;
+$admin-workspace-page-gap: $spacing-md;
+$admin-workspace-control-height: 2.25rem;
+$admin-workspace-table-row-padding: 0.4375rem 0.75rem;
+$admin-workspace-metric-card-min-height: 3.25rem;
+$admin-workspace-page-title-size: 1.25rem;
+$admin-workspace-section-gap: $spacing-md;
+$admin-workspace-border: #eceae6;
+$admin-workspace-panel-header-bg: #faf9f7;
+
+// Dashboard fidelity (admin home only)
+$admin-dashboard-kpi-height: 4.75rem;
+$admin-dashboard-kpi-icon-size: 2rem;
+$admin-dashboard-thumbnail-size: 2.375rem;
+$admin-dashboard-feed-row-min-height: 2.75rem;
+$admin-dashboard-quick-tile-height: 2.625rem;
+$admin-dashboard-greeting-size: 1.375rem;
+$admin-dashboard-section-title-size: 0.8125rem;
+$admin-dashboard-global-search-width: 22rem;
+
+// Dashboard surface system (radius / borders / surfaces)
+$admin-dashboard-panel-radius: 0.5625rem; // 9px
+$admin-dashboard-control-radius: 0.5rem; // 8px
+$admin-dashboard-small-radius: 0.375rem; // 6px
+$admin-dashboard-quick-radius: 0.5rem; // 8px
+$admin-dashboard-nav-radius: 0.4375rem; // 7px
+$admin-dashboard-border: #e8e4df;
+$admin-dashboard-separator: #f0eeeb;
+$admin-dashboard-surface: #fdfcfb;
+$admin-dashboard-interactive-surface: #f7f5f2;
+$admin-dashboard-hover-surface: #f3f0ec;
+
+// Admin icon accent palette (soft editorial accents for KPI / feature icons)
+$admin-accent-sand-bg: #f5f0e8;
+$admin-accent-sand-fg: #8a7355;
+$admin-accent-sand-border: #ebe3d6;
+
+$admin-accent-sage-bg: #eef3ec;
+$admin-accent-sage-fg: #4a6644;
+$admin-accent-sage-border: #dde8da;
+
+$admin-accent-blush-bg: #f7efed;
+$admin-accent-blush-fg: #8a5f58;
+$admin-accent-blush-border: #ecdfdc;
+
+$admin-accent-blue-bg: #eef2f6;
+$admin-accent-blue-fg: #4a6278;
+$admin-accent-blue-border: #dde4ec;
+
+$admin-accent-gold-bg: #f6f0e4;
+$admin-accent-gold-fg: #8a7340;
+$admin-accent-gold-border: #ebe3cf;
+
+$admin-accent-neutral-bg: #f3f1ee;
+$admin-accent-neutral-fg: #6b6560;
+$admin-accent-neutral-border: #e8e4df;
+
+$admin-accent-danger-bg: #f9f0f0;
+$admin-accent-danger-fg: #7a4545;
+$admin-accent-danger-border: #ecd9d9;
+
+$admin-icon-accent-size: 2rem; // ~32px KPI circles
+$admin-icon-accent-size-sm: 1.375rem; // ~22px quick-access circles
 
 // Border radius
 $radius-sm: 0.25rem;

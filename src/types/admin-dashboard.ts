@@ -9,7 +9,38 @@ export type AdminDashboardMetrics = {
 export type AdminDashboardRecentProject = {
   id: string;
   name: string;
-  submittedAt: string;
+  status: string;
+  updatedAt: string;
+  location?: string;
+  itemCount: number;
+};
+
+export type AdminDashboardActivityEntry = {
+  id: string;
+  kind:
+    | "project_updated"
+    | "project_submitted"
+    | "client_request"
+    | "architect_request";
+  primary: string;
+  secondary: string;
+  timestamp: string;
+  href?: string;
+};
+
+export type AdminDashboardRecentProduct = {
+  id: string;
+  nameHe: string;
+  sku: string;
+  updatedAt: string;
+};
+
+export type AdminDashboardQueueSummary = {
+  all: number;
+  attention: number;
+  active: number;
+  commercial: number;
+  onboarding: number;
 };
 
 export type AdminDashboardData = {
@@ -24,5 +55,11 @@ export type AdminDashboardData = {
   pendingArchitectRequestCount: number;
   pendingClientRequestCount: number;
   metrics: AdminDashboardMetrics;
+  recentProjects: AdminDashboardRecentProject[];
+  /** @deprecated use recentProjects */
   recentSubmittedProjects: AdminDashboardRecentProject[];
+  activityFeed: AdminDashboardActivityEntry[];
+  queueSummary: AdminDashboardQueueSummary;
+  recentProducts: AdminDashboardRecentProduct[];
+  productThumbnailsById: Record<string, { url: string; altText: string }>;
 };

@@ -1,22 +1,81 @@
 @use "../../../styles/tokens" as *;
+@use "../../../styles/mixins" as *;
+@use "./dashboard-surfaces" as dashboard;
+@use "../admin-icon-accents" as accents;
 
 .section {
   display: flex;
   flex-direction: column;
-  gap: $spacing-md;
-  padding-block-start: $spacing-lg;
-  border-top: 1px solid $color-border;
+  gap: $spacing-sm;
 }
 
 .title {
   margin: 0;
-  font-size: $font-size-section-title;
+  font-size: $admin-dashboard-section-title-size;
   font-weight: $font-weight-medium;
   color: $color-text-primary;
 }
 
 .actions {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: $spacing-xs;
+
+  @media (max-width: #{$breakpoint-wide - 1px}) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  @media (max-width: #{$breakpoint-tablet - 1px}) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.action {
   display: flex;
-  flex-wrap: wrap;
-  gap: $spacing-sm;
+  align-items: center;
+  gap: $spacing-xs;
+  min-height: $admin-dashboard-quick-tile-height;
+  padding: $spacing-xs $spacing-sm;
+  font-size: 0.6875rem;
+  color: $color-text-primary;
+  text-decoration: none;
+  transition:
+    border-color $transition-fast,
+    background-color $transition-fast;
+
+  @include dashboard.dashboard-quick-tile;
+  @include focus-visible;
+
+  @include reduced-motion {
+    transition: none;
+  }
+
+  &:hover {
+    @include dashboard.dashboard-interactive-hover;
+  }
+}
+
+.actionIcon {
+  width: $admin-icon-accent-size-sm;
+  height: $admin-icon-accent-size-sm;
+
+  @include accents.admin-icon-circle-base;
+  @include accents.admin-icon-accent-default;
+
+  svg {
+    display: block;
+    flex-shrink: 0;
+    width: 0.8125rem;
+    height: 0.8125rem;
+    margin: 0;
+  }
+}
+
+@include accents.emit-accent-modifier-classes;
+
+.actionLabel {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }

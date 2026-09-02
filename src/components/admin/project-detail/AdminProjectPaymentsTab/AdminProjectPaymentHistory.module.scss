@@ -1,85 +1,92 @@
 @use "../../../../styles/tokens" as *;
+@use "../../../../styles/mixins" as *;
+@use "../project-detail-surfaces" as detail;
 
 .history {
   display: flex;
   flex-direction: column;
-  gap: $spacing-sm;
+  gap: 0.5rem;
   min-width: 0;
 }
 
 .title {
-  margin: 0;
-  font-size: $font-size-base;
-  font-weight: $font-weight-semibold;
+  @include detail.detail-section-title;
 }
 
 .empty {
-  margin: 0;
-  font-size: $font-size-sm;
-  color: $color-text-secondary;
+  @include detail.detail-empty-state;
 }
 
-.tableWrap {
-  display: none;
-  overflow-x: auto;
+.menu {
+  position: relative;
+  display: inline-block;
+}
 
-  @media (min-width: $breakpoint-tablet) {
-    display: block;
+.menuTrigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.75rem;
+  min-height: 1.75rem;
+  padding: 0;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  list-style: none;
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: $admin-dashboard-control-radius;
+
+  &::-webkit-details-marker {
+    display: none;
+  }
+
+  @include focus-visible;
+}
+
+.menuTrigger:hover {
+  color: $color-text-primary;
+  border-color: $admin-dashboard-border;
+}
+
+.menuPanel {
+  position: absolute;
+  inset-inline-end: 0;
+  z-index: 5;
+  min-width: 7rem;
+  padding: 0.25rem;
+  background-color: $color-background;
+  border: 1px solid $admin-dashboard-border;
+  border-radius: $admin-dashboard-small-radius;
+  box-shadow: $shadow-sm;
+}
+
+.menuItem {
+  display: block;
+  width: 100%;
+  padding: 0.375rem 0.5rem;
+  border: 0;
+  border-radius: $admin-dashboard-control-radius;
+  background: transparent;
+  color: $color-text-primary;
+  font: inherit;
+  font-size: $font-size-xs;
+  text-align: start;
+  cursor: pointer;
+
+  &:hover {
+    background: $admin-dashboard-hover-surface;
   }
 }
 
-.table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: $font-size-sm;
-}
-
-.table th,
-.table td {
-  padding: $spacing-sm $spacing-md;
-  text-align: start;
-  border-bottom: 1px solid $color-border;
-  vertical-align: top;
-}
-
-.table th {
-  font-weight: $font-weight-medium;
-  color: $color-text-secondary;
-  background: $color-background-subtle;
-}
-
-.noteCell {
-  max-width: 14rem;
-  white-space: pre-wrap;
-  word-break: break-word;
-}
-
-.actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: $spacing-xs;
-}
-
-.actionButton {
-  border: none;
-  background: none;
-  padding: 0;
-  font: inherit;
-  font-size: $font-size-xs;
-  color: $color-primary;
-  cursor: pointer;
-  text-decoration: underline;
-}
-
-.actionButtonDanger {
-  composes: actionButton;
+.menuItemDanger {
   color: $color-danger-text;
 }
 
 .cards {
   display: flex;
   flex-direction: column;
-  gap: $spacing-sm;
+  gap: 0.5rem;
 
   @media (min-width: $breakpoint-tablet) {
     display: none;
@@ -89,47 +96,48 @@
 .card {
   display: flex;
   flex-direction: column;
-  gap: $spacing-xs;
-  padding: $spacing-md;
-  border: 1px solid $color-border;
-  border-radius: $radius-md;
-  background: $color-background;
+  gap: 0.25rem;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid $admin-dashboard-border;
+  border-radius: $admin-dashboard-small-radius;
+  background: $admin-dashboard-interactive-surface;
 }
 
 .cardHeader {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: $spacing-sm;
+  gap: 0.5rem;
 }
 
 .cardAmount {
   margin: 0;
-  font-size: $font-size-base;
+  font-size: $font-size-xs;
   font-weight: $font-weight-semibold;
 }
 
 .cardDate {
   margin: 0;
-  font-size: $font-size-xs;
+  font-size: 0.6875rem;
   color: $color-text-secondary;
 }
 
 .cardMeta {
   margin: 0;
-  font-size: $font-size-xs;
+  font-size: 0.6875rem;
   color: $color-text-secondary;
 }
 
 .cardNote {
   margin: 0;
-  font-size: $font-size-sm;
+  font-size: $font-size-xs;
   white-space: pre-wrap;
   word-break: break-word;
+  color: $color-text-secondary;
 }
 
 .cardActions {
   display: flex;
-  gap: $spacing-md;
-  margin-top: $spacing-xs;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
 }

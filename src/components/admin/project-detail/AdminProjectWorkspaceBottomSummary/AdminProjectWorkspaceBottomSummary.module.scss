@@ -1,0 +1,55 @@
+@use "../../../../styles/tokens" as *;
+@use "../project-detail-surfaces" as detail;
+
+.strip {
+  @include detail.detail-strip;
+  margin-top: 0.75rem;
+
+  @media (min-width: $breakpoint-desktop) {
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+    background-color: $admin-dashboard-interactive-surface;
+  }
+}
+
+.segmentWrap {
+  display: contents;
+}
+
+.segment {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  min-width: 0;
+}
+
+.label {
+  font-size: 0.625rem;
+  color: $color-text-secondary;
+}
+
+.value {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  white-space: nowrap;
+}
+
+.separator {
+  @include detail.detail-separator;
+}
+
+@media (max-width: #{$breakpoint-tablet - 1px}) {
+  .strip {
+    row-gap: 0.5rem;
+  }
+
+  .separator {
+    display: none;
+  }
+
+  .segment {
+    flex: 1 1 calc(50% - 0.5rem);
+  }
+}
