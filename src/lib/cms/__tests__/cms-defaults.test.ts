@@ -12,6 +12,9 @@ describe("cms-defaults", () => {
       "ריהוט וחומרים שמתחילים ברעיון ונכנסים לפרויקט",
     );
     expect(DEFAULT_HOMEPAGE_CONTENT.hero.primaryCta.href).toBe("/products");
+    expect(DEFAULT_HOMEPAGE_CONTENT.hero.image?.url).toBe(
+      "/images/hero-storefront.jpg",
+    );
   });
 
   it("mirrors current catalog hero copy", () => {

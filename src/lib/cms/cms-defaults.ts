@@ -44,6 +44,14 @@ export const DEFAULT_HOMEPAGE_CONTENT: HomepageContentView = {
       href: "/register",
       isVisible: true,
     },
+    image: {
+      url: "/images/hero-storefront.jpg",
+      storageKey: "static/homepage/hero-storefront.jpg",
+      alt: "חזית החנות Paper & Stone",
+      isDecorative: true,
+      width: 1024,
+      height: 431,
+    },
     isVisible: true,
   },
   categories: {
