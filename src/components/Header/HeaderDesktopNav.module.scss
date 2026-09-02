@@ -1,0 +1,55 @@
+@use "../../styles/tokens" as *;
+@use "../../styles/mixins" as *;
+@use "../../styles/typography" as *;
+
+.menuRoot {
+  position: static;
+  display: none;
+  flex: 1;
+  justify-content: center;
+
+  @include desktop-up {
+    display: flex;
+  }
+}
+
+.nav {
+  position: static;
+  display: flex;
+  flex: 1;
+  justify-content: center;
+}
+
+.list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-sm $spacing-lg;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  position: static;
+}
+
+.link {
+  display: inline-block;
+  padding-block: $spacing-xs;
+  @include navLinkUppercase;
+  text-decoration: none;
+  border-block-end: 1px solid transparent;
+
+  @include focus-visible;
+}
+
+.link:hover,
+.linkActive {
+  border-block-end-color: $color-text-primary;
+}
+
+.linkDisabled {
+  cursor: default;
+}

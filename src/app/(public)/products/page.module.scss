@@ -1,0 +1,38 @@
+@use "../../../styles/tokens" as *;
+@use "../../../styles/mixins" as *;
+
+.page {
+  padding-block: $spacing-2xl $spacing-3xl;
+  background-color: $color-surface-cream;
+}
+
+.topBar {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+  margin-block-end: $spacing-2xl;
+
+  @include desktop-up {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: $spacing-3xl;
+  }
+}
+
+.layout {
+  display: grid;
+  gap: $spacing-2xl;
+
+  @include desktop-up {
+    grid-template-columns: $catalog-sidebar-width minmax(0, 1fr);
+    gap: $spacing-3xl;
+    align-items: start;
+  }
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}

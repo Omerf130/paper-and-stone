@@ -1,89 +1,33 @@
 @use "../../../styles/tokens" as *;
 @use "../../../styles/mixins" as *;
-@use "../../../styles/typography" as *;
 
 .hero {
-  padding-block: $spacing-lg $spacing-3xl;
-
-  @include tablet-up {
-    padding-block: $spacing-xl $spacing-4xl;
-  }
-}
-
-.layout {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-2xl;
-
-  @include desktop-up {
-    display: grid;
-    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
-    grid-template-rows: auto;
-    gap: $spacing-3xl;
-    align-items: end;
-  }
+  margin: 0;
+  padding: 0;
 }
 
 .visual {
-  order: 1;
-  width: 100%;
-
-  @include desktop-up {
-    order: unset;
-    grid-column: 1;
-    grid-row: 1;
-    align-self: stretch;
-  }
+  position: relative;
+  inline-size: 100%;
+  block-size: clamp(16rem, 52vh, 34rem);
+  overflow: hidden;
+  background-color: $color-placeholder;
 }
 
-.placeholder {
-  width: 100%;
-  min-height: 16rem;
-
-  @include desktop-up {
-    min-height: 32rem;
-  }
+.image {
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
 }
 
-.content {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-lg;
-  order: 2;
-  max-width: 36rem;
-
-  @include desktop-up {
-    order: unset;
-    grid-column: 2;
-    grid-row: 1;
-    max-width: none;
-    padding-block: $spacing-xl;
-  }
-}
-
-.eyebrow {
-  @include eyebrow;
-  margin: 0;
-}
-
-.heading {
-  margin: 0;
-  font-size: clamp($font-size-2xl, 5vw, $font-size-display);
-  font-weight: $font-weight-semibold;
-  line-height: $line-height-tight;
-  letter-spacing: $letter-spacing-tight;
-  color: $color-text-primary;
-}
-
-.supporting {
-  @include sectionSupporting;
-  margin: 0;
-  max-width: 32rem;
-}
-
-.actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: $spacing-md;
-  margin-block-start: $spacing-sm;
+.scrollIndicator {
+  position: absolute;
+  inset-block-end: $spacing-md;
+  inset-inline-start: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: rgb(255 255 255 / 88%);
+  pointer-events: none;
 }

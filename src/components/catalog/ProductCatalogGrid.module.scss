@@ -4,18 +4,22 @@
 .grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: $spacing-2xl;
+  gap: $spacing-lg;
   list-style: none;
   margin: 0;
   padding: 0;
 
   @include tablet-up {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: $spacing-xl;
   }
 
   @include wide-up {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: $spacing-md;
+  }
+
+  @media (min-width: 1440px) {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 

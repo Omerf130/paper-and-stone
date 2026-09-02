@@ -3,29 +3,30 @@
 @use "../../../styles/typography" as *;
 
 .section {
-  padding-block: $spacing-3xl;
-
-  @include tablet-up {
-    padding-block: $spacing-4xl;
-  }
+  padding-block: $spacing-3xl $spacing-4xl;
+  background-color: $color-surface-cream;
 }
 
 .intro {
   display: flex;
   flex-direction: column;
   gap: $spacing-md;
-  margin-block-end: $spacing-2xl;
-  max-width: 36rem;
+  margin-block-end: $spacing-3xl;
+  margin-inline: auto;
+  max-width: 42rem;
+  text-align: center;
 }
 
 .eyebrow {
   @include eyebrow;
   margin: 0;
+  color: $color-text-secondary;
 }
 
 .heading {
-  @include sectionHeading;
+  @include serifDisplay;
   margin: 0;
+  font-size: clamp($font-size-2xl, 4vw, $font-size-3xl);
 }
 
 .supporting {
@@ -33,102 +34,70 @@
   margin: 0;
 }
 
-.grid {
+.row {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: $spacing-xl;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(9rem, 1fr);
+  gap: $spacing-sm;
   margin: 0;
   padding: 0;
   list-style: none;
-
-  @include tablet-up {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: $spacing-lg;
-  }
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
 
   @include desktop-up {
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    grid-template-rows: repeat(2, auto);
-    gap: $spacing-md;
+    grid-auto-flow: row;
+    grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+    overflow-x: visible;
   }
 }
 
-.tileLarge,
-.tileMedium {
+.row::-webkit-scrollbar {
+  display: none;
+}
+
+.tile {
   display: flex;
   flex-direction: column;
-  gap: $spacing-md;
-  cursor: default;
-}
-
-.tileLarge {
-  @include desktop-up {
-    grid-column: span 6;
-  }
-
-  &:first-child {
-    @include desktop-up {
-      grid-column: span 7;
-      grid-row: span 2;
-    }
-  }
-
-  &:nth-child(4) {
-    @include desktop-up {
-      grid-column: span 5;
-    }
-  }
-}
-
-.tileMedium {
-  @include desktop-up {
-    grid-column: span 5;
-  }
-
-  &:nth-child(2) {
-    @include desktop-up {
-      grid-column: span 5;
-    }
-  }
-
-  &:nth-child(3) {
-    @include desktop-up {
-      grid-column: span 4;
-    }
-  }
-
-  &:nth-child(5) {
-    @include desktop-up {
-      grid-column: span 4;
-    }
-  }
-
-  &:nth-child(6) {
-    @include desktop-up {
-      grid-column: span 3;
-    }
-  }
-}
-
-.placeholder {
-  flex: 1;
-}
-
-.label {
-  font-size: $font-size-base;
-  font-weight: $font-weight-medium;
-  color: $color-text-primary;
-
-  @include tablet-up {
-    font-size: $font-size-lg;
-  }
+  gap: $spacing-sm;
+  min-width: 0;
+  scroll-snap-align: start;
 }
 
 .tileLink {
   display: flex;
   flex-direction: column;
-  gap: $spacing-md;
+  gap: $spacing-sm;
   color: inherit;
   text-decoration: none;
-  cursor: pointer;
+
+  @include focus-visible;
+}
+
+.image {
+  aspect-ratio: $category-tile-aspect-ratio;
+  inline-size: 100%;
+  object-fit: cover;
+}
+
+.meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: $spacing-xs;
+}
+
+.label {
+  @include navLinkUppercase;
+  font-size: 0.6875rem;
+}
+
+.arrow {
+  transform: scaleX(-1);
+  color: $color-text-primary;
+}
+
+.tileLink:hover .label {
+  color: $color-text-secondary;
 }

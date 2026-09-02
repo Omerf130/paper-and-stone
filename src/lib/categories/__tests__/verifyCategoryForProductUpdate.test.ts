@@ -43,6 +43,9 @@ describe("verifyCategoryForProductUpdate", () => {
         lean: vi.fn().mockResolvedValue({
           _id: inactiveCategoryId,
           isActive: false,
+          kind: "leaf",
+          taxonomyKey: "legacy-sofas",
+          parentId: { toString: () => "507f1f77bcf86cd799439099" },
         }),
       }),
     });
@@ -102,6 +105,9 @@ describe("verifyCategoryForProductUpdate", () => {
         lean: vi.fn().mockResolvedValue({
           _id: "507f1f77bcf86cd799439014",
           isActive: true,
+          kind: "leaf",
+          taxonomyKey: "sofas",
+          parentId: { toString: () => "507f1f77bcf86cd799439099" },
         }),
       }),
     });

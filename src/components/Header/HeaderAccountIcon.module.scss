@@ -1,0 +1,21 @@
+@use "../../styles/tokens" as *;
+@use "../../styles/mixins" as *;
+
+.link {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  inline-size: 2.25rem;
+  block-size: 2.25rem;
+  color: $color-text-primary;
+
+  @media (min-width: $breakpoint-desktop) {
+    display: inline-flex;
+  }
+
+  @include focus-visible;
+}
+
+.link:hover {
+  color: $color-text-secondary;
+}

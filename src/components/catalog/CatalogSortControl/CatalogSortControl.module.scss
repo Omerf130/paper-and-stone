@@ -1,0 +1,41 @@
+@use "../../../styles/tokens" as *;
+@use "../../../styles/mixins" as *;
+@use "../../../styles/typography" as *;
+
+.control {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.label {
+  @include navLinkUppercase;
+  color: $color-text-secondary;
+}
+
+.selectWrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.select {
+  appearance: none;
+  padding-block: $spacing-xs;
+  padding-inline: $spacing-md $spacing-xl;
+  border: 0;
+  border-bottom: 1px solid $color-border;
+  background: transparent;
+  font: inherit;
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  cursor: pointer;
+
+  @include focus-visible;
+}
+
+.icon {
+  position: absolute;
+  inset-inline-end: 0;
+  pointer-events: none;
+}

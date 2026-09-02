@@ -1,0 +1,180 @@
+@use "../../styles/tokens" as *;
+@use "../../styles/mixins" as *;
+@use "../../styles/typography" as *;
+
+.panel {
+  position: fixed;
+  inset-block-start: var(--site-header-height, #{$header-height-desktop});
+  inset-inline: 0;
+  z-index: $z-index-mega-menu;
+  inline-size: 100%;
+  padding-inline: $container-padding-inline;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset-block-end: 100%;
+    inset-inline: 0;
+    block-size: $spacing-xs;
+  }
+}
+
+.inner {
+  display: grid;
+  gap: $spacing-lg;
+  max-width: $container-max-width;
+  margin-inline: auto;
+  padding: $spacing-lg $spacing-xl;
+  background-color: $color-background;
+  border: 1px solid $color-border;
+  box-shadow: $shadow-md;
+
+  @include desktop-up {
+    grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.18fr) minmax(0, 0.92fr);
+    gap: $spacing-xl;
+    align-items: start;
+    padding: $spacing-lg $spacing-xl $spacing-md;
+  }
+}
+
+.intro {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  justify-content: flex-start;
+  max-inline-size: 11.5rem;
+}
+
+.title {
+  @include serifDisplay;
+  margin: 0;
+  font-size: $font-size-lg;
+  line-height: $line-height-tight;
+
+  @include wide-up {
+    font-size: $font-size-xl;
+  }
+}
+
+.viewAll {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  margin-block-start: $spacing-xs;
+  font-size: 0.6875rem;
+  letter-spacing: $letter-spacing-wide;
+  text-transform: uppercase;
+  color: $color-text-primary;
+  text-decoration: none;
+
+  @include focus-visible;
+}
+
+.viewAllIcon {
+  inline-size: 0.75rem;
+  block-size: 0.75rem;
+  transform: scaleX(-1);
+}
+
+.viewAll:hover {
+  color: $color-text-secondary;
+}
+
+.viewAllDisabled {
+  cursor: default;
+}
+
+.description {
+  margin: 0;
+  max-inline-size: 11rem;
+  font-size: $font-size-xs;
+  line-height: $line-height-base;
+  color: $color-text-secondary;
+}
+
+.links {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.linksHeading {
+  margin: 0;
+  @include navLinkUppercase;
+  color: $color-text-secondary;
+}
+
+.columns {
+  display: grid;
+  gap: $spacing-md;
+
+  @include tablet-up {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: $spacing-md $spacing-lg;
+  }
+}
+
+.groupColumn {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+  min-inline-size: 5.5rem;
+}
+
+.groupHeading {
+  margin: 0;
+  font-size: 0.6875rem;
+  font-weight: $font-weight-normal;
+  letter-spacing: $letter-spacing-wide;
+  text-transform: uppercase;
+  color: $color-text-secondary;
+}
+
+.columnList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.columnLink {
+  font-size: $font-size-xs;
+  line-height: 1.35;
+  color: $color-text-primary;
+  text-decoration: none;
+
+  @include focus-visible;
+}
+
+.columnLink:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.columnLinkDisabled {
+  cursor: default;
+}
+
+.imageWrap {
+  align-self: start;
+  inline-size: 100%;
+  aspect-ratio: 5 / 3;
+  max-block-size: 10.5rem;
+  overflow: hidden;
+}
+
+.image,
+.imagePlaceholder {
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+}
+
+.imagePlaceholder {
+  min-block-size: 0;
+}

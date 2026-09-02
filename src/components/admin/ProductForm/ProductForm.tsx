@@ -30,9 +30,9 @@ import {
 } from "@/lib/products/product-form-tabs";
 import type {
   AdminProductFormInput,
-  CategoryOption,
   ProductFormState,
 } from "@/types/admin-product";
+import type { ProductFormCategoryTreeView } from "@/types/public-category-nav";
 import type { SupplierOption } from "@/types/admin-supplier";
 import MaterialOptionsEditor from "./MaterialOptionsEditor";
 import MaterialsEditor from "./MaterialsEditor";
@@ -44,7 +44,7 @@ import styles from "./form-section.module.scss";
 
 type ProductFormProps = {
   mode: "create" | "edit";
-  categories: CategoryOption[];
+  categoryTree: ProductFormCategoryTreeView;
   supplierOptions: SupplierOption[];
   initialProduct: AdminProductFormInput;
   productId?: string;
@@ -61,7 +61,7 @@ const CREATE_SUPPLIER_VALUE = "__create_supplier__";
 
 export default function ProductForm({
   mode,
-  categories,
+  categoryTree,
   supplierOptions,
   initialProduct,
   productId,
@@ -74,12 +74,13 @@ export default function ProductForm({
   const { toast } = useToast();
   const [formState, setFormState] = useState(initialState);
   const [product, setProduct] = useState(initialProduct);
-  const [categoryOptions, setCategoryOptions] = useState(categories);
+  const [categoryLeaves, setCategoryLeaves] = useState(categoryTree.leaves);
   const [localSupplierOptions, setLocalSupplierOptions] =
     useState(supplierOptions);
   const [showNewCategory, setShowNewCategory] = useState(false);
   const [showNewSupplier, setShowNewSupplier] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState("");
+  const [newCategoryParentId, setNewCategoryParentId] = useState("");
   const [newSupplierName, setNewSupplierName] = useState("");
   const [newSupplierCode, setNewSupplierCode] = useState("");
   const [activeTabId, setActiveTabId] = useState<ProductFormTabId>("general");
@@ -104,21 +105,45 @@ export default function ProductForm({
   };
 
   const handleCreateCategory = () => {
+    if (!newCategoryParentId) {
+      toast({ type: "error", message: "יש לבחור מחלקה או קבוצה עבור הקטגוריה החדשה" });
+      return;
+    }
+
     startTransition(async () => {
-      const result = await createCategoryInlineAction(newCategoryName);
+      const result = await createCategoryInlineAction({
+        nameHe: newCategoryName,
+        parentId: newCategoryParentId,
+      });
 
       if ("error" in result) {
         toast({ type: "error", message: result.error });
         return;
       }
 
-      setCategoryOptions((current) => [
+      const parent = categoryTree.parentOptions.find(
+        (option) => option.id === newCategoryParentId,
+      );
+
+      const breadcrumb = parent
+        ? `${parent.departmentNameHe} › ${parent.nameHe} › ${result.nameHe}`
+        : result.nameHe;
+
+      setCategoryLeaves((current) => [
         ...current,
-        { id: result.categoryId, nameHe: result.nameHe, isActive: true },
+        {
+          id: result.categoryId,
+          slug: result.categoryId,
+          nameHe: result.nameHe,
+          isActive: true,
+          parentId: newCategoryParentId,
+          breadcrumb,
+        },
       ]);
       updateField("categoryId", result.categoryId);
       setShowNewCategory(false);
       setNewCategoryName("");
+      setNewCategoryParentId("");
       toast({ type: "success", message: "הקטגוריה נוצרה" });
     });
   };
@@ -335,22 +360,39 @@ export default function ProductForm({
             aria-invalid={Boolean(fieldErrors.categoryId)}
           >
             <option value="">בחרו קטגוריה</option>
-            {categoryOptions.map((category) => (
+            {categoryLeaves.map((category) => (
               <option key={category.id} value={category.id}>
                 {category.isActive === false
-                  ? `${category.nameHe} (לא פעיל)`
-                  : category.nameHe}
+                  ? `${category.breadcrumb} (לא פעיל)`
+                  : category.breadcrumb}
               </option>
             ))}
-            <option value={CREATE_CATEGORY_VALUE}>+ קטגוריה חדשה</option>
+            <option value={CREATE_CATEGORY_VALUE}>+ קטגוריה חדשה במבנה הקטלוג</option>
           </select>
         </FormField>
 
         {showNewCategory ? (
           <div className={`${styles.fieldGridItem} ${styles.fullWidth}`}>
             <div className={styles.inlineCreatePanel}>
-              <p className={styles.subheading}>קטגוריה חדשה</p>
+              <p className={styles.subheading}>קטגוריה חדשה במבנה הקטלוג</p>
               <div className={styles.inlineCreateFields}>
+                <FormField label="מיקום במבנה" htmlFor="new-category-parent">
+                  <select
+                    id="new-category-parent"
+                    className={formFieldStyles.select}
+                    value={newCategoryParentId}
+                    onChange={(event) => setNewCategoryParentId(event.target.value)}
+                  >
+                    <option value="">בחרו מחלקה או קבוצה</option>
+                    {categoryTree.parentOptions.map((parent) => (
+                      <option key={parent.id} value={parent.id}>
+                        {parent.kind === "group"
+                          ? `${parent.departmentNameHe} › ${parent.nameHe}`
+                          : parent.nameHe}
+                      </option>
+                    ))}
+                  </select>
+                </FormField>
                 <FormField label="שם קטגוריה" htmlFor="new-category-name">
                   <input
                     id="new-category-name"
@@ -376,6 +418,7 @@ export default function ProductForm({
                   onClick={() => {
                     setShowNewCategory(false);
                     setNewCategoryName("");
+                    setNewCategoryParentId("");
                   }}
                 >
                   ביטול

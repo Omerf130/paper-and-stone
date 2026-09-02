@@ -1,47 +1,50 @@
 @use "../../styles/tokens" as *;
 @use "../../styles/mixins" as *;
+@use "../../styles/typography" as *;
 
 .footer {
   margin-block-start: auto;
-  padding-block: $spacing-3xl $spacing-xl;
-  background-color: $color-text-primary;
-  color: $color-background;
+  background-color: $color-surface-cream;
+  color: $color-text-primary;
 }
 
-.top {
+.mainGrid {
   display: grid;
   gap: $spacing-2xl;
+  padding-block: $spacing-3xl;
 
   @include tablet-up {
-    grid-template-columns: 1fr 2fr;
-    gap: $spacing-3xl;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   @include desktop-up {
-    grid-template-columns: 1.1fr 2fr 0.9fr;
+    grid-template-columns: 1.2fr repeat(4, minmax(0, 1fr));
+    gap: $spacing-xl;
   }
 }
 
 .brand {
   display: flex;
   flex-direction: column;
-  gap: $spacing-sm;
+  gap: $spacing-md;
+
+  @include desktop-up {
+    grid-column: span 1;
+  }
 }
 
 .wordmark {
+  @include serifDisplay;
   margin: 0;
   font-size: $font-size-lg;
-  font-weight: $font-weight-semibold;
-  letter-spacing: $letter-spacing-tight;
-  color: $color-background;
 }
 
 .tagline {
-  max-width: 16rem;
+  max-width: 18rem;
   margin: 0;
   font-size: $font-size-sm;
   line-height: $line-height-relaxed;
-  color: rgb(255 255 255 / 72%);
+  color: $color-text-secondary;
 }
 
 .navGroups {
@@ -49,12 +52,17 @@
   gap: $spacing-xl;
 
   @include tablet-up {
-    grid-template-columns: repeat(3, 1fr);
-    gap: $spacing-lg;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @include desktop-up {
+    display: contents;
   }
 }
 
-.navGroup {
+.navGroup,
+.contact,
+.newsletter {
   display: flex;
   flex-direction: column;
   gap: $spacing-md;
@@ -62,11 +70,8 @@
 
 .navTitle {
   margin: 0;
-  font-size: $font-size-xs;
-  font-weight: $font-weight-medium;
-  letter-spacing: $letter-spacing-wide;
-  text-transform: uppercase;
-  color: rgb(255 255 255 / 60%);
+  @include navLinkUppercase;
+  color: $color-text-secondary;
 }
 
 .navList {
@@ -80,19 +85,15 @@
 
 .navLink {
   font-size: $font-size-sm;
+  color: $color-text-primary;
 }
 
-.contact {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-md;
-}
-
-.contactText {
+.contactText,
+.newsletterText {
   margin: 0;
   font-size: $font-size-sm;
   line-height: $line-height-relaxed;
-  color: rgb(255 255 255 / 72%);
+  color: $color-text-secondary;
 }
 
 .contactList {
@@ -107,7 +108,7 @@
 .contactLink {
   font-size: $font-size-sm;
   line-height: $line-height-relaxed;
-  color: rgb(255 255 255 / 88%);
+  color: $color-text-primary;
   text-decoration: none;
   overflow-wrap: anywhere;
 
@@ -133,14 +134,39 @@
   object-fit: contain;
 }
 
-.bottom {
-  margin-block-start: $spacing-2xl;
-  padding-block-start: $spacing-lg;
-  border-top: 1px solid rgb(255 255 255 / 16%);
+.bottomBar {
+  background-color: $color-footer-bar;
+  color: $color-background;
 }
 
-.copyright {
+.bottomInner {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  padding-block: $spacing-md;
+
+  @include tablet-up {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.copyright,
+.weblioCredit {
   margin: 0;
   font-size: $font-size-xs;
-  color: rgb(255 255 255 / 60%);
+  color: rgb(255 255 255 / 72%);
+}
+
+.weblioLink {
+  color: rgb(255 255 255 / 72%);
+  text-decoration: none;
+
+  @include focus-visible;
+}
+
+.weblioLink:hover {
+  color: $color-background;
+  text-decoration: underline;
 }

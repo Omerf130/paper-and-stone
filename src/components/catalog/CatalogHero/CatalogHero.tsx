@@ -3,14 +3,17 @@ import styles from "./CatalogHero.module.scss";
 
 type CatalogHeroProps = {
   content: PublicCatalogPageContentView;
+  title?: string;
+  description?: string;
 };
 
-export default function CatalogHero({ content }: CatalogHeroProps) {
+export default function CatalogHero({ content, title, description }: CatalogHeroProps) {
   return (
     <header className={styles.hero}>
-      <p className={styles.eyebrow}>{content.eyebrow}</p>
-      <h1 className={styles.title}>{content.heading}</h1>
-      <p className={styles.description}>{content.supportingText}</p>
+      <h1 className={styles.title}>{title ?? content.heading}</h1>
+      {(description ?? content.supportingText) ? (
+        <p className={styles.description}>{description ?? content.supportingText}</p>
+      ) : null}
     </header>
   );
 }

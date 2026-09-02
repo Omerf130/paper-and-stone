@@ -1,6 +1,11 @@
+export type CatalogSort = "name-asc" | "name-desc";
+
 export type CatalogParams = {
   query: string | null;
   categorySlug: string | null;
+  brand: string | null;
+  material: string | null;
+  sort: CatalogSort;
   page: number;
   projectId: string | null;
   roomId: string | null;
@@ -9,6 +14,9 @@ export type CatalogParams = {
 export type CatalogHrefInput = {
   query?: string | null;
   categorySlug?: string | null;
+  brand?: string | null;
+  material?: string | null;
+  sort?: CatalogSort;
   page?: number;
   projectId?: string | null;
   roomId?: string | null;
@@ -39,6 +47,49 @@ function parseStringParam(
   return trimmed ? trimmed : null;
 }
 
+function parseSortParam(raw: string | string[] | undefined): CatalogSort {
+  const value = Array.isArray(raw) ? raw[0] : raw;
+
+  if (value === "name-desc") {
+    return "name-desc";
+  }
+
+  return "name-asc";
+}
+
+function appendFilterParams(
+  params: URLSearchParams,
+  input: Pick<CatalogHrefInput, "query" | "categorySlug" | "brand" | "material" | "sort" | "page">,
+): void {
+  const query = input.query?.trim();
+  if (query) {
+    params.set("q", query);
+  }
+
+  const categorySlug = input.categorySlug?.trim();
+  if (categorySlug) {
+    params.set("category", categorySlug);
+  }
+
+  const brand = input.brand?.trim();
+  if (brand) {
+    params.set("brand", brand);
+  }
+
+  const material = input.material?.trim();
+  if (material) {
+    params.set("material", material);
+  }
+
+  if (input.sort && input.sort !== "name-asc") {
+    params.set("sort", input.sort);
+  }
+
+  if (input.page && input.page > 1) {
+    params.set("page", String(input.page));
+  }
+}
+
 function appendProjectContextParams(
   params: URLSearchParams,
   input: Pick<CatalogHrefInput, "projectId" | "roomId">,
@@ -60,6 +111,9 @@ export function parseCatalogParams(
   return {
     query: parseStringParam(raw.q),
     categorySlug: parseStringParam(raw.category),
+    brand: parseStringParam(raw.brand),
+    material: parseStringParam(raw.material),
+    sort: parseSortParam(raw.sort),
     page: parsePageValue(raw.page),
     projectId: parseStringParam(raw.project),
     roomId: parseStringParam(raw.room),
@@ -73,20 +127,7 @@ export function hasCatalogProjectContext(params: CatalogParams): boolean {
 export function buildCatalogHref(input: CatalogHrefInput = {}): string {
   const params = new URLSearchParams();
 
-  const query = input.query?.trim();
-  if (query) {
-    params.set("q", query);
-  }
-
-  const categorySlug = input.categorySlug?.trim();
-  if (categorySlug) {
-    params.set("category", categorySlug);
-  }
-
-  if (input.page && input.page > 1) {
-    params.set("page", String(input.page));
-  }
-
+  appendFilterParams(params, input);
   appendProjectContextParams(params, input);
 
   const search = params.toString();
@@ -101,20 +142,7 @@ export function buildProductWithProjectContextHref(
   const params = new URLSearchParams();
 
   appendProjectContextParams(params, input);
-
-  const query = input.query?.trim();
-  if (query) {
-    params.set("q", query);
-  }
-
-  const categorySlug = input.categorySlug?.trim();
-  if (categorySlug) {
-    params.set("category", categorySlug);
-  }
-
-  if (input.page && input.page > 1) {
-    params.set("page", String(input.page));
-  }
+  appendFilterParams(params, input);
 
   const search = params.toString();
 
@@ -140,6 +168,9 @@ export function catalogParamsToHrefInput(params: CatalogParams): CatalogHrefInpu
   return {
     query: params.query,
     categorySlug: params.categorySlug,
+    brand: params.brand,
+    material: params.material,
+    sort: params.sort,
     page: params.page,
     projectId: params.projectId,
     roomId: params.roomId,
@@ -147,5 +178,7 @@ export function catalogParamsToHrefInput(params: CatalogParams): CatalogHrefInpu
 }
 
 export function hasCatalogFilters(params: CatalogParams): boolean {
-  return Boolean(params.query || params.categorySlug);
+  return Boolean(
+    params.query || params.categorySlug || params.brand || params.material,
+  );
 }

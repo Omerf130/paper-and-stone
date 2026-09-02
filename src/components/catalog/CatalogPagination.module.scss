@@ -1,73 +1,25 @@
 @use "../../styles/tokens" as *;
 @use "../../styles/mixins" as *;
+@use "../../styles/typography" as *;
 
 .nav {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
   justify-content: center;
-  gap: $spacing-md;
   margin-block-start: $spacing-3xl;
 }
 
-.control,
-.pageLink,
-.current,
-.disabled {
+.loadMore {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  min-width: 2rem;
-  min-height: 2rem;
-  padding-inline: $spacing-sm;
-  font-size: $font-size-sm;
-}
-
-.control,
-.pageLink {
-  color: $color-text-secondary;
+  gap: $spacing-sm;
+  padding-block: $spacing-sm;
+  @include navLinkUppercase;
+  color: $color-text-primary;
   text-decoration: none;
-  border: none;
-  background: transparent;
 
   @include focus-visible;
-
-  &:hover {
-    color: $color-text-primary;
-    text-decoration: underline;
-    text-underline-offset: 0.15em;
-  }
 }
 
-.disabled {
-  color: $color-text-secondary;
-  opacity: 0.45;
-}
-
-.pages {
-  display: flex;
-  flex-wrap: wrap;
-  gap: $spacing-sm;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.pageItem {
-  display: inline-flex;
-  align-items: center;
-  gap: $spacing-xs;
-}
-
-.current {
-  font-weight: $font-weight-medium;
-  color: $color-text-primary;
-  text-decoration: underline;
-  text-underline-offset: 0.15em;
-}
-
-.ellipsis {
-  min-width: 1.5rem;
-  text-align: center;
+.loadMore:hover {
   color: $color-text-secondary;
 }

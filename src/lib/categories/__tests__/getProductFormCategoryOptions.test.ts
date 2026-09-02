@@ -14,7 +14,7 @@ vi.mock("@/models/Category", () => ({
   },
 }));
 
-describe("getProductFormCategoryOptions", () => {
+describe("getProductFormCategoryTree", () => {
   beforeEach(() => {
     findMock.mockReset();
     findByIdMock.mockReset();
@@ -24,9 +24,24 @@ describe("getProductFormCategoryOptions", () => {
         select: vi.fn().mockReturnValue({
           lean: vi.fn().mockResolvedValue([
             {
-              _id: { toString: () => "active-1" },
-              nameHe: "שולחנות",
-              isActive: true,
+              _id: { toString: () => "dept-1" },
+              slug: "living",
+              nameHe: "מגורים",
+              kind: "department",
+            },
+            {
+              _id: { toString: () => "group-1" },
+              slug: "seating",
+              nameHe: "ישיבה",
+              kind: "group",
+              parentId: { toString: () => "dept-1" },
+            },
+            {
+              _id: { toString: () => "leaf-1" },
+              slug: "sofas",
+              nameHe: "ספות",
+              kind: "leaf",
+              parentId: { toString: () => "group-1" },
             },
           ]),
         }),
@@ -34,39 +49,50 @@ describe("getProductFormCategoryOptions", () => {
     });
   });
 
-  it("returns only active categories for create flow", async () => {
-    const { getProductFormCategoryOptions } = await import(
+  it("returns hierarchical parent options and breadcrumb leaves", async () => {
+    const { getProductFormCategoryTree } = await import(
       "@/lib/categories/getProductFormCategoryOptions"
     );
-    const options = await getProductFormCategoryOptions();
+    const tree = await getProductFormCategoryTree();
 
-    expect(findMock).toHaveBeenCalledWith({ isActive: true });
-    expect(options).toEqual([
-      { id: "active-1", nameHe: "שולחנות", isActive: true },
+    expect(findMock).toHaveBeenCalledWith({
+      taxonomyKey: { $exists: true, $ne: null },
+      isActive: true,
+    });
+    expect(tree.parentOptions).toHaveLength(2);
+    expect(tree.leaves).toEqual([
+      expect.objectContaining({
+        id: "leaf-1",
+        breadcrumb: "מגורים › ישיבה › ספות",
+      }),
     ]);
   });
 
-  it("includes inactive current category for edit flow", async () => {
+  it("includes inactive current leaf for edit flow", async () => {
     findByIdMock.mockReturnValue({
       select: vi.fn().mockReturnValue({
         lean: vi.fn().mockResolvedValue({
           _id: { toString: () => "inactive-1" },
-          nameHe: "ספות",
+          slug: "legacy",
+          nameHe: "ספות ישנות",
+          kind: "leaf",
+          parentId: { toString: () => "group-1" },
           isActive: false,
         }),
       }),
     });
 
-    const { getProductFormCategoryOptions } = await import(
+    const { getProductFormCategoryTree } = await import(
       "@/lib/categories/getProductFormCategoryOptions"
     );
-    const options = await getProductFormCategoryOptions("inactive-1");
+    const tree = await getProductFormCategoryTree("inactive-1");
 
-    expect(options).toHaveLength(2);
-    expect(options[1]).toEqual({
-      id: "inactive-1",
-      nameHe: "ספות",
-      isActive: false,
-    });
+    expect(tree.leaves.some((leaf) => leaf.id === "inactive-1")).toBe(true);
+    expect(tree.leaves.find((leaf) => leaf.id === "inactive-1")).toEqual(
+      expect.objectContaining({
+        isActive: false,
+        breadcrumb: "ספות ישנות",
+      }),
+    );
   });
 });

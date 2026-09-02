@@ -1,4 +1,5 @@
 import type { PublicImageView } from "@/types/product-media";
+import type { CatalogSort } from "@/lib/catalog/catalog-params";
 
 export type CatalogProductView = {
   slug: string;
@@ -17,6 +18,9 @@ export type PublicCategoryView = {
 export type CatalogQueryInput = {
   query?: string | null;
   categorySlug?: string | null;
+  brand?: string | null;
+  material?: string | null;
+  sort?: CatalogSort;
   page?: number;
   pageSize?: number;
 };
@@ -30,6 +34,9 @@ export type CatalogQueryResult = {
   appliedFilters: {
     query: string | null;
     categorySlug: string | null;
+    brand: string | null;
+    material: string | null;
+    sort: CatalogSort;
   };
 };
 

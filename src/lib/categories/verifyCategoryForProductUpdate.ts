@@ -4,6 +4,7 @@ import Category from "@/models/Category";
 import Product from "@/models/Product";
 import { PRODUCT_ERRORS } from "@/lib/products/product-validation";
 import { ProductMutationError } from "@/lib/products/product-mutation-error";
+import { isProductAssignableCategoryKind } from "@/types/category-kind";
 
 export async function verifyCategoryForProductUpdate(
   categoryId: string,
@@ -25,7 +26,7 @@ export async function verifyCategoryForProductUpdate(
 
   const existingCategoryId = product.categoryId.toString();
   const category = await Category.findById(categoryId)
-    .select("_id isActive")
+    .select("_id isActive kind taxonomyKey parentId")
     .lean();
 
   if (!category) {
@@ -39,6 +40,18 @@ export async function verifyCategoryForProductUpdate(
   }
 
   if (!category.isActive) {
+    throw new ProductMutationError(PRODUCT_ERRORS.INVALID_CATEGORY, {
+      categoryId: PRODUCT_ERRORS.INVALID_CATEGORY,
+    });
+  }
+
+  if (!isProductAssignableCategoryKind(category.kind)) {
+    throw new ProductMutationError(PRODUCT_ERRORS.INVALID_CATEGORY, {
+      categoryId: PRODUCT_ERRORS.INVALID_CATEGORY,
+    });
+  }
+
+  if (!category.taxonomyKey || !category.parentId) {
     throw new ProductMutationError(PRODUCT_ERRORS.INVALID_CATEGORY, {
       categoryId: PRODUCT_ERRORS.INVALID_CATEGORY,
     });

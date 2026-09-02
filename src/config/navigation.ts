@@ -13,6 +13,12 @@ export const mainNavItems: NavItem[] = [
   { label: "צור קשר" },
 ];
 
+export const secondaryNavItems: NavItem[] = [
+  { label: "לאדריכלים ומעצבים" },
+  { label: "אודות" },
+  { label: "צור קשר" },
+];
+
 export type FooterNavGroup = {
   title: string;
   items: NavItem[];

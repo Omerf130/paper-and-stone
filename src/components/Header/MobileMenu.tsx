@@ -8,27 +8,34 @@ import {
   canAccessClientWorkspace,
 } from "@/lib/auth/account-access";
 import type { SafeUser } from "@/types/user";
+import type { PublicCategoryNavTreeView } from "@/types/public-category-nav";
 import PublicNavItem from "./PublicNavItem";
 import { CloseIcon, MenuIcon } from "./icons";
 import styles from "./MobileMenu.module.scss";
 
 type MobileMenuProps = {
-  items: NavItem[];
+  navTree: PublicCategoryNavTreeView;
+  secondaryItems: NavItem[];
   user: SafeUser | null;
   logoutAction: () => Promise<void>;
 };
 
 export default function MobileMenu({
-  items,
+  navTree,
+  secondaryItems,
   user,
   logoutAction,
 }: MobileMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [expandedDepartmentSlug, setExpandedDepartmentSlug] = useState<string | null>(
+    null,
+  );
   const toggleRef = useRef<HTMLButtonElement>(null);
   const panelId = useId();
 
   const closeMenu = useCallback(() => {
     setIsOpen(false);
+    setExpandedDepartmentSlug(null);
     toggleRef.current?.focus();
   }, []);
 
@@ -82,11 +89,7 @@ export default function MobileMenu({
 
       {isOpen && (
         <div className={styles.overlay}>
-          <nav
-            id={panelId}
-            className={styles.panel}
-            aria-label="ניווט ראשי"
-          >
+          <nav id={panelId} className={styles.panel} aria-label="ניווט ראשי">
             <div className={styles.panelHeader}>
               <span className={styles.panelTitle}>תפריט</span>
               <button
@@ -99,17 +102,99 @@ export default function MobileMenu({
               </button>
             </div>
 
-            <ul className={styles.list}>
-              {items.map((item) => (
-                <li key={item.label}>
-                  <PublicNavItem
-                    item={item}
-                    className={styles.link}
-                    onNavigate={closeMenu}
-                  />
+            <div className={styles.section}>
+              <p className={styles.sectionTitle}>קטגוריות</p>
+              <ul className={styles.list}>
+                <li>
+                  <Link href="/products" className={styles.link} onClick={closeMenu}>
+                    כל המוצרים
+                  </Link>
                 </li>
-              ))}
-            </ul>
+                {navTree.departments.map((department) => (
+                  <li key={department.slug}>
+                    {department.groups.length > 0 ? (
+                      <>
+                        <button
+                          type="button"
+                          className={styles.expandButton}
+                          aria-expanded={expandedDepartmentSlug === department.slug}
+                          onClick={() =>
+                            setExpandedDepartmentSlug((current) =>
+                              current === department.slug ? null : department.slug,
+                            )
+                          }
+                        >
+                          {department.nameHe}
+                        </button>
+                        {expandedDepartmentSlug === department.slug ? (
+                          <ul className={styles.subList}>
+                            {department.groups.map((group) => (
+                              <li key={group.slug}>
+                                <p className={styles.subHeading}>{group.nameHe}</p>
+                                <ul className={styles.subList}>
+                                  {group.leaves.map((leaf) => (
+                                    <li key={leaf.slug}>
+                                      {leaf.isNavigable && leaf.href ? (
+                                        <Link
+                                          href={leaf.href}
+                                          className={styles.subLink}
+                                          onClick={closeMenu}
+                                        >
+                                          {leaf.nameHe}
+                                        </Link>
+                                      ) : (
+                                        <span
+                                          className={`${styles.subLink} ${styles.subLinkDisabled}`}
+                                          aria-disabled="true"
+                                        >
+                                          {leaf.nameHe}
+                                        </span>
+                                      )}
+                                    </li>
+                                  ))}
+                                </ul>
+                              </li>
+                            ))}
+                          </ul>
+                        ) : null}
+                      </>
+                    ) : department.isNavigable && department.href ? (
+                      <Link
+                        href={department.href}
+                        className={styles.link}
+                        onClick={closeMenu}
+                      >
+                        {department.nameHe}
+                      </Link>
+                    ) : (
+                      <span
+                        className={`${styles.link} ${styles.subLinkDisabled}`}
+                        aria-disabled="true"
+                      >
+                        {department.nameHe}
+                      </span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {secondaryItems.length > 0 ? (
+              <div className={styles.section}>
+                <p className={styles.sectionTitle}>עוד</p>
+                <ul className={styles.list}>
+                  {secondaryItems.map((item) => (
+                    <li key={item.label}>
+                      <PublicNavItem
+                        item={item}
+                        className={styles.link}
+                        onNavigate={closeMenu}
+                      />
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
 
             <div className={styles.account}>
               {user ? (

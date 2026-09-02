@@ -31,13 +31,16 @@ import {
 } from "@/lib/suppliers/supplier-validation";
 import type { AdminSupplierFormInput } from "@/types/admin-supplier";
 
-export async function createCategoryInlineAction(nameHe: string): Promise<
-  | { success: true; categoryId: string; nameHe: string }
+export async function createCategoryInlineAction(input: {
+  nameHe: string;
+  parentId: string;
+}): Promise<
+  | { success: true; categoryId: string; nameHe: string; breadcrumb: string }
   | { error: string }
 > {
   await requireAdmin();
 
-  const result = await createCategoryInline(nameHe);
+  const result = await createCategoryInline(input);
   if (!result.ok) {
     return { error: result.message };
   }
@@ -46,6 +49,7 @@ export async function createCategoryInlineAction(nameHe: string): Promise<
     success: true,
     categoryId: result.categoryId,
     nameHe: result.nameHe,
+    breadcrumb: result.nameHe,
   };
 }
 

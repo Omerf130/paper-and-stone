@@ -11,12 +11,15 @@ vi.mock("@/lib/db/mongoose", () => ({
 }));
 
 vi.mock("@/lib/catalog/resolve-active-category-slug", () => ({
-  resolveActiveCategorySlug: vi.fn(async (slug: string | null) => {
+  resolveCategoryCatalogFilter: vi.fn(async (slug: string | null | undefined) => {
     if (slug === "sofas") {
-      return new Types.ObjectId("507f1f77bcf86cd799439011");
+      return {
+        categoryIds: [new Types.ObjectId("507f1f77bcf86cd799439011")],
+        appliedCategorySlug: "sofas",
+      };
     }
 
-    return null;
+    return { categoryIds: [], appliedCategorySlug: null };
   }),
 }));
 
@@ -114,6 +117,9 @@ describe("getPublicProducts", () => {
       appliedFilters: {
         query: "milano",
         categorySlug: null,
+        brand: null,
+        material: null,
+        sort: "name-asc",
       },
     });
   });

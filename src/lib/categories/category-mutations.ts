@@ -1,3 +1,4 @@
+import { Types } from "mongoose";
 import { connectDB } from "@/lib/db/mongoose";
 import { isDuplicateKeyError } from "@/lib/products/product-validation";
 import Category from "@/models/Category";
@@ -25,6 +26,11 @@ export async function createCategory(
       nameHe: fields.nameHe,
       nameEn: fields.nameEn,
       slug: fields.slug,
+      kind: fields.kind ?? "leaf",
+      parentId: fields.parentId ? new Types.ObjectId(fields.parentId) : undefined,
+      taxonomyKey: fields.taxonomyKey,
+      descriptionHe: fields.descriptionHe,
+      descriptionEn: fields.descriptionEn,
       sortOrder: fields.sortOrder,
       isActive: fields.isActive,
     });

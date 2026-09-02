@@ -1,0 +1,46 @@
+@use "../../styles/tokens" as *;
+@use "../../styles/mixins" as *;
+@use "../../styles/typography" as *;
+
+.strip {
+  margin-block-start: $spacing-3xl;
+  padding-block: $spacing-2xl;
+  border-block-start: 1px solid $color-border;
+  background-color: $color-surface-cream;
+}
+
+.inner {
+  display: grid;
+  gap: $spacing-xl;
+  max-width: $container-max-width-wide;
+  margin-inline: auto;
+  padding-inline: $container-padding-inline;
+
+  @include tablet-up {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @include desktop-up {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: $spacing-lg;
+  }
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+}
+
+.title {
+  margin: 0;
+  @include navLinkUppercase;
+  font-size: 0.6875rem;
+}
+
+.description {
+  margin: 0;
+  font-size: $font-size-sm;
+  line-height: $line-height-relaxed;
+  color: $color-text-secondary;
+}

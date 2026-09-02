@@ -2,8 +2,10 @@ import { Types } from "mongoose";
 import { connectDB } from "@/lib/db/mongoose";
 import Category from "@/models/Category";
 import Product from "@/models/Product";
+import type { CatalogSort } from "@/lib/catalog/catalog-params";
 import { escapeRegex } from "@/lib/catalog/escape-regex";
 import { calculatePagination } from "@/lib/catalog/catalog-pagination";
+import { resolveCatalogSort } from "@/lib/catalog/build-product-catalog-filter";
 import { normalizeProductSku } from "@/lib/products/normalize-product-sku";
 import { mapProductToCatalogView } from "@/lib/products/mapProductToCatalogView";
 import type { CatalogQueryResult } from "@/types/catalog";
@@ -19,7 +21,10 @@ import type { CatalogQueryResult } from "@/types/catalog";
  */
 export async function searchPublicCatalogProducts(input: {
   query: string;
-  categoryId?: Types.ObjectId | null;
+  categoryIds?: Types.ObjectId[];
+  brand?: string | null;
+  material?: string | null;
+  sort?: CatalogSort;
   page: number;
   pageSize: number;
   categorySlug?: string | null;
@@ -31,6 +36,9 @@ export async function searchPublicCatalogProducts(input: {
   const escaped = escapeRegex(trimmedQuery);
   const regexPattern = escaped;
   const prefixPattern = `^${escaped}`;
+  const brand = input.brand?.trim() || null;
+  const material = input.material?.trim() || null;
+  const sort = input.sort ?? "name-asc";
 
   const matchStage: Record<string, unknown> = {
     isActive: true,
@@ -44,8 +52,18 @@ export async function searchPublicCatalogProducts(input: {
     ],
   };
 
-  if (input.categoryId) {
-    matchStage.categoryId = input.categoryId;
+  if (input.categoryIds && input.categoryIds.length === 1) {
+    matchStage.categoryId = input.categoryIds[0];
+  } else if (input.categoryIds && input.categoryIds.length > 1) {
+    matchStage.categoryId = { $in: input.categoryIds };
+  }
+
+  if (brand) {
+    matchStage.brand = brand;
+  }
+
+  if (material) {
+    matchStage.materials = material;
   }
 
   const total = await Product.countDocuments(matchStage);
@@ -54,6 +72,8 @@ export async function searchPublicCatalogProducts(input: {
     page: input.page,
     pageSize: input.pageSize,
   });
+
+  const sortSpec = resolveCatalogSort(sort);
 
   const pipeline = [
     { $match: matchStage },
@@ -90,7 +110,7 @@ export async function searchPublicCatalogProducts(input: {
         },
       },
     },
-    { $sort: { searchRank: 1 as const, nameHe: 1 as const } },
+    { $sort: { searchRank: 1 as const, nameHe: sortSpec.nameHe } },
     { $skip: pagination.skip },
     { $limit: pagination.pageSize },
   ];
@@ -134,6 +154,9 @@ export async function searchPublicCatalogProducts(input: {
     appliedFilters: {
       query: trimmedQuery,
       categorySlug: input.categorySlug ?? null,
+      brand,
+      material,
+      sort,
     },
   };
 }

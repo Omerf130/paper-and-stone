@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Container from "@/components/Container/Container";
+import BenefitsStrip from "@/components/BenefitsStrip/BenefitsStrip";
 import PublicNavItem from "@/components/Header/PublicNavItem";
 import { footerNavGroups } from "@/config/navigation";
 import type { PublicSiteSettingsView } from "@/types/public-site-settings";
@@ -16,8 +17,8 @@ export default function Footer({ siteSettings }: FooterProps) {
 
   return (
     <footer className={styles.footer}>
-      <Container>
-        <div className={styles.top}>
+      <Container variant="wide">
+        <div className={styles.mainGrid}>
           <div className={styles.brand}>
             {siteSettings.logo ? (
               <div className={styles.logoWrap}>
@@ -50,7 +51,7 @@ export default function Footer({ siteSettings }: FooterProps) {
                       <PublicNavItem
                         item={item}
                         className={styles.navLink}
-                        tone="dark"
+                        tone="light"
                       />
                     </li>
                   ))}
@@ -79,14 +80,37 @@ export default function Footer({ siteSettings }: FooterProps) {
               <p className={styles.contactText}>פרטי יצירת קשר — בקרוב</p>
             )}
           </div>
-        </div>
 
-        <div className={styles.bottom}>
-          <p className={styles.copyright}>
-            &copy; {year} {copyrightName}
-          </p>
+          <div className={styles.newsletter}>
+            <p className={styles.navTitle}>הישארו מחוברים</p>
+            <p className={styles.newsletterText}>
+              הרשמה לעדכונים — בקרוב
+            </p>
+          </div>
         </div>
       </Container>
+
+      <BenefitsStrip />
+
+      <div className={styles.bottomBar}>
+        <Container variant="wide">
+          <div className={styles.bottomInner}>
+            <p className={styles.copyright}>
+              &copy; {year} {copyrightName}
+            </p>
+            <p className={styles.weblioCredit}>
+              <a
+                href="https://www.weblio.co.il/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.weblioLink}
+              >
+                אתר זה נבנה על ידי Weblio
+              </a>
+            </p>
+          </div>
+        </Container>
+      </div>
     </footer>
   );
 }

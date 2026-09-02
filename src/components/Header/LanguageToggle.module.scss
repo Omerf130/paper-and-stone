@@ -1,0 +1,28 @@
+@use "../../styles/tokens" as *;
+
+.toggle {
+  display: none;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: $font-size-xs;
+  letter-spacing: $letter-spacing-wide;
+  color: $color-text-secondary;
+  white-space: nowrap;
+
+  @media (min-width: $breakpoint-desktop) {
+    display: inline-flex;
+  }
+}
+
+.inactive {
+  color: $color-text-secondary;
+}
+
+.separator {
+  color: $color-border;
+}
+
+.active {
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+}

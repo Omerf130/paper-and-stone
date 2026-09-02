@@ -2,7 +2,9 @@
 
 // Colors
 $color-background: #ffffff;
+$color-surface-cream: #f9f8f6;
 $color-background-subtle: #fafafa;
+$color-footer-bar: #1a1a1a;
 $color-text-primary: #1a1a1a;
 $color-text-secondary: #6b6b6b;
 $color-border: #e5e5e5;
@@ -40,6 +42,8 @@ $color-interactive-active: #e8e8e8;
 // Typography
 $font-family-base: system-ui, -apple-system, "Segoe UI", "Helvetica Neue", Arial,
   "Noto Sans Hebrew", sans-serif;
+$font-family-serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia,
+  "Times New Roman", serif;
 
 $font-size-xs: 0.75rem;
 $font-size-sm: 0.875rem;
@@ -73,10 +77,13 @@ $spacing-4xl: 6rem;
 
 // Layout
 $container-max-width: 72rem;
+$container-max-width-wide: 87.5rem;
 $product-hero-max-width: 90rem;
 $container-padding-inline: $spacing-lg;
 $header-height-mobile: 3.5rem;
-$header-height-desktop: 4.5rem;
+$header-height-desktop: 4rem;
+$catalog-sidebar-width: 15rem;
+$category-tile-aspect-ratio: 4 / 5;
 $admin-sidebar-width: 16.5rem;
 $admin-sidebar-width-collapsed: 3.75rem;
 $admin-page-max-width: 56rem;
@@ -100,6 +107,7 @@ $focus-ring-offset: 2px;
 
 // Z-index
 $z-index-header: 100;
+$z-index-mega-menu: 150;
 $z-index-mobile-menu: 200;
 $z-index-toast: 300;
 $z-index-dialog: 400;

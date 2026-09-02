@@ -120,16 +120,15 @@ async function seed() {
   loadEnvLocal();
   await connectDB();
 
-  const category = await Category.findOneAndUpdate(
-    { slug: "sofas" },
-    {
-      nameHe: "ספות",
-      slug: "sofas",
-      isActive: true,
-      sortOrder: 1,
-    },
-    { upsert: true, returnDocument: "after", setDefaultsOnInsert: true },
+  const { ensureCatalogTaxonomy } = await import(
+    "../src/lib/categories/ensure-catalog-taxonomy"
   );
+  const taxonomyResult = await ensureCatalogTaxonomy();
+
+  const category = await Category.findOne({ slug: "sofas" }).lean();
+  if (!category) {
+    throw new Error("Expected sofas leaf category after taxonomy seed");
+  }
 
   const colorIdsByCode = await seedDemoColors();
   const materialIdsByCode = await seedDemoMaterials(colorIdsByCode);
@@ -216,7 +215,7 @@ async function seed() {
   );
 
   console.log(
-    "Seed complete: category=sofas, product=milano-sofa, demo library colors/materials/materialOptions",
+    `Seed complete: taxonomy=${JSON.stringify(taxonomyResult)}, category=sofas, product=milano-sofa, demo library colors/materials/materialOptions`,
   );
 
   const { seedAdmin } = await import("../src/lib/auth/seed-admin");

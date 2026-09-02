@@ -1,5 +1,6 @@
 @use "../../styles/tokens" as *;
 @use "../../styles/mixins" as *;
+@use "../../styles/typography" as *;
 
 .header {
   position: sticky;
@@ -7,17 +8,25 @@
   z-index: $z-index-header;
   background-color: $color-background;
   border-bottom: 1px solid $color-border;
+  overflow: visible;
+  --site-header-height: #{$header-height-mobile};
+
+  @include desktop-up {
+    --site-header-height: #{$header-height-desktop};
+  }
 }
 
 .inner {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: $spacing-lg;
+  gap: $spacing-md;
   min-height: $header-height-mobile;
 
   @include desktop-up {
     min-height: $header-height-desktop;
+    gap: $spacing-lg;
   }
 }
 
@@ -31,10 +40,8 @@
 }
 
 .wordmark {
+  @include serifDisplay;
   font-size: $font-size-base;
-  font-weight: $font-weight-semibold;
-  letter-spacing: $letter-spacing-tight;
-  color: $color-text-primary;
   white-space: nowrap;
 
   @include tablet-up {
@@ -58,41 +65,32 @@
   object-fit: contain;
 }
 
-.desktopNav {
-  display: none;
-  flex: 1;
-  justify-content: center;
-
-  @include desktop-up {
-    display: block;
-  }
-}
-
-.navList {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: $spacing-md $spacing-xl;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
 .actions {
   display: flex;
   flex-shrink: 0;
   align-items: center;
-  gap: $spacing-md;
-}
-
-.account {
-  display: none;
-  font-size: $font-size-sm;
-  color: $color-text-secondary;
-  white-space: nowrap;
+  gap: $spacing-sm;
 
   @include desktop-up {
-    display: block;
+    gap: $spacing-md;
   }
+}
+
+.searchLink {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  inline-size: 2.25rem;
+  block-size: 2.25rem;
+  color: $color-text-primary;
+
+  @include desktop-up {
+    display: inline-flex;
+  }
+
+  @include focus-visible;
+}
+
+.searchLink:hover {
+  color: $color-text-secondary;
 }

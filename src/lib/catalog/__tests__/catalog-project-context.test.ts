@@ -20,6 +20,9 @@ describe("catalog project context params", () => {
     ).toEqual({
       query: "sofa",
       categorySlug: "chairs",
+      brand: null,
+      material: null,
+      sort: "name-asc",
       page: 2,
       projectId: "507f1f77bcf86cd799439011",
       roomId: "507f1f77bcf86cd799439012",
@@ -67,6 +70,9 @@ describe("catalog project context params", () => {
       hasCatalogProjectContext({
         query: null,
         categorySlug: null,
+        brand: null,
+        material: null,
+        sort: "name-asc",
         page: 1,
         projectId: "507f1f77bcf86cd799439011",
         roomId: "507f1f77bcf86cd799439012",
@@ -76,6 +82,9 @@ describe("catalog project context params", () => {
       hasCatalogProjectContext({
         query: null,
         categorySlug: null,
+        brand: null,
+        material: null,
+        sort: "name-asc",
         page: 1,
         projectId: "507f1f77bcf86cd799439011",
         roomId: null,

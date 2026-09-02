@@ -45,3 +45,19 @@
     font-size: $font-size-lg;
   }
 }
+
+@mixin serifDisplay {
+  font-family: $font-family-serif;
+  font-weight: $font-weight-normal;
+  line-height: $line-height-tight;
+  letter-spacing: $letter-spacing-tight;
+  color: $color-text-primary;
+}
+
+@mixin navLinkUppercase {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-normal;
+  letter-spacing: $letter-spacing-wide;
+  text-transform: uppercase;
+  color: $color-text-primary;
+}

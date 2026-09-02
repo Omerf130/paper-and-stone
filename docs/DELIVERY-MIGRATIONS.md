@@ -21,11 +21,18 @@ Use `.env.local` with a valid `MONGODB_URI`.
    npm run migrate:pricing-v2
    ```
 
+4. **Category taxonomy** — if categories predate the department/group/leaf structure:
+   ```bash
+   npm run migrate:category-taxonomy
+   ```
+   Maps existing `sofas` slug into Living → Seating → Sofas. Safe to re-run.
+
 ## Idempotency
 
 - `migrate:18c-account-status` — safe to re-run
 - `migrate:19b-catalog` — skips variant creation when already present; may still backfill names
 - `migrate:pricing-v2` — safe to re-run (tested idempotency)
+- `migrate:category-taxonomy` — safe to re-run; upserts predefined taxonomy and maps legacy slugs
 
 ## Product media recovery
 

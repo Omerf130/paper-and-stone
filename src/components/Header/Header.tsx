@@ -1,13 +1,17 @@
 import Image from "next/image";
 import Link from "next/link";
 import Container from "@/components/Container/Container";
+import { secondaryNavItems } from "@/config/navigation";
+import { getPublicCategoryNavTree } from "@/lib/categories/get-public-category-nav-tree";
+import { getPublicHomepageContent } from "@/lib/cms/get-public-homepage-content";
 import { getCurrentUser } from "@/lib/auth/current-user";
 import { logoutAction } from "@/lib/auth/logout-action";
-import { mainNavItems } from "@/config/navigation";
 import type { PublicSiteSettingsView } from "@/types/public-site-settings";
-import HeaderAccount from "./HeaderAccount";
+import HeaderAccountIcon from "./HeaderAccountIcon";
+import HeaderDesktopNav from "./HeaderDesktopNav";
+import LanguageToggle from "./LanguageToggle";
 import MobileMenu from "./MobileMenu";
-import PublicNavItem from "./PublicNavItem";
+import { SearchIcon } from "./icons";
 import styles from "./Header.module.scss";
 
 type HeaderProps = {
@@ -15,11 +19,21 @@ type HeaderProps = {
 };
 
 export default async function Header({ siteSettings }: HeaderProps) {
-  const user = await getCurrentUser();
+  const [user, homepageContent] = await Promise.all([
+    getCurrentUser(),
+    getPublicHomepageContent(),
+  ]);
+
+  const navTree = await getPublicCategoryNavTree({
+    homepageCategoryTileHrefs: homepageContent.categories.tiles.map((tile) => ({
+      href: tile.href,
+      image: tile.image,
+    })),
+  });
 
   return (
     <header className={styles.header}>
-      <Container>
+      <Container variant="wide">
         <div className={styles.inner}>
           <Link href="/" className={styles.brandLink}>
             {siteSettings.logo ? (
@@ -38,23 +52,19 @@ export default async function Header({ siteSettings }: HeaderProps) {
             )}
           </Link>
 
-          <nav className={styles.desktopNav} aria-label="ניווט ראשי">
-            <ul className={styles.navList}>
-              {mainNavItems.map((item) => (
-                <li key={item.label}>
-                  <PublicNavItem item={item} />
-                </li>
-              ))}
-            </ul>
-          </nav>
+          <HeaderDesktopNav navTree={navTree} />
 
           <div className={styles.actions}>
-            <div className={styles.account}>
-              <HeaderAccount user={user} />
-            </div>
+            <Link href="/products" className={styles.searchLink} aria-label="חיפוש מוצרים">
+              <SearchIcon />
+            </Link>
+
+            <HeaderAccountIcon user={user} />
+            <LanguageToggle />
 
             <MobileMenu
-              items={mainNavItems}
+              navTree={navTree}
+              secondaryItems={secondaryNavItems}
               user={user}
               logoutAction={logoutAction}
             />

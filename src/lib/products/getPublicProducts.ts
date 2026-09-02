@@ -2,16 +2,19 @@ import { connectDB } from "@/lib/db/mongoose";
 import Category from "@/models/Category";
 import Product from "@/models/Product";
 import {
+  buildProductCatalogFilter,
+  resolveCatalogSort,
+} from "@/lib/catalog/build-product-catalog-filter";
+import { calculatePagination } from "@/lib/catalog/catalog-pagination";
+import { resolveCategoryCatalogFilter } from "@/lib/catalog/resolve-active-category-slug";
+import { searchPublicCatalogProducts } from "@/lib/catalog/search-public-catalog-products";
+import { CATALOG_PRIMARY_IMAGE_SELECT } from "@/lib/media/product-media-select";
+import { mapProductToCatalogView } from "./mapProductToCatalogView";
+import {
   CATALOG_PAGE_SIZE,
   type CatalogQueryInput,
   type CatalogQueryResult,
 } from "@/types/catalog";
-import { buildProductCatalogFilter } from "@/lib/catalog/build-product-catalog-filter";
-import { calculatePagination } from "@/lib/catalog/catalog-pagination";
-import { resolveActiveCategorySlug } from "@/lib/catalog/resolve-active-category-slug";
-import { searchPublicCatalogProducts } from "@/lib/catalog/search-public-catalog-products";
-import { CATALOG_PRIMARY_IMAGE_SELECT } from "@/lib/media/product-media-select";
-import { mapProductToCatalogView } from "./mapProductToCatalogView";
 
 export async function getPublicProducts(
   input: CatalogQueryInput = {},
@@ -20,16 +23,22 @@ export async function getPublicProducts(
 
   const query = input.query?.trim() || null;
   const requestedCategorySlug = input.categorySlug?.trim() || null;
+  const brand = input.brand?.trim() || null;
+  const material = input.material?.trim() || null;
+  const sort = input.sort ?? "name-asc";
   const pageSize = input.pageSize ?? CATALOG_PAGE_SIZE;
   const requestedPage = input.page ?? 1;
 
-  const categoryId = await resolveActiveCategorySlug(requestedCategorySlug);
-  const appliedCategorySlug = categoryId ? requestedCategorySlug : null;
+  const categoryFilter = await resolveCategoryCatalogFilter(requestedCategorySlug);
+  const appliedCategorySlug = categoryFilter.appliedCategorySlug;
 
   if (query) {
     return searchPublicCatalogProducts({
       query,
-      categoryId,
+      categoryIds: categoryFilter.categoryIds,
+      brand,
+      material,
+      sort,
       page: requestedPage,
       pageSize,
       categorySlug: appliedCategorySlug,
@@ -38,7 +47,9 @@ export async function getPublicProducts(
 
   const filter = buildProductCatalogFilter({
     query,
-    categoryId,
+    categoryIds: categoryFilter.categoryIds,
+    brand,
+    material,
   });
 
   const total = await Product.countDocuments(filter);
@@ -55,7 +66,7 @@ export async function getPublicProducts(
       select: "nameHe",
     })
     .select(`nameHe nameEn slug brand categoryId ${CATALOG_PRIMARY_IMAGE_SELECT}`)
-    .sort({ nameHe: 1 })
+    .sort(resolveCatalogSort(sort))
     .skip(pagination.skip)
     .limit(pagination.pageSize)
     .lean();
@@ -69,6 +80,9 @@ export async function getPublicProducts(
     appliedFilters: {
       query,
       categorySlug: appliedCategorySlug,
+      brand,
+      material,
+      sort,
     },
   };
 }

@@ -3,12 +3,16 @@ import { escapeRegex } from "./escape-regex";
 
 export type ProductCatalogFilterInput = {
   query?: string | null;
-  categoryId?: Types.ObjectId | null;
+  categoryIds?: Types.ObjectId[];
+  brand?: string | null;
+  material?: string | null;
 };
 
 type ProductCatalogFilter = {
   isActive: true;
-  categoryId?: Types.ObjectId;
+  categoryId?: Types.ObjectId | { $in: Types.ObjectId[] };
+  brand?: string;
+  materials?: string;
   $or?: Array<{
     nameHe?: RegExp;
     nameEn?: RegExp;
@@ -20,12 +24,26 @@ type ProductCatalogFilter = {
 
 export function buildProductCatalogFilter({
   query,
-  categoryId,
+  categoryIds,
+  brand,
+  material,
 }: ProductCatalogFilterInput): ProductCatalogFilter {
   const filter: ProductCatalogFilter = { isActive: true };
 
-  if (categoryId) {
-    filter.categoryId = categoryId;
+  if (categoryIds && categoryIds.length === 1) {
+    filter.categoryId = categoryIds[0];
+  } else if (categoryIds && categoryIds.length > 1) {
+    filter.categoryId = { $in: categoryIds };
+  }
+
+  const trimmedBrand = brand?.trim();
+  if (trimmedBrand) {
+    filter.brand = trimmedBrand;
+  }
+
+  const trimmedMaterial = material?.trim();
+  if (trimmedMaterial) {
+    filter.materials = trimmedMaterial;
   }
 
   const trimmedQuery = query?.trim();
@@ -43,4 +61,10 @@ export function buildProductCatalogFilter({
   }
 
   return filter;
+}
+
+export function resolveCatalogSort(sort: "name-asc" | "name-desc" = "name-asc"): {
+  nameHe: 1 | -1;
+} {
+  return { nameHe: sort === "name-desc" ? -1 : 1 };
 }

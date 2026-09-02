@@ -1,5 +1,6 @@
 import { z } from "zod";
 import type { AdminCategoryFormInput } from "@/types/admin-category";
+import { CATEGORY_KINDS, type CategoryKind } from "@/types/category-kind";
 
 export const CATEGORY_ERRORS = {
   DUPLICATE_SLUG: "כבר קיימת קטגוריה עם כתובת זו",
@@ -30,6 +31,11 @@ export type CategoryWriteFields = {
   nameHe: string;
   nameEn?: string;
   slug: string;
+  kind?: CategoryKind;
+  parentId?: string;
+  taxonomyKey?: string;
+  descriptionHe?: string;
+  descriptionEn?: string;
   sortOrder: number;
   isActive: boolean;
 };

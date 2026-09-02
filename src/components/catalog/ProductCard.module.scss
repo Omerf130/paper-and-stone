@@ -1,12 +1,12 @@
 @use "../../styles/tokens" as *;
 @use "../../styles/mixins" as *;
+@use "../../styles/typography" as *;
 
 .link,
 .linkCatalog,
 .linkFeatured {
   display: flex;
   flex-direction: column;
-  gap: $spacing-md;
   color: inherit;
   text-decoration: none;
 
@@ -14,42 +14,31 @@
 }
 
 .link {
+  gap: $spacing-md;
+
   &:hover .name {
     color: $color-accent;
   }
 }
 
-.linkCatalog {
-  gap: $spacing-sm;
-
-  &:hover .nameCatalog {
-    text-decoration: underline;
-    text-underline-offset: 0.15em;
-  }
-
-  &:hover .mediaCatalog img {
-    transform: scale(1.015);
-
-    @include reduced-motion {
-      transform: none;
-    }
-  }
+.linkCatalog,
+.linkFeatured {
+  gap: 0;
+  background-color: $color-background;
 }
 
-.linkFeatured {
-  gap: $spacing-sm;
+.linkCatalog:hover .nameCatalog,
+.linkFeatured:hover .nameFeatured {
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
 
-  &:hover .nameFeatured {
-    text-decoration: underline;
-    text-underline-offset: 0.15em;
-  }
+.linkCatalog:hover .mediaCatalog img,
+.linkFeatured:hover .mediaFeatured img {
+  transform: scale(1.015);
 
-  &:hover .mediaFeatured img {
-    transform: scale(1.015);
-
-    @include reduced-motion {
-      transform: none;
-    }
+  @include reduced-motion {
+    transform: none;
   }
 }
 
@@ -62,10 +51,30 @@
   width: 100%;
 }
 
-.meta {
+.meta,
+.metaCatalog {
+  display: flex;
+  flex-direction: column;
+}
+
+.metaCatalog {
+  padding: $spacing-md;
+  border: 1px solid $color-border;
+  border-block-start: 0;
+}
+
+.metaRow {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: $spacing-md;
+}
+
+.metaText {
   display: flex;
   flex-direction: column;
   gap: $spacing-xs;
+  min-width: 0;
 }
 
 .name,
@@ -81,8 +90,12 @@
 }
 
 .nameCatalog {
+  @include navLinkUppercase;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-normal;
+
   @include tablet-up {
-    font-size: $font-size-base;
+    font-size: $font-size-xs;
   }
 }
 
@@ -90,6 +103,11 @@
   @include tablet-up {
     font-size: $font-size-xl;
   }
+}
+
+.secondaryCatalog {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
 }
 
 .category {
@@ -102,4 +120,10 @@
   letter-spacing: $letter-spacing-wide;
   text-transform: uppercase;
   color: $color-text-secondary;
+}
+
+.cardArrow {
+  flex-shrink: 0;
+  transform: scaleX(-1);
+  color: $color-text-primary;
 }

@@ -5,23 +5,19 @@
   display: flex;
   flex-direction: column;
   gap: $spacing-sm;
-  margin-block-end: $spacing-2xl;
-}
-
-.eyebrow {
-  @include eyebrow;
-  margin: 0;
 }
 
 .title {
-  @include sectionHeading;
+  @include navLinkUppercase;
   margin: 0;
+  font-size: clamp($font-size-xl, 3vw, $font-size-2xl);
+  font-weight: $font-weight-normal;
 }
 
 .description {
   margin: 0;
   max-width: 36rem;
-  font-size: $font-size-base;
+  font-size: $font-size-sm;
   line-height: $line-height-relaxed;
   color: $color-text-secondary;
 }
