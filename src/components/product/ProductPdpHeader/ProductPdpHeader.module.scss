@@ -1,0 +1,46 @@
+@use "../../../styles/tokens" as *;
+@use "../../../styles/mixins" as *;
+@use "../../../styles/typography" as *;
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: $spacing-md;
+  min-width: 0;
+}
+
+.identity {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 0.125rem;
+  min-width: 0;
+}
+
+.category {
+  @include eyebrow;
+  margin: 0;
+}
+
+.name {
+  margin: 0;
+  font-size: clamp(2rem, 2.6vw, 2.625rem);
+  font-weight: $font-weight-semibold;
+  line-height: $line-height-tight;
+  color: $color-text-primary;
+}
+
+.sku {
+  margin: 0;
+  font-size: $font-size-xs;
+  letter-spacing: $letter-spacing-wide;
+  color: $color-text-secondary;
+}
+
+.actions {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: $spacing-xs;
+}

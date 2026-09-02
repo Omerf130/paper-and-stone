@@ -11,11 +11,13 @@ import styles from "./ProductWorkspacePanels.module.scss";
 type ProductWorkspaceProductPanelProps = {
   product: ProductView;
   state: ProductConfiguratorState;
+  showThumbnails?: boolean;
 };
 
 export default function ProductWorkspaceProductPanel({
   product,
   state,
+  showThumbnails = true,
 }: ProductWorkspaceProductPanelProps) {
   const {
     productImages,
@@ -70,9 +72,12 @@ export default function ProductWorkspaceProductPanel({
 
       {productImages.length > 1 ? (
         <div
-          className={styles.thumbnailRow}
+          className={
+            showThumbnails ? styles.thumbnailRow : styles.thumbnailRowHidden
+          }
           role="group"
           aria-label="תמונות מוצר"
+          aria-hidden={!showThumbnails}
         >
           {productImages.map((image) => (
             <button

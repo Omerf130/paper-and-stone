@@ -1,0 +1,16 @@
+@use "../../../styles/tokens" as *;
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  min-width: 0;
+}
+
+.description {
+  margin: 0;
+  font-size: $font-size-xs;
+  line-height: 1.55;
+  color: $color-text-secondary;
+  white-space: pre-line;
+}

@@ -13,6 +13,11 @@ type ProductConfigurationFieldsProps = {
   state: ProductConfiguratorState;
 };
 
+function formatMaterialTypeLabel(materialType: string): string {
+  const trimmed = materialType.trim();
+  return trimmed.length > 0 ? trimmed : "חומר";
+}
+
 export default function ProductConfigurationFields({
   product,
   state,
@@ -26,6 +31,7 @@ export default function ProductConfigurationFields({
     sizeId,
     setSizeId,
     currentMaterial,
+    currentColor,
     handleMaterialChange,
     decreaseQuantity,
     increaseQuantity,
@@ -33,41 +39,18 @@ export default function ProductConfigurationFields({
   } = state;
 
   if (!initialState.hasConfiguratorOptions) {
-    return (
-      <fieldset className={styles.fieldset}>
-        <legend className={styles.legend}>כמות</legend>
-        <div className={styles.quantity}>
-          <button
-            type="button"
-            className={styles.quantityButton}
-            aria-label="הפחתת כמות"
-            onClick={decreaseQuantity}
-            disabled={quantity <= 1}
-          >
-            −
-          </button>
-          <span className={styles.quantityValue} aria-live="polite">
-            {quantity}
-          </span>
-          <button
-            type="button"
-            className={styles.quantityButton}
-            aria-label="הוספת כמות"
-            onClick={increaseQuantity}
-            disabled={quantity >= MAX_PRODUCT_QUANTITY}
-          >
-            +
-          </button>
-        </div>
-      </fieldset>
-    );
+    return null;
   }
+
+  const materialLegend = currentMaterial
+    ? formatMaterialTypeLabel(currentMaterial.materialType)
+    : "חומר";
 
   return (
     <div className={styles.fields}>
       {initialState.hasMaterials && currentMaterial ? (
         <ProductOptionGroup
-          legend="חומר"
+          legend={materialLegend}
           options={product.materialOptions.map((material) => ({
             id: material.materialId,
             label: material.materialName,
@@ -79,25 +62,40 @@ export default function ProductConfigurationFields({
 
       {currentMaterial && currentMaterial.colors.length > 0 ? (
         <fieldset className={styles.fieldset}>
-          <legend className={styles.legend}>צבע</legend>
-          <div className={styles.swatchGroup} role="group" aria-label="צבע">
+          <legend className={styles.legend}>
+            צבע · {currentMaterial.materialName}
+          </legend>
+
+          {currentColor ? (
+            <div className={styles.selectedColor}>
+              <span
+                className={styles.selectedColorSwatch}
+                style={{ backgroundColor: currentColor.hex }}
+                aria-hidden="true"
+              />
+              <span className={styles.selectedColorName}>{currentColor.name}</span>
+            </div>
+          ) : null}
+
+          <div className={styles.colorSwatches} role="group" aria-label="צבע">
             {currentMaterial.colors.map((color) => (
               <button
                 key={color.id}
                 type="button"
                 className={
-                  colorId === color.id ? styles.swatchActive : styles.swatch
+                  colorId === color.id
+                    ? styles.colorSwatchActive
+                    : styles.colorSwatch
                 }
                 aria-pressed={colorId === color.id}
                 aria-label={color.name}
                 onClick={() => setColorId(color.id)}
               >
                 <span
-                  className={styles.swatchColor}
+                  className={styles.colorSwatchInner}
                   style={{ backgroundColor: color.hex }}
                   aria-hidden="true"
                 />
-                <span className={styles.swatchLabel}>{color.name}</span>
               </button>
             ))}
           </div>

@@ -4,13 +4,14 @@
 .fieldset {
   display: flex;
   flex-direction: column;
-  gap: $spacing-md;
+  gap: $spacing-xs;
   padding: 0;
   margin: 0;
   border: none;
 }
 
 .legend {
+  margin: 0;
   font-size: $font-size-xs;
   font-weight: $font-weight-medium;
   letter-spacing: $letter-spacing-wide;
@@ -21,15 +22,16 @@
 .optionGroup {
   display: flex;
   flex-wrap: wrap;
-  gap: $spacing-sm;
+  gap: $spacing-xs;
 }
 
 .optionButton,
 .optionActive {
-  padding-block: $spacing-sm;
-  padding-inline: $spacing-md;
+  min-height: 2rem;
+  padding-block: 0.3125rem;
+  padding-inline: $spacing-sm;
   font-family: inherit;
-  font-size: $font-size-sm;
+  font-size: $font-size-xs;
   color: $color-text-primary;
   background: transparent;
   border: 1px solid $color-border;

@@ -1,32 +1,35 @@
 import type { ProductView } from "@/types/product";
 import { hasProductDimensions } from "@/lib/products/product-display-helpers";
+import { hasConfiguratorOptions } from "@/lib/products/product-display-helpers";
 
-export type ProductWorkspaceTabId =
-  | "product"
-  | "drawing"
-  | "details"
-  | "technical";
+export type ProductPdpTabId = "overview" | "configure" | "dimensions";
 
-/** @deprecated Use ProductWorkspaceTabId */
+/** @deprecated Use ProductPdpTabId */
+export type ProductWorkspaceTabId = ProductPdpTabId;
+
+/** @deprecated Use ProductPdpTabId */
 export type ProductMediaTabId = "product" | "drawing";
 
-/** @deprecated Use ProductWorkspaceTabId */
+/** @deprecated Use ProductPdpTabId */
 export type ProductInfoTabId = "details" | "technical";
 
-const WORKSPACE_TAB_LABELS: Array<{
-  id: ProductWorkspaceTabId;
-  label: string;
-}> = [
-  { id: "product", label: "מוצר" },
-  { id: "drawing", label: "שרטוט ומידות" },
-  { id: "details", label: "פרטי מוצר" },
-  { id: "technical", label: "מידע טכני" },
-];
+const OVERVIEW_TAB = { id: "overview" as const, label: "סקירה" };
+const CONFIGURE_TAB = { id: "configure" as const, label: "הגדרה" };
+const DIMENSIONS_TAB = { id: "dimensions" as const, label: "מידות" };
 
-export function showProductDrawingTab(product: ProductView): boolean {
+export function showProductConfigureTab(product: ProductView): boolean {
+  return hasConfiguratorOptions(product);
+}
+
+export function showProductDimensionsTab(product: ProductView): boolean {
   return (
     Boolean(product.technicalDrawing) || hasProductDimensions(product.dimensions)
   );
+}
+
+/** @deprecated Use showProductDimensionsTab */
+export function showProductDrawingTab(product: ProductView): boolean {
+  return showProductDimensionsTab(product);
 }
 
 export function showProductTechnicalInfoTab(product: ProductView): boolean {
@@ -42,14 +45,32 @@ export function showProductDetailsInfoTab(product: ProductView): boolean {
   return product.longDescription.trim().length > 0;
 }
 
-export function getProductWorkspaceTabLabels(): Array<{
-  id: ProductWorkspaceTabId;
+export function getProductPdpTabLabels(product: ProductView): Array<{
+  id: ProductPdpTabId;
   label: string;
 }> {
-  return WORKSPACE_TAB_LABELS;
+  const tabs: Array<{ id: ProductPdpTabId; label: string }> = [OVERVIEW_TAB];
+
+  if (showProductConfigureTab(product)) {
+    tabs.push(CONFIGURE_TAB);
+  }
+
+  if (showProductDimensionsTab(product)) {
+    tabs.push(DIMENSIONS_TAB);
+  }
+
+  return tabs;
 }
 
-/** @deprecated Use getProductWorkspaceTabLabels */
+/** @deprecated Use getProductPdpTabLabels */
+export function getProductWorkspaceTabLabels(): Array<{
+  id: ProductPdpTabId;
+  label: string;
+}> {
+  return [OVERVIEW_TAB, CONFIGURE_TAB, DIMENSIONS_TAB];
+}
+
+/** @deprecated Use getProductPdpTabLabels */
 export function getProductMediaTabLabels(
   product: ProductView,
 ): Array<{ id: ProductMediaTabId; label: string }> {
@@ -57,14 +78,14 @@ export function getProductMediaTabLabels(
     { id: "product", label: "מוצר" },
   ];
 
-  if (showProductDrawingTab(product)) {
+  if (showProductDimensionsTab(product)) {
     tabs.push({ id: "drawing", label: "שרטוט ומידות" });
   }
 
   return tabs;
 }
 
-/** @deprecated Use getProductWorkspaceTabLabels */
+/** @deprecated Use getProductPdpTabLabels */
 export function getProductInfoTabLabels(product: ProductView): Array<{
   id: ProductInfoTabId;
   label: string;
@@ -82,33 +103,60 @@ export function getProductInfoTabLabels(product: ProductView): Array<{
   return tabs;
 }
 
-export function resolveProductWorkspaceTabId(
-  requestedTab: string | null,
-): ProductWorkspaceTabId {
-  const match = WORKSPACE_TAB_LABELS.find((tab) => tab.id === requestedTab);
-  return match?.id ?? "product";
+function mapLegacyTabId(requestedTab: string): ProductPdpTabId | null {
+  switch (requestedTab) {
+    case "overview":
+      return "overview";
+    case "configure":
+      return "configure";
+    case "dimensions":
+      return "dimensions";
+    case "product":
+    case "details":
+    case "technical":
+      return "overview";
+    case "drawing":
+      return "dimensions";
+    default:
+      return null;
+  }
 }
 
-/** @deprecated Use resolveProductWorkspaceTabId */
+export function resolveProductPdpTabId(
+  requestedTab: string | null,
+  product: ProductView,
+): ProductPdpTabId {
+  const tabs = getProductPdpTabLabels(product);
+  const mapped = requestedTab ? mapLegacyTabId(requestedTab) : null;
+
+  if (mapped && tabs.some((tab) => tab.id === mapped)) {
+    return mapped;
+  }
+
+  return "overview";
+}
+
+/** @deprecated Use resolveProductPdpTabId */
+export function resolveProductWorkspaceTabId(
+  requestedTab: string | null,
+): ProductPdpTabId {
+  const mapped = requestedTab ? mapLegacyTabId(requestedTab) : null;
+  return mapped ?? "overview";
+}
+
+/** @deprecated Use resolveProductPdpTabId */
 export function resolveProductMediaTabId(
   requestedTab: string | null,
   product: ProductView,
 ): ProductMediaTabId {
-  if (requestedTab === "drawing" && showProductDrawingTab(product)) {
+  if (requestedTab === "drawing" && showProductDimensionsTab(product)) {
     return "drawing";
-  }
-
-  if (
-    requestedTab === "details" ||
-    requestedTab === "technical"
-  ) {
-    return "product";
   }
 
   return "product";
 }
 
-/** @deprecated Use resolveProductWorkspaceTabId */
+/** @deprecated Use resolveProductPdpTabId */
 export function resolveProductInfoTabId(
   requestedTab: string | null,
   product: ProductView,

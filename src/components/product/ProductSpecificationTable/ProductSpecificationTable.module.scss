@@ -1,0 +1,36 @@
+@use "../../../styles/tokens" as *;
+
+.table {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+  gap: $spacing-md;
+  align-items: center;
+  min-height: 2.75rem;
+  padding-block: $spacing-xs;
+  border-bottom: 1px solid $color-border;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  dt {
+    margin: 0;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-medium;
+    color: $color-text-secondary;
+  }
+
+  dd {
+    margin: 0;
+    font-size: $font-size-sm;
+    line-height: 1.45;
+    color: $color-text-primary;
+    text-align: start;
+  }
+}

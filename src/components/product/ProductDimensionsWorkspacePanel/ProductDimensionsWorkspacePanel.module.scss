@@ -1,0 +1,67 @@
+@use "../../../styles/tokens" as *;
+@use "../../../styles/mixins" as *;
+
+.workspace {
+  display: grid;
+  gap: $spacing-md;
+  min-width: 0;
+
+  @include tablet-up {
+    grid-template-columns: minmax(7.5rem, 10rem) minmax(0, 1fr);
+    gap: 0;
+    align-items: stretch;
+  }
+}
+
+.specColumn {
+  min-width: 0;
+
+  @include tablet-up {
+    padding-inline-end: $spacing-md;
+    border-inline-end: 1px solid $color-border;
+  }
+}
+
+.specList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  margin: 0;
+}
+
+.specRow {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+
+  dt {
+    margin: 0;
+    font-size: $font-size-xs;
+    letter-spacing: $letter-spacing-wide;
+    text-transform: uppercase;
+    color: $color-text-secondary;
+  }
+
+  dd {
+    margin: 0;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    color: $color-text-primary;
+  }
+}
+
+.drawingColumn {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+
+  @include tablet-up {
+    padding-inline-start: $spacing-md;
+  }
+}
+
+.emptyState {
+  margin: 0;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}

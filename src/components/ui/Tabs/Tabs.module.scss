@@ -10,7 +10,7 @@
 
 .rootCompact {
   composes: root;
-  gap: $spacing-md;
+  gap: $spacing-sm;
 }
 
 .header {
@@ -42,8 +42,8 @@
 .tab,
 .tabActive {
   flex: 0 0 auto;
-  padding-block: $spacing-sm;
-  padding-inline: $spacing-md;
+  padding-block: $spacing-xs;
+  padding-inline: $spacing-sm;
   font-family: inherit;
   font-size: $font-size-sm;
   font-weight: $font-weight-medium;

@@ -1,13 +1,17 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
-import ProductInfoColumn from "@/components/product/ProductInfoColumn/ProductInfoColumn";
+import { useState } from "react";
 import ProductMediaColumn from "@/components/product/ProductMediaColumn/ProductMediaColumn";
-import { resolveProductWorkspaceTabId } from "@/lib/products/get-product-detail-tabs";
+import ProductWorkspaceColumn from "@/components/product/ProductWorkspaceColumn/ProductWorkspaceColumn";
+import {
+  resolveProductPdpTabId,
+  type ProductPdpTabId,
+} from "@/lib/products/get-product-detail-tabs";
 import type { ProductConfiguratorState } from "@/lib/products/useProductConfiguratorState";
 import type { ProductView } from "@/types/product";
 import type { ProjectOptionView } from "@/types/project";
 import type { ArchitectCatalogProjectContextView } from "@/types/architect-catalog-context";
+import { useSearchParams } from "next/navigation";
 import styles from "./ProductDetailLayout.module.scss";
 
 type ProductDetailLayoutProps = {
@@ -39,33 +43,33 @@ export default function ProductDetailLayout({
 }: ProductDetailLayoutProps) {
   const searchParams = useSearchParams();
   const tabParam = searchParams.get("tab");
-  const workspaceTab = resolveProductWorkspaceTabId(tabParam);
-
-  const sharedInfoProps = {
-    product,
-    state,
-    catalogContext,
-    isApprovedArchitect,
-    isClient,
-    projectOptions,
-    profileReady,
-    loginHref,
-    registerHref,
-  };
+  const resolvedInitialTab = resolveProductPdpTabId(tabParam, product);
+  const [activeTab, setActiveTab] = useState<ProductPdpTabId>(resolvedInitialTab);
+  const showThumbnails = activeTab === "overview";
 
   return (
     <div className={styles.layout}>
       <div className={styles.hero}>
-        <ProductInfoColumn {...sharedInfoProps} part="identity" />
         <ProductMediaColumn
           product={product}
           state={state}
+          showThumbnails={showThumbnails}
+        />
+        <ProductWorkspaceColumn
+          product={product}
+          state={state}
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          catalogContext={catalogContext}
+          isApprovedArchitect={isApprovedArchitect}
+          isClient={isClient}
+          projectOptions={projectOptions}
+          profileReady={profileReady}
+          loginHref={loginHref}
+          registerHref={registerHref}
           isWishlisted={isWishlisted}
           isAuthenticated={isAuthenticated}
-          loginHref={loginHref}
-          initialWorkspaceTab={workspaceTab}
         />
-        <ProductInfoColumn {...sharedInfoProps} part="purchase" />
       </div>
     </div>
   );
