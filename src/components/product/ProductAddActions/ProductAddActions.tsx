@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useTransition } from "react";
+import { useMemo, useRef, useState, useTransition } from "react";
 import AddToProjectDialog from "@/components/product/AddToProjectDialog/AddToProjectDialog";
 import { addProductFromCatalogContextAction } from "@/app/professional/projects/actions";
+import { buildAddToProjectConfigurationView } from "@/lib/products/build-add-to-project-configuration-view";
 import type { ProductConfiguratorState } from "@/lib/products/useProductConfiguratorState";
 import type { ProductView } from "@/types/product";
-import type { ProjectOptionView } from "@/types/project";
+import type { ProjectPickerOptionView } from "@/types/project";
 import type { ArchitectCatalogProjectContextView } from "@/types/architect-catalog-context";
 import styles from "./ProductAddActions.module.scss";
 
@@ -16,7 +17,7 @@ type ProductAddActionsProps = {
   catalogContext?: ArchitectCatalogProjectContextView | null;
   isApprovedArchitect?: boolean;
   isClient?: boolean;
-  projectOptions?: ProjectOptionView[];
+  projectOptions?: ProjectPickerOptionView[];
   profileReady?: boolean;
   loginHref?: string;
   registerHref?: string;
@@ -33,8 +34,11 @@ export default function ProductAddActions({
   loginHref,
   registerHref,
 }: ProductAddActionsProps) {
+  const addButtonRef = useRef<HTMLButtonElement>(null);
   const [isContextPending, startContextTransition] = useTransition();
   const [contextError, setContextError] = useState<string | undefined>();
+  const [successMessage, setSuccessMessage] = useState<string | undefined>();
+  const [successProjectHref, setSuccessProjectHref] = useState<string | undefined>();
 
   const {
     materialId,
@@ -43,6 +47,13 @@ export default function ProductAddActions({
     quantity,
     isAddDialogOpen,
     setIsAddDialogOpen,
+    currentMaterial,
+    currentColor,
+    currentSize,
+    showSizeSelector,
+    selectedImage,
+    decreaseQuantity,
+    increaseQuantity,
   } = state;
 
   const selection = {
@@ -52,6 +63,29 @@ export default function ProductAddActions({
     selectedSizeKey: sizeId ?? undefined,
     quantity,
   };
+
+  const configuration = useMemo(
+    () =>
+      buildAddToProjectConfigurationView({
+        product,
+        material: currentMaterial,
+        color: currentColor,
+        sizeLabel: currentSize?.label ?? null,
+        showSize: showSizeSelector,
+        quantity,
+        thumbnailUrl: selectedImage?.url ?? product.primaryImage?.url ?? null,
+        thumbnailAlt: selectedImage?.alt ?? product.primaryImage?.alt ?? product.nameHe,
+      }),
+    [
+      product,
+      currentMaterial,
+      currentColor,
+      currentSize,
+      showSizeSelector,
+      quantity,
+      selectedImage,
+    ],
+  );
 
   const handleContextualAdd = () => {
     if (!catalogContext || !profileReady) {
@@ -70,6 +104,30 @@ export default function ProductAddActions({
         setContextError(result.error);
       }
     });
+  };
+
+  const handleDialogClose = () => {
+    setIsAddDialogOpen(false);
+    addButtonRef.current?.focus();
+  };
+
+  const handleDialogSuccess = (payload: {
+    projectId: string;
+    projectName: string;
+    roomId?: string;
+    roomName?: string;
+  }) => {
+    const destination = payload.roomName
+      ? `${payload.projectName} / ${payload.roomName}`
+      : payload.projectName;
+
+    setSuccessMessage(`המוצר נוסף לפרויקט: ${destination}.`);
+    setSuccessProjectHref(
+      payload.roomId
+        ? `/professional/projects/${payload.projectId}?room=${payload.roomId}`
+        : `/professional/projects/${payload.projectId}`,
+    );
+    addButtonRef.current?.focus();
   };
 
   if (isClient) {
@@ -146,19 +204,41 @@ export default function ProductAddActions({
     <>
       <div className={styles.actions}>
         <button
+          ref={addButtonRef}
           type="button"
           className={styles.primaryAction}
-          onClick={() => setIsAddDialogOpen(true)}
+          onClick={() => {
+            setSuccessMessage(undefined);
+            setSuccessProjectHref(undefined);
+            setIsAddDialogOpen(true);
+          }}
         >
           הוספה לפרויקט
         </button>
       </div>
+
+      {successMessage ? (
+        <p className={styles.success} role="status">
+          {successMessage}{" "}
+          {successProjectHref ? (
+            <Link href={successProjectHref} className={styles.successLink}>
+              צפייה בפרויקט →
+            </Link>
+          ) : null}
+        </p>
+      ) : null}
+
       <AddToProjectDialog
         projectOptions={projectOptions}
         profileReady={profileReady}
         isOpen={isAddDialogOpen}
-        onClose={() => setIsAddDialogOpen(false)}
+        onClose={handleDialogClose}
+        onSuccess={handleDialogSuccess}
         selection={selection}
+        configuration={configuration}
+        quantity={quantity}
+        decreaseQuantity={decreaseQuantity}
+        increaseQuantity={increaseQuantity}
       />
     </>
   );

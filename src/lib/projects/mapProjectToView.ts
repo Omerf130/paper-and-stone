@@ -4,7 +4,9 @@ import type {
   ProjectItemView,
   ProjectListItemView,
   ProjectOptionView,
+  ProjectPickerOptionView,
 } from "@/types/project";
+import { getProjectStatusLabel } from "@/lib/projects/project-display-helpers";
 import Product from "@/models/Product";
 import { connectDB } from "@/lib/db/mongoose";
 import {
@@ -181,5 +183,15 @@ export function mapProjectToOptionView(project: IProject): ProjectOptionView {
   return {
     id: project._id.toString(),
     name: project.name,
+  };
+}
+
+export function mapProjectToPickerOptionView(project: IProject): ProjectPickerOptionView {
+  return {
+    id: project._id.toString(),
+    name: project.name,
+    location: project.location?.trim() || undefined,
+    clientName: project.clientName?.trim() || undefined,
+    statusLabel: getProjectStatusLabel(project.status),
   };
 }

@@ -141,6 +141,20 @@ export type ProjectOptionView = {
   name: string;
 };
 
+export type ProjectPickerOptionView = {
+  id: string;
+  name: string;
+  location?: string;
+  clientName?: string;
+  statusLabel?: string;
+};
+
+export type RoomPickerOptionView = {
+  id: string;
+  name: string;
+  itemCount: number;
+};
+
 export type ProjectFormInput = {
   name: string;
   clientName?: string;

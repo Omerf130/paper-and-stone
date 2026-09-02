@@ -14,11 +14,13 @@ import {
   mapProjectToDetailView,
   mapProjectToListItemView,
   mapProjectToOptionView,
+  mapProjectToPickerOptionView,
 } from "@/lib/projects/mapProjectToView";
 import type {
   ProjectDetailView,
   ProjectListItemView,
   ProjectOptionView,
+  ProjectPickerOptionView,
 } from "@/types/project";
 import type { ProductView } from "@/types/product";
 import { getUnreadMessageCountsForProjects, getUnreadArchitectClientMessageCountsForProjects } from "@/lib/project-messages/getUnreadMessageCountsForProjects";
@@ -86,7 +88,7 @@ export async function getProfessionalProjectOptions(
 /** Architect-owned projects eligible for direct Product-page add (matches workspace gates). */
 export async function getArchitectEditableProjectOptions(
   ownerUserId: string,
-): Promise<ProjectOptionView[]> {
+): Promise<ProjectPickerOptionView[]> {
   await connectDB();
 
   const projects = await Project.find({
@@ -94,7 +96,7 @@ export async function getArchitectEditableProjectOptions(
     onboardingStatus: "active",
     status: ARCHITECT_WORKSPACE_EDITABLE_STATUS_FILTER,
   })
-    .select("_id name status onboardingStatus")
+    .select("_id name status onboardingStatus location clientName")
     .sort({ updatedAt: -1 })
     .lean();
 
@@ -103,7 +105,7 @@ export async function getArchitectEditableProjectOptions(
       (project) =>
         usesRoomBasedWorkspace(project) && isProjectItemEditable(project),
     )
-    .map((project) => mapProjectToOptionView(project as IProject));
+    .map((project) => mapProjectToPickerOptionView(project as IProject));
 }
 
 export async function getOwnedProjectById(

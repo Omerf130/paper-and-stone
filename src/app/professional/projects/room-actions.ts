@@ -10,7 +10,7 @@ import {
   renameProjectRoom,
   reorderProjectRooms,
 } from "@/lib/projects/project-room-mutations";
-import type { ProjectFormState } from "@/types/project";
+import type { ProjectFormState, RoomPickerOptionView } from "@/types/project";
 
 export async function createProjectRoomAction(
   projectId: string,
@@ -111,7 +111,7 @@ export async function moveProjectItemToRoomAction(
 
 export async function getProjectRoomsForPickerAction(
   projectId: string,
-): Promise<{ rooms: Array<{ id: string; name: string }>; error?: string }> {
+): Promise<{ rooms: RoomPickerOptionView[]; error?: string }> {
   const user = await requireProfessional();
 
   try {
@@ -126,7 +126,11 @@ export async function getProjectRoomsForPickerAction(
     const rooms = await getProjectRoomViews(projectId);
 
     return {
-      rooms: rooms.map((room) => ({ id: room.id, name: room.name })),
+      rooms: rooms.map((room) => ({
+        id: room.id,
+        name: room.name,
+        itemCount: room.itemCount,
+      })),
     };
   } catch (error: unknown) {
     if (error instanceof ProjectMutationError) {

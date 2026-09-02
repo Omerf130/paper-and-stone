@@ -1,17 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 import AddToProjectDialog from "@/components/product/AddToProjectDialog/AddToProjectDialog";
 import ProductOptionGroup from "@/components/product/ProductOptionGroup/ProductOptionGroup";
 import { addProductFromCatalogContextAction } from "@/app/professional/projects/actions";
+import { buildAddToProjectConfigurationView } from "@/lib/products/build-add-to-project-configuration-view";
 import { formatProductSelectionSummary } from "@/lib/products/format-product-selection-summary";
 import {
   MAX_PRODUCT_QUANTITY,
   type ProductConfiguratorState,
 } from "@/lib/products/useProductConfiguratorState";
 import type { ProductView } from "@/types/product";
-import type { ProjectOptionView } from "@/types/project";
+import type { ProjectPickerOptionView } from "@/types/project";
 import type { ArchitectCatalogProjectContextView } from "@/types/architect-catalog-context";
 import styles from "./ProductConfiguratorControls.module.scss";
 
@@ -21,7 +22,7 @@ type ProductConfiguratorControlsProps = {
   catalogContext?: ArchitectCatalogProjectContextView | null;
   isApprovedArchitect?: boolean;
   isClient?: boolean;
-  projectOptions?: ProjectOptionView[];
+  projectOptions?: ProjectPickerOptionView[];
   profileReady?: boolean;
   loginHref?: string;
   registerHref?: string;
@@ -55,6 +56,7 @@ export default function ProductConfiguratorControls({
     currentMaterial,
     currentColor,
     currentSize,
+    selectedImage,
     handleMaterialChange,
     decreaseQuantity,
     increaseQuantity,
@@ -67,6 +69,29 @@ export default function ProductConfiguratorControls({
     showSize: showSizeSelector,
     quantity,
   });
+
+  const configuration = useMemo(
+    () =>
+      buildAddToProjectConfigurationView({
+        product,
+        material: currentMaterial,
+        color: currentColor,
+        sizeLabel: currentSize?.label ?? null,
+        showSize: showSizeSelector,
+        quantity,
+        thumbnailUrl: selectedImage?.url ?? product.primaryImage?.url ?? null,
+        thumbnailAlt: selectedImage?.alt ?? product.primaryImage?.alt ?? product.nameHe,
+      }),
+    [
+      product,
+      currentMaterial,
+      currentColor,
+      currentSize,
+      showSizeSelector,
+      quantity,
+      selectedImage,
+    ],
+  );
 
   const selection = {
     productSlug: product.slug,
@@ -185,6 +210,10 @@ export default function ProductConfiguratorControls({
           isOpen={isAddDialogOpen}
           onClose={() => setIsAddDialogOpen(false)}
           selection={selection}
+          configuration={configuration}
+          quantity={quantity}
+          decreaseQuantity={decreaseQuantity}
+          increaseQuantity={increaseQuantity}
         />
       </>
     );

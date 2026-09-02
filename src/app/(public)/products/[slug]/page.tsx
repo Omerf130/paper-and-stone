@@ -22,6 +22,7 @@ import { getArchitectEditableProjectOptions } from "@/lib/projects/project-queri
 import { getArchitectCatalogProjectContext } from "@/lib/projects/get-architect-catalog-project-context";
 import { getProductBySlug } from "@/lib/products/getProductBySlug";
 import { isProductWishlisted } from "@/lib/wishlist/wishlist-queries";
+import type { ProjectPickerOptionView } from "@/types/project";
 import styles from "./page.module.scss";
 
 export const dynamic = "force-dynamic";
@@ -70,7 +71,7 @@ export default async function ProductPage({
     catalogParamsToHrefInput(catalogParams),
   );
 
-  let projectOptions: { id: string; name: string }[] = [];
+  let projectOptions: ProjectPickerOptionView[] = [];
   let profileReady = false;
   let catalogContext = null;
 

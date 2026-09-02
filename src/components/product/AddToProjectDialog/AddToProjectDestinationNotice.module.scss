@@ -1,0 +1,38 @@
+@use "../../../styles/tokens" as *;
+
+.notice {
+  display: flex;
+  gap: $spacing-sm;
+  padding: 0.625rem 0.75rem;
+  background-color: $color-surface-cream;
+  border: 1px solid $admin-dashboard-border;
+  border-radius: $admin-dashboard-control-radius;
+}
+
+.icon {
+  flex-shrink: 0;
+  font-size: $font-size-sm;
+  line-height: 1.4;
+  color: $color-text-secondary;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  min-width: 0;
+}
+
+.title {
+  margin: 0;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+}
+
+.destination {
+  margin: 0;
+  font-size: $font-size-xs;
+  line-height: 1.4;
+  color: $color-text-secondary;
+}

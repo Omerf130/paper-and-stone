@@ -1,11 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { addProductToProjectAction } from "@/app/professional/projects/actions";
 import { getProjectRoomsForPickerAction } from "@/app/professional/projects/room-actions";
-import type { ProjectOptionView } from "@/types/project";
+import { buildAddToProjectConfigurationView } from "@/lib/products/build-add-to-project-configuration-view";
+import { MAX_PRODUCT_QUANTITY } from "@/lib/products/useProductConfiguratorState";
+import type { AddToProjectConfigurationView } from "@/lib/products/build-add-to-project-configuration-view";
+import type { ProjectPickerOptionView, RoomPickerOptionView } from "@/types/project";
+import AddToProjectConfigurationSummary from "./AddToProjectConfigurationSummary";
+import AddToProjectDestinationNotice from "./AddToProjectDestinationNotice";
+import AddToProjectProjectPicker from "./AddToProjectProjectPicker";
+import AddToProjectQuantityStepper from "./AddToProjectQuantityStepper";
+import AddToProjectRoomPicker from "./AddToProjectRoomPicker";
 import styles from "./AddToProjectDialog.module.scss";
 
 type AddToProjectSelection = {
@@ -17,33 +24,68 @@ type AddToProjectSelection = {
 };
 
 type AddToProjectDialogProps = {
-  projectOptions: ProjectOptionView[];
+  projectOptions: ProjectPickerOptionView[];
   profileReady: boolean;
   selection: AddToProjectSelection;
+  configuration: AddToProjectConfigurationView;
+  quantity: number;
+  decreaseQuantity: () => void;
+  increaseQuantity: () => void;
   isOpen: boolean;
   onClose: () => void;
+  onSuccess?: (payload: {
+    projectId: string;
+    projectName: string;
+    roomId?: string;
+    roomName?: string;
+  }) => void;
 };
 
 export default function AddToProjectDialog({
   projectOptions,
   profileReady,
   selection,
+  configuration,
+  quantity,
+  decreaseQuantity,
+  increaseQuantity,
   isOpen,
   onClose,
+  onSuccess,
 }: AddToProjectDialogProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
-  const router = useRouter();
   const [selectedProjectId, setSelectedProjectId] = useState(
     projectOptions[0]?.id ?? "",
   );
   const [selectedRoomId, setSelectedRoomId] = useState("");
-  const [roomOptions, setRoomOptions] = useState<Array<{ id: string; name: string }>>(
-    [],
-  );
+  const [roomOptions, setRoomOptions] = useState<RoomPickerOptionView[]>([]);
   const [roomsLoading, setRoomsLoading] = useState(false);
+  const [roomLoadError, setRoomLoadError] = useState<string | undefined>();
   const [error, setError] = useState<string | undefined>();
-  const [successMessage, setSuccessMessage] = useState<string | undefined>();
   const [isPending, startTransition] = useTransition();
+
+  const selectedProject =
+    projectOptions.find((project) => project.id === selectedProjectId) ?? null;
+  const selectedRoom =
+    roomOptions.find((room) => room.id === selectedRoomId) ?? null;
+
+  async function loadRoomsForProject(projectId: string) {
+    setRoomsLoading(true);
+    setRoomLoadError(undefined);
+
+    const result = await getProjectRoomsForPickerAction(projectId);
+    setRoomsLoading(false);
+
+    if (result.error) {
+      setRoomOptions([]);
+      setSelectedRoomId("");
+      setRoomLoadError(result.error);
+      return;
+    }
+
+    setRoomOptions(result.rooms);
+    setSelectedRoomId(result.rooms[0]?.id ?? "");
+  }
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -54,7 +96,7 @@ export default function AddToProjectDialog({
     if (isOpen && !dialog.open) {
       dialog.showModal();
       setError(undefined);
-      setSuccessMessage(undefined);
+      setRoomLoadError(undefined);
       const initialProjectId = projectOptions[0]?.id ?? "";
       setSelectedProjectId(initialProjectId);
       if (initialProjectId) {
@@ -69,21 +111,6 @@ export default function AddToProjectDialog({
     }
   }, [isOpen, projectOptions]);
 
-  async function loadRoomsForProject(projectId: string) {
-    setRoomsLoading(true);
-    const result = await getProjectRoomsForPickerAction(projectId);
-    setRoomsLoading(false);
-
-    if (result.error || result.rooms.length === 0) {
-      setRoomOptions([]);
-      setSelectedRoomId("");
-      return;
-    }
-
-    setRoomOptions(result.rooms);
-    setSelectedRoomId(result.rooms[0]?.id ?? "");
-  }
-
   useEffect(() => {
     const dialog = dialogRef.current;
     if (!dialog) {
@@ -95,7 +122,18 @@ export default function AddToProjectDialog({
     return () => dialog.removeEventListener("close", handleClose);
   }, [onClose]);
 
-  const requiresRoom = roomOptions.length > 0;
+  const requiresRoom = Boolean(selectedProjectId);
+  const canSubmit =
+    profileReady &&
+    Boolean(selectedProjectId) &&
+    roomOptions.length > 0 &&
+    Boolean(selectedRoomId) &&
+    !roomsLoading &&
+    !isPending;
+
+  const submitLabel = selectedRoom
+    ? `הוספה ל${selectedRoom.name}`
+    : "הוספה לפרויקט";
 
   const handleSubmit = () => {
     if (!profileReady) {
@@ -107,13 +145,17 @@ export default function AddToProjectDialog({
       return;
     }
 
+    if (requiresRoom && roomOptions.length === 0) {
+      setError("לפרויקט זה אין חדרים. הוסיפו חדר בפרויקט לפני הוספת מוצר.");
+      return;
+    }
+
     if (requiresRoom && !selectedRoomId) {
       setError("נא לבחור חדר.");
       return;
     }
 
     setError(undefined);
-    setSuccessMessage(undefined);
 
     startTransition(async () => {
       const result = await addProductToProjectAction({
@@ -122,8 +164,8 @@ export default function AddToProjectDialog({
         selectedMaterialId: selection.selectedMaterialId,
         selectedColorId: selection.selectedColorId,
         selectedSizeKey: selection.selectedSizeKey,
-        quantity: selection.quantity,
-        roomId: requiresRoom ? selectedRoomId : undefined,
+        quantity,
+        roomId: selectedRoomId,
       });
 
       if (result.error) {
@@ -131,11 +173,12 @@ export default function AddToProjectDialog({
         return;
       }
 
-      setSuccessMessage("המוצר נוסף לפרויקט.");
-      const destination = requiresRoom
-        ? `/professional/projects/${selectedProjectId}?room=${selectedRoomId}`
-        : `/professional/projects/${selectedProjectId}`;
-      router.push(destination);
+      onSuccess?.({
+        projectId: selectedProjectId,
+        projectName: selectedProject?.name ?? "",
+        roomId: selectedRoomId || undefined,
+        roomName: selectedRoom?.name,
+      });
       onClose();
     });
   };
@@ -144,9 +187,14 @@ export default function AddToProjectDialog({
     <dialog ref={dialogRef} className={styles.dialog} aria-labelledby="add-to-project-title">
       <div className={styles.panel}>
         <header className={styles.header}>
-          <h2 id="add-to-project-title" className={styles.title}>
-            הוספה לפרויקט
-          </h2>
+          <div className={styles.headerText}>
+            <h2 id="add-to-project-title" className={styles.title}>
+              הוספה לפרויקט
+            </h2>
+            <p className={styles.description}>
+              הוסיפו את המוצר לאחד הפרויקטים והחדרים שלכם.
+            </p>
+          </div>
           <button
             type="button"
             className={styles.closeButton}
@@ -175,79 +223,74 @@ export default function AddToProjectDialog({
           </div>
         ) : (
           <>
-            <div className={styles.field}>
-              <label htmlFor="project-select" className={styles.label}>
-                בחר פרויקט
-              </label>
-              <select
-                id="project-select"
-                className={styles.select}
-                value={selectedProjectId}
-                onChange={(event) => {
-                  const nextProjectId = event.target.value;
-                  setSelectedProjectId(nextProjectId);
-                  void loadRoomsForProject(nextProjectId);
+            <div className={styles.body}>
+              <AddToProjectProjectPicker
+                options={projectOptions}
+                selectedId={selectedProjectId}
+                onSelect={(projectId) => {
+                  setSelectedProjectId(projectId);
+                  setSelectedRoomId("");
+                  void loadRoomsForProject(projectId);
                 }}
-                disabled={isPending || roomsLoading}
-              >
-                {projectOptions.map((project) => (
-                  <option key={project.id} value={project.id}>
-                    {project.name}
-                  </option>
-                ))}
-              </select>
+                disabled={isPending}
+              />
+
+              <AddToProjectRoomPicker
+                options={roomOptions}
+                selectedId={selectedRoomId}
+                onSelect={setSelectedRoomId}
+                disabled={isPending}
+                loading={roomsLoading}
+                projectId={selectedProjectId}
+                projectSelected={Boolean(selectedProjectId)}
+              />
+
+              <AddToProjectQuantityStepper
+                quantity={quantity}
+                onDecrease={decreaseQuantity}
+                onIncrease={increaseQuantity}
+                max={MAX_PRODUCT_QUANTITY}
+                disabled={isPending}
+              />
+
+              <AddToProjectConfigurationSummary configuration={configuration} />
+
+              <AddToProjectDestinationNotice
+                projectName={selectedProject?.name}
+                roomName={selectedRoom?.name}
+              />
+
+              {roomLoadError ? (
+                <p className={styles.error} role="alert">
+                  {roomLoadError}
+                </p>
+              ) : null}
+
+              {error ? (
+                <p className={styles.error} role="alert">
+                  {error}
+                </p>
+              ) : null}
             </div>
 
-            {requiresRoom ? (
-              <div className={styles.field}>
-                <label htmlFor="room-select" className={styles.label}>
-                  בחר חדר
-                </label>
-                <select
-                  id="room-select"
-                  className={styles.select}
-                  value={selectedRoomId}
-                  onChange={(event) => setSelectedRoomId(event.target.value)}
-                  disabled={isPending || roomsLoading}
-                >
-                  {roomOptions.map((room) => (
-                    <option key={room.id} value={room.id}>
-                      {room.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            ) : null}
-
-            {error ? (
-              <p className={styles.error} role="alert">
-                {error}
-              </p>
-            ) : null}
-
-            {successMessage ? (
-              <p className={styles.success} role="status">
-                {successMessage}
-              </p>
-            ) : null}
-
-            <div className={styles.actions}>
-              <button
-                type="button"
-                className={styles.primaryButton}
-                onClick={handleSubmit}
-                disabled={isPending || roomsLoading}
-              >
-                {isPending ? "מוסיף..." : "הוספה לפרויקט"}
-              </button>
+            <footer className={styles.footer}>
               <button
                 type="button"
                 className={styles.secondaryButton}
                 onClick={onClose}
+                disabled={isPending}
               >
-                סגירה
+                ביטול
               </button>
-            </div>
+              <button
+                type="button"
+                className={styles.primaryButton}
+                onClick={handleSubmit}
+                disabled={!canSubmit}
+              >
+                {isPending ? "מוסיף..." : submitLabel}
+              </button>
+            </footer>
           </>
         )}
       </div>

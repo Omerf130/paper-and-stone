@@ -56,3 +56,15 @@
   color: $color-danger-text;
   font-size: $font-size-sm;
 }
+
+.success {
+  margin: 0;
+  font-size: $font-size-sm;
+  line-height: 1.45;
+  color: $color-text-secondary;
+}
+
+.successLink {
+  color: $color-text-primary;
+  text-decoration: underline;
+}

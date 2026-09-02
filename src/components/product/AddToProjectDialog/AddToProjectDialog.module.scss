@@ -2,12 +2,15 @@
 @use "../../../styles/mixins" as *;
 
 .dialog {
-  width: min(100% - 2rem, 30rem);
+  width: min(100% - 2rem, 34rem);
+  max-height: calc(100vh - 2rem);
   padding: 0;
+  margin: auto;
   border: none;
-  border-radius: $radius-md;
+  border-radius: $admin-dashboard-panel-radius;
   background-color: transparent;
-  box-shadow: $shadow-sm;
+  box-shadow: $shadow-md;
+  overflow: hidden;
 
   &::backdrop {
     background-color: rgb(0 0 0 / 45%);
@@ -17,11 +20,10 @@
 .panel {
   display: flex;
   flex-direction: column;
-  gap: $spacing-lg;
-  padding: $spacing-xl;
+  max-height: calc(100vh - 2rem);
   background-color: $color-background;
-  border: 1px solid $color-border;
-  border-radius: $radius-md;
+  border: 1px solid $admin-dashboard-border;
+  border-radius: $admin-dashboard-panel-radius;
 }
 
 .header {
@@ -29,8 +31,15 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: $spacing-md;
-  padding-block-end: $spacing-md;
-  border-block-end: 1px solid $color-border;
+  padding: $spacing-lg $spacing-lg $spacing-md;
+  border-block-end: 1px solid $admin-dashboard-separator;
+}
+
+.headerText {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
 }
 
 .title {
@@ -41,8 +50,16 @@
   color: $color-text-primary;
 }
 
+.description {
+  margin: 0;
+  font-size: $font-size-xs;
+  line-height: 1.45;
+  color: $color-text-secondary;
+}
+
 .closeButton {
   display: inline-flex;
+  flex-shrink: 0;
   align-items: center;
   justify-content: center;
   width: 2rem;
@@ -53,47 +70,31 @@
   color: $color-text-secondary;
   background: transparent;
   border: 1px solid transparent;
-  border-radius: $radius-sm;
+  border-radius: $admin-dashboard-small-radius;
   cursor: pointer;
 
   @include focus-visible;
 
   &:hover {
     color: $color-text-primary;
-    border-color: $color-border;
+    border-color: $admin-dashboard-border;
   }
 }
 
-.field {
+.body {
   display: flex;
+  flex: 1;
   flex-direction: column;
-  gap: $spacing-xs;
-}
-
-.label {
-  font-size: $font-size-xs;
-  font-weight: $font-weight-medium;
-  letter-spacing: $letter-spacing-wide;
-  text-transform: uppercase;
-  color: $color-text-secondary;
-}
-
-.select {
-  width: 100%;
-  padding: $spacing-sm $spacing-md;
-  font: inherit;
-  color: $color-text-primary;
-  background-color: $color-background;
-  border: 1px solid $color-border;
-  border-radius: $radius-sm;
-
-  @include focus-visible;
+  gap: $spacing-md;
+  padding: $spacing-md $spacing-lg;
+  overflow: auto;
 }
 
 .messageBlock {
   display: flex;
   flex-direction: column;
   gap: $spacing-md;
+  padding: $spacing-md $spacing-lg $spacing-lg;
 }
 
 .message {
@@ -105,21 +106,22 @@
 
 .error {
   margin: 0;
-  font-size: $font-size-sm;
-  color: $color-accent;
+  padding: 0.5rem 0.625rem;
+  font-size: $font-size-xs;
+  line-height: 1.4;
+  color: $color-danger-text;
+  background-color: $color-danger-bg;
+  border: 1px solid $color-danger-border;
+  border-radius: $admin-dashboard-small-radius;
 }
 
-.success {
-  margin: 0;
-  font-size: $font-size-sm;
-  color: $color-text-primary;
-}
-
-.actions {
+.footer {
   display: flex;
   flex-wrap: wrap;
-  gap: $spacing-md;
-  padding-block-start: $spacing-sm;
+  justify-content: flex-end;
+  gap: $spacing-sm;
+  padding: $spacing-md $spacing-lg $spacing-lg;
+  border-block-start: 1px solid $admin-dashboard-separator;
 }
 
 .primaryButton,
@@ -147,7 +149,7 @@
 .secondaryButton {
   color: $color-text-secondary;
   background: transparent;
-  border-color: $color-border;
+  border-color: $admin-dashboard-border;
 }
 
 .linkButton {
@@ -155,4 +157,10 @@
   color: $color-background;
   background-color: $color-text-primary;
   border-color: $color-text-primary;
+}
+
+@media (max-width: #{$breakpoint-tablet - 1px}) {
+  .dialog {
+    width: calc(100% - 1rem);
+  }
 }
