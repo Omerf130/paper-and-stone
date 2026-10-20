@@ -1,0 +1,50 @@
+@use "../../styles/tokens" as *;
+
+.page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100dvh;
+  padding: $spacing-xl;
+  background-color: $color-surface-cream;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  width: min(100%, 28rem);
+  padding: $spacing-2xl $spacing-xl;
+  text-align: center;
+  background-color: $color-background;
+  border: 1px solid $color-border;
+}
+
+.brand {
+  margin: 0;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  letter-spacing: $letter-spacing-wide;
+  text-transform: uppercase;
+  color: $color-text-secondary;
+}
+
+.heading {
+  margin: 0;
+  font-size: clamp($font-size-xl, 4vw, $font-size-2xl);
+  font-weight: $font-weight-semibold;
+  line-height: $line-height-tight;
+  color: $color-text-primary;
+}
+
+.body,
+.thanks {
+  margin: 0;
+  font-size: $font-size-sm;
+  line-height: $line-height-relaxed;
+  color: $color-text-secondary;
+}
+
+.thanks {
+  padding-block-start: $spacing-xs;
+}
